@@ -1,0 +1,15 @@
+## Alert when pi zeros too long unreachable
+
+# - binary_sensor.pi_zero_monitor_one / two / three / four
+# check mqtt channels of monitor.sh
+
+# this does not run automatically
+- alias: "System - Let's Encrypt Renewal"
+  description: "Restart the lets encrypt addon, this should renew the certificate"
+  trigger:
+    platform: time
+    at: '01:15:00'
+  action:
+    - service: hassio.addon_restart
+      data:
+        addon: core_letsencrypt

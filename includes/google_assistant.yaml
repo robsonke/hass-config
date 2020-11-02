@@ -1,0 +1,38 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# see https://www.home-assistant.io/integrations/google_assistant
+project_id: home-assistant-robsonke
+service_account: !include ../home-assistant-robsonke-b305832f3ee7.json
+report_state: true
+expose_by_default: false
+entity_config:
+  alarm_control_panel.alarm:
+    expose: true
+  input_boolean.enable_automatic_lights:
+    expose: true
+  input_boolean.guest_mode:
+    expose: true
+  input_boolean.rob_homekit_present:
+    expose: true
+  input_boolean.steffi_homekit_present:
+    expose: true
+  light.frontdoor:
+    expose: true
+  light.garden_wall_lights:
+    expose: true
+  light.kitchen:
+    expose: true
+  light.office:
+    expose: true
+  light.everspring_ad147_plug_in_dimmer_module_level_corner:
+    expose: true
+  light.everspring_ad147_plug_in_dimmer_module_level_couch:
+    expose: true
+  light.backdoor:
+    expose: true
+  light.fibaro_fgd212_dimmer2_level1_veranda:
+    expose: true
+  light.fibaro_fgd212_dimmer2_level1_dining:
+    expose: true

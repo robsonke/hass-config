@@ -1,0 +1,14 @@
+#################################################################
+## Automations that alert based on Google Calendar             ##
+#################################################################
+
+- alias: Afval Calendar Alert
+  description: "Send messages when a trash bin should be put outside"
+  trigger:
+    - entity_id: calendar.afvalkalender
+      platform: state
+      to: "on"
+  action:
+    service: notify.telegram
+    data_template:
+      message: "📅 {{ state_attr('calendar.afvalkalender', 'message') }} wordt vandaag opgehaald"

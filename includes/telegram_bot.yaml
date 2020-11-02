@@ -1,0 +1,9 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- platform: polling
+  api_key: !secret telegram_api_key
+  parse_mode: html
+  allowed_chat_ids:
+    - !secret telegram_chat_id

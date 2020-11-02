@@ -1,0 +1,6 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- platform: google_translate
+  language: 'nl'

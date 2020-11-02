@@ -1,0 +1,11 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+# Remove all Doods files older then a day
+cleanup_processed_images: find /config/www/doods/history/*.jpg -mmin +1440 -exec rm {} \;
+
+# Copy snapshots made by MotionEye into Home Assistant
+copy_latest_snapshot_gardencam: cp /share/motioneye/snapshots/garden/$(ls -t1 /share/motioneye/snapshots/garden | head -n 1)  /config/www/snapshots/gardencam_snapshot_latest.jpg
+copy_latest_snapshot_babycam: cp /share/motioneye/snapshots/baby/$(ls -t1 /share/motioneye/snapshots/baby | head -n 1)  /config/www/snapshots/babycam_snapshot_latest.jpg

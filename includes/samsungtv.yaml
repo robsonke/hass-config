@@ -1,0 +1,8 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- host: !secret tvliving_host
+  name: samsungtv-livingroom
+- host: !secret tvbedroom_host
+  name: samsungtv-bedroom

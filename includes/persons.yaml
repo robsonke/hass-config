@@ -1,0 +1,32 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- name: Rob
+  id: rob
+  user_id: 56ef6157f087451399aa545f32dc78d3
+  device_trackers:
+    # the presence one is a combination of the other three
+    - device_tracker.rob_presence
+    # which is a result of these combined:
+    # - device_tracker.iphone_rob
+    # - device_tracker.ble_rob
+    # - device_tracker.ra_iphone_rob
+    # - device_tracker.f6_74_ed_11_5d_24
+- name: Steffi
+  id: steffi
+  user_id: 71e44d7d313b4695a8bf51705f7adfc3
+  device_trackers:
+    - device_tracker.steffi_presence
+    # which is a result of these combined:
+    # - device_tracker.iphone_steffi
+    # - device_tracker.ble_steffi
+    # - device_tracker.ra_iphone_steffi
+    # - device_tracker.c2_6e_8b_2a_07_96
+- name: BMW X1
+  id: bmwx1
+  device_trackers:
+    - device_tracker.x1_sdrive20i
+- name: HA Catt Cast
+  id: ha-catt-cast
+  user_id: 63bf7bab0d174dc6abc880085d3c4b5e

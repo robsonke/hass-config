@@ -1,0 +1,43 @@
+#################################################################
+## Automations to control the garden lights                    ##
+#################################################################
+
+- alias: Turn on garden lights
+  description: "When it's getting dark and at least after 4 PM, turn on lights in the garden"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.lightlevel_living
+      below: 200
+  condition:
+    condition: and
+    conditions:
+      - condition: time
+        after: '16:00:00'
+      - condition: time
+        before: "22:55:00"
+      - condition: state
+        entity_id: input_boolean.enable_automatic_lights
+        state: 'on'
+      - condition: state
+        entity_id: light.fibaro_fgd212_dimmer2_level1_veranda
+        state: 'off'
+  action:
+    - service: light.turn_on
+      data:
+        entity_id: light.garden_lights
+    - service: notify.telegram_rob
+      data:
+        message: "💡 Tuinverlichting aan"
+
+- alias: Turn off garden lights
+  description: "Turn off lights in the garden at 11 PM"
+  trigger:
+    - platform: time
+      at: "23:00:00"
+    - platform: numeric_state
+      entity_id: sensor.lightlevel_living
+      above: 500
+  action:
+    - service: light.turn_off
+      data:
+        entity_id: light.garden_lights

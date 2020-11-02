@@ -1,0 +1,26 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+title: Thuis
+
+swipe_nav:
+  wrap: false
+  animate: swipe
+  prevent_default: true
+  swipe_amount: 30
+
+
+views:
+  - !include '/config/lovelace/home.yaml'
+  - !include '/config/lovelace/groundfloor.yaml'
+  - !include '/config/lovelace/security.yaml'
+  - !include '/config/lovelace/cams.yaml'
+  - !include '/config/lovelace/hardware.yaml'
+  #- !include '/config/lovelace/entities.yaml'
+  #- !include '/config/lovelace/lights.yaml'
+  # new
+  #- !include '/config/lovelace/firstfloor.yaml'
+  #- !include '/config/lovelace/outdoor.yaml'
+  

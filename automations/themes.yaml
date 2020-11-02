@@ -1,0 +1,40 @@
+#################################################################
+## Theme switching, auto or manual                             ##
+#################################################################
+- alias: "Theme: set to dark mode"
+  trigger:
+    - platform: time
+      at: "22:00:00"
+    - platform: sun
+      event: sunset
+  condition: "{{ is_state('input_boolean.dark_mode', 'off') }}"
+  action:
+    entity_id: input_boolean.dark_mode
+    service: input_boolean.turn_on
+
+- alias: "Theme: set to light mode"
+  trigger:
+    - platform: time
+      at: "09:00:00"
+    - platform: sun
+      event: sunrise
+  condition: "{{ is_state('input_boolean.dark_mode', 'on') }}"
+  action:
+    entity_id: input_boolean.dark_mode
+    service: input_boolean.turn_off
+
+- alias: "Frontend: change theme manually"
+  trigger:
+    - platform: state
+      entity_id: input_boolean.dark_mode
+    - platform: homeassistant
+      event: start
+  action:
+    service: frontend.set_theme
+    data:
+      name: >
+        {% if is_state("input_boolean.dark_mode", "on") %}
+          ios-dark-mode-light-blue
+        {% else %}
+          ios-light-mode-light-blue
+        {% endif %}

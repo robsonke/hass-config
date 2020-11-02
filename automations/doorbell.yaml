@@ -1,0 +1,36 @@
+#################################################################
+## DOORBELL alerts                                             ##
+#################################################################
+
+- alias: Notification Sonos - Doorbell Ring
+  description: "Say ding dong through the speakers when doorbell rings"
+  trigger:
+    platform: state
+    entity_id: binary_sensor.laagewei_ding
+    from: "off"
+    to: "on"
+
+  action:
+    - service: script.sonos_play_sound
+      data:
+        mp3_url: "https://home.tigrou.nl/local/sounds/doorbell2.mp3"
+        volume: 0.4
+        sonos_entity: media_player.living_room
+        delay: "00:00:03"
+
+# - alias: Notification Telegram - Doorbell Motion
+#   trigger:
+#     platform: state
+#     entity_id: binary_sensor.laagewei_motion
+#     from: 'off'
+#     to: 'on'
+#   action:
+#     # a bit of delay to avoid sending old pictures but still doesn't work
+#     - delay: 10
+#     - service: notify.telegram
+#       data:
+#         message: "Beweging bij de voordeur"
+#         data:
+#           photo:
+#             # TODO this should be in secrets somehow
+#             - url: https://home.tigrou.nl/api/camera_proxy/camera.laagewei?token={{ states.camera.laagewei.attributes.access_token }}

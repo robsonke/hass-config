@@ -1,0 +1,20 @@
+# Ignore folders.
+.storage
+.cloud
+.google.token
+glances
+node-red
+appdaemon
+deps
+tts
+www/community
+www/doods
+www/snapshots
+custom_components
+
+# And some files
+secrets.yaml
+known_devices.yaml
+google_calendars.yaml
+home-assistant.log
+home-assistant-robsonke-b305832f3ee7.json

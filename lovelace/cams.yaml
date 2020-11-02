@@ -1,0 +1,51 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+title: Cams
+icon: mdi:webcam
+badges: []
+cards:
+  - camera_view: live
+    entity: camera.babycam
+    type: picture-entity
+  - camera_view: live
+    entity: camera.gardencam
+    type: picture-entity
+  - camera_view: live
+    entity: camera.gardencam_snapshot
+    type: picture-entity
+  - type: vertical-stack
+    cards:
+      - type: picture-glance
+        title: Front Door
+        entities:
+          - binary_sensor.laagewei_ding
+          - binary_sensor.laagewei_motion
+          - sensor.laagewei_last_ding
+          - sensor.laagewei_last_motion
+        camera_image: camera.laagewei
+      - type: entities
+        title: Ring Doorbell
+        show_header_toggle: false
+        entities:
+          - binary_sensor.laagewei_ding
+          - binary_sensor.laagewei_motion
+          - sensor.laagewei_last_ding
+          - sensor.laagewei_last_motion
+  - entity: camera.weer
+    type: picture-entity
+
+  # - entity: camera.doods_gardencam
+  #   type: picture-entity
+  #   camera_view: live
+  #   camera_image: camera.doods_gardencam
+  - entity: camera.doods_gardencam_snapshot
+    type: picture-entity
+    camera_view: live
+    camera_image: camera.doods_gardencam_snapshot
+  - entity: camera.doods_babycam
+    type: picture-entity
+    camera_view: live
+    camera_image: camera.doods_babycam

@@ -1,0 +1,263 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Ground floor view, detailed view
+#
+
+title: Begane grond
+icon: mdi:sofa-outline
+show_empty: true
+cards:
+  
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        title: Deuren
+        cards:
+          - type: custom:button-card
+            entity: sensor.backdoor_openclose
+            show_name: true
+          - type: custom:button-card
+            entity: sensor.frontdoor_openclose
+            show_name: true
+          - type: custom:button-card
+            entity: sensor.sheddoor_openclose
+            show_name: true
+      - card:
+          show_icon: false
+          type: entities
+        filter:
+          include:
+            - entity_id: sensor.backdoor_openclose
+              options:
+                secondary_info: last-changed
+            - entity_id: sensor.frontdoor_openclose
+              options:
+                secondary_info: last-changed
+            - entity_id: sensor.sheddoor_openclose
+              options:
+                secondary_info: last-changed
+        sort:
+          count: 2
+          method: last_changed
+        type: custom:auto-entities
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            entity: input_boolean.night_mode
+            show_icon: true
+            color_type: card
+          - type: custom:button-card
+            entity: alarm_control_panel.alarm
+            icon: mdi:security
+            color: rgb(255, 0, 0)
+            name: Alarm actief
+            state:
+              - value: "disarmed"
+                show_state: false
+                color: rgb(0, 255, 0)
+                name: Alarm uit
+              - value: "arming"
+                styles:
+                  card:
+                    - animation: blink 2s ease infinite
+              - value: "armed_away"
+                color: red
+                icon: mdi:alert
+                name: Intruder Alert
+                styles:
+                  card:
+                    - animation: blink 2s ease infinite
+
+  - type: vertical-stack
+    title: Verlichting
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: light.office
+                type: custom:slider-entity-row
+                toggle: true
+                secondary_info: brightness
+              - entity: light.kitchen
+                type: custom:slider-entity-row
+                toggle: true
+              - entity: light.fibaro_fgd212_dimmer2_level1_dining
+                type: custom:slider-entity-row
+                toggle: true
+                secondary_info: brightness
+              - entity: light.backdoor
+                type: custom:slider-entity-row
+                toggle: true
+                secondary_info: brightness
+              - entity: light.everspring_ad147_plug_in_dimmer_module_level_couch
+                type: custom:slider-entity-row
+                toggle: true
+                secondary_info: brightness
+              - entity: light.everspring_ad147_plug_in_dimmer_module_level_corner
+                type: custom:slider-entity-row
+                toggle: true
+                secondary_info: brightness
+            
+          - type: entities
+            entities:
+              - type: custom:fold-entity-row
+                head: light.garden_lights
+                open: false
+                entities:
+                  - entity: light.fibaro_fgd212_dimmer2_level1_veranda
+                  - entity: light.garden_wall_lights
+                  - entity: light.frontdoor
+
+  - type: horizontal-stack
+    title: Klimaat
+    cards:
+      - type: custom:mini-graph-card
+        name: Kantoor
+        entities:
+          - sensor.temp_sensor_office_temperature
+        line_color: '#e74c3c'
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Kantoor
+        entities:
+          - sensor.temp_sensor_office_humidity
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Kantoor
+        entities:
+          - sensor.lightlevel_office
+        line_color: var(--accent-color)
+        line_width: 8
+        font_size_header: 10
+
+
+  - type: vertical-stack
+    title: Camera's
+    cards:
+      - camera_view: live
+        entity: camera.babycam
+        type: picture-entity
+      - camera_view: live
+        entity: camera.gardencam
+        type: picture-entity
+
+  - type: vertical-stack
+    title: Voordeur
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: entities
+            title: Ring Doorbell
+            show_header_toggle: false
+            entities:
+              - binary_sensor.laagewei_ding
+              - binary_sensor.laagewei_motion
+              - sensor.laagewei_last_ding
+              - sensor.laagewei_last_motion
+              - sensor.frontdoor_openclose
+          - type: picture-glance
+            title: Front Door
+            entities:
+              - binary_sensor.laagewei_ding
+              - binary_sensor.laagewei_motion
+              - sensor.laagewei_last_ding
+              - sensor.laagewei_last_motion
+            camera_image: camera.laagewei
+
+  - type: vertical-stack
+    title: Media
+    cards:
+      - type: custom:mini-media-player
+        entity: media_player.kitchen
+        scale: 10
+        hide:
+          power: true
+          power_state: false
+          icon: true
+          source: false
+        info: short
+        volume_stateless: true
+
+        group: true
+        artwork: cover
+        speaker_group:
+          platform: sonos
+          sync_volume: true
+          show_group_count: true
+          entities:
+            - entity_id: media_player.office
+              name: Sonos Kantoor
+            - entity_id: media_player.living_room
+              name: Sonos Woonkamer
+            - entity_id: media_player.kitchen
+              name: Sonos Keuken
+            - entity_id: media_player.tv_room
+              name: Sonos TV
+      - type: custom:mini-media-player
+        entity: media_player.office
+        volume_stateless: true
+        hide:
+          icon: true
+          source: true
+          controls: true
+        group: true
+        artwork: cover
+
+      - type: custom:mini-media-player
+        entity: media_player.living_room
+        hide:
+          power: true
+          power_state: false
+          icon: true
+          source: false
+        group: true
+        artwork: cover
+        speaker_group:
+          platform: sonos
+          sync_volume: true
+          show_group_count: true
+          entities:
+            - entity_id: media_player.office
+              name: Sonos Kantoor
+            - entity_id: media_player.living_room
+              name: Sonos Woonkamer
+            - entity_id: media_player.kitchen
+              name: Sonos Keuken
+            - entity_id: media_player.tv_room
+              name: Sonos TV
+
+  - type: vertical-stack
+    title: Sjorsje
+    cards:
+      - type: custom:xiaomi-vacuum-card
+        entity: vacuum.sjorsje
+        attributes:
+          main_brush: false
+          side_brush: false
+          filter: false
+          sensor: false
+
+  # - type: vertical-stack
+  #   title: Alarm
+  #   cards:
+      # - type: alarm-panel
+      #   entity: alarm_control_panel.alarm
+      #   states:
+      #     - arm_home
+      #     - arm_away
+          #- arm_night
+        # style:
+        #   '#keypad mwc-button':
+        #     $: |
+        #       button {
+        #         --mdc-theme-primary: #464a47;
+        #       }
+      # show the last opened doors or movements
+

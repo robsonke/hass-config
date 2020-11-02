@@ -1,0 +1,8 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+BMWX1:
+  username: !secret bmw_connected_drive_username
+  password: !secret bmw_connected_drive_password
+  region: "rest_of_world"

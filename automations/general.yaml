@@ -1,0 +1,177 @@
+#################################################################
+## General automations, mainly turning on and off lights       ##
+#################################################################
+
+- alias: Everything off - goodnight
+  description: "Go to bed switch, turn off all we don't need during the night. Lights, music, tv, etc"
+  trigger:
+    platform: event
+    event_type: deconz_event
+    event_data:
+      id: switch_round
+      event: 1004
+  action:
+  - service: input_boolean.turn_off
+    data:
+      entity_id: input_boolean.enable_automatic_lights
+  - service: media_player.media_pause
+    data:
+      entity_id:
+        - media_player.kitchen
+        - media_player.office
+        - media_player.living_room
+  - service: light.turn_off
+    data:
+      entity_id:
+        - light.everspring_ad147_plug_in_dimmer_module_level_corner
+        - light.everspring_ad147_plug_in_dimmer_module_level_couch
+  - delay: '1'
+  - service: light.turn_off
+    data:
+      entity_id:
+        - light.backdoor
+        - light.office
+        - light.kitchen
+  - delay: '1'
+  - service: light.turn_off
+    data:
+      entity_id:
+        - light.backdoor
+        - light.office
+        - light.kitchen
+
+- alias: Turn on lights when dark
+  description: "Switch standard lights on when it's after 4 PM and light level too low"
+  id: groundfloor_lights_on_when_dark
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.lightlevel_living
+      below: 100
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: light.everspring_ad147_plug_in_dimmer_module_level_couch
+        state: 'off'
+      - condition: time
+        after: '16:00:00'
+        before: '22:30:00'
+      - condition: state
+        entity_id: input_boolean.enable_automatic_lights
+        state: 'on'
+  action:
+    - service: notify.telegram_rob
+      data:
+        message: "💡 Verlichting automatisch aan"
+    - service: light.turn_on
+      data:
+        entity_id:
+        - light.everspring_ad147_plug_in_dimmer_module_level_corner
+        - light.everspring_ad147_plug_in_dimmer_module_level_couch
+    - delay: '1'
+    - service: light.turn_on
+      data:
+        entity_id:
+        - light.backdoor
+        brightness_pct: 60
+    - delay: '1'
+    - service: light.turn_on
+      data:
+        entity_id:
+        - light.backdoor
+        brightness_pct: 60
+
+- alias: Turn off lights - bedtime
+  description: "Turn off main lights when we're not home or already went to bed"
+  trigger:
+    platform: time_pattern
+    minutes: "/1"
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: light.everspring_ad147_plug_in_dimmer_module_level_couch
+      state: 'on'
+    - condition: time
+      after: "23:03:00"
+    - condition: state
+      entity_id: binary_sensor.samsungtv_livingroom_status
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.enable_automatic_lights
+      state: 'on'
+  action:
+    - service: notify.telegram_rob
+      data:
+        message: "💡 Verlichting automatisch uit"
+    - service: light.turn_off
+      data:
+        entity_id:
+        - light.everspring_ad147_plug_in_dimmer_module_level_corner
+        - light.everspring_ad147_plug_in_dimmer_module_level_couch
+        - light.fibaro_fgd212_dimmer2_level1_dining
+    - delay: '1'
+    - service: light.turn_off
+      data:
+        entity_id:
+        - light.backdoor
+        - light.bridgelight
+    - delay: '1'
+    - service: light.turn_off
+      data:
+        entity_id:
+        - light.backdoor
+        - light.bridgelight
+
+- alias: Turn on frontdoor light
+  description: "Turn on the frontdoor light when it's getting dark"
+  trigger:
+    platform: sun
+    event: sunset
+    offset: "-00:30:00"
+  action:
+  - service: light.turn_on
+    entity_id: light.frontdoor
+- alias: Turn off frontdoor light
+  description: "Turn off the frontdoor light when it's getting lighter"
+  trigger:
+    platform: sun
+    event: sunrise
+  action:
+  - service: light.turn_off
+    entity_id: light.frontdoor
+
+- alias: Reset lights automation
+  description: "When we have disabled all automatic lighting, we reset this in the early morning to make sure we're back to normal the next day"
+  id: reset_lights_automation
+  trigger:
+    platform: time
+    at: "05:00:00"
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_automatic_lights
+        state: 'off'
+  action:
+  - service: homeassistant.turn_on
+    entity_id: input_boolean.enable_automatic_lights
+
+
+## Technical workarounds
+# somehow I need to reload after a restart as starting isn't enough
+- alias: 'Start HomeKit'
+  description: "Workaround to reload the homekit integration once more after zwave is done initialising or home assitant is started"
+  trigger:
+    - platform: event
+      event_type: zwave.network_ready
+    - platform: event
+      event_type: zwave.network_complete
+    - platform: event
+      event_type: zwave.network_complete_some_dead
+    - platform: homeassistant
+      event: start
+  action:
+    - delay: 00:05
+    - service: homekit.reload
+

@@ -1,0 +1,19 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Garden view, detailed view
+#
+# TODO:
+# lights
+# cameras outdoor
+# temperatures / humidity / etc
+# irrigation
+# 
+#
+
+title: Tuin
+icon: mdi:shovel
+show_empty: true
+#cards:
+

@@ -1,0 +1,27 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Main view, summary view for the whole house and garden.
+#
+# TODO:
+# lights
+# presence
+# alarm
+# guest mode / light mode
+# doorbell?
+# open doors
+# vacuum summary (multiple entity row)
+# music
+# small calendar
+# temperatures / humidity / etc
+# weather forecast, click map
+# solar
+# 
+# 
+# 
+
+title: Bovenverdieping
+icon: mdi:bed-outline
+show_empty: true
+#cards:

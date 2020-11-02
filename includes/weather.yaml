@@ -1,0 +1,7 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- platform: buienradar
+  name: !secret weather_city
+  forecast: true

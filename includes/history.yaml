@@ -1,0 +1,11 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+exclude:
+  domains:
+    - automation
+    - script
+    - sun
+  entities:
+    - sensor.last_boot

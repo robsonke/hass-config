@@ -1,0 +1,36 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+## Listing device info
+title: All entitites
+icon: mdi:cog
+type: custom:auto-entities
+show_empty: true
+cards:
+  - type: custom:auto-entities
+    card:
+      type: entities
+      title: 'All entities'
+      show_header_toggle: true
+    filter:
+      include:
+        - entity_id: "sensor*"
+  - type: custom:auto-entities
+    card:
+      type: entities
+      title: 'Automations'
+      show_header_toggle: true
+    filter:
+      include:
+        - entity_id: "automation*"
+  - type: custom:auto-entities
+    title: Broken
+    card:
+      type: entities
+      title: Things that are broken
+      show_header_toggle: false
+    filter:
+      include:
+        - state: "unknown"

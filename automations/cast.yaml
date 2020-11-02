@@ -1,0 +1,18 @@
+#################################################################
+## Casting Home Assistant to Google Home                       ##
+#################################################################
+
+- alias: Cast HA to Nest display
+  description: "Push a stream every 10 minutes to the Google Nest Display in the kitchen"
+  trigger:
+  - minutes: /10
+    platform: time_pattern
+  condition:
+  - after: "6:00"
+    before: "23:30"
+    condition: time
+  action:
+  - data:
+      addon: a0d7b954_ssh
+      input: bash /config/cast.sh
+    service: hassio.addon_stdin

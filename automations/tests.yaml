@@ -1,0 +1,24 @@
+# - alias: 'test_sonos_say'
+#   trigger:
+#     - platform: state
+#       entity_id: input_boolean.testrob
+#   action:
+#     - service: script.sonos_say
+#       data:
+#         sonos_entity: media_player.office
+#         volume: 0.5
+#         message: 'Test het sonos praat script!'
+#         delay: '00:00:03'
+
+# - alias: 'test_sonos_play'
+#   trigger:
+#     - platform: state
+#       entity_id: input_boolean.testrob
+#   action:
+#     - service: script.sonos_play_sound
+#       data:
+#         mp3_url: 'https://home.tigrou.nl/local/alarm2.mp3'
+#         volume: 0.2
+#         sonos_entity: media_player.living_room
+#         delay: '00:00:20'
+

@@ -1,0 +1,20 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+meter_readings:
+  name: Meter readings
+  entities:
+    - sensor.power_consumption
+    - sensor.power_consumption_phase_l1
+    - sensor.power_consumption_phase_l2
+    - sensor.power_consumption_phase_l3
+    - sensor.gas_consumption
+    - sensor.hourly_gas_consumption
+    - sensor.power_tariff
+    - sensor.short_power_failure_count
+    - sensor.long_power_failure_count
+    - sensor.power_production
+    - sensor.power_production_phase_l1
+    - sensor.power_production_phase_l2
+    - sensor.power_production_phase_l3

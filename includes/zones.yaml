@@ -1,0 +1,9 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- name: Home
+  latitude: !secret latitude_coordinate
+  longitude: !secret longitude_coordinate
+  radius: 75
+  icon: mdi:home

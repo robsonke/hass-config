@@ -1,0 +1,282 @@
+# Alarm states:
+# disarmed: no active alarm, when you're home
+# arming: state between disarmed and armed
+# armed_away: active alarm with delayed activation and triggering
+# armed_home: active alarm with immediate effect without delay
+# armed_night: different state to be less alarming when you're sleeping
+# pending: pending state between armed and triggered
+# triggered: alarm is ringing
+
+# Settings:
+# 2 minutes to leave the house, 2 minutes to disarm when you're seen
+
+
+# TODO
+# - turn on lights / play sounds over sonos when triggered / start recording cameras
+# - disarm and arm by google assistant (currently not possible in Dutch)
+# - night mode
+# - garden motion detection
+
+########################################################################################################
+## TRIGGER, ACTIVATE OR DEACTIVATE                                                                    ##
+########################################################################################################
+
+## Can we auto arm the alarm?
+- alias: "Alarm - Auto arm since we're away and all is closed"
+  description: "This enables the alart automatically when we're away from home and we didn't enable the Guest mode, in case somebody known is home."
+  trigger:
+    platform: state
+    entity_id:
+      - device_tracker.rob_presence
+      - device_tracker.steffi_presence
+    to: "not_home"
+    for:
+      minutes: 5
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: sensor.door_window_open
+      state: "false"
+    - condition: state
+      entity_id:
+        - device_tracker.rob_presence
+        - device_tracker.steffi_presence
+      state:
+        - "not_home"
+    - condition: template
+      value_template: "{{ states('input_boolean.guest_mode') != 'on' }}"
+    - condition: state
+      entity_id: alarm_control_panel.alarm
+      state: "disarmed"
+  action:
+    - service: notify.telegram
+      data:
+        message: "⏰ ALARM: Deuren en ramen zijn gesloten, zowel Rob als Steffi zijn weg en de gastmodus staat uit. Het alarm gaat nu aan."
+    - service: alarm_control_panel.alarm_arm_away
+      entity_id: alarm_control_panel.alarm
+
+## We're away and the house is not ready
+- alias: "Alarm - Ready to auto arm but house not ready"
+  description: "Alert in case we leave the house but left important doors or windows open"
+  trigger:
+    platform: state
+    entity_id:
+      - device_tracker.rob_presence
+      - device_tracker.steffi_presence
+    to: "just_left"
+    for:
+      minutes: 5
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: sensor.door_window_open
+      state: "true"
+    - condition: state
+      entity_id:
+        - device_tracker.rob_presence
+        - device_tracker.steffi_presence
+      state: "not_home"
+    - condition: template
+      value_template: "{{ states('input_boolean.guest_mode') != 'on' }}"
+    - condition: state
+      entity_id: alarm_control_panel.alarm
+      state: "disarmed"
+  action:
+    service: notify.telegram
+    data:
+      # TODO list which ones aren't closed
+      message: "⏰ Deuren en ramen zijn NIET gesloten, zowel Rob als Steffi zijn weg en de gastmodus staat uit."
+
+## Can we auto disarm the alarm because one of us comes home?
+- alias: "Alarm - Ready to auto disarm since one of us comes home"
+  description: "Automatically disarm when we come home"
+  trigger:
+    platform: state
+    entity_id:
+      - device_tracker.rob_presence
+      - device_tracker.steffi_presence
+    to: "just_arrived"
+    for:
+      seconds: 30
+  condition:
+    condition: and
+    conditions:
+      - condition: template
+        value_template: "{{ states('input_boolean.guest_mode') != 'on' }}"
+      - condition: state
+        entity_id: alarm_control_panel.alarm
+        state:
+          - armed_away
+          - armed_home
+          # also now, to stop an alarm when we enter the house too early
+          - pending
+          - triggered
+  action:
+    - service: notify.telegram
+      data_template:
+        message: "⏰ ALARM: Een van ons komt thuis, het alarm wordt gedeactiveerd."
+    - service: alarm_control_panel.alarm_disarm
+      data: { "entity_id": "alarm_control_panel.alarm", "code": !secret alarm_code }
+
+
+
+########################################################################################################
+## TRIGGER, ACTIVATE OR DEACTIVATE                                                                    ##
+########################################################################################################
+
+## Trigger the alarm by different sensors
+- alias: 'Alarm - Trigger while armed away'
+  description: "Change the alarm state to triggering when an important door or window opens"
+  trigger:
+    # TODO add more entities that trigger the alarm
+    - platform: state
+      entity_id: sensor.door_window_open
+      to: "true"
+  condition:
+    - condition: state
+      entity_id: alarm_control_panel.alarm
+      state:
+        - armed_away
+        - armed_home
+        - armed_night
+  action:
+    service: alarm_control_panel.alarm_trigger
+    entity_id: alarm_control_panel.alarm
+
+
+## Somebody/something activated the alarm, check if the house is ready to be armed
+## if yes, start warning about the time left
+## if not, warn about what's wrong, probably an open door
+- alias: "Alarm - Arming"
+  description: "In case we're arming the house manually or automatically (when leaving), we should check if this is really possible"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.alarm
+      to: "arming"
+  mode: queued
+  action:
+    - choose:
+        # IF the house is ready to be armed
+        - conditions:
+            # TODO add more sensors and notify which ones are pending
+            - condition: state
+              entity_id: sensor.backdoor_openclose
+              state: "Open"
+          sequence:
+            - service: alarm_control_panel.alarm_disarm
+              data: { "entity_id": "alarm_control_panel.alarm", "code": !secret alarm_code }
+            - service: tts.google_translate_say
+              entity_id: media_player.keuken_display
+              data:
+                message: "De achterdeur staat nog open, sluit deze eerst"
+      # ELSE arm now
+      default:
+        - service: tts.google_translate_say
+          entity_id: media_player.keuken_display
+          data:
+            message: "Het alarm is geactiveerd, je hebt 2 minuten de tijd om weg te gaan"
+        # TODO add the arming_alarm.mp3 in repeat
+        # speed up when the 2 minutes are getting close
+
+
+
+########################################################################################################
+## ALARMS ARE TRIGGERED OR ABOUT TO                                                                   ##
+########################################################################################################
+
+
+## Alarm is triggered,somebody is there and it's not disarmed in time!!!
+- alias: "Alarm - Triggered"
+  description: "Now we're in trouble, the alarm is triggered and we haven't disarmed it. A lot of noise and lights will be activated"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.alarm
+      to: "triggered"
+  action:
+    - service: notify.telegram
+      data_template:
+        message: "🚨 ALARM! Het alarm gaat af en is te laat gedeactiveerd!"
+        # TODO add an action to tell the bot to disarm
+    # TODO add more lights
+    # - service: light.turn_on
+    #   entity_id: light.kitchen
+    # TODO start recording / taking and sending pictures
+    - repeat:
+        # keep repeating till disarmed
+        while:
+          - condition: state
+            entity_id: alarm_control_panel.alarm
+            state: 'triggered'
+          # don't do it too many times
+          - condition: template
+            value_template: "{{ repeat.index <= 20 }}"
+        sequence:
+          - service: script.sonos_say
+            data:
+              sonos_entity: media_player.living_room
+              volume: 0.5
+              message: "Je bent gezien en wordt nu gefilmd! We zijn onderweg"
+              delay: "00:00:03"
+    - service: script.sonos_play_sound
+      data:
+        mp3_url: "https://home.tigrou.nl/local/sounds/alarm2.mp3"
+        volume: 0.4
+        sonos_entity: media_player.living_room
+        delay: "00:00:10"
+
+
+
+## Alarm is pending and about to be triggered, somebody is there but has time to disarm
+- alias: "Alarm - Pending"
+  description: "Warn the person that walked in about the armed alarm, goal is to disarm asap"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.alarm
+      from: "armed_away"
+      to: "pending"
+      
+  action:
+    - service: script.sonos_say
+      data:
+        sonos_entity: media_player.living_room
+        volume: 0.5
+        message: "Je bent gezien, deactiveer het alarm binnen 2 minuten!"
+        delay: "00:00:03"
+    - repeat:
+        while:
+          - condition: state
+            entity_id: alarm_control_panel.alarm
+            state: 'pending'
+          # don't do it too many times
+          - condition: template
+            value_template: "{{ repeat.index <= 10 }}"
+        sequence:
+          - service: script.sonos_play_sound
+            data:
+              mp3_url: 'https://home.tigrou.nl/local/sounds/pending_alarm.mp3'
+              volume: 0.4
+              sonos_entity: media_player.living_room
+              delay: '00:00:01'
+
+
+## Alarm is triggered but somebody disarms properly, probably false alarm
+- alias: "Alarm - Disarmed"
+  description: "Send a message that the alarm is properly disarmed and inform the person over speakers"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.alarm
+      from:
+        - "triggered"
+        - "pending"
+      to: "disarmed"
+  action:
+    - service: notify.telegram
+      data_template:
+        message: "✅ ALARM: Het alarm is uitgezet."
+    - service: tts.google_translate_say
+      entity_id: media_player.keuken_display
+      data:
+        message: 'Het alarm is uitgeschakeld'
+    

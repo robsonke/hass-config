@@ -1,0 +1,17 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- platform: doods
+  url: !secret doods_url
+  detector: default
+  scan_interval: 3600
+  timeout: 60
+  confidence: 60
+  source:
+    #- entity_id: camera.gardencam
+    #- entity_id: camera.babycam
+    - entity_id: camera.gardencam_snapshot
+  file_out:
+    - "/config/www/doods/{{ camera_entity.split('.')[1] }}_latest.jpg"
+    - "/config/www/doods/history/{{ camera_entity.split('.')[1] }}_{{ now().strftime('%Y%m%d_%H%M%S') }}.jpg"

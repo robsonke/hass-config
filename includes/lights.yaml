@@ -1,0 +1,35 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+- platform: limitlessled
+  bridges:
+    - host: !secret limitlessled_host
+      version: 6
+      port: 5987
+      groups:
+      - number: 4
+        type: bridge-led
+        name: computer
+        fade: true
+      - number: 1
+        name: backdoor
+        type: rgbww
+        fade: true
+      - number: 2
+        name: frontdoor
+        type: rgbww
+        fade: true
+      - number: 3
+        name: office
+        type: rgbww
+        fade: true
+      - number: 4
+        name: kitchen
+        type: rgbww
+        fade: true
+- platform: group
+  name: garden_lights
+  entities:
+    - light.garden_wall_lights
+    - light.fibaro_fgd212_dimmer2_level1_veranda

@@ -1,0 +1,85 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+## ALARM / SECURITY
+id: alarm
+icon: mdi:security
+title: Alarm
+cards:
+  - type: entities
+    title: Alarm Elements
+    entities:
+      - sensor.backdoor_openclose
+      - sensor.frontdoor_openclose
+      - sensor.sheddoor_openclose
+      #- sensor.door_window_open
+      - input_boolean.guest_mode
+  - type: entities
+    title: Home?
+    entities:
+      - person.rob
+      - person.steffi
+      - person.bmw_x1
+
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: input_boolean.enable_automatic_lights
+      - entity: input_boolean.dark_mode
+
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: history-graph
+        title: 'Presence Graphs Rob'
+        hours_to_show: 6
+        refresh_interval: 30
+        entities:
+          - device_tracker.rob_presence
+          - device_tracker.ble_rob
+          - device_tracker.iphone_rob
+          - device_tracker.f6_74_ed_11_5d_24
+          - device_tracker.homekit_rob_homekit_present
+      - type: history-graph
+        title: 'Presence Graphs Steffi'
+        hours_to_show: 6
+        refresh_interval: 30
+        entities:
+          - device_tracker.steffi_presence
+          - device_tracker.ble_steffi
+          - device_tracker.iphone_steffi
+          - device_tracker.c2_6e_8b_2a_07_96
+          - device_tracker.homekit_steffi_homekit_present
+
+  - type: map
+    title: Locaties
+    aspect_ratio: 16:12
+    default_zoom: 14
+    dark_mode: true
+    hours_to_show: 4
+    entities:
+      - person.steffi
+      - person.rob
+      - person.bmw_x1
+      - zone.home
+  - type: vertical-stack
+    title: Alarm
+    cards:
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: entities
+            entities:
+              - alarm_control_panel.alarm
+          - type: alarm-panel
+            entity: alarm_control_panel.alarm
+            states:
+              - arm_home
+              - arm_away
+              #- arm_night
+            style:
+              '#keypad mwc-button':
+                $: |
+                  button {
+                    --mdc-theme-primary: #464a47;
+                  }

@@ -1,0 +1,325 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+- platform: version
+- platform: google_wifi
+  host: !secret router_ip
+- platform: dsmr
+  port: /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AL00WDA2-if00-port0
+  dsmr_version: 2.2
+- platform: time_date
+  display_options:
+    - 'time'
+    - 'date'
+    - 'date_time'
+
+- platform: moon
+
+- platform: dnsip
+
+- platform: systemmonitor
+  resources:
+    - type: disk_use_percent
+      arg: /
+    - type: memory_use_percent
+    - type: processor_use
+    - type: last_boot
+
+- platform: uptime
+  name: "HA runtime in minutes"
+  unit_of_measurement: minutes
+
+# TODO extend with more sensors
+- platform: template
+  sensors:
+    door_window_open:
+      value_template: >-
+        {% if is_state("sensor.backdoor_openclose", "Open") or is_state("sensor.frontdoor_openclose", "Open") or is_state("sensor.sheddoor_openclose", "Open") -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+
+    
+- platform: template
+  sensors:
+    light_dark_level_inside:
+      friendly_name: "Licht sterkte grens binnen"
+      unit_of_measurement: 'lux'
+      value_template: "140"
+- platform: template
+  sensors:
+    light_dark_level_outside:
+      friendly_name: "Licht sterkte grens buiten"
+      unit_of_measurement: 'lux'
+      value_template: "200"
+
+
+## monitor.sh config
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-1/phone_rob'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_rob_ground_floor_confidence'
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-1/phone_steffi'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_steffi_ground_floor_confidence'
+
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-2/phone_rob'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_rob_first_floor_confidence'
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-2/phone_steffi'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_steffi_first_floor_confidence'
+
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-3/phone_rob'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_rob_garden_confidence'
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-3/phone_steffi'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_steffi_garden_confidence'
+
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-4/phone_rob'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_rob_spare_confidence'
+- platform: mqtt
+  state_topic: 'monitor/raspberrypi-zero-4/phone_steffi'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'phone_steffi_spare_confidence'
+
+- platform: min_max
+  name: home_occupancy_confidence
+  type: max
+  round_digits: 0
+  entity_ids:
+    - sensor.phone_rob_ground_floor_confidence
+    - sensor.phone_rob_first_floor_confidence
+    - sensor.phone_rob_garden_confidence
+    - sensor.phone_rob_spare_confidence
+    - sensor.phone_steffi_ground_floor_confidence
+    - sensor.phone_steffi_first_floor_confidence
+    - sensor.phone_steffi_garden_confidence
+    - sensor.phone_steffi_spare_confidence
+- platform: min_max
+  name: home_occupancy_confidence_rob
+  type: max
+  round_digits: 0
+  entity_ids:
+    - sensor.phone_rob_ground_floor_confidence
+    - sensor.phone_rob_first_floor_confidence
+    - sensor.phone_rob_garden_confidence
+    - sensor.phone_rob_spare_confidence
+- platform: min_max
+  name: home_occupancy_confidence_steffi
+  type: max
+  round_digits: 0
+  entity_ids:
+    - sensor.phone_steffi_ground_floor_confidence
+    - sensor.phone_steffi_first_floor_confidence
+    - sensor.phone_steffi_garden_confidence
+    - sensor.phone_steffi_spare_confidence
+
+
+# tp-link kasa
+#switch.kasa_winecooler
+- platform: template
+  sensors:
+    kasa_winecooler_amps:
+      friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Current"
+      value_template: '{{ states.switch.kasa_winecooler.attributes["current_a"] | float }}'
+      unit_of_measurement: 'A'
+    kasa_winecooler_watts:
+      friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Current Consumption"
+      value_template: '{{ states.switch.kasa_winecooler.attributes["current_power_w"] | float }}'
+      unit_of_measurement: 'W'
+    kasa_winecooler_total_kwh:
+      friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Total Consumption"
+      value_template: '{{ states.switch.kasa_winecooler.attributes["total_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+    kasa_winecooler_volts:
+      friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Voltage"
+      value_template: '{{ states.switch.kasa_winecooler.attributes["voltage"] | float }}'
+      unit_of_measurement: 'V'
+    kasa_winecooler_today_kwh:
+      friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Today's Consumption"
+      value_template: '{{ states.switch.kasa_winecooler.attributes["today_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+
+- platform: bmw_connected_drive
+- platform: waze_travel_time
+  name: Home to work
+  origin: !secret home_address
+  destination: !secret work_address
+  region: 'EU'
+# TODO needed?
+# - platform: buienradar
+#   monitored_conditions:
+#     - stationname
+#     - humidity
+#     - temperature
+#     - groundtemperature
+#     - windspeed
+#     - windforce
+#     - winddirection
+#     - windazimuth
+#     - pressure
+#     - visibility
+#     - windgust
+#     - precipitation
+#     - irradiance
+#     - precipitation_forecast_average
+#     - precipitation_forecast_total
+#     - condition
+#     - conditioncode
+#     - conditiondetailed
+#     - conditionexact
+#     - symbol
+#     - symbol_1d
+#     - symbol_2d
+#     - symbol_3d
+#     - symbol_4d
+#     - symbol_5d
+#     - temperature_1d
+#     - temperature_2d
+#     - temperature_3d
+#     - temperature_4d
+#     - temperature_5d
+#     - rainchance_1d
+#     - rainchance_2d
+#     - rainchance_3d
+#     - rainchance_4d
+#     - rainchance_5d
+#     - sunchance_1d
+#     - sunchance_2d
+#     - sunchance_3d
+#     - sunchance_4d
+#     - sunchance_5d
+#     - rain_1d
+#     - rain_2d
+#     - rain_3d
+#     - rain_4d
+#     - rain_5d
+
+- platform: template
+  sensors:
+    backdoor_openclose:
+      value_template: >-
+        {% if states.binary_sensor.backdoor_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.backdoor_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.backdoor_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.backdoor_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    frontdoor_openclose:
+      value_template: >-
+        {% if states.binary_sensor.frontdoor_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.frontdoor_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.frontdoor_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.frontdoor_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    sheddoor_openclose:
+      value_template: >-
+        {% if states.binary_sensor.sheddoor_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.sheddoor_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.sheddoor_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.sheddoor_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+
+- platform: template
+  sensors:
+    count_automations:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.automation | count }}
+    count_device_trackers:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.device_tracker | count }}
+    count_lights:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.light | count }}
+    count_binary_sensors:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.binary_sensor | count }}
+    count_sensors:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.sensor | count }}
+    count_switches:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.switch | count }}
+    count_zones:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.zone | count }}
+    count_cameras:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.camera | count }}
+    count_media_players:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.media_player | count }}
+    count_scripts:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.script | count }}
+    count_locks:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.lock | count }}
+    count_vacuums:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.vacuum | count }}
+    count_zwaves:
+      value_template: >
+        {% set dummy = states("sensor.date") %}
+        {{ states.zwave | count }}

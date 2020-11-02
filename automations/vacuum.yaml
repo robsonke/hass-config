@@ -1,0 +1,25 @@
+#################################################################
+## Automations for Sjorsje, the Vacuum Cleaner Robot           ##
+#################################################################
+
+- alias: Sjorsje Bin Full
+  trigger:
+    - entity_id: binary_sensor.sjorsje_bin_full
+      platform: state
+      to: 'true'
+  action:
+    service: notify.telegram
+    data_template:
+      message: "🧹 Sjorsje's opvangbak zit bol"
+
+- alias: Sjorsje Battery Empty
+  trigger:
+    - entity_id: sensor.sjorsje_battery_level
+      platform: numeric_state
+      below: 20
+  action:
+    service: notify.telegram
+    data_template:
+      message: "🔋 Sjorsje's accu raakt leeg"
+
+

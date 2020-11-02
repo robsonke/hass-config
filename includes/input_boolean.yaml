@@ -1,0 +1,26 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+enable_automatic_lights:
+  name: Enable Lights Automation
+  icon: mdi:weather-sunset-down
+guest_mode:
+  name: Guest Mode
+  icon: mdi:account-group
+testrob:
+  name: Test boolean to trigger automations
+  icon: mdi:test-tube
+  initial: false
+rob_homekit_present:
+  name: Rob Homekit Presence
+  icon: mdi:home
+steffi_homekit_present:
+  name: Steffi Homekit Presence
+  icon: mdi:home
+dark_mode:
+  name: Dark mode
+  icon: mdi:theme-light-dark
+night_mode:
+  name: Nacht Mode
+  icon: mdi:weather-night

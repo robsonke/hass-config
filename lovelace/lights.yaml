@@ -1,0 +1,58 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+title: Lights
+icon: mdi:lightbulb
+badges: []
+cards:
+  - type: "custom:button-card"
+    entity: input_boolean.enable_automatic_lights
+    show_icon: true
+    show_state: false
+    color_type: card
+    state:
+    - value: "off"
+      color: rgb(255, 0, 0)
+      icon: mdi:lightbulb
+      name: Automatic Lights disabled
+    - value: "on"
+      color: rgb(0, 255, 0)
+      icon: mdi:lightbulb-on
+      name: Automatic Lights enabled
+    styles:
+      card:
+        - height: 200px
+    size: 40%
+
+  - type: entities
+    title: Verlichting
+    show_header_toggle: false
+    icon: mdi:lightbulb
+    entities:
+      - entity: light.office
+        secondary_info: brightness
+      - entity: light.kitchen
+      - entity: light.fibaro_fgd212_dimmer2_level1_dining
+        secondary_info: brightness
+      - entity: light.backdoor
+      - entity: light.everspring_ad147_plug_in_dimmer_module_level_couch
+      - entity: light.everspring_ad147_plug_in_dimmer_module_level_corner
+  - type: entities
+    show_header_toggle: false
+    title: Buiten Verlichting
+    entities:
+      #- entity: light.garden_lights
+      - entity: light.fibaro_fgd212_dimmer2_level1_veranda
+      - entity: light.garden_wall_lights
+      - entity: light.frontdoor
+  - type: glance
+    title: Deuren
+    show_state: false
+    columns: 3
+    #show_empty: false
+    entities:
+    - entity: sensor.backdoor_openclose
+    - entity: sensor.frontdoor_openclose
+    - entity: sensor.sheddoor_openclose

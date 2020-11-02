@@ -1,0 +1,7 @@
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# fetch calendar events
+client_id: !secret google_client_id
+client_secret: !secret google_client_secret
