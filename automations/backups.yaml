@@ -1,6 +1,14 @@
-#################################################################
-## Automations that alert when the backups are failing         ##
-#################################################################
+#  ____             _                    
+# | __ )  __ _  ___| | ___   _ _ __  ___ 
+# |  _ \ / _` |/ __| |/ / | | | '_ \/ __|
+# | |_) | (_| | (__|   <| |_| | |_) \__ \
+# |____/ \__,_|\___|_|\_\\__,_| .__/|___/
+#                             |_|        
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Automations that alert when the backups are failing
+#
 
 - alias: Snapshots went stale
   description: "Send a Telegram message when the backups are failing"

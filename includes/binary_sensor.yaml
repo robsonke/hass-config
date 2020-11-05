@@ -8,7 +8,6 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-
 - platform: ping
   host: !secret tvliving_host
   name: samsungtv_livingroom_status
@@ -34,18 +33,16 @@
   host: !secret pi_zero_monitor_four_host
   scan_interval: 30
 
-# motion detection by motioneye
-- platform: mqtt
-  name: "gardencam_motion_sensor"
-  state_topic: "cameras/motion/garden"
+# Frigate
+- name: Gardencam Person Frigate
+  platform: mqtt
   off_delay: 0
-  payload_on: "ON"
-  payload_off: "OFF"
-  device_class: "motion"
-- platform: mqtt
-  name: "babycam_motion_sensor"
-  state_topic: "cameras/motion/baby"
+  state_topic: "frigate/gardencam/person"
+  device_class: motion
+  availability_topic: "frigate/available"
+- name: Babycam Person Frigate
+  platform: mqtt
   off_delay: 0
-  payload_on: "ON"
-  payload_off: "OFF"
-  device_class: "motion"
+  state_topic: "frigate/babycam/person"
+  device_class: motion
+  availability_topic: "frigate/available"

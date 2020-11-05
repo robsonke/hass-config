@@ -4,14 +4,13 @@
 * add alerts / automations on battery levels
 * why so red/orange: http://ipsonos:1400/support/review
 * grafana dashboard (add glances entitities: https://home.tigrou.nl/config/entities?historyBack=1&config_entry=3f315d8b0bd411eb81808560d7a0e4f2)
-* move the content of this file to a todo list / doc
 * add a hardware list in readme
 * add monitoring on monitor.sh processes (Post a message to monitor/scan/echo, and you'll receive a response at the topic $mqtt_topicpath/$mqtt_publisher_identity/echo)
 * turn lights auto on with fade in
 * Coral USB accelerator / DOODS: execute when motion (https://www.home-assistant.io/integrations/doods/)
 * search for TODO in yaml files
-* investigate options notifications in ios app (https://companion.home-assistant.io/docs/notifications/notifications-basic)
-* nuki / yale / danalock
+* investigate options notifications in ios app (https://companion.home-assistant.io/docs/notifications/notifications-basic) - https://www.youtube.com/watch?v=I1xBnz5ibjY
+* nuki / yale / danalock (check if cilinder allows 2 side keys)
 * thermostat / heatpump BRP069A62 (https://www.daikin.nl/nl_nl/products/BRC1HHDW.html)
 * garden irrigation system
 * detect license plates https://github.com/openalpr/openalpr
@@ -23,7 +22,7 @@
 * sonos speaker grouping
 * make automations smarter/shorter/less with templating
 * visualise costs of heavy ops (https://www.reddit.com/r/homeassistant/comments/ixnr5z/creating_useful_notifications_using_the_new/)
-* download ring movies and stop paying ring monthly or ideally switch to a local storage doorbell only (and rtsp support): https://github.com/arsaboo/homeassistant-config/blob/master/python_scripts/ring_download.py
+* wall display (https://mbmounts.com/)
 * adaptive lights: https://github.com/basnijholt/home-assistant-config/blob/a76ec6ffa435d09955be94b5c7822ad86bd84558/includes/adaptive_lighting.yaml#L10-L108 / https://www.reddit.com/r/homeassistant/comments/j09219/any_circadian_lighting_users_good_news_i_just/ / https://github.com/home-assistant/core/pull/40626
 
 # Ideas and other links that I should keep
@@ -33,16 +32,12 @@
 * https://www.solaredge.com/nl/mysolaredge
 * https://www.reddit.com/r/homeassistant/comments/ioddq9/progress_so_far_on_wall_mounted_ipad_dashboard/
 * laundry/dishes progress (see also basnijholt): https://github.com/ShunichiSan/HomeAssistantApplianceCard/blob/master/AppliancesCard.yaml / https://www.reddit.com/r/homeassistant/comments/iyznyx/my_appliances_card_shows_appliance_status_time/
-
-# Interesting repos:
-* https://github.com/hellqvio86/home_assistant_casambi
-* https://hub.docker.com/r/deepquestai/deepstack
 * https://github.com/thomasloven/hass-browser_mod/wiki/Cookbook
 
-# Casting:
-* https://blog.fuzzymistborn.com/homeassistant-and-catt-cast-all-the-things/
-* https://community.home-assistant.io/t/using-catt/130332/159
-
+# Frigate info on Proxmox
+* https://jackcuthbert.dev/blog/intel-nuc-gpu-passthrough-in-proxmox-plex-docker/
+* https://pve.proxmox.com/wiki/Pci_passthrough#Enable_the_IOMMU
+* now hitting a driver issue in the container (https://community.home-assistant.io/t/local-realtime-person-detection-for-rtsp-cameras/103107/2359)
 
 # Info presence detection
 Based on https://github.com/andrewjfreyer/monitor with Pi Zeros, 

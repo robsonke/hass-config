@@ -1,3 +1,8 @@
+#  __  __       _         _                   _                
+# |  \/  | __ _(_)_ __   | |    _____   _____| | __ _  ___ ___ 
+# | |\/| |/ _` | | '_ \  | |   / _ \ \ / / _ \ |/ _` |/ __/ _ \
+# | |  | | (_| | | | | | | |__| (_) \ V /  __/ | (_| | (_|  __/
+# |_|  |_|\__,_|_|_| |_| |_____\___/ \_/ \___|_|\__,_|\___\___|
 #
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
@@ -18,8 +23,6 @@ views:
   - !include '/config/lovelace/security.yaml'
   - !include '/config/lovelace/cams.yaml'
   - !include '/config/lovelace/hardware.yaml'
-  #- !include '/config/lovelace/entities.yaml'
-  #- !include '/config/lovelace/lights.yaml'
   # new
   #- !include '/config/lovelace/firstfloor.yaml'
   #- !include '/config/lovelace/outdoor.yaml'

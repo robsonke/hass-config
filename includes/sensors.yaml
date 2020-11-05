@@ -1,3 +1,8 @@
+#  ____                                
+# / ___|  ___ _ __  ___  ___  _ __ ___ 
+# \___ \ / _ \ '_ \/ __|/ _ \| '__/ __|
+#  ___) |  __/ | | \__ \ (_) | |  \__ \
+# |____/ \___|_| |_|___/\___/|_|  |___/
 #
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
@@ -136,7 +141,6 @@
 
 
 # tp-link kasa
-#switch.kasa_winecooler
 - platform: template
   sensors:
     kasa_winecooler_amps:
@@ -160,60 +164,52 @@
       value_template: '{{ states.switch.kasa_winecooler.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
 
+
+# Frigate debug sensors
+# TODO add more cams
+- platform: rest
+  name: Frigate Debug
+  resource: !secret frigate_url
+  scan_interval: 5
+  json_attributes:
+    - gardencam
+    - babycam
+    - detection_fps
+    - detectors
+  value_template: 'OK'
+- platform: template
+  sensors:
+    gardencam_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["gardencam"]["camera_fps"] }}'
+      unit_of_measurement: 'FPS'
+    gardencam_skipped_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["gardencam"]["skipped_fps"] }}'
+      unit_of_measurement: 'FPS'
+    gardencam_detection_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["gardencam"]["detection_fps"] }}'
+      unit_of_measurement: 'FPS'
+    babycam_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["babycam"]["camera_fps"] }}'
+      unit_of_measurement: 'FPS'
+    babycam_skipped_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["babycam"]["skipped_fps"] }}'
+      unit_of_measurement: 'FPS'
+    babycam_detection_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["babycam"]["detection_fps"] }}'
+      unit_of_measurement: 'FPS'
+    frigate_detection_fps: 
+      value_template: '{{ states.sensor.frigate_debug.attributes["detection_fps"] }}'
+      unit_of_measurement: 'FPS'
+    frigate_coral_inference:
+      value_template: '{{ states.sensor.frigate_debug.attributes["detectors"]["coral"]["inference_speed"] }}' 
+      unit_of_measurement: 'ms'
+
 - platform: bmw_connected_drive
 - platform: waze_travel_time
   name: Home to work
   origin: !secret home_address
   destination: !secret work_address
   region: 'EU'
-# TODO needed?
-# - platform: buienradar
-#   monitored_conditions:
-#     - stationname
-#     - humidity
-#     - temperature
-#     - groundtemperature
-#     - windspeed
-#     - windforce
-#     - winddirection
-#     - windazimuth
-#     - pressure
-#     - visibility
-#     - windgust
-#     - precipitation
-#     - irradiance
-#     - precipitation_forecast_average
-#     - precipitation_forecast_total
-#     - condition
-#     - conditioncode
-#     - conditiondetailed
-#     - conditionexact
-#     - symbol
-#     - symbol_1d
-#     - symbol_2d
-#     - symbol_3d
-#     - symbol_4d
-#     - symbol_5d
-#     - temperature_1d
-#     - temperature_2d
-#     - temperature_3d
-#     - temperature_4d
-#     - temperature_5d
-#     - rainchance_1d
-#     - rainchance_2d
-#     - rainchance_3d
-#     - rainchance_4d
-#     - rainchance_5d
-#     - sunchance_1d
-#     - sunchance_2d
-#     - sunchance_3d
-#     - sunchance_4d
-#     - sunchance_5d
-#     - rain_1d
-#     - rain_2d
-#     - rain_3d
-#     - rain_4d
-#     - rain_5d
 
 - platform: template
   sensors:

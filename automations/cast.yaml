@@ -1,6 +1,15 @@
-#################################################################
-## Casting Home Assistant to Google Home                       ##
-#################################################################
+#   ____          _   _             
+#  / ___|__ _ ___| |_(_)_ __   __ _ 
+# | |   / _` / __| __| | '_ \ / _` |
+# | |__| (_| \__ \ |_| | | | | (_| |
+#  \____\__,_|___/\__|_|_| |_|\__, |
+#                             |___/ 
+#
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Casting Home Assistant to Google Home
+#
 
 - alias: Cast HA to Nest display
   description: "Push a stream every 10 minutes to the Google Nest Display in the kitchen"

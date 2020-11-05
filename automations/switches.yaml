@@ -1,6 +1,14 @@
-#################################################################
-## Philips Hue switches                                        ##
-#################################################################
+#  ____          _ _       _               
+# / ___|_      _(_) |_ ___| |__   ___  ___ 
+# \___ \ \ /\ / / | __/ __| '_ \ / _ \/ __|
+#  ___) \ V  V /| | || (__| | | |  __/\__ \
+# |____/ \_/\_/ |_|\__\___|_| |_|\___||___/
+#
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Philips Hue switches
+#
 
 - alias: 'Toggle kitchen light from dimmer'
   trigger:
@@ -149,25 +157,3 @@
         brightness: >
           {% set bri = state_attr('light.office', 'brightness') | int %}
           {{ [bri-30, 0] | max }}
-
-# still works but above dimmer switch office took over
-# - alias: Toggle desk light on single press
-#   trigger:
-#     platform: event
-#     event_type: deconz_event
-#     event_data:
-#       id: switch_1
-#       event: 1002
-#   action:
-#   - service: light.toggle
-#     entity_id: group.office
-# - alias: Toggle backdoor light on single press
-#   trigger:
-#     platform: event
-#     event_type: deconz_event
-#     event_data:
-#       id: switch_1
-#       event: 2002
-#   action:
-#   - service: light.toggle
-#     entity_id: light.backdoor

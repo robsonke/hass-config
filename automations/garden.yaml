@@ -1,6 +1,14 @@
-#################################################################
-## Automations to control the garden lights                    ##
-#################################################################
+#   ____               _            
+#  / ___| __ _ _ __ __| | ___ _ __  
+# | |  _ / _` | '__/ _` |/ _ \ '_ \ 
+# | |_| | (_| | | | (_| |  __/ | | |
+#  \____|\__,_|_|  \__,_|\___|_| |_|
+#
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Automations to control the garden lights
+#
 
 - alias: Turn on garden lights
   description: "When it's getting dark and at least after 4 PM, turn on lights in the garden"

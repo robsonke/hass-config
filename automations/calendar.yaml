@@ -1,6 +1,14 @@
-#################################################################
-## Automations that alert based on Google Calendar             ##
-#################################################################
+#   ____      _                _            
+#  / ___|__ _| | ___ _ __   __| | __ _ _ __ 
+# | |   / _` | |/ _ \ '_ \ / _` |/ _` | '__|
+# | |__| (_| | |  __/ | | | (_| | (_| | |   
+#  \____\__,_|_|\___|_| |_|\__,_|\__,_|_|   
+#
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Automations that alert based on Google Calendar
+#
 
 - alias: Afval Calendar Alert
   description: "Send messages when a trash bin should be put outside"

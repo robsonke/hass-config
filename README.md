@@ -1,3 +1,10 @@
+```
+ _   _                           _            _     _              _   
+| | | | ___  _ __ ___   ___     / \   ___ ___(_)___| |_ __ _ _ __ | |_ 
+| |_| |/ _ \| '_ ` _ \ / _ \   / _ \ / __/ __| / __| __/ _` | '_ \| __|
+|  _  | (_) | | | | | |  __/  / ___ \\__ \__ \ \__ \ || (_| | | | | |_ 
+|_| |_|\___/|_| |_| |_|\___| /_/   \_\___/___/_|___/\__\__,_|_| |_|\__|
+```
 # Rob's Home Assistant Configuration
 Welcome to my repository representing all Home Assistant configuration. I'm sharing this to help others, since many such other repositories helped me a lot.
 Keeping this up to date is a continuous process, I discover daily new possibilities and face situations that ask for automation.

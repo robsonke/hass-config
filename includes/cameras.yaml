@@ -26,16 +26,11 @@
   still_image_url: "https://api.buienradar.nl/image/1.0/RadarMapNL?w=480&h=480"
   content_type: "image/gif"
 
-# Doods
-# the camera showing the processed snapshot file
-- platform: local_file
-  name: doods_gardencam_snapshot
-  file_path: /config/www/doods/gardencam_snapshot_latest.jpg
-# the camera turning a snapshot of the gardencam into a camera for processing by Doods
-- platform: local_file
-  name: gardencam_snapshot
-  file_path: /config/www/snapshots/gardencam_snapshot_latest.jpg
+  # Frigate
+- name: Gardencam Last Person Frigate
+  platform: mqtt
+  topic: frigate/gardencam/person/snapshot
 
-- platform: local_file
-  name: doods_babycam
-  file_path: /config/www/doods/babycam_latest.jpg
+- name: Babycam Last Person Frigate
+  platform: mqtt
+  topic: frigate/babycam/person/snapshot

@@ -1,6 +1,15 @@
-#################################################################
-## Theme switching, auto or manual                             ##
-#################################################################
+#  _____ _                              
+# |_   _| |__   ___ _ __ ___   ___  ___ 
+#   | | | '_ \ / _ \ '_ ` _ \ / _ \/ __|
+#   | | | | | |  __/ | | | | |  __/\__ \
+#   |_| |_| |_|\___|_| |_| |_|\___||___/
+#
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# Theme switching, auto or manual
+#
+
 - alias: "Theme: set to dark mode"
   trigger:
     - platform: time

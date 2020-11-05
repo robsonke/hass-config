@@ -1,6 +1,14 @@
-#################################################################
-## General automations, mainly turning on and off lights       ##
-#################################################################
+#   ____                           _ 
+#  / ___| ___ _ __   ___ _ __ __ _| |
+# | |  _ / _ \ '_ \ / _ \ '__/ _` | |
+# | |_| |  __/ | | |  __/ | | (_| | |
+#  \____|\___|_| |_|\___|_|  \__,_|_|
+#
+# 🤖 Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# General automations, mainly turning on and off lights
+#
 
 - alias: Everything off - goodnight
   description: "Go to bed switch, turn off all we don't need during the night. Lights, music, tv, etc"
