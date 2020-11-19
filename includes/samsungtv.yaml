@@ -9,7 +9,14 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-- host: !secret tvliving_host
-  name: samsungtv-livingroom
-- host: !secret tvbedroom_host
-  name: samsungtv-bedroom
+# - host: !secret tvliving_host
+#   name: samsungtv-livingroom
+# - host: !secret tvbedroom_host
+#   name: samsungtv-bedroom
+- platform: samsungtv_tizen
+  host: !secret tvliving_host
+  mac: "64:1C:AE:03:00:3D"
+  app_list: '{"Netflix": "11101200001", "YouTube": "111299001912", "Internet": "org.tizen.browser"}'
+  name: 'SamsungTv Livingroom'
+  device_id: !secret samsungtv_living_device
+  api_key: !secret samsungtv_living_token

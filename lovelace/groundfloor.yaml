@@ -90,10 +90,6 @@ cards:
               - entity: light.kitchen
                 type: custom:slider-entity-row
                 toggle: true
-              - entity: light.fibaro_fgd212_dimmer2_level1_dining
-                type: custom:slider-entity-row
-                toggle: true
-                secondary_info: brightness
               - entity: light.backdoor
                 type: custom:slider-entity-row
                 toggle: true
@@ -102,7 +98,7 @@ cards:
                 type: custom:slider-entity-row
                 toggle: true
                 secondary_info: brightness
-              - entity: light.everspring_ad147_plug_in_dimmer_module_level_corner
+              - entity: light.zwave_light_corner_level
                 type: custom:slider-entity-row
                 toggle: true
                 secondary_info: brightness
@@ -123,14 +119,14 @@ cards:
       - type: custom:mini-graph-card
         name: Kantoor
         entities:
-          - sensor.temp_sensor_office_temperature
+          - sensor.climate_sensor_office_temperature
         line_color: '#e74c3c'
         line_width: 8
         font_size_header: 10
       - type: custom:mini-graph-card
         name: Kantoor
         entities:
-          - sensor.temp_sensor_office_humidity
+          - sensor.climate_sensor_office_humidity
         line_color: blue
         line_width: 8
         font_size_header: 10
@@ -237,6 +233,27 @@ cards:
               name: Sonos Keuken
             - entity_id: media_player.tv_room
               name: Sonos TV
+      - type: 'custom:mini-media-player'
+        entity: media_player.samsungtv_livingroom
+        artwork: cover
+        icon: mdi:television
+        show_source: false
+        shortcuts:
+          buttons:
+            - icon: 'mdi:netflix'
+              type: service
+              name: Netflix
+              id: media_player.select_source
+              data:
+                entity_id: media_player.samsungtv_livingroom
+                source: 'Netflix'
+            - icon: 'mdi:youtube'
+              type: service
+              name: Youtube
+              id: media_player.select_source
+              data:
+                entity_id: media_player.samsungtv_livingroom
+                source: 'Youtube'
 
   - type: vertical-stack
     title: Sjorsje

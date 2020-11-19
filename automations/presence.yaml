@@ -71,10 +71,16 @@
       entity_id: media_player.keuken_display
       data_template:
         message: "Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }} komt er aan!"
+    - delay: '2'
     - service: tts.google_translate_say
       entity_id: media_player.office_googlehome
       data_template:
         message: "Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }} komt er aan!"
+    - delay: '2'
+    - service: automation.trigger
+      data:
+        entity_id: automation.cast_ha_to_nest_display
+        skip_condition: false
 
 
 # Turning monitor.sh sensors into device trackers, entity names are device_tracker.rob_ble and device_tracker.steffi_ble

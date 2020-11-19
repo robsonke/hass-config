@@ -19,9 +19,10 @@ Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basn
   - A better presence
   - AppDaemon 4
   - Check Home Assistant configuration
-  - DOODS
+  - Frigate
   - Dnsmasq
   - Glances
+  - Portainer
   - Grafana
   - Home Assistant Google Drive Backup
   - InfluxDB
@@ -35,7 +36,6 @@ Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basn
   - Visual Studio Code
   - WireGuard
   - deCONZ
-  - motionEye
   - phpMyAdmin
 
 ## Hardware
@@ -43,6 +43,7 @@ What drives all:
 - Intel NUC10i3FNK with 16 GB memory running Proxmox VE
 - Aeotec Gen 5 Z-Wave Plus USB Stick
 - ConBee II Zigbee USB Stick
+- Coral USB Accelerator
 - Synology DS918+
 
 ### Devices

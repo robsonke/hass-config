@@ -172,12 +172,11 @@ cards:
         entities:
           - sensor.lightlevel_office_battery_level
           - sensor.lightlevel_living_battery_level
-          - sensor.temp_sensor_office_battery_level
-          - sensor.achterdeur_sensor_battery_level
-          - sensor.voordeur_sensor_battery_level
-          - sensor.schuurdeur_sensor_battery_level
+          - sensor.climate_sensor_office_battery_level
+          - sensor.backdoor_openclose_battery_level
+          - sensor.frontdoor_openclose_battery_level
+          - sensor.sheddoor_openclose_battery_level
           - sensor.sjorsje_battery_level
-          - sensor.dimmer_switch_dining_battery_level
           - sensor.dimmer_switch_office_battery_level
           - sensor.dimmer_switch_kitchen_battery_level
           - sensor.switch_round_battery_level

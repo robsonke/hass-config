@@ -59,55 +59,6 @@
           {% set bri = state_attr('light.kitchen', 'brightness') | int %}
           {{ [bri-30, 0] | max }}
 
-- alias: 'Toggle dinner table light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_dining
-      event: 1002
-  action:
-    service: light.toggle
-    entity_id: light.fibaro_fgd212_dimmer2_level1_dining
-- alias: 'Turn off dinner table light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_dining
-      event: 4002
-  action:
-    service: light.turn_off
-    entity_id: light.fibaro_fgd212_dimmer2_level1_dining
-- alias: 'Increase brightness of dinner table light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_dining
-      event: 2002
-  action:
-    - service: light.turn_on
-      data_template:
-        entity_id: light.fibaro_fgd212_dimmer2_level1_dining
-        brightness: >
-          {% set bri = state_attr('light.fibaro_fgd212_dimmer2_level1_dining', 'brightness') | int %}
-          {{ [bri+15, 249] | min }}
-- alias: 'Decrease brightness of dinner table light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_dining
-      event: 3002
-  action:
-    - service: light.turn_on
-      data_template:
-        entity_id: light.fibaro_fgd212_dimmer2_level1_dining
-        brightness: >
-          {% set bri = state_attr('light.fibaro_fgd212_dimmer2_level1_dining', 'brightness') | int %}
-          {{ [bri-15, 0] | max }}
-
 # office light switch
 - alias: 'Toggle office light from dimmer'
   trigger:

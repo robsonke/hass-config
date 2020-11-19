@@ -32,13 +32,11 @@ entity_config:
     expose: true
   light.office:
     expose: true
-  light.everspring_ad147_plug_in_dimmer_module_level_corner:
+  light.zwave_light_corner_level:
     expose: true
   light.everspring_ad147_plug_in_dimmer_module_level_couch:
     expose: true
   light.backdoor:
     expose: true
   light.fibaro_fgd212_dimmer2_level1_veranda:
-    expose: true
-  light.fibaro_fgd212_dimmer2_level1_dining:
     expose: true

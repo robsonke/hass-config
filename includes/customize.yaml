@@ -87,15 +87,8 @@ media_player.kitchen:
   friendly_name: Speakers Keuken
 media_player.office:
   friendly_name: Speakers Kantoor
-light.everspring_ad147_plug_in_dimmer_module_level_corner:
-  friendly_name: Hoeklamp
 light.everspring_ad147_plug_in_dimmer_module_level_couch:
   friendly_name: Lamp bank
-light.fibaro_fgd212_dimmer2_level1_dining:
-  friendly_name: Eettafel verlichting
-  icon: mdi:ceiling-light
-sensor.fibaro_fgd212_dimmer2_electric_w_dining:
-  friendly_name: Lamp eettafel stroomverbruik
 light.fibaro_fgd212_dimmer2_level1_veranda:
   friendly_name: Verandaverlichting
   icon: mdi:flower
@@ -128,8 +121,6 @@ sensor.switch_1_battery_level:
   friendly_name: Schakelaar 1 batterij
 sensor.dimmer_switch_kitchen_battery_level:
   friendly_name: Dimmer keuken batterij
-sensor.dimmer_switch_dining_battery_level:
-  friendly_name: Dimmer eettafel batterij
 sensor.dimmer_switch_office_battery_level:
   friendly_name: Dimmer kantoor batterij
 
@@ -142,11 +133,11 @@ sensor.lightlevel_living:
 sensor.lightlevel_living_battery_level:
   friendly_name: Licht sensor woonkamer batterij
 
-sensor.temp_sensor_office_temperature:
+sensor.climate_sensor_office_temperature:
   friendly_name: Temperatuur sensor kantoor
-sensor.temp_sensor_office_humidity:
+sensor.climate_sensor_office_humidity:
   friendly_name: Luchtvochtigheid sensor kantoor
-sensor.temp_sensor_office_pressure:
+sensor.climate_sensor_office_pressure:
   friendly_name: Luchtdruk sensor kantoor
-sensor.temp_sensor_office_battery_level:
-  friendly_name: Temperatuur sensor kantoor batterij
+sensor.climate_sensor_office_battery_level:
+  friendly_name: Klimaat sensor kantoor batterij

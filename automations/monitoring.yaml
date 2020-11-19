@@ -8,11 +8,6 @@
 # 🤖 Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-# Alert when pi zeros too long unreachable
-#
-# - binary_sensor.pi_zero_monitor_one / two / three / four
-# check mqtt channels of monitor.sh
-#
 
 # this does not run automatically
 - alias: "System - Let's Encrypt Renewal"
@@ -24,3 +19,20 @@
     - service: hassio.addon_restart
       data:
         addon: core_letsencrypt
+
+# check if pi zeros are up and running
+- alias: System - Monitor Pi Zeros
+  description: "Check if the Pi Zeros that are used for monitor.sh are up and running, don't be too impatient with these fellows"
+  trigger:
+    platform: state
+    entity_id:
+      - binary_sensor.pi_zero_monitor_one
+      - binary_sensor.pi_zero_monitor_two
+      - binary_sensor.pi_zero_monitor_three
+      - binary_sensor.pi_zero_monitor_four
+    to: "off"
+    for: "00:30:00"
+  action:
+    service: notify.telegram_rob
+    data_template:
+      message: "💻 {{ state_attr(trigger.entity_id, 'friendly_name') }} is al 30 minuten onbereikbaar."

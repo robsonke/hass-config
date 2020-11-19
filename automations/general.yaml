@@ -31,7 +31,7 @@
   - service: light.turn_off
     data:
       entity_id:
-        - light.everspring_ad147_plug_in_dimmer_module_level_corner
+        - light.zwave_light_corner_level
         - light.everspring_ad147_plug_in_dimmer_module_level_couch
   - delay: '1'
   - service: light.turn_off
@@ -74,7 +74,7 @@
     - service: light.turn_on
       data:
         entity_id:
-        - light.everspring_ad147_plug_in_dimmer_module_level_corner
+        - light.zwave_light_corner_level
         - light.everspring_ad147_plug_in_dimmer_module_level_couch
     - delay: '1'
     - service: light.turn_on
@@ -115,9 +115,8 @@
     - service: light.turn_off
       data:
         entity_id:
-        - light.everspring_ad147_plug_in_dimmer_module_level_corner
+        - light.zwave_light_corner_level
         - light.everspring_ad147_plug_in_dimmer_module_level_couch
-        - light.fibaro_fgd212_dimmer2_level1_dining
     - delay: '1'
     - service: light.turn_off
       data:

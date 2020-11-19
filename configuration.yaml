@@ -41,7 +41,7 @@ notify: !include includes/notify.yaml
 person: !include includes/persons.yaml
 proxmoxve: !include includes/proxmoxve.yaml
 recorder: !include includes/recorder.yaml
-samsungtv: !include includes/samsungtv.yaml
+media_player: !include includes/samsungtv.yaml
 script: !include includes/scripts.yaml
 sensor: !include includes/sensors.yaml
 shell_command:  !include includes/shell_command.yaml
