@@ -24,6 +24,11 @@
 
 - platform: dnsip
 
+# tracks changes in the lovelace file
+- platform: filesize
+  file_paths:
+    - /config/.storage/lovelace
+
 - platform: systemmonitor
   resources:
     - type: disk_use_percent

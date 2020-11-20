@@ -8,4 +8,4 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-
+convert_lovelace: "python /config/utils/json2yaml.py /config/.storage/lovelace /config/lovelace-ui.yaml"

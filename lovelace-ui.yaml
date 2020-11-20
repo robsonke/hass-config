@@ -1,0 +1,854 @@
+---
+views:
+- cards:
+  - cards:
+    - cards:
+      - entity: person.rob
+        name: Rob
+        show_entity_picture: true
+        show_name: false
+        show_state: true
+        state:
+        - styles:
+            entity_picture:
+            - opacity: 0.4
+            - filter: grayscale(100%)
+          value: not_home
+        styles:
+          card:
+          - height: 100px
+          entity_picture:
+          - width: 45%
+          - border-radius: 50%
+          - opacity: 0.8
+        type: custom:button-card
+      - entity: person.steffi
+        name: Steffi
+        show_entity_picture: true
+        show_name: false
+        show_state: true
+        state:
+        - styles:
+            entity_picture:
+            - opacity: 0.4
+            - filter: grayscale(100%)
+          value: not_home
+        styles:
+          card:
+          - height: 100px
+          entity_picture:
+          - width: 45%
+          - border-radius: 50%
+          - opacity: 0.8
+        type: custom:button-card
+      - color_type: card
+        entity: input_boolean.guest_mode
+        show_icon: true
+        state:
+        - styles:
+            card:
+            - background: var( --ha-card-background, var(--card-background-color,
+                white) )
+          value: 'off'
+        styles:
+          card:
+          - height: 100px
+        type: custom:button-card
+      type: horizontal-stack
+    - cards:
+      - entity: sensor.backdoor_openclose
+        show_name: true
+        type: custom:button-card
+      - entity: sensor.frontdoor_openclose
+        show_name: true
+        type: custom:button-card
+      - entity: sensor.sheddoor_openclose
+        show_name: true
+        type: custom:button-card
+      type: horizontal-stack
+    - cards:
+      - color_type: card
+        entity: input_boolean.night_mode
+        show_icon: true
+        type: custom:button-card
+      - color: rgb(255, 0, 0)
+        entity: alarm_control_panel.alarm
+        icon: mdi:security
+        name: Alarm actief
+        state:
+        - color: rgb(0, 255, 0)
+          name: Alarm uit
+          show_state: false
+          value: disarmed
+        - styles:
+            card:
+            - animation: blink 2s ease infinite
+          value: arming
+        - color: red
+          icon: mdi:alert
+          name: Intruder Alert
+          styles:
+            card:
+            - animation: blink 2s ease infinite
+          value: armed_away
+        type: custom:button-card
+      type: horizontal-stack
+    title: Status
+    type: vertical-stack
+  - cards:
+    - cards:
+      - entities:
+        - entity: light.office
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.kitchen
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.backdoor
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.everspring_ad147_plug_in_dimmer_module_level_couch
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.zwave_light_corner_level
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        show_header_toggle: false
+        type: entities
+      - entities:
+        - entities:
+          - entity: light.fibaro_fgd212_dimmer2_level1_veranda
+          - entity: light.garden_wall_lights
+          - entity: light.frontdoor
+          head: light.garden_lights
+          open: false
+          type: custom:fold-entity-row
+        type: entities
+      type: custom:vertical-stack-in-card
+    title: Verlichting
+    type: vertical-stack
+  - cards:
+    - artwork: cover
+      entity: media_player.kitchen
+      group: true
+      hide:
+        icon: true
+        power: true
+        power_state: false
+        source: false
+      info: short
+      scale: 10
+      speaker_group:
+        entities:
+        - entity_id: media_player.office
+          name: Sonos Kantoor
+        - entity_id: media_player.living_room
+          name: Sonos Woonkamer
+        - entity_id: media_player.kitchen
+          name: Sonos Keuken
+        - entity_id: media_player.tv_room
+          name: Sonos TV
+        platform: sonos
+        show_group_count: true
+        sync_volume: true
+      type: custom:mini-media-player
+      volume_stateless: true
+    - artwork: cover
+      entity: media_player.office
+      group: true
+      hide:
+        controls: true
+        icon: true
+        source: true
+      type: custom:mini-media-player
+      volume_stateless: true
+    - artwork: cover
+      entity: media_player.living_room
+      group: true
+      hide:
+        icon: true
+        power: true
+        power_state: false
+        source: false
+      speaker_group:
+        entities:
+        - entity_id: media_player.office
+          name: Sonos Kantoor
+        - entity_id: media_player.living_room
+          name: Sonos Woonkamer
+        - entity_id: media_player.kitchen
+          name: Sonos Keuken
+        - entity_id: media_player.tv_room
+          name: Sonos TV
+        platform: sonos
+        show_group_count: true
+        sync_volume: true
+      type: custom:mini-media-player
+    title: Media
+    type: vertical-stack
+  - cards:
+    - entities:
+      - sensor.climate_sensor_office_temperature
+      font_size_header: 10
+      line_color: '#e74c3c'
+      line_width: 8
+      name: Kantoor
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_office_humidity
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Kantoor
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.lightlevel_office
+      font_size_header: 10
+      line_color: var(--accent-color)
+      line_width: 8
+      name: Kantoor
+      type: custom:mini-graph-card
+    title: Klimaat
+    type: horizontal-stack
+  - cards:
+    - camera_image: camera.gardencam
+      camera_view: live
+      entity: camera.gardencam
+      type: picture-entity
+    - camera_image: camera.laagewei
+      entities:
+      - binary_sensor.laagewei_ding
+      - binary_sensor.laagewei_motion
+      - sensor.laagewei_last_ding
+      - sensor.laagewei_last_motion
+      title: Front Door
+      type: picture-glance
+    title: Camera's
+    type: vertical-stack
+  - cards:
+    - entities:
+      - binary_sensor.laagewei_ding
+      - binary_sensor.laagewei_motion
+      - sensor.laagewei_last_ding
+      - sensor.laagewei_last_motion
+      - sensor.frontdoor_openclose
+      show_header_toggle: false
+      title: Ring Doorbell
+      type: entities
+    title: Voordeur
+    type: vertical-stack
+  - cards:
+    - entities:
+      - entity: sensor.power_production
+        hours_to_show: 24
+        name: Zonnepanelen
+        show:
+          graph: bar
+        show_state: true
+      - entity: sensor.power_consumption
+        hours_to_show: 24
+        name: Stroomverbruik
+        points_per_hour: 4
+        show:
+          graph: bar
+        show_state: true
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.power_consumption
+      - sensor.gas_consumption
+      - sensor.hourly_gas_consumption
+      - sensor.power_tariff
+      - sensor.power_production
+      type: entities
+    title: Energie (24h)
+    type: vertical-stack
+  - cards:
+    - current: true
+      details: true
+      entity: weather.goes
+      forecast: true
+      hourly_forecast: false
+      number_of_forecasts: 5
+      type: custom:weather-card
+    title: Weer
+    type: vertical-stack
+  - cards:
+    - dateBottomFormat: ddd
+      dateTopFormat: D MMMM
+      entities:
+      - calendar.afvalkalender
+      hideHeader: true
+      hideTime: true
+      numberOfDays: 30
+      startFromToday: true
+      title: Afval
+      type: custom:calendar-card
+    - dateBottomFormat: dddd
+      dateTopFormat: D MMMM
+      entities:
+      - calendar.joep
+      eventsLimit: 5
+      hideHeader: true
+      numberOfDays: 30
+      progressBar: true
+      startFromToday: true
+      title: Joep
+      type: custom:calendar-card
+    title: Agenda
+    type: vertical-stack
+  - cards:
+    - entities:
+      - entity: input_boolean.enable_automatic_lights
+      - entity: input_boolean.dark_mode
+      show_header_toggle: false
+      type: entities
+    title: Settings
+    type: vertical-stack
+  icon: mdi:home
+  show_empty: true
+  title: Home
+- cards:
+  - cards:
+    - cards:
+      - entity: sensor.backdoor_openclose
+        show_name: true
+        type: custom:button-card
+      - entity: sensor.frontdoor_openclose
+        show_name: true
+        type: custom:button-card
+      - entity: sensor.sheddoor_openclose
+        show_name: true
+        type: custom:button-card
+      title: Deuren
+      type: horizontal-stack
+    - card:
+        show_icon: false
+        type: entities
+      filter:
+        include:
+        - entity_id: sensor.backdoor_openclose
+          options:
+            secondary_info: last-changed
+        - entity_id: sensor.frontdoor_openclose
+          options:
+            secondary_info: last-changed
+        - entity_id: sensor.sheddoor_openclose
+          options:
+            secondary_info: last-changed
+      sort:
+        count: 2
+        method: last_changed
+      type: custom:auto-entities
+    - cards:
+      - color_type: card
+        entity: input_boolean.night_mode
+        show_icon: true
+        type: custom:button-card
+      - color: rgb(255, 0, 0)
+        entity: alarm_control_panel.alarm
+        icon: mdi:security
+        name: Alarm actief
+        state:
+        - color: rgb(0, 255, 0)
+          name: Alarm uit
+          show_state: false
+          value: disarmed
+        - styles:
+            card:
+            - animation: blink 2s ease infinite
+          value: arming
+        - color: red
+          icon: mdi:alert
+          name: Intruder Alert
+          styles:
+            card:
+            - animation: blink 2s ease infinite
+          value: armed_away
+        type: custom:button-card
+      type: horizontal-stack
+    type: vertical-stack
+  - cards:
+    - cards:
+      - entities:
+        - entity: light.office
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.kitchen
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.backdoor
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.everspring_ad147_plug_in_dimmer_module_level_couch
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        - entity: light.zwave_light_corner_level
+          secondary_info: brightness
+          toggle: true
+          type: custom:slider-entity-row
+        show_header_toggle: false
+        type: entities
+      - entities:
+        - entities:
+          - entity: light.fibaro_fgd212_dimmer2_level1_veranda
+          - entity: light.garden_wall_lights
+          - entity: light.frontdoor
+          head: light.garden_lights
+          open: false
+          type: custom:fold-entity-row
+        type: entities
+      type: custom:vertical-stack-in-card
+    title: Verlichting
+    type: vertical-stack
+  - cards:
+    - entities:
+      - sensor.climate_sensor_office_temperature
+      font_size_header: 10
+      line_color: '#e74c3c'
+      line_width: 8
+      name: Kantoor
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_office_humidity
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Kantoor
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.lightlevel_office
+      font_size_header: 10
+      line_color: var(--accent-color)
+      line_width: 8
+      name: Kantoor
+      type: custom:mini-graph-card
+    title: Klimaat
+    type: horizontal-stack
+  - cards:
+    - camera_view: live
+      entity: camera.babycam
+      type: picture-entity
+    - camera_view: live
+      entity: camera.gardencam
+      type: picture-entity
+    title: Camera's
+    type: vertical-stack
+  - cards:
+    - cards:
+      - entities:
+        - binary_sensor.laagewei_ding
+        - binary_sensor.laagewei_motion
+        - sensor.laagewei_last_ding
+        - sensor.laagewei_last_motion
+        - sensor.frontdoor_openclose
+        show_header_toggle: false
+        title: Ring Doorbell
+        type: entities
+      - camera_image: camera.laagewei
+        entities:
+        - binary_sensor.laagewei_ding
+        - binary_sensor.laagewei_motion
+        - sensor.laagewei_last_ding
+        - sensor.laagewei_last_motion
+        title: Front Door
+        type: picture-glance
+      type: custom:vertical-stack-in-card
+    title: Voordeur
+    type: vertical-stack
+  - cards:
+    - artwork: cover
+      entity: media_player.kitchen
+      group: true
+      hide:
+        icon: true
+        power: true
+        power_state: false
+        source: false
+      info: short
+      scale: 10
+      speaker_group:
+        entities:
+        - entity_id: media_player.office
+          name: Sonos Kantoor
+        - entity_id: media_player.living_room
+          name: Sonos Woonkamer
+        - entity_id: media_player.kitchen
+          name: Sonos Keuken
+        - entity_id: media_player.tv_room
+          name: Sonos TV
+        platform: sonos
+        show_group_count: true
+        sync_volume: true
+      type: custom:mini-media-player
+      volume_stateless: true
+    - artwork: cover
+      entity: media_player.office
+      group: true
+      hide:
+        controls: true
+        icon: true
+        source: true
+      type: custom:mini-media-player
+      volume_stateless: true
+    - artwork: cover
+      entity: media_player.living_room
+      group: true
+      hide:
+        icon: true
+        power: true
+        power_state: false
+        source: false
+      speaker_group:
+        entities:
+        - entity_id: media_player.office
+          name: Sonos Kantoor
+        - entity_id: media_player.living_room
+          name: Sonos Woonkamer
+        - entity_id: media_player.kitchen
+          name: Sonos Keuken
+        - entity_id: media_player.tv_room
+          name: Sonos TV
+        platform: sonos
+        show_group_count: true
+        sync_volume: true
+      type: custom:mini-media-player
+    - artwork: cover
+      entity: media_player.samsungtv_livingroom
+      icon: mdi:television
+      shortcuts:
+        buttons:
+        - data:
+            entity_id: media_player.samsungtv_livingroom
+            source: Netflix
+          icon: mdi:netflix
+          id: media_player.select_source
+          name: Netflix
+          type: service
+        - data:
+            entity_id: media_player.samsungtv_livingroom
+            source: Youtube
+          icon: mdi:youtube
+          id: media_player.select_source
+          name: Youtube
+          type: service
+      show_source: false
+      type: custom:mini-media-player
+    title: Media
+    type: vertical-stack
+  - cards:
+    - attributes:
+        filter: false
+        main_brush: false
+        sensor: false
+        side_brush: false
+      entity: vacuum.sjorsje
+      type: custom:xiaomi-vacuum-card
+    title: Sjorsje
+    type: vertical-stack
+  icon: mdi:sofa-outline
+  show_empty: true
+  title: Begane grond
+- cards:
+  - entities:
+    - sensor.backdoor_openclose
+    - sensor.frontdoor_openclose
+    - sensor.sheddoor_openclose
+    - input_boolean.guest_mode
+    title: Alarm Elements
+    type: entities
+  - entities:
+    - person.rob
+    - person.steffi
+    - person.bmw_x1
+    title: Home?
+    type: entities
+  - entities:
+    - entity: input_boolean.enable_automatic_lights
+    - entity: input_boolean.dark_mode
+    show_header_toggle: false
+    type: entities
+  - cards:
+    - entities:
+      - device_tracker.rob_presence
+      - device_tracker.ble_rob
+      - device_tracker.iphone_rob
+      - device_tracker.f6_74_ed_11_5d_24
+      - device_tracker.homekit_rob_homekit_present
+      hours_to_show: 6
+      refresh_interval: 30
+      title: Presence Graphs Rob
+      type: history-graph
+    - entities:
+      - device_tracker.steffi_presence
+      - device_tracker.ble_steffi
+      - device_tracker.iphone_steffi
+      - device_tracker.c2_6e_8b_2a_07_96
+      - device_tracker.homekit_steffi_homekit_present
+      hours_to_show: 6
+      refresh_interval: 30
+      title: Presence Graphs Steffi
+      type: history-graph
+    type: custom:vertical-stack-in-card
+  - aspect_ratio: 972
+    dark_mode: true
+    default_zoom: 14
+    entities:
+    - person.steffi
+    - person.rob
+    - person.bmw_x1
+    - zone.home
+    hours_to_show: 4
+    title: Locaties
+    type: map
+  - cards:
+    - cards:
+      - entities:
+        - alarm_control_panel.alarm
+        type: entities
+      - entity: alarm_control_panel.alarm
+        states:
+        - arm_home
+        - arm_away
+        style:
+          '#keypad mwc-button':
+            $: "button {\n  --mdc-theme-primary: #464a47;\n}\n"
+        type: alarm-panel
+      type: custom:vertical-stack-in-card
+    title: Alarm
+    type: vertical-stack
+  icon: mdi:security
+  id: alarm
+  title: Alarm
+- badges: []
+  cards:
+  - camera_view: live
+    entity: camera.babycam
+    name: Eva bed
+    type: picture-entity
+  - camera_view: live
+    entity: camera.gardencam
+    type: picture-entity
+  - cards:
+    - camera_image: camera.laagewei
+      entities:
+      - binary_sensor.laagewei_ding
+      - binary_sensor.laagewei_motion
+      - sensor.laagewei_last_ding
+      - sensor.laagewei_last_motion
+      title: Front Door
+      type: picture-glance
+    - entities:
+      - binary_sensor.laagewei_ding
+      - binary_sensor.laagewei_motion
+      - sensor.laagewei_last_ding
+      - sensor.laagewei_last_motion
+      show_header_toggle: false
+      title: Ring Doorbell
+      type: entities
+    type: vertical-stack
+  - entity: camera.weer
+    type: picture-entity
+  - camera_view: live
+    entity: camera.gardencam_last_person_frigate
+    type: picture-entity
+  - camera_view: live
+    entity: camera.babycam_last_person_frigate
+    type: picture-entity
+  icon: mdi:webcam
+  title: Cams
+- cards:
+  - cards:
+    - entity: sensor.current_version
+      type: entity
+    - entities:
+      - sensor.processor_use
+      - sensor.memory_use_percent
+      points_per_hour: 60
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.uptime
+      points_per_hour: 60
+      type: custom:mini-graph-card
+    - columns: 2
+      entities:
+      - entity: sensor.last_boot
+      type: glance
+    - bar_style:
+        padding-left: 2px
+        text-align: left
+      entity: sensor.disk_use_percent
+      height: 40px
+      max: 100
+      min: 0
+      severity:
+      - hue: '120'
+        value: 50
+      - hue: '60'
+        value: 75
+      - hue: '360'
+        value: 90
+      title: Disk
+      title_position: inside
+      type: custom:bar-card
+    title: Home Assistant
+    type: custom:vertical-stack-in-card
+  - cards:
+    - entities:
+      - sensor.diskstation_cpu_load_total
+      - sensor.diskstation_memory_usage_real
+      points_per_hour: 60
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.diskstation_uptime
+      points_per_hour: 60
+      type: custom:mini-graph-card
+    - columns: 2
+      entities:
+      - entity: sensor.last_boot
+      type: glance
+    - bar_style:
+        padding-left: 2px
+        text-align: left
+      entity: sensor.diskstation_volume_1_volume_used
+      height: 40px
+      max: 100
+      min: 0
+      severity:
+      - hue: '120'
+        value: 50
+      - hue: '60'
+        value: 75
+      - hue: '360'
+        value: 90
+      title: Volume One
+      title_position: inside
+      type: custom:bar-card
+    - bar_style:
+        padding-left: 2px
+        text-align: left
+      entity: sensor.diskstation_volume_2_volume_used
+      height: 40px
+      max: 100
+      min: 0
+      severity:
+      - hue: '120'
+        value: 50
+      - hue: '60'
+        value: 75
+      - hue: '360'
+        value: 90
+      title: Volume Two
+      title_position: inside
+      type: custom:bar-card
+    - entities:
+      - entity: sensor.diskstation_drive_1_status
+      - entity: sensor.diskstation_drive_2_status
+      - entity: sensor.diskstation_drive_3_status
+      - entity: sensor.diskstation_drive_4_status
+      show_header_toggle: false
+      title: Disk Health
+      type: entities
+    title: Synology NAS
+    type: custom:vertical-stack-in-card
+  - content: "Last backups:\n{%- for sh in state_attr('sensor.snapshot_backup','snapshots')\
+      \ %}\n- name: {{sh.name}}\n  status: {{sh.state}}\n{%- endfor %}\n"
+    type: markdown
+  - cards:
+    - entities:
+      - entity: sensor.power_production
+        name: Zonnepanelen
+        show:
+          graph: bar
+        show_state: true
+      - entity: sensor.power_consumption
+        name: Stroomverbruik
+        show:
+          graph: bar
+        show_state: true
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.power_consumption
+      - sensor.gas_consumption
+      - sensor.hourly_gas_consumption
+      - sensor.power_tariff
+      - sensor.power_production
+      type: entities
+    - card:
+        type: glance
+      filter:
+        include:
+        - entity_id: sensor.*power*
+      title: Stroomverbruik
+      type: custom:auto-entities
+    type: vertical-stack
+  - entities:
+    - entity: sensor.cert_expiry_home_tigrou_nl
+    type: entities
+  - entities:
+    - binary_sensor.pi_zero_monitor_one
+    - binary_sensor.pi_zero_monitor_two
+    - binary_sensor.pi_zero_monitor_three
+    - binary_sensor.pi_zero_monitor_four
+    show_header_toggle: false
+    title: Pi Zeros
+    type: entities
+  - entities:
+    - sensor.speedtest_download
+    - sensor.speedtest_upload
+    - sensor.speedtest_ping
+    - sensor.google_wifi_status
+    - sensor.google_wifi_local_ip
+    - sensor.google_wifi_uptime
+    - sensor.google_wifi_current_version
+    show_header_toggle: false
+    title: Internet
+    type: entities
+  - cards:
+    - entities:
+      - sensor.lightlevel_office_battery_level
+      - sensor.lightlevel_living_battery_level
+      - sensor.climate_sensor_office_battery_level
+      - sensor.backdoor_openclose_battery_level
+      - sensor.frontdoor_openclose_battery_level
+      - sensor.sheddoor_openclose_battery_level
+      - sensor.sjorsje_battery_level
+      - sensor.dimmer_switch_office_battery_level
+      - sensor.dimmer_switch_kitchen_battery_level
+      - sensor.switch_round_battery_level
+      tap_action:
+        action: more-info
+      title: Batterij levels
+      type: custom:battery-state-card
+    - entities:
+      - sensor.hp_envy_5640_series
+      - sensor.hp_envy_5640_series_black_ink
+      - sensor.hp_envy_5640_series_tri_color_ink
+      type: entities
+    type: vertical-stack
+  - entities:
+    - sensor.count_automations
+    - sensor.count_device_trackers
+    - sensor.count_lights
+    - sensor.count_binary_sensors
+    - sensor.count_sensors
+    - sensor.count_switches
+    - sensor.count_zones
+    - sensor.count_cameras
+    - sensor.count_media_players
+    - sensor.count_scripts
+    - sensor.count_locks
+    - sensor.count_vacuums
+    - sensor.count_zwaves
+    show_header_toggle: false
+    title: Numbers
+    type: entities
+  icon: mdi:desktop-tower
+  id: hardware-card
+  title: Hardware

@@ -47,3 +47,10 @@
         {% else %}
           ios-light-mode-light-blue
         {% endif %}
+
+- alias: "Lovelace: convert lovelace.json to lovelace-ui.yaml"
+  trigger:
+    platform: state
+    entity_id: sensor.lovelace
+  action:
+    - service: shell_command.convert_lovelace
