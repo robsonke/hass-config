@@ -7,13 +7,13 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-- platform: nmap_tracker
-  hosts: !secret nmap_tracker_hosts
-  interval_seconds: 15
-  consider_home: 30
-  home_interval: 5
-  exclude: !secret hass_host_ip
-  scan_options: " --privileged -sn "
-  # only enable when you have a new mac address / phone
-  new_device_defaults:
-    track_new_devices: true
+# - platform: nmap_tracker
+#   hosts: !secret nmap_tracker_hosts
+#   interval_seconds: 15
+#   consider_home: 30
+#   home_interval: 5
+#   exclude: !secret hass_host_ip
+#   scan_options: " --privileged -sn "
+#   # only enable when you have a new mac address / phone
+#   new_device_defaults:
+#     track_new_devices: true

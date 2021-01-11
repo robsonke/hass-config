@@ -12,23 +12,19 @@
 # based on https://medium.com/@hans.oischinger/make-a-dumb-mailbox-smart-9b7cca648478
 #
 
-# automation:
-#   - alias: Alert when mail in the mailbox
-#     description: "See if there's a vibration in the mailbox, identifying new mail"
-#     trigger:
-#       - entity_id: sensor.0x00158d000313108a_action
-#         platform: state
-#         to: 'vibration'
-#     condition: # Trying to prevent more than a single trigger every 20 seconds
-#       - condition: template
-#         value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.mailbox_notification.attributes.last_triggered) | int > 20 }}'
-#       - condition: template
-#         value_template: '{{ states.automation.mailbox_notification.attributes.last_triggered != none }}'
-#     action:
-#       - service: mqtt.publish
-#         data_template:
-#           topic: "/postled/warning"
-#           payload_template: "You have mail"
-#       - service: notify.telegram_notifier
-#         data:
-#           message: You have mail
+- alias: Alert when mail in the mailbox
+  id: mailbox_notification
+  description: "See if there's a vibration in the mailbox, identifying new mail"
+  trigger:
+    - entity_id: binary_sensor.mailbox_vibration_sensor
+      platform: state
+      to: "vibration"
+  condition: # Trying to prevent more than a single trigger every 20 seconds
+    - condition: template
+      value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.mailbox_notification.attributes.last_triggered) | int > 20 }}'
+    - condition: template
+      value_template: '{{ states.automation.mailbox_notification.attributes.last_triggered != none }}'
+  action:
+    - service: notify.telegram
+      data:
+        message: "✉ Er is post bezorgd."

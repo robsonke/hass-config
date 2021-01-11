@@ -37,7 +37,7 @@
   condition:
     # do not trigger at hass startup
     - condition: numeric_state
-      entity_id: sensor.ha_runtime_in_minutes
+      entity_id: sensor.ha_uptime
       above: 3
     - condition: template
       value_template: "{{ trigger.to_state.state != trigger.from_state.state }}"
@@ -76,7 +76,7 @@
       entity_id: media_player.office_googlehome
       data_template:
         message: "Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }} komt er aan!"
-    - delay: '2'
+    - delay: '5'
     - service: automation.trigger
       data:
         entity_id: automation.cast_ha_to_nest_display
@@ -84,55 +84,55 @@
 
 
 # Turning monitor.sh sensors into device trackers, entity names are device_tracker.rob_ble and device_tracker.steffi_ble
-- alias: Rob Occupancy On
-  description: Turning monitor.sh sensors into device trackers - Rob home
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.home_occupancy_confidence_rob
-      above: 10
-  action:
-    - service: device_tracker.see
-      data:
-        dev_id: ble_rob
-        location_name: home
-        source_type: bluetooth
-- alias: Rob Occupancy Off
-  description: Turning monitor.sh sensors into device trackers - Rob not home
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.home_occupancy_confidence_rob
-      below: 10
-  action:
-    - service: device_tracker.see
-      data:
-        dev_id: ble_rob
-        location_name: not_home
-        source_type: bluetooth
+# - alias: Rob Occupancy On
+#   description: Turning monitor.sh sensors into device trackers - Rob home
+#   trigger:
+#     - platform: numeric_state
+#       entity_id: sensor.home_occupancy_confidence_rob
+#       above: 10
+#   action:
+#     - service: device_tracker.see
+#       data:
+#         dev_id: ble_rob
+#         location_name: home
+#         source_type: bluetooth
+# - alias: Rob Occupancy Off
+#   description: Turning monitor.sh sensors into device trackers - Rob not home
+#   trigger:
+#     - platform: numeric_state
+#       entity_id: sensor.home_occupancy_confidence_rob
+#       below: 10
+#   action:
+#     - service: device_tracker.see
+#       data:
+#         dev_id: ble_rob
+#         location_name: not_home
+#         source_type: bluetooth
 
-- alias: Steffi Occupancy On
-  description: Turning monitor.sh sensors into device trackers - Steffi home
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.home_occupancy_confidence_steffi
-      above: 10
-  action:
-    - service: device_tracker.see
-      data:
-        dev_id: ble_steffi
-        location_name: home
-        source_type: bluetooth
-- alias: Steffi Occupancy Off
-  description: Turning monitor.sh sensors into device trackers - Steffi not home
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.home_occupancy_confidence_steffi
-      below: 10
-  action:
-    - service: device_tracker.see
-      data:
-        dev_id: ble_steffi
-        location_name: not_home
-        source_type: bluetooth
+# - alias: Steffi Occupancy On
+#   description: Turning monitor.sh sensors into device trackers - Steffi home
+#   trigger:
+#     - platform: numeric_state
+#       entity_id: sensor.home_occupancy_confidence_steffi
+#       above: 10
+#   action:
+#     - service: device_tracker.see
+#       data:
+#         dev_id: ble_steffi
+#         location_name: home
+#         source_type: bluetooth
+# - alias: Steffi Occupancy Off
+#   description: Turning monitor.sh sensors into device trackers - Steffi not home
+#   trigger:
+#     - platform: numeric_state
+#       entity_id: sensor.home_occupancy_confidence_steffi
+#       below: 10
+#   action:
+#     - service: device_tracker.see
+#       data:
+#         dev_id: ble_steffi
+#         location_name: not_home
+#         source_type: bluetooth
 
 # Turn homekit detection into devicetrackers
 - alias: Homekit to device trackers - Rob home

@@ -21,64 +21,37 @@ person.bmw_x1:
 
 ## monitor.sh config
 # TODO review locations and add fourth pizero
-sensor.phone_rob_ground_floor_confidence:
-  friendly_name: iPhone Rob (Occupancy ground floor confidence)
-  icon: mdi:cellphone-iphone
-sensor.phone_rob_first_floor_confidence:
-  friendly_name: iPhone Rob (Occupancy first floor confidence)
-  icon: mdi:cellphone-iphone
-sensor.phone_rob_garden_confidence:
-  friendly_name: iPhone Rob (Occupancy garden confidence)
-  icon: mdi:cellphone-iphone
-sensor.phone_steffi_ground_floor_confidence:
-  friendly_name: iPhone Steffi (Occupancy ground floor confidence)
-  icon: mdi:cellphone-iphone
-sensor.phone_steffi_first_floor_confidence:
-  friendly_name: iPhone Steffi (Occupancy first floor confidence)
-  icon: mdi:cellphone-iphone
-sensor.phone_steffi_garden_confidence:
-  friendly_name: iPhone Steffi (Occupancy garden confidence)
-  icon: mdi:cellphone-iphone
+# sensor.phone_rob_ground_floor_confidence:
+#   friendly_name: iPhone Rob (Occupancy ground floor confidence)
+#   icon: mdi:cellphone-iphone
+# sensor.phone_rob_first_floor_confidence:
+#   friendly_name: iPhone Rob (Occupancy first floor confidence)
+#   icon: mdi:cellphone-iphone
+# sensor.phone_rob_garden_confidence:
+#   friendly_name: iPhone Rob (Occupancy garden confidence)
+#   icon: mdi:cellphone-iphone
+# sensor.phone_steffi_ground_floor_confidence:
+#   friendly_name: iPhone Steffi (Occupancy ground floor confidence)
+#   icon: mdi:cellphone-iphone
+# sensor.phone_steffi_first_floor_confidence:
+#   friendly_name: iPhone Steffi (Occupancy first floor confidence)
+#   icon: mdi:cellphone-iphone
+# sensor.phone_steffi_garden_confidence:
+#   friendly_name: iPhone Steffi (Occupancy garden confidence)
+#   icon: mdi:cellphone-iphone
 
-
-device_tracker.f6_74_ed_11_5d_24:
-  friendly_name: Nmap Tracker Rob
-device_tracker.c2_6e_8b_2a_07_96:
-  friendly_name: Nmap Tracker Steffi
 device_tracker.rob_presence:
   friendly_name: Combined Presence Rob
 device_tracker.steffi_presence:
   friendly_name: Combined Presence Steffi
-device_tracker.ble_rob:
-  friendly_name: Bluetooth Tracker Rob
-device_tracker.ble_steffi:
-  friendly_name: Bluetooth Tracker Steffi
 device_tracker.homekit_rob_homekit_present:
   friendly_name: iCloud Tracker Rob
 device_tracker.homekit_steffi_homekit_present:
   friendly_name: iCloud Tracker Steffi
 
-light.office:
+light.kantoor:
   icon: mdi:desktop-mac-dashboard
   friendly_name: Kantoor verlichting
-light.garden_lights:
-  friendly_name: Tuin verlichting
-  icon: mdi:flower
-light.garden_wall_lights:
-  friendly_name: Terras verlichting
-  icon: mdi:flower
-light.backdoor:
-  icon: mdi:ceiling-light
-  friendly_name: Achterdeur verlichting
-light.frontdoor:
-  icon: mdi:door
-  friendly_name: Voordeur verlichting
-light.kitchen:
-  icon: mdi:ceiling-light
-  friendly_name: Keuken verlichting
-vacuum.roomba:
-  friendly_name: Sjorsje
-  icon: mdi:robot-vacuum
 media_player.living_room:
   friendly_name: Speakers Woonkamer
 media_player.tv_room:
@@ -87,31 +60,58 @@ media_player.kitchen:
   friendly_name: Speakers Keuken
 media_player.office:
   friendly_name: Speakers Kantoor
-light.everspring_ad147_plug_in_dimmer_module_level_couch:
+light.zwave_light_couch_level:
   friendly_name: Lamp bank
-light.fibaro_fgd212_dimmer2_level1_veranda:
-  friendly_name: Verandaverlichting
-  icon: mdi:flower
-sensor.fibaro_fgd212_dimmer2_electric_w_veranda:
-  friendly_name: Verandaverlichting stroomverbruik
-
-binary_sensor.laagewei_ding:
-  icon: mdi:bell-ring
-  friendly_name: Voordeur bel
-binary_sensor.laagewei_motion:
-  friendly_name: Voordeur beweging
-  icon: mdi:motion-sensor
-sensor.laagewei_battery_level:
-  friendly_name: Voordeur bel batterij
-sensor.laagewei_last_ding:
-  friendly_name: Voordeur laatste bel
+light.hallcloset:
+  icon: mdi:globe-light
+  friendly_name: Lamp gangkast
 
 sensor.backdoor_openclose:
   friendly_name: Achterdeur
+  device_class: door
 sensor.frontdoor_openclose:
   friendly_name: Voordeur
+  device_class: door
 sensor.sheddoor_openclose:
   friendly_name: Schuurdeur
+  device_class: door
+sensor.windowdoor_ground_1_openclose:
+  friendly_name: Kanteldeur beneden 1
+  device_class: door
+sensor.windowdoor_ground_2_openclose:
+  friendly_name: Kanteldeur beneden 2
+  device_class: door
+sensor.windowdoor_ground_3_openclose:
+  friendly_name: Kanteldeur beneden 3
+  device_class: door
+sensor.windowdoor_ground_4_openclose:
+  friendly_name: Kanteldeur beneden 4
+  device_class: door
+sensor.window_office_openclose:
+  friendly_name: Raam kantoor
+  device_class: door
+sensor.door_hallcloset_openclose:
+  friendly_name: Deur gangkast
+  device_class: door
+sensor.window_atticroom_openclose:
+  friendly_name: Raam zolderkamer
+  device_class: door
+sensor.window_guestroom_openclose:
+  friendly_name: Raam logeerkamer
+  device_class: door
+sensor.window_evaroom_openclose:
+  friendly_name: Raam Eva
+  device_class: door
+sensor.window_masterbed_1_openclose:
+  friendly_name: Raam master bedroom 1
+  device_class: door
+sensor.window_masterbed_2_openclose:
+  friendly_name: Raam master bedroom 2
+  device_class: door
+
+binary_sensor.mailbox_vibration_sensor:
+  friendly_name: Brievenbus
+  icon: mdi:mailbox
 
 sensor.magic_cube_battery_level:
   friendly_name: Magic Cube batterij

@@ -15,19 +15,28 @@
       - input_boolean.guest_mode
       - input_boolean.rob_homekit_present
       - input_boolean.steffi_homekit_present
-      - light.frontdoor
-      - light.garden_wall_lights
-      - light.kitchen
-      - light.office
+      - light.hal
+      - light.keuken
+      - light.kantoor
       - light.zwave_light_corner_level
-      - light.everspring_ad147_plug_in_dimmer_module_level_couch
-      - light.backdoor
-      - light.fibaro_fgd212_dimmer2_level1_veranda
+      - light.zwave_light_couch_level
+      - light.eetkamer
+      - light.woonkamer_achter
+      - light.woonkamer_voor
+      - light.woonkamer
+      - light.hoofdslaapkamer
+      - light.douche
+      - light.inloopkast
+      - light.overloop
+      - light.badkamer
       - media_player.office
       - media_player.living_room
       - media_player.kitchen
       - media_player.tv_room
       - alarm_control_panel.alarm
+      - camera.babycam
+      - camera.gardencam
+      - camera.ring_voordeur
   entity_config:
     alarm_control_panel.alarm:
       code: !secret alarm_code

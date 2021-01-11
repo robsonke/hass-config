@@ -24,3 +24,21 @@ meter_readings:
     - sensor.power_production_phase_l1
     - sensor.power_production_phase_l2
     - sensor.power_production_phase_l3
+
+doors_and_windows:
+  name: All doors and windows
+  entities:
+    - sensor.backdoor_openclose
+    - sensor.frontdoor_openclose
+    #- sensor.sheddoor_openclose
+    - sensor.windowdoor_ground_1_openclose
+    - sensor.windowdoor_ground_2_openclose
+    - sensor.windowdoor_ground_3_openclose
+    - sensor.windowdoor_ground_4_openclose
+    - sensor.window_office_openclose
+    - sensor.door_hallcloset_openclose
+    - sensor.window_atticroom_openclose
+    - sensor.window_evaroom_openclose
+    - sensor.window_masterbed_1_openclose
+    - sensor.window_masterbed_2_openclose
+    - sensor.window_guestroom_openclose

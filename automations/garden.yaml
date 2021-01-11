@@ -16,23 +16,45 @@
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
       below: 200
+    # faking this once more since it was already dark
+    - platform: time
+      at: "06:16:00"
   condition:
-    condition: and
+    condition: or
     conditions:
-      - condition: time
-        after: '16:00:00'
-      - condition: time
-        before: "22:55:00"
-      - condition: state
-        entity_id: input_boolean.enable_automatic_lights
-        state: 'on'
-      - condition: state
-        entity_id: light.fibaro_fgd212_dimmer2_level1_veranda
-        state: 'off'
+      # in the evening
+      - condition: and
+        conditions:
+          - condition: time
+            after: "16:00:00"
+          - condition: time
+            before: "22:55:00"
+          - condition: state
+            entity_id: input_boolean.enable_automatic_garden_lights
+            state: 'on'
+          - condition: state
+            entity_id: light.buitenlamp_zijdeur
+            state: 'off'
+      # in the morning
+      - condition: and
+        conditions:
+          - condition: time
+            after: "06:15:00"
+          - condition: time
+            before: "08:55:00"
+          - condition: state
+            entity_id: input_boolean.enable_automatic_garden_lights
+            state: 'on'
+          - condition: state
+            entity_id: light.buitenlamp_zijdeur
+            state: 'off'
+          - condition: numeric_state
+            entity_id: sensor.lightlevel_living
+            below: 200
   action:
     - service: light.turn_on
       data:
-        entity_id: light.garden_lights
+        entity_id: light.buitenlamp_zijdeur
     - service: notify.telegram_rob
       data:
         message: "💡 Tuinverlichting aan"
@@ -42,10 +64,16 @@
   trigger:
     - platform: time
       at: "23:00:00"
+    - platform: time
+      at: "09:00:00"
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      above: 500
+      above: 200
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_automatic_garden_lights
+      state: 'on'
   action:
     - service: light.turn_off
       data:
-        entity_id: light.garden_lights
+        entity_id: light.buitenlamp_zijdeur

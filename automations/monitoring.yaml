@@ -21,18 +21,43 @@
         addon: core_letsencrypt
 
 # check if pi zeros are up and running
-- alias: System - Monitor Pi Zeros
-  description: "Check if the Pi Zeros that are used for monitor.sh are up and running, don't be too impatient with these fellows"
+# - alias: "System - Monitor Pi Zeros"
+#   description: "Check if the Pi Zeros that are used for monitor.sh are up and running, don't be too impatient with these fellows"
+#   trigger:
+#     platform: state
+#     entity_id:
+#       - binary_sensor.pi_zero_monitor_one
+#       - binary_sensor.pi_zero_monitor_two
+#       - binary_sensor.pi_zero_monitor_three
+#       - binary_sensor.pi_zero_monitor_four
+#     to: "off"
+#     for: "00:30:00"
+#   action:
+#     service: notify.telegram_rob
+#     data_template:
+#       message: "💻 {{ state_attr(trigger.entity_id, 'friendly_name') }} is al 30 minuten onbereikbaar."
+
+# check if automatic lights aren't disabled by accident
+- alias: Check if automatic lights are disabled by accident
+  description: "Check every hour if this wasn't done by accident"
   trigger:
-    platform: state
-    entity_id:
-      - binary_sensor.pi_zero_monitor_one
-      - binary_sensor.pi_zero_monitor_two
-      - binary_sensor.pi_zero_monitor_three
-      - binary_sensor.pi_zero_monitor_four
-    to: "off"
-    for: "00:30:00"
+    platform: time_pattern
+    hours: "/1"
+  condition:
+    condition: and
+    conditions:
+      - condition: time
+        after: '5:30:00'
+        before: '20:30:00'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: input_boolean.enable_automatic_lights
+            state: 'off'
+          - condition: state
+            entity_id: input_boolean.enable_automatic_garden_lights
+            state: 'off'
   action:
     service: notify.telegram_rob
     data_template:
-      message: "💻 {{ state_attr(trigger.entity_id, 'friendly_name') }} is al 30 minuten onbereikbaar."
+      message: "De automatische verlichting is uitgeschakeld, dit is mogelijk onbewust."

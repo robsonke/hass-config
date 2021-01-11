@@ -32,25 +32,20 @@
     data:
       entity_id:
         - light.zwave_light_corner_level
-        - light.everspring_ad147_plug_in_dimmer_module_level_couch
+        - light.zwave_light_couch_level
   - delay: '1'
   - service: light.turn_off
     data:
       entity_id:
-        - light.backdoor
-        - light.office
-        - light.kitchen
-  - delay: '1'
-  - service: light.turn_off
-    data:
-      entity_id:
-        - light.backdoor
-        - light.office
-        - light.kitchen
+        - light.eetkamer
+        - light.kantoor
+        - light.ledstrip_office
+        - light.keuken
+        - light.woonkamer
 
-- alias: Turn on lights when dark
-  description: "Switch standard lights on when it's after 4 PM and light level too low"
-  id: groundfloor_lights_on_when_dark
+- alias: Turn on lights when dark - away
+  description: "Switch standard lights on when it's after 2 PM and light level too low"
+  id: groundfloor_lights_on_when_dark_away
   trigger:
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
@@ -59,35 +54,86 @@
     condition: and
     conditions:
       - condition: state
-        entity_id: light.everspring_ad147_plug_in_dimmer_module_level_couch
+        entity_id: light.zwave_light_couch_level
         state: 'off'
       - condition: time
-        after: '16:00:00'
+        after: '14:00:00'
         before: '22:30:00'
       - condition: state
         entity_id: input_boolean.enable_automatic_lights
         state: 'on'
+      - condition: state
+        entity_id:
+          - device_tracker.rob_presence
+          - device_tracker.steffi_presence
+        state:
+          - "not_home"
   action:
     - service: notify.telegram_rob
       data:
-        message: "💡 Verlichting automatisch aan"
+        message: "💡 Verlichting automatisch aan - niet thuis"
     - service: light.turn_on
       data:
         entity_id:
         - light.zwave_light_corner_level
-        - light.everspring_ad147_plug_in_dimmer_module_level_couch
+        - light.zwave_light_couch_level
     - delay: '1'
     - service: light.turn_on
       data:
         entity_id:
-        - light.backdoor
+        - light.ledstrip_office
+        - light.eetkamer
         brightness_pct: 60
+
+- alias: Turn on lights when dark - home
+  description: "Switch standard lights on when it's after 2 PM and light level too low"
+  id: groundfloor_lights_on_when_dark_home
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.lightlevel_living
+      below: 70
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: light.zwave_light_couch_level
+        state: 'off'
+      - condition: time
+        after: '14:00:00'
+        before: '22:30:00'
+      - condition: state
+        entity_id: input_boolean.enable_automatic_lights
+        state: 'on'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id:
+              - device_tracker.rob_presence
+            state:
+              - "home"
+          - condition: state
+            entity_id:
+              - device_tracker.steffi_presence
+            state:
+              - "home"
+  action:
+    - service: notify.telegram_rob
+      data:
+        message: "💡 Verlichting automatisch aan - thuis"
+    - service: light.turn_on
+      data:
+        entity_id:
+        - light.zwave_light_corner_level
+        - light.zwave_light_couch_level
+        - light.keuken
     - delay: '1'
     - service: light.turn_on
       data:
         entity_id:
-        - light.backdoor
-        brightness_pct: 60
+        - light.ledstrip_office
+        - light.eetkamer
+        - light.woonkamer
+        brightness_pct: 50
 
 - alias: Turn off lights - bedtime
   description: "Turn off main lights when we're not home or already went to bed"
@@ -98,7 +144,7 @@
     condition: and
     conditions:
     - condition: state
-      entity_id: light.everspring_ad147_plug_in_dimmer_module_level_couch
+      entity_id: light.zwave_light_couch_level
       state: 'on'
     - condition: time
       after: "23:03:00"
@@ -116,37 +162,34 @@
       data:
         entity_id:
         - light.zwave_light_corner_level
-        - light.everspring_ad147_plug_in_dimmer_module_level_couch
+        - light.zwave_light_couch_level
     - delay: '1'
     - service: light.turn_off
       data:
         entity_id:
-        - light.backdoor
-        - light.bridgelight
-    - delay: '1'
-    - service: light.turn_off
-      data:
-        entity_id:
-        - light.backdoor
-        - light.bridgelight
+        - light.woonkamer
+        - light.keuken
+        - light.kantoor
+        - light.eetkamer
 
-- alias: Turn on frontdoor light
-  description: "Turn on the frontdoor light when it's getting dark"
+- alias: Turn on lights when closet door opens
   trigger:
-    platform: sun
-    event: sunset
-    offset: "-00:30:00"
+    platform: state
+    entity_id: sensor.door_hallcloset_openclose
+    from: 'Closed'
+    to: 'Open'
   action:
-  - service: light.turn_on
-    entity_id: light.frontdoor
-- alias: Turn off frontdoor light
-  description: "Turn off the frontdoor light when it's getting lighter"
+    service: light.turn_on
+    entity_id: light.hallcloset
+- alias: Turn off lights when closet door closes
   trigger:
-    platform: sun
-    event: sunrise
+    platform: state
+    entity_id: sensor.door_hallcloset_openclose
+    from: 'Open'
+    to: 'Closed'
   action:
-  - service: light.turn_off
-    entity_id: light.frontdoor
+    service: light.turn_off
+    entity_id: light.hallcloset
 
 - alias: Reset lights automation
   description: "When we have disabled all automatic lighting, we reset this in the early morning to make sure we're back to normal the next day"
@@ -155,14 +198,19 @@
     platform: time
     at: "05:00:00"
   condition:
-    condition: and
+    condition: or
     conditions:
       - condition: state
         entity_id: input_boolean.enable_automatic_lights
-        state: 'off'
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_automatic_garden_lights
+        state: "off"
   action:
-  - service: homeassistant.turn_on
-    entity_id: input_boolean.enable_automatic_lights
+    - service: homeassistant.turn_on
+      entity_id: input_boolean.enable_automatic_lights
+    - service: homeassistant.turn_on
+      entity_id: input_boolean.enable_automatic_garden_lights
 
 
 ## Technical workarounds
@@ -182,3 +230,19 @@
     - delay: 00:05
     - service: homekit.reload
 
+- alias: 'Restart SSH Addon'
+  description: "Restart the ssh addon after a HA restart, required to get the hassio.addon_stdin to work"
+  trigger:
+    - platform: homeassistant
+      event: start
+  action:
+    - delay: 00:04
+    - service: hassio.addon_restart
+      data:
+        addon: a0d7b954_ssh
+    - delay: 00:01
+    - service: hassio.addon_stdin
+      data:
+        addon: a0d7b954_ssh
+        input: bash /config/cast.sh
+      

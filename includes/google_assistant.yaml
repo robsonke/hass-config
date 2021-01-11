@@ -24,19 +24,31 @@ entity_config:
     expose: true
   input_boolean.steffi_homekit_present:
     expose: true
-  light.frontdoor:
+  light.hal:
     expose: true
-  light.garden_wall_lights:
+  light.keuken:
     expose: true
-  light.kitchen:
-    expose: true
-  light.office:
+  light.kantoor:
     expose: true
   light.zwave_light_corner_level:
     expose: true
-  light.everspring_ad147_plug_in_dimmer_module_level_couch:
+  light.zwave_light_couch_level:
     expose: true
-  light.backdoor:
+  light.eetkamer:
     expose: true
-  light.fibaro_fgd212_dimmer2_level1_veranda:
+  light.woonkamer_achter:
+    expose: true
+  light.woonkamer_voor:
+    expose: true
+  light.woonkamer:
+    expose: true
+  light.hoofdslaapkamer:
+    expose: true
+  light.douche:
+    expose: true
+  light.inloopkast:
+    expose: true
+  light.overloop:
+    expose: true
+  light.badkamer:
     expose: true

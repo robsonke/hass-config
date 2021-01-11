@@ -20,3 +20,10 @@
   name: 'SamsungTv Livingroom'
   device_id: !secret samsungtv_living_device
   api_key: !secret samsungtv_living_token
+- platform: samsungtv_tizen
+  host: !secret tvbedroom_host
+  mac: "8C:79:F5:A9:10:EC"
+  app_list: '{"Netflix": "11101200001", "YouTube": "111299001912", "Internet": "org.tizen.browser"}'
+  name: 'SamsungTv Bedroom'
+  device_id: !secret samsungtv_bedroom_device
+  api_key: !secret samsungtv_living_token

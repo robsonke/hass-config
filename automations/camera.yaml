@@ -9,11 +9,3 @@
 #
 # Automations that handle camera events
 #
-
-# - alias: Cleanup Doods files
-#   description: "This removes all older files in the history folder of Doods images, to avoid having a full disk"
-#   trigger:
-#     - minutes: 0
-#       platform: time_pattern
-#   action:
-#     service: shell_command.cleanup_processed_images

@@ -8,34 +8,27 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-- platform: limitlessled
-  bridges:
-    - host: !secret limitlessled_host
-      version: 6
-      port: 5987
-      groups:
-      - number: 4
-        type: bridge-led
-        name: computer
-        fade: true
-      - number: 1
-        name: backdoor
-        type: rgbww
-        fade: true
-      - number: 2
-        name: frontdoor
-        type: rgbww
-        fade: true
-      - number: 3
-        name: office
-        type: rgbww
-        fade: true
-      - number: 4
-        name: kitchen
-        type: rgbww
-        fade: true
+
+
+- platform: casambi
+  email: !secret casambi_email
+  api_key: !secret casambi_api_key
+  network_password : !secret casambi_network_password
+  user_password : !secret casambi_user_password
+  network_timeout: 30
+
 - platform: group
-  name: garden_lights
+  name: Woonkamer
   entities:
-    - light.garden_wall_lights
-    - light.fibaro_fgd212_dimmer2_level1_veranda
+    - light.woonkamer_achter
+    - light.woonkamer_voor
+- platform: group
+  name: Overloop
+  entities:
+    - light.overloop_1
+    - light.overloop_2
+- platform: group
+  name: Keuken
+  entities:
+    - light.keuken_kook
+    - light.keuken_nis

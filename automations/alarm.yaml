@@ -46,9 +46,6 @@
     condition: and
     conditions:
     - condition: state
-      entity_id: sensor.door_window_open
-      state: "false"
-    - condition: state
       entity_id:
         - device_tracker.rob_presence
         - device_tracker.steffi_presence
@@ -65,39 +62,6 @@
         message: "⏰ ALARM: Deuren en ramen zijn gesloten, zowel Rob als Steffi zijn weg en de gastmodus staat uit. Het alarm gaat nu aan."
     - service: alarm_control_panel.alarm_arm_away
       entity_id: alarm_control_panel.alarm
-
-## We're away and the house is not ready
-- alias: "Alarm - Ready to auto arm but house not ready"
-  description: "Alert in case we leave the house but left important doors or windows open"
-  trigger:
-    platform: state
-    entity_id:
-      - device_tracker.rob_presence
-      - device_tracker.steffi_presence
-    to: "just_left"
-    for:
-      minutes: 5
-  condition:
-    condition: and
-    conditions:
-    - condition: state
-      entity_id: sensor.door_window_open
-      state: "true"
-    - condition: state
-      entity_id:
-        - device_tracker.rob_presence
-        - device_tracker.steffi_presence
-      state: "not_home"
-    - condition: template
-      value_template: "{{ states('input_boolean.guest_mode') != 'on' }}"
-    - condition: state
-      entity_id: alarm_control_panel.alarm
-      state: "disarmed"
-  action:
-    service: notify.telegram
-    data:
-      # TODO list which ones aren't closed
-      message: "⏰ Deuren en ramen zijn NIET gesloten, zowel Rob als Steffi zijn weg en de gastmodus staat uit."
 
 ## Can we auto disarm the alarm because one of us comes home?
 - alias: "Alarm - Ready to auto disarm since one of us comes home"
@@ -140,11 +104,12 @@
 - alias: 'Alarm - Trigger while armed away'
   description: "Change the alarm state to triggering when an important door or window opens"
   trigger:
-    # TODO add more entities that trigger the alarm
     - platform: state
-      entity_id: sensor.door_window_open
-      to: "true"
+      entity_id: sensor.doors_windows_open_count
   condition:
+    # are there more doors/windows opening?
+    - condition: template
+      value_template: '{{ trigger.to_state.state | int > trigger.from_state.state | int }}'
     - condition: state
       entity_id: alarm_control_panel.alarm
       state:

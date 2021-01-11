@@ -11,6 +11,9 @@
 enable_automatic_lights:
   name: Enable Lights Automation
   icon: mdi:weather-sunset-down
+enable_automatic_garden_lights:
+  name: Enable Garden Lights Automation
+  icon: mdi:weather-sunset-down
 guest_mode:
   name: Guest Mode
   icon: mdi:account-group

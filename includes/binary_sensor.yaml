@@ -12,26 +12,32 @@
   host: !secret tvliving_host
   name: samsungtv_livingroom_status
 
+# - platform: ping
+#   # office
+#   name: pi_zero_monitor_one
+#   host: !secret pi_zero_monitor_one_host
+#   scan_interval: 30
+# - platform: ping
+#   # bedroom
+#   name: pi_zero_monitor_two
+#   host: !secret pi_zero_monitor_two_host
+#   scan_interval: 30
+# - platform: ping
+#   # living room
+#   name: pi_zero_monitor_three
+#   host: !secret pi_zero_monitor_three_host
+#   scan_interval: 30
+# - platform: ping
+#   # spare
+#   name: pi_zero_monitor_four
+#   host: !secret pi_zero_monitor_four_host
+#   scan_interval: 30
+
+# check internet connection
 - platform: ping
-  # office
-  name: pi_zero_monitor_one
-  host: !secret pi_zero_monitor_one_host
-  scan_interval: 30
-- platform: ping
-  # bedroom
-  name: pi_zero_monitor_two
-  host: !secret pi_zero_monitor_two_host
-  scan_interval: 30
-- platform: ping
-  # living room
-  name: pi_zero_monitor_three
-  host: !secret pi_zero_monitor_three_host
-  scan_interval: 30
-- platform: ping
-  # spare
-  name: pi_zero_monitor_four
-  host: !secret pi_zero_monitor_four_host
-  scan_interval: 30
+  name: internet_ping
+  host: 1.1.1.1
+  scan_interval: 10
 
 # Frigate
 - name: Gardencam Person Frigate

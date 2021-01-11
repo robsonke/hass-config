@@ -10,54 +10,54 @@
 # Philips Hue switches
 #
 
-- alias: 'Toggle kitchen light from dimmer'
-  trigger:
-    - platform: event
-      event_type: deconz_event
-      event_data:
-        id: dimmer_switch_kitchen
-        event: 1002
-  action:
-    service: light.toggle
-    entity_id: light.kitchen
-- alias: 'Turn off kitchen light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_kitchen
-      event: 4002
-  action:
-    service: light.turn_off
-    entity_id: light.kitchen
-- alias: 'Increase brightness of kitchen light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_kitchen
-      event: 2002
-  action:
-    - service: light.turn_on
-      data_template:
-        entity_id: light.kitchen
-        brightness: >
-          {% set bri = state_attr('light.kitchen', 'brightness') | int %}
-          {{ [bri+30, 249] | min }}
-- alias: 'Decrease brightness of kitchen light from dimmer'
-  trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_kitchen
-      event: 3002
-  action:
-    - service: light.turn_on
-      data_template:
-        entity_id: light.kitchen
-        brightness: >
-          {% set bri = state_attr('light.kitchen', 'brightness') | int %}
-          {{ [bri-30, 0] | max }}
+# - alias: 'Toggle kitchen light from dimmer'
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: dimmer_switch_kitchen
+#         event: 1002
+#   action:
+#     service: light.toggle
+#     entity_id: light.kitchen
+# - alias: 'Turn off kitchen light from dimmer'
+#   trigger:
+#     platform: event
+#     event_type: deconz_event
+#     event_data:
+#       id: dimmer_switch_kitchen
+#       event: 4002
+#   action:
+#     service: light.turn_off
+#     entity_id: light.kitchen
+# - alias: 'Increase brightness of kitchen light from dimmer'
+#   trigger:
+#     platform: event
+#     event_type: deconz_event
+#     event_data:
+#       id: dimmer_switch_kitchen
+#       event: 2002
+#   action:
+#     - service: light.turn_on
+#       data_template:
+#         entity_id: light.kitchen
+#         brightness: >
+#           {% set bri = state_attr('light.kitchen', 'brightness') | int %}
+#           {{ [bri+30, 249] | min }}
+# - alias: 'Decrease brightness of kitchen light from dimmer'
+#   trigger:
+#     platform: event
+#     event_type: deconz_event
+#     event_data:
+#       id: dimmer_switch_kitchen
+#       event: 3002
+#   action:
+#     - service: light.turn_on
+#       data_template:
+#         entity_id: light.kitchen
+#         brightness: >
+#           {% set bri = state_attr('light.kitchen', 'brightness') | int %}
+#           {{ [bri-30, 0] | max }}
 
 # office light switch
 - alias: 'Toggle office light from dimmer'
@@ -68,8 +68,10 @@
       id: dimmer_switch_office
       event: 1002
   action:
-    service: light.toggle
-    entity_id: light.office
+    - service: light.turn_on
+      entity_id: light.kantoor
+    - service: light.turn_on
+      entity_id: light.ledstrip_office
 - alias: 'Turn off office light from dimmer'
   trigger:
     platform: event
@@ -78,8 +80,10 @@
       id: dimmer_switch_office
       event: 4002
   action:
-    service: light.turn_off
-    entity_id: light.office
+    - service: light.turn_off
+      entity_id: light.kantoor
+    - service: light.turn_off
+      entity_id: light.ledstrip_office
 - alias: 'Increase brightness of office light from dimmer'
   trigger:
     platform: event
@@ -90,9 +94,15 @@
   action:
     - service: light.turn_on
       data_template:
-        entity_id: light.office
+        entity_id: light.kantoor
         brightness: >
-          {% set bri = state_attr('light.office', 'brightness') | int %}
+          {% set bri = state_attr('light.kantoor', 'brightness') | int %}
+          {{ [bri+30, 249] | min }}
+    - service: light.turn_on
+      data_template:
+        entity_id: light.ledstrip_office
+        brightness: >
+          {% set bri = state_attr('light.ledstrip_office', 'brightness') | int %}
           {{ [bri+30, 249] | min }}
 - alias: 'Decrease brightness of office light from dimmer'
   trigger:
@@ -104,7 +114,13 @@
   action:
     - service: light.turn_on
       data_template:
-        entity_id: light.office
+        entity_id: light.kantoor
         brightness: >
-          {% set bri = state_attr('light.office', 'brightness') | int %}
-          {{ [bri-30, 0] | max }}
+          {% set bri = state_attr('light.kantoor', 'brightness') | int %}
+          {{ [bri-30, 249] | min }}
+    - service: light.turn_on
+      data_template:
+        entity_id: light.ledstrip_office
+        brightness: >
+          {% set bri = state_attr('light.ledstrip_office', 'brightness') | int %}
+          {{ [bri-30, 249] | min }}

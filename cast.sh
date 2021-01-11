@@ -1,6 +1,5 @@
 #!/bin/bash
 # Small cast script to Ask a Google Hub to show HA
-
 if ! catt -d "Keuken Display" status | grep 'PLAYING'; then
   # mute first to avoid the annoying beeps
   catt -d "Keuken Display" volume 0

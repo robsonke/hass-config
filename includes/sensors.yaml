@@ -9,11 +9,11 @@
 #
 
 - platform: version
-- platform: google_wifi
-  host: !secret router_ip
+# - platform: google_wifi
+#   host: !secret router_ip
 - platform: dsmr
   port: /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AL00WDA2-if00-port0
-  dsmr_version: 2.2
+  dsmr_version: 5
 - platform: time_date
   display_options:
     - 'time'
@@ -21,8 +21,17 @@
     - 'date_time'
 
 - platform: moon
-
+- platform: uptime
 - platform: dnsip
+
+# convert the uptime one to a real value
+- platform: template
+  sensors:
+    ha_uptime:
+      friendly_name: 'HA uptime minutes'
+      value_template: >
+        {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'))) / 60 }}
+
 
 # tracks changes in the lovelace file
 - platform: filesize
@@ -37,22 +46,6 @@
     - type: processor_use
     - type: last_boot
 
-- platform: uptime
-  name: "HA runtime in minutes"
-  unit_of_measurement: minutes
-
-# TODO extend with more sensors
-- platform: template
-  sensors:
-    door_window_open:
-      value_template: >-
-        {% if is_state("sensor.backdoor_openclose", "Open") or is_state("sensor.frontdoor_openclose", "Open") or is_state("sensor.sheddoor_openclose", "Open") -%}
-          true
-        {%- else -%}
-          false
-        {%- endif %}
-
-    
 - platform: template
   sensors:
     light_dark_level_inside:
@@ -66,83 +59,91 @@
       unit_of_measurement: 'lux'
       value_template: "200"
 
+# same sensor but with other unit of measurement
+- platform: template
+  sensors:
+    power_consumption_w:
+      friendly_name: Power Consumption Watt
+      unit_of_measurement: 'W'
+      value_template: "{{ states('sensor.power_consumption') | float * 1000 | round(0) }}"
+
 
 ## monitor.sh config
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-1/phone_rob'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_rob_ground_floor_confidence'
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-1/phone_steffi'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_steffi_ground_floor_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-1/phone_rob'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_rob_ground_floor_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-1/phone_steffi'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_steffi_ground_floor_confidence'
 
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-2/phone_rob'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_rob_first_floor_confidence'
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-2/phone_steffi'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_steffi_first_floor_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-2/phone_rob'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_rob_first_floor_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-2/phone_steffi'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_steffi_first_floor_confidence'
 
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-3/phone_rob'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_rob_garden_confidence'
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-3/phone_steffi'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_steffi_garden_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-3/phone_rob'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_rob_garden_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-3/phone_steffi'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_steffi_garden_confidence'
 
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-4/phone_rob'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_rob_spare_confidence'
-- platform: mqtt
-  state_topic: 'monitor/raspberrypi-zero-4/phone_steffi'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'phone_steffi_spare_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-4/phone_rob'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_rob_spare_confidence'
+# - platform: mqtt
+#   state_topic: 'monitor/raspberrypi-zero-4/phone_steffi'
+#   value_template: '{{ value_json.confidence }}'
+#   unit_of_measurement: '%'
+#   name: 'phone_steffi_spare_confidence'
 
-- platform: min_max
-  name: home_occupancy_confidence
-  type: max
-  round_digits: 0
-  entity_ids:
-    - sensor.phone_rob_ground_floor_confidence
-    - sensor.phone_rob_first_floor_confidence
-    - sensor.phone_rob_garden_confidence
-    - sensor.phone_rob_spare_confidence
-    - sensor.phone_steffi_ground_floor_confidence
-    - sensor.phone_steffi_first_floor_confidence
-    - sensor.phone_steffi_garden_confidence
-    - sensor.phone_steffi_spare_confidence
-- platform: min_max
-  name: home_occupancy_confidence_rob
-  type: max
-  round_digits: 0
-  entity_ids:
-    - sensor.phone_rob_ground_floor_confidence
-    - sensor.phone_rob_first_floor_confidence
-    - sensor.phone_rob_garden_confidence
-    - sensor.phone_rob_spare_confidence
-- platform: min_max
-  name: home_occupancy_confidence_steffi
-  type: max
-  round_digits: 0
-  entity_ids:
-    - sensor.phone_steffi_ground_floor_confidence
-    - sensor.phone_steffi_first_floor_confidence
-    - sensor.phone_steffi_garden_confidence
-    - sensor.phone_steffi_spare_confidence
+# - platform: min_max
+#   name: home_occupancy_confidence
+#   type: max
+#   round_digits: 0
+#   entity_ids:
+#     - sensor.phone_rob_ground_floor_confidence
+#     - sensor.phone_rob_first_floor_confidence
+#     - sensor.phone_rob_garden_confidence
+#     - sensor.phone_rob_spare_confidence
+#     - sensor.phone_steffi_ground_floor_confidence
+#     - sensor.phone_steffi_first_floor_confidence
+#     - sensor.phone_steffi_garden_confidence
+#     - sensor.phone_steffi_spare_confidence
+# - platform: min_max
+#   name: home_occupancy_confidence_rob
+#   type: max
+#   round_digits: 0
+#   entity_ids:
+#     - sensor.phone_rob_ground_floor_confidence
+#     - sensor.phone_rob_first_floor_confidence
+#     - sensor.phone_rob_garden_confidence
+#     - sensor.phone_rob_spare_confidence
+# - platform: min_max
+#   name: home_occupancy_confidence_steffi
+#   type: max
+#   round_digits: 0
+#   entity_ids:
+#     - sensor.phone_steffi_ground_floor_confidence
+#     - sensor.phone_steffi_first_floor_confidence
+#     - sensor.phone_steffi_garden_confidence
+#     - sensor.phone_steffi_spare_confidence
 
 
 # tp-link kasa
@@ -209,12 +210,39 @@
       value_template: '{{ states.sensor.frigate_debug.attributes["detectors"]["coral"]["inference_speed"] }}' 
       unit_of_measurement: 'ms'
 
-- platform: bmw_connected_drive
 - platform: waze_travel_time
   name: Home to work
   origin: !secret home_address
   destination: !secret work_address
   region: 'EU'
+
+- platform: template
+  sensors:
+    doors_windows_upstairs_open_count:
+      friendly_name: 'Open windows and doors upstairs'
+      value_template: >
+        {% set sensors = [states.sensor.window_atticroom_openclose,
+                          states.sensor.window_evaroom_openclose,
+                          states.sensor.window_masterbed_1_openclose,
+                          states.sensor.window_masterbed_2_openclose,
+                          states.sensor.window_guestroom_openclose] %}
+        {{ sensors | selectattr('state', 'eq', 'Open') | list | count }}
+    doors_windows_downstairs_open_count:
+      friendly_name: 'Open windows and doors downstairs'
+      value_template: >
+        {% set sensors = [states.sensor.backdoor_openclose,
+                          states.sensor.frontdoor_openclose,
+                          states.sensor.sheddoor_openclose,
+                          states.sensor.windowdoor_ground_1_openclose,
+                          states.sensor.windowdoor_ground_2_openclose,
+                          states.sensor.windowdoor_ground_3_openclose,
+                          states.sensor.windowdoor_ground_4_openclose,
+                          states.sensor.window_office_openclose] %}
+        {{ sensors | selectattr('state', 'eq', 'Open') | list | count }}
+    doors_windows_open_count:
+      friendly_name: 'Open windows downstairs'
+      value_template: >
+        {{ states.sensor.doors_windows_upstairs_open_count.state | int + states.sensor.doors_windows_downstairs_open_count.state | int }}
 
 - platform: template
   sensors:
@@ -265,6 +293,193 @@
         {% if states.binary_sensor.sheddoor_openclose_sensor.state == 'off' %}
           mdi:door-closed
         {% elif states.binary_sensor.sheddoor_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    windowdoor_ground_1_openclose:
+      value_template: >-
+        {% if states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    windowdoor_ground_2_openclose:
+      value_template: >-
+        {% if states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    windowdoor_ground_3_openclose:
+      value_template: >-
+        {% if states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    windowdoor_ground_4_openclose:
+      value_template: >-
+        {% if states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    window_office_openclose:
+      value_template: >-
+        {% if states.binary_sensor.window_office_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.window_office_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.window_office_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.window_office_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    door_hallcloset_openclose:
+      value_template: >-
+        {% if states.binary_sensor.door_hallcloset_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.door_hallcloset_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.door_hallcloset_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.door_hallcloset_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    window_atticroom_openclose:
+      value_template: >-
+        {% if states.binary_sensor.window_atticroom_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.window_atticroom_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.window_atticroom_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.window_atticroom_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    window_guestroom_openclose:
+      value_template: >-
+        {% if states.binary_sensor.window_guestroom_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.window_guestroom_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.window_guestroom_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.window_guestroom_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    window_evaroom_openclose:
+      value_template: >-
+        {% if states.binary_sensor.window_evaroom_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.window_evaroom_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.window_evaroom_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.window_evaroom_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    window_masterbed_1_openclose:
+      value_template: >-
+        {% if states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'on' %}
+          mdi:door-open
+        {% else %}
+          mdi:help
+        {% endif %}
+    window_masterbed_2_openclose:
+      value_template: >-
+        {% if states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'off' %}
+          Closed
+        {% elif states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'on' %}
+          Open
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >
+        {% if states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'off' %}
+          mdi:door-closed
+        {% elif states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'on' %}
           mdi:door-open
         {% else %}
           mdi:help

@@ -49,8 +49,8 @@ What drives all:
 ### Devices
 What controls and measures all.
 Lights:
+- Casambi lights and switches
 - Philips Hue Bulbs
-- LimitlessLED spots
 - 4x Osram Zigbee Led Strip (3m)
 
 Switches:
@@ -86,9 +86,6 @@ Doorbell
 - Ring Doorbell
 - Ring Chime
 
-Thermostat:
-- Nest Thermostat
-
 # Presence Detection
 > TODO
 
@@ -96,8 +93,6 @@ Thermostat:
 > TODO
 
 # Main Todo
-- Research if I should switch to [Frigate](https://github.com/blakeblackshear/frigate)
-- Order a Coral Accelerator
 - Implement adaptive lighting
 - Implement garden irrigation system
 - Implement smart door locks
