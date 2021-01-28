@@ -38,17 +38,3 @@
   name: internet_ping
   host: 1.1.1.1
   scan_interval: 10
-
-# Frigate
-- name: Gardencam Person Frigate
-  platform: mqtt
-  off_delay: 0
-  state_topic: "frigate/gardencam/person"
-  device_class: motion
-  availability_topic: "frigate/available"
-- name: Babycam Person Frigate
-  platform: mqtt
-  off_delay: 0
-  state_topic: "frigate/babycam/person"
-  device_class: motion
-  availability_topic: "frigate/available"

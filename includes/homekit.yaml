@@ -17,6 +17,7 @@
       - input_boolean.steffi_homekit_present
       - light.hal
       - light.keuken
+      - light.kookeiland
       - light.kantoor
       - light.zwave_light_corner_level
       - light.zwave_light_couch_level

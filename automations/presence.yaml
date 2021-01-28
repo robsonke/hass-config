@@ -256,6 +256,19 @@
         location_name: not_home
         source_type: gps
 
+- alias: Notify of events in Frigate
+  trigger:
+    platform: mqtt
+    topic: frigate/events
+  action:
+    - service: notify.telegram
+      data_template:
+        message: 'A {{trigger.payload_json["after"]["label"]}} was detected.'
+        data:
+          photo:
+            - url: 'http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg'
+              caption: 'A {{trigger.payload_json["after"]["label"]}} was detected on {{ trigger.payload_json["after"]["camera"] }} camera'
+
 # Restart monitor nodes when hass restarts
 - alias: Restart monitor.sh at Hass startup
   description: Restart monitor nodes when hass restarts

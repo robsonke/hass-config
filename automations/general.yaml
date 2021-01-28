@@ -42,6 +42,7 @@
         - light.ledstrip_office
         - light.keuken
         - light.woonkamer
+        - light.kookeiland
 
 - alias: Turn on lights when dark - away
   description: "Switch standard lights on when it's after 2 PM and light level too low"
@@ -49,7 +50,7 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      below: 100
+      below: 60
   condition:
     condition: and
     conditions:
@@ -91,7 +92,7 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      below: 70
+      below: 60
   condition:
     condition: and
     conditions:
@@ -133,7 +134,11 @@
         - light.ledstrip_office
         - light.eetkamer
         - light.woonkamer
-        brightness_pct: 50
+        brightness_pct: 40
+    - service: light.turn_on
+      data:
+        entity_id: light.kookeiland
+        brightness_pct: 15
 
 - alias: Turn off lights - bedtime
   description: "Turn off main lights when we're not home or already went to bed"
@@ -171,6 +176,7 @@
         - light.keuken
         - light.kantoor
         - light.eetkamer
+        - light.kookeiland
 
 - alias: Turn on lights when closet door opens
   trigger:

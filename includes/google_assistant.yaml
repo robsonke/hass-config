@@ -28,6 +28,8 @@ entity_config:
     expose: true
   light.keuken:
     expose: true
+  light.kookeiland:
+    expose: true
   light.kantoor:
     expose: true
   light.zwave_light_corner_level:

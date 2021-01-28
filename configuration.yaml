@@ -32,6 +32,7 @@ homekit: !include includes/homekit.yaml
 influxdb: !include includes/influxdb.yaml
 input_boolean: !include includes/input_boolean.yaml
 light: !include includes/lights.yaml
+lock: !include includes/locks.yaml
 logbook: !include includes/logbook.yaml
 logger: !include includes/logger.yaml
 notify: !include includes/notify.yaml

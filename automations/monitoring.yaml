@@ -61,3 +61,14 @@
     service: notify.telegram_rob
     data_template:
       message: "De automatische verlichting is uitgeschakeld, dit is mogelijk onbewust."
+
+- alias: Low battery level detection & notification for all battery sensors
+  description: ''
+  use_blueprint:
+    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+    input:
+      day: '0'
+      actions:
+      - service: notify.telegram_rob
+        data:
+          message: 🔋 Low battery warning for {{sensors|replace("_"," ")}}

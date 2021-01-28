@@ -169,46 +169,46 @@
       friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_winecooler.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
-
-
-# Frigate debug sensors
-# TODO add more cams
-- platform: rest
-  name: Frigate Debug
-  resource: !secret frigate_url
-  scan_interval: 5
-  json_attributes:
-    - gardencam
-    - babycam
-    - detection_fps
-    - detectors
-  value_template: 'OK'
-- platform: template
-  sensors:
-    gardencam_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["gardencam"]["camera_fps"] }}'
-      unit_of_measurement: 'FPS'
-    gardencam_skipped_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["gardencam"]["skipped_fps"] }}'
-      unit_of_measurement: 'FPS'
-    gardencam_detection_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["gardencam"]["detection_fps"] }}'
-      unit_of_measurement: 'FPS'
-    babycam_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["babycam"]["camera_fps"] }}'
-      unit_of_measurement: 'FPS'
-    babycam_skipped_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["babycam"]["skipped_fps"] }}'
-      unit_of_measurement: 'FPS'
-    babycam_detection_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["babycam"]["detection_fps"] }}'
-      unit_of_measurement: 'FPS'
-    frigate_detection_fps: 
-      value_template: '{{ states.sensor.frigate_debug.attributes["detection_fps"] }}'
-      unit_of_measurement: 'FPS'
-    frigate_coral_inference:
-      value_template: '{{ states.sensor.frigate_debug.attributes["detectors"]["coral"]["inference_speed"] }}' 
-      unit_of_measurement: 'ms'
+    kasa_wasmachine_amps:
+      friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Current"
+      value_template: '{{ states.switch.kasa_wasmachine.attributes["current_a"] | float }}'
+      unit_of_measurement: 'A'
+    kasa_wasmachine_watts:
+      friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Current Consumption"
+      value_template: '{{ states.switch.kasa_wasmachine.attributes["current_power_w"] | float }}'
+      unit_of_measurement: 'W'
+    kasa_wasmachine_total_kwh:
+      friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Total Consumption"
+      value_template: '{{ states.switch.kasa_wasmachine.attributes["total_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+    kasa_wasmachine_volts:
+      friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Voltage"
+      value_template: '{{ states.switch.kasa_wasmachine.attributes["voltage"] | float }}'
+      unit_of_measurement: 'V'
+    kasa_wasmachine_today_kwh:
+      friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Today's Consumption"
+      value_template: '{{ states.switch.kasa_wasmachine.attributes["today_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+    kasa_vaatwasser_amps:
+      friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Current"
+      value_template: '{{ states.switch.kasa_vaatwasser.attributes["current_a"] | float }}'
+      unit_of_measurement: 'A'
+    kasa_vaatwasser_watts:
+      friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Current Consumption"
+      value_template: '{{ states.switch.kasa_vaatwasser.attributes["current_power_w"] | float }}'
+      unit_of_measurement: 'W'
+    kasa_vaatwasser_total_kwh:
+      friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Total Consumption"
+      value_template: '{{ states.switch.kasa_vaatwasser.attributes["total_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+    kasa_vaatwasser_volts:
+      friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Voltage"
+      value_template: '{{ states.switch.kasa_vaatwasser.attributes["voltage"] | float }}'
+      unit_of_measurement: 'V'
+    kasa_vaatwasser_today_kwh:
+      friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Today's Consumption"
+      value_template: '{{ states.switch.kasa_vaatwasser.attributes["today_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
 
 - platform: waze_travel_time
   name: Home to work

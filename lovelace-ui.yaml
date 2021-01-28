@@ -125,6 +125,10 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
+      - entity: light.kookeiland
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
       - entity: light.hal
         secondary_info: brightness
         toggle: true
@@ -300,16 +304,12 @@ views:
       - entity: sensor.solaredge_current_power
         hours_to_show: 24
         name: Zonnepanelen
-        points_per_hour: 10
-        show:
-          graph: bar
+        points_per_hour: 100
         show_state: true
       - entity: sensor.power_consumption_w
         hours_to_show: 24
         name: Stroomverbruik
-        points_per_hour: 10
-        show:
-          graph: bar
+        points_per_hour: 100
         show_state: true
       type: custom:mini-graph-card
     - entities:
@@ -493,6 +493,10 @@ views:
         toggle: true
         type: custom:slider-entity-row
       - entity: light.keuken
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
+      - entity: light.kookeiland
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -833,6 +837,7 @@ views:
       type: entities
     filter:
       include:
+      - entity_id: lock.voordeur_slot
       - group: group.doors_and_windows
       - entity_id: input_boolean.guest_mode
     sort:
@@ -929,10 +934,13 @@ views:
   - entity: camera.weer
     type: picture-entity
   - camera_view: live
-    entity: camera.gardencam_last_person_frigate
+    entity: camera.gardencam_person
     type: picture-entity
   - camera_view: live
-    entity: camera.babycam_last_person_frigate
+    entity: camera.babycam_person
+    type: picture-entity
+  - camera_view: live
+    entity: camera.babycam_cat
     type: picture-entity
   icon: mdi:webcam
   title: Cams
@@ -1030,6 +1038,121 @@ views:
       - name: {{sh.name}}\n  status: {{sh.state}}\n{%- endfor %}\n"
     title: Last backups
     type: markdown
+  - entities:
+    - entity: sensor.cert_expiry_home_tigrou_nl
+    type: entities
+  - entities:
+    - binary_sensor.pi_zero_monitor_one
+    - binary_sensor.pi_zero_monitor_two
+    - binary_sensor.pi_zero_monitor_three
+    - binary_sensor.pi_zero_monitor_four
+    show_header_toggle: false
+    title: Pi Zeros
+    type: entities
+  - entities:
+    - entity: sensor.speedtest_download
+    - entity: sensor.speedtest_upload
+    - entity: sensor.speedtest_ping
+    - entity: binary_sensor.internet_ping
+    show_header_toggle: false
+    title: Internet
+    type: entities
+  - cards:
+    - entities:
+      - sensor.hp_envy_5640_series
+      - sensor.hp_envy_5640_series_black_ink
+      - sensor.hp_envy_5640_series_tri_color_ink
+      type: entities
+    type: vertical-stack
+  - entities:
+    - sensor.count_automations
+    - sensor.count_device_trackers
+    - sensor.count_lights
+    - sensor.count_binary_sensors
+    - sensor.count_sensors
+    - sensor.count_switches
+    - sensor.count_zones
+    - sensor.count_cameras
+    - sensor.count_media_players
+    - sensor.count_scripts
+    - sensor.count_locks
+    - sensor.count_vacuums
+    - sensor.count_zwaves
+    show_header_toggle: false
+    title: Numbers
+    type: entities
+  icon: mdi:desktop-tower
+  id: hardware-card
+  title: Hardware
+- badges: []
+  cards:
+  - entities:
+    - entity: sensor.kasa_winecooler_watts
+      hours_to_show: 3
+      name: Wijnklimaatkast
+      points_per_hour: 60
+      show:
+        graph: bar
+      show_state: true
+    points_per_hour: 60
+    type: custom:mini-graph-card
+  - entities:
+    - entity: sensor.kasa_wasmachine_watts
+      hours_to_show: 3
+      name: Wasmachine
+      points_per_hour: 60
+      show:
+        graph: bar
+      show_state: true
+    points_per_hour: 60
+    type: custom:mini-graph-card
+  - entities:
+    - entity: sensor.kasa_vaatwasser_watts
+      hours_to_show: 3
+      name: Vaatwasser
+      points_per_hour: 60
+      show:
+        graph: bar
+      show_state: true
+    points_per_hour: 60
+    type: custom:mini-graph-card
+  - entities:
+    - sensor.lightlevel_office_battery_level
+    - sensor.lightlevel_living_battery_level
+    - sensor.climate_sensor_office_battery_level
+    - sensor.backdoor_openclose_battery_level
+    - sensor.frontdoor_openclose_battery_level
+    - sensor.sheddoor_openclose_battery_level
+    - sensor.sjorsje_battery_level
+    - sensor.dimmer_switch_office_battery_level
+    - sensor.dimmer_switch_kitchen_battery_level
+    - sensor.switch_round_battery_level
+    - sensor.climate_sensor_eva_battery_level
+    - sensor.climate_sensor_kitchen_battery_level
+    - sensor.climate_sensor_living_battery_level
+    - sensor.climate_sensor_masterbedroom_battery_level
+    - sensor.lightlevel_living_battery_level
+    - sensor.light_sensor_kitchen_battery_level
+    - sensor.light_sensor_masterbedroom_battery_level
+    - sensor.motion_sensor_office_battery_level
+    - sensor.door_hallcloset_openclose_battery_level
+    - sensor.mailbox_vibration_sensor_battery_level
+    - sensor.motion_sensor_office_battery_level
+    - sensor.windowdoor_ground_1_openclose_battery_level
+    - sensor.windowdoor_ground_2_openclose_battery_level
+    - sensor.windowdoor_ground_3_openclose_battery_level
+    - sensor.windowdoor_ground_4_openclose_battery_level
+    - sensor.window_atticroom_openclose_battery_level
+    - sensor.window_evaroom_openclose_battery_level
+    - sensor.window_guestroom_openclose_battery_level
+    - sensor.window_masterbed_1_openclose_battery_level
+    - sensor.window_masterbed_2_openclose_battery_level
+    - sensor.window_office_openclose_battery_level
+    sort_by_level: asc
+    tap_action:
+      action: more-info
+    title: Batterij levels
+    type: custom:battery-state-card
   - cards:
     - entities:
       - entity: sensor.solaredge_current_power
@@ -1059,6 +1182,7 @@ views:
       title: Energie
       type: entities
     - card:
+        columns: 3
         type: glance
       filter:
         include:
@@ -1066,72 +1190,6 @@ views:
       title: Stroomverbruik
       type: custom:auto-entities
     type: vertical-stack
-  - entities:
-    - entity: sensor.cert_expiry_home_tigrou_nl
-    type: entities
-  - entities:
-    - binary_sensor.pi_zero_monitor_one
-    - binary_sensor.pi_zero_monitor_two
-    - binary_sensor.pi_zero_monitor_three
-    - binary_sensor.pi_zero_monitor_four
-    show_header_toggle: false
-    title: Pi Zeros
-    type: entities
-  - entities:
-    - entity: sensor.speedtest_download
-    - entity: sensor.speedtest_upload
-    - entity: sensor.speedtest_ping
-    - entity: binary_sensor.internet_ping
-    show_header_toggle: false
-    title: Internet
-    type: entities
-  - cards:
-    - entities:
-      - sensor.lightlevel_office_battery_level
-      - sensor.lightlevel_living_battery_level
-      - sensor.climate_sensor_office_battery_level
-      - sensor.backdoor_openclose_battery_level
-      - sensor.frontdoor_openclose_battery_level
-      - sensor.sheddoor_openclose_battery_level
-      - sensor.sjorsje_battery_level
-      - sensor.dimmer_switch_office_battery_level
-      - sensor.dimmer_switch_kitchen_battery_level
-      - sensor.switch_round_battery_level
-      - sensor.climate_sensor_eva_battery_level
-      - sensor.climate_sensor_kitchen_battery_level
-      - sensor.climate_sensor_living_battery_level
-      - sensor.climate_sensor_masterbedroom_battery_level
-      - sensor.lightlevel_living_battery_level
-      - sensor.light_sensor_kitchen_battery_level
-      - sensor.light_sensor_masterbedroom_battery_level
-      - sensor.motion_sensor_office_battery_level
-      tap_action:
-        action: more-info
-      title: Batterij levels
-      type: custom:battery-state-card
-    - entities:
-      - sensor.hp_envy_5640_series
-      - sensor.hp_envy_5640_series_black_ink
-      - sensor.hp_envy_5640_series_tri_color_ink
-      type: entities
-    type: vertical-stack
-  - entities:
-    - sensor.count_automations
-    - sensor.count_device_trackers
-    - sensor.count_lights
-    - sensor.count_binary_sensors
-    - sensor.count_sensors
-    - sensor.count_switches
-    - sensor.count_zones
-    - sensor.count_cameras
-    - sensor.count_media_players
-    - sensor.count_scripts
-    - sensor.count_locks
-    - sensor.count_vacuums
-    - sensor.count_zwaves
-    show_header_toggle: false
-    title: Numbers
-    type: entities
-  icon: mdi:desktop-tower
-  id: hardware-card
-  title: Hardware
+  icon: mdi:battery
+  path: power
+  title: Power
