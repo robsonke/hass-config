@@ -220,22 +220,6 @@
 
 
 ## Technical workarounds
-# somehow I need to reload after a restart as starting isn't enough
-- alias: 'Start HomeKit'
-  description: "Workaround to reload the homekit integration once more after zwave is done initialising or home assitant is started"
-  trigger:
-    - platform: event
-      event_type: zwave.network_ready
-    - platform: event
-      event_type: zwave.network_complete
-    - platform: event
-      event_type: zwave.network_complete_some_dead
-    - platform: homeassistant
-      event: start
-  action:
-    - delay: 00:05
-    - service: homekit.reload
-
 - alias: 'Restart SSH Addon'
   description: "Restart the ssh addon after a HA restart, required to get the hassio.addon_stdin to work"
   trigger:

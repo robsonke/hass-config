@@ -38,3 +38,12 @@
   name: internet_ping
   host: 1.1.1.1
   scan_interval: 10
+
+- platform: workday
+  name: workday_steffi
+  country: NL
+  workdays: [mon, tue, thu]
+- platform: workday
+  name: workday_rob
+  country: NL
+  workdays: [mon, tue, wed, thu, fri]

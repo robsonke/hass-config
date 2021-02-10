@@ -9,8 +9,7 @@
 #
 
 - platform: version
-# - platform: google_wifi
-#   host: !secret router_ip
+
 - platform: dsmr
   port: /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AL00WDA2-if00-port0
   dsmr_version: 5
@@ -170,6 +169,7 @@
       value_template: '{{ states.switch.kasa_winecooler.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
     kasa_wasmachine_amps:
+    
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Current"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["current_a"] | float }}'
       unit_of_measurement: 'A'
@@ -189,6 +189,7 @@
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+    
     kasa_vaatwasser_amps:
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Current"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["current_a"] | float }}'
@@ -209,6 +210,60 @@
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+
+    kasa_infrarood_slaapkamer_amps:
+      friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Current"
+      value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["current_a"] | float }}'
+      unit_of_measurement: 'A'
+    kasa_infrarood_slaapkamer_watts:
+      friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Current Consumption"
+      value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["current_power_w"] | float }}'
+      unit_of_measurement: 'W'
+    kasa_infrarood_slaapkamer_total_kwh:
+      friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Total Consumption"
+      value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["total_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+    kasa_infrarood_slaapkamer_volts:
+      friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Voltage"
+      value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["voltage"] | float }}'
+      unit_of_measurement: 'V'
+    kasa_infrarood_slaapkamer_today_kwh:
+      friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Today's Consumption"
+      value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["today_energy_kwh"] | float }}'
+      unit_of_measurement: 'kWh'
+
+    weather_temperature:
+      friendly_name: Buitentemperatuur
+      value_template: '{{ state_attr("weather.home", "temperature") }}'
+      unit_of_measurement: '°C'
+
+- platform: buienradar
+  name: !secret weather_city
+  latitude: !secret latitude_coordinate
+  longitude: !secret longitude_coordinate
+  monitored_conditions:
+    - stationname
+    - barometerfc
+    - barometerfcname
+    - conditioncode
+    - condition
+    - conditiondetailed
+    - conditionexact
+    - symbol
+    - feeltemperature
+    - humidity
+    - temperature
+    - mintemp_1d
+    - groundtemperature
+    - windspeed
+    - windforce
+    - winddirection
+    - pressure
+    - visibility
+    - precipitation_forecast_average
+    - precipitation_forecast_total
+    - rainlast24hour
+    - rainlasthour
 
 - platform: waze_travel_time
   name: Home to work

@@ -1,5 +1,6 @@
 # TODOs
 * put room info (climate/doors) in a picture element in the main view
+* eufy doorbell (https://github.com/matijse/eufy-ha-mqtt-bridge)
 * add a picture element card inside the groundfloor view with the details of climate/doors
 * https://github.com/blakeblackshear/frigate-hass-integration
 * grafana dashboard (add glances entitities: https://home.tigrou.nl/config/entities?historyBack=1&config_entry=3f315d8b0bd411eb81808560d7a0e4f2)
