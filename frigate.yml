@@ -1,0 +1,80 @@
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+mqtt:
+  host: 192.168.0.40
+  user: mqtt_ha
+  password: cFXeDaAe99pViUZPa16E
+ffmpeg: {}
+cameras:
+  gardencam:
+    ffmpeg:
+      inputs:
+        - path: 'rtsp://robensteffi:rrdwave260@192.168.0.116:88/videoMain'
+          roles:
+            - detect
+            - rtmp
+    fps: 5
+    width: 1920
+    height: 1080
+    clips:
+      enabled: true
+      pre_capture: 5
+      post_capture: 5
+      objects:
+        - person
+        - car
+      retain:
+        default: 7
+    snapshots:
+      enabled: true
+      timestamp: true
+      bounding_box: true
+      crop: false
+      height: 640
+      retain:
+        default: 7
+  babycam:
+    ffmpeg:
+      inputs:
+        - path: 'rtsp://robensteffi:rrdwave260@192.168.0.114:88/videoMain'
+          roles:
+            - detect
+            - rtmp
+    fps: 5
+    width: 1920
+    height: 1080
+    clips:
+      enabled: true
+      pre_capture: 5
+      post_capture: 5
+      objects:
+        - person
+        - car
+      retain:
+        default: 7
+    snapshots:
+      enabled: true
+      timestamp: true
+      bounding_box: true
+      crop: false
+      retain:
+        default: 7
+objects:
+  track:
+    - person
+    - car
+    - truck
+    - cat
+  filters:
+    person:
+      min_area: 5000
+      max_area: 100000
+      min_score: 0.6
+      threshold: 0.8
+    cat:
+      min_area: 5000
+      max_area: 100000
+      min_score: 0.6
+      threshold: 0.8

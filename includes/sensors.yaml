@@ -273,272 +273,42 @@
 
 - platform: template
   sensors:
+    daily_energy_consumption:
+      friendly_name: Daily Energy
+      unit_of_measurement: kWh
+      value_template: "{{ states('sensor.daily_energy_offpeak')|float + states('sensor.daily_energy_peak')|float }}"
+    monthly_energy_consumption:
+      friendly_name: Monthly Energy
+      unit_of_measurement: kWh
+      value_template: "{{ states('sensor.monthly_energy_offpeak')|float + states('sensor.monthly_energy_peak')|float }}"
+
+- platform: template
+  sensors:
     doors_windows_upstairs_open_count:
       friendly_name: 'Open windows and doors upstairs'
       value_template: >
-        {% set sensors = [states.sensor.window_atticroom_openclose,
-                          states.sensor.window_evaroom_openclose,
-                          states.sensor.window_masterbed_1_openclose,
-                          states.sensor.window_masterbed_2_openclose,
-                          states.sensor.window_guestroom_openclose] %}
+        {% set sensors = [states.binary_sensor.window_atticroom_openclose_sensor,
+                          states.binary_sensor.window_evaroom_openclose_sensor,
+                          states.binary_sensor.window_masterbed_1_openclose_sensor,
+                          states.binary_sensor.window_masterbed_2_openclose_sensor,
+                          states.binary_sensor.window_guestroom_openclose_sensor] %}
         {{ sensors | selectattr('state', 'eq', 'Open') | list | count }}
     doors_windows_downstairs_open_count:
       friendly_name: 'Open windows and doors downstairs'
       value_template: >
-        {% set sensors = [states.sensor.backdoor_openclose,
-                          states.sensor.frontdoor_openclose,
-                          states.sensor.sheddoor_openclose,
-                          states.sensor.windowdoor_ground_1_openclose,
-                          states.sensor.windowdoor_ground_2_openclose,
-                          states.sensor.windowdoor_ground_3_openclose,
-                          states.sensor.windowdoor_ground_4_openclose,
-                          states.sensor.window_office_openclose] %}
+        {% set sensors = [states.binary_sensor.backdoor_openclose_sensor,
+                          states.binary_sensor.frontdoor_openclose_sensor,
+                          states.binary_sensor.sheddoor_openclose_sensor,
+                          states.binary_sensor.windowdoor_ground_1_openclose_sensor,
+                          states.binary_sensor.windowdoor_ground_2_openclose_sensor,
+                          states.binary_sensor.windowdoor_ground_3_openclose_sensor,
+                          states.binary_sensor.windowdoor_ground_4_openclose_sensor,
+                          states.binary_sensor.window_office_openclose_sensor] %}
         {{ sensors | selectattr('state', 'eq', 'Open') | list | count }}
     doors_windows_open_count:
       friendly_name: 'Open windows downstairs'
       value_template: >
         {{ states.sensor.doors_windows_upstairs_open_count.state | int + states.sensor.doors_windows_downstairs_open_count.state | int }}
-
-- platform: template
-  sensors:
-    backdoor_openclose:
-      value_template: >-
-        {% if states.binary_sensor.backdoor_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.backdoor_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.backdoor_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.backdoor_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    frontdoor_openclose:
-      value_template: >-
-        {% if states.binary_sensor.frontdoor_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.frontdoor_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.frontdoor_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.frontdoor_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    sheddoor_openclose:
-      value_template: >-
-        {% if states.binary_sensor.sheddoor_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.sheddoor_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.sheddoor_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.sheddoor_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    windowdoor_ground_1_openclose:
-      value_template: >-
-        {% if states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.windowdoor_ground_1_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    windowdoor_ground_2_openclose:
-      value_template: >-
-        {% if states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.windowdoor_ground_2_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    windowdoor_ground_3_openclose:
-      value_template: >-
-        {% if states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.windowdoor_ground_3_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    windowdoor_ground_4_openclose:
-      value_template: >-
-        {% if states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.windowdoor_ground_4_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    window_office_openclose:
-      value_template: >-
-        {% if states.binary_sensor.window_office_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.window_office_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.window_office_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.window_office_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    door_hallcloset_openclose:
-      value_template: >-
-        {% if states.binary_sensor.door_hallcloset_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.door_hallcloset_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.door_hallcloset_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.door_hallcloset_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    window_atticroom_openclose:
-      value_template: >-
-        {% if states.binary_sensor.window_atticroom_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.window_atticroom_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.window_atticroom_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.window_atticroom_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    window_guestroom_openclose:
-      value_template: >-
-        {% if states.binary_sensor.window_guestroom_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.window_guestroom_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.window_guestroom_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.window_guestroom_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    window_evaroom_openclose:
-      value_template: >-
-        {% if states.binary_sensor.window_evaroom_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.window_evaroom_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.window_evaroom_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.window_evaroom_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    window_masterbed_1_openclose:
-      value_template: >-
-        {% if states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.window_masterbed_1_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
-    window_masterbed_2_openclose:
-      value_template: >-
-        {% if states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'off' %}
-          Closed
-        {% elif states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'on' %}
-          Open
-        {% else %}
-          n/a
-        {% endif %}
-      icon_template: >
-        {% if states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'off' %}
-          mdi:door-closed
-        {% elif states.binary_sensor.window_masterbed_2_openclose_sensor.state == 'on' %}
-          mdi:door-open
-        {% else %}
-          mdi:help
-        {% endif %}
 
 - platform: template
   sensors:

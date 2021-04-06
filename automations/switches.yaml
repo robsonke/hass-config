@@ -69,7 +69,9 @@
       event: 1002
   action:
     - service: light.turn_on
-      entity_id: light.kantoor
+      data:  
+        entity_id: light.kantoor
+        brightness_pct: 40
     - service: light.turn_on
       entity_id: light.ledstrip_office
 - alias: 'Turn off office light from dimmer'

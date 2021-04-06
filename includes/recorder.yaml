@@ -9,7 +9,7 @@
 # https://github.com/robsonke/hass-config
 #
 db_url: !secret mysql_db_url
-purge_keep_days: 30
+purge_keep_days: 14
 exclude:
   domains:
     - sun

@@ -43,6 +43,8 @@
         - light.keuken
         - light.woonkamer
         - light.kookeiland
+        - light.boekenkast
+        - light.ledstrip_tv
 
 - alias: Turn on lights when dark - away
   description: "Switch standard lights on when it's after 2 PM and light level too low"
@@ -50,7 +52,7 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      below: 60
+      below: 50
   condition:
     condition: and
     conditions:
@@ -85,6 +87,12 @@
         - light.ledstrip_office
         - light.eetkamer
         brightness_pct: 60
+    - service: light.turn_on
+      data:
+        entity_id: 
+          - light.boekenkast
+          - light.ledstrip_tv
+        brightness_pct: 60
 
 - alias: Turn on lights when dark - home
   description: "Switch standard lights on when it's after 2 PM and light level too low"
@@ -92,7 +100,7 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      below: 60
+      below: 50
   condition:
     condition: and
     conditions:
@@ -124,21 +132,26 @@
     - service: light.turn_on
       data:
         entity_id:
-        - light.zwave_light_corner_level
-        - light.zwave_light_couch_level
-        - light.keuken
+          - light.zwave_light_corner_level
+          - light.zwave_light_couch_level
+          - light.keuken
     - delay: '1'
     - service: light.turn_on
       data:
         entity_id:
-        - light.ledstrip_office
-        - light.eetkamer
-        - light.woonkamer
+          - light.ledstrip_office
+          - light.eetkamer
+          - light.woonkamer
         brightness_pct: 40
     - service: light.turn_on
       data:
         entity_id: light.kookeiland
         brightness_pct: 15
+    - service: light.turn_on
+      data:
+        entity_id: 
+          - light.boekenkast
+          - light.ledstrip_tv
 
 - alias: Turn off lights - bedtime
   description: "Turn off main lights when we're not home or already went to bed"
@@ -177,25 +190,47 @@
         - light.kantoor
         - light.eetkamer
         - light.kookeiland
+        - light.boekenkast
+        - light.ledstrip_tv
 
 - alias: Turn on lights when closet door opens
   trigger:
     platform: state
-    entity_id: sensor.door_hallcloset_openclose
-    from: 'Closed'
-    to: 'Open'
+    entity_id: binary_sensor.door_hallcloset_openclose_sensor
+    from: 'off'
+    to: 'on'
   action:
     service: light.turn_on
     entity_id: light.hallcloset
 - alias: Turn off lights when closet door closes
   trigger:
     platform: state
-    entity_id: sensor.door_hallcloset_openclose
-    from: 'Open'
-    to: 'Closed'
+    entity_id: binary_sensor.door_hallcloset_openclose_sensor
+    from: 'off'
+    to: 'on'
   action:
     service: light.turn_off
     entity_id: light.hallcloset
+
+- alias: Turn on lights when hallway door opens in the early morning
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_hallway_openclose_sensor
+    from: 'off'
+    to: 'on'
+  condition:
+    - condition: time
+      after: "05:00:00"
+    - condition: time
+      before: "09:00:00"
+    - condition: numeric_state
+      entity_id: sensor.lightlevel_living
+      below: 60
+  action:
+    - service: light.turn_on
+      data:
+        entity_id: light.kookeiland
+        brightness_pct: 30
 
 - alias: Reset lights automation
   description: "When we have disabled all automatic lighting, we reset this in the early morning to make sure we're back to normal the next day"

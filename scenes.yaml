@@ -1,0 +1,10 @@
+- id: '1614892184464'
+  name: Sleep well
+  entities:
+    light.eetkamer:
+      brightness: 102
+      friendly_name: Eetkamer
+      supported_features: 1
+      assumed_state: false
+      state: 'on'
+  icon: mdi:bed

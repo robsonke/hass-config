@@ -28,17 +28,17 @@ meter_readings:
 doors_and_windows:
   name: All doors and windows
   entities:
-    - sensor.backdoor_openclose
-    - sensor.frontdoor_openclose
+    - binary_sensor.backdoor_openclose_sensor
+    - binary_sensor.frontdoor_openclose_sensor
     #- sensor.sheddoor_openclose
-    - sensor.windowdoor_ground_1_openclose
-    - sensor.windowdoor_ground_2_openclose
-    - sensor.windowdoor_ground_3_openclose
-    - sensor.windowdoor_ground_4_openclose
-    - sensor.window_office_openclose
-    - sensor.door_hallcloset_openclose
-    - sensor.window_atticroom_openclose
-    - sensor.window_evaroom_openclose
-    - sensor.window_masterbed_1_openclose
-    - sensor.window_masterbed_2_openclose
-    - sensor.window_guestroom_openclose
+    - binary_sensor.windowdoor_ground_1_openclose_sensor
+    - binary_sensor.windowdoor_ground_2_openclose_sensor
+    - binary_sensor.windowdoor_ground_3_openclose_sensor
+    - binary_sensor.windowdoor_ground_4_openclose_sensor
+    - binary_sensor.window_office_openclose_sensor
+    - binary_sensor.door_hallcloset_openclose_sensor
+    - binary_sensor.window_atticroom_openclose_sensor
+    - binary_sensor.window_evaroom_openclose_sensor
+    - binary_sensor.window_masterbed_1_openclose_sensor
+    - binary_sensor.window_masterbed_2_openclose_sensor
+    - binary_sensor.window_guestroom_openclose_sensor

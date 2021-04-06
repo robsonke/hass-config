@@ -1,0 +1,35 @@
+#  _   _ _   _ _ _ _           __  __      _
+# | | | | |_(_) (_) |_ _   _  |  \/  | ___| |_ ___ _ __
+# | | | | __| | | | __| | | | | |\/| |/ _ \ __/ _ \ '__|
+# | |_| | |_| | | | |_| |_| | | |  | |  __/ ||  __/ |
+#  \___/ \__|_|_|_|\__|\__, | |_|  |_|\___|\__\___|_|
+#                      |___/
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+daily_energy_offpeak:
+  source: sensor.energy_consumption_tarif_1
+  cycle: daily
+daily_energy_peak:
+  source: sensor.energy_consumption_tarif_2
+  cycle: daily
+monthly_energy_offpeak:
+  source: sensor.energy_consumption_tarif_1
+  cycle: monthly
+monthly_energy_peak:
+  source: sensor.energy_consumption_tarif_2
+  cycle: monthly
+daily_energy:
+  source: sensor.energy
+  cycle: daily
+  tariffs:
+    - peak
+    - offpeak
+monthly_energy:
+  source: sensor.energy
+  cycle: monthly
+  tariffs:
+    - peak
+    - offpeak

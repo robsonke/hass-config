@@ -63,13 +63,13 @@ views:
         type: custom:auto-entities
       type: horizontal-stack
     - cards:
-      - entity: sensor.backdoor_openclose
+      - entity: binary_sensor.backdoor_openclose_sensor
         show_name: true
         styles:
           card:
           - height: 110px
         type: custom:button-card
-      - entity: sensor.frontdoor_openclose
+      - entity: binary_sensor.frontdoor_openclose_sensor
         label: "[[[\n  var state = states['lock.voordeur_slot'].state;\n  return (state\
           \ == 'unlocked' ? 'ontgrendeld' : 'vergrendeld');\n]]]\n"
         show_label: true
@@ -81,7 +81,7 @@ views:
           - color: gray
           - font-size: 11px
         type: custom:button-card
-      - entity: sensor.sheddoor_openclose
+      - entity: binary_sensor.sheddoor_openclose_sensor
         show_name: true
         styles:
           card:
@@ -89,8 +89,7 @@ views:
         type: custom:button-card
       type: horizontal-stack
     - cards:
-      - color_type: card
-        entity: input_boolean.night_mode
+      - entity: input_boolean.night_mode
         show_icon: true
         type: custom:button-card
       - color_type: card
@@ -148,8 +147,16 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
+      - entity: light.ledstrip_tv
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
       - type: divider
       - entity: light.eetkamer
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
+      - entity: light.boekenkast
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -170,12 +177,14 @@ views:
         toggle: true
         type: custom:slider-entity-row
       - type: divider
-      - entities:
-        - entity: light.ledstrip_office
-          name: Ledstrip
-        head: light.kantoor
-        open: false
-        type: custom:fold-entity-row
+      - entity: light.kantoor
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
+      - entity: light.ledstrip_office
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
       show_header_toggle: false
       type: entities
     - entities:
@@ -268,14 +277,14 @@ views:
     - entities:
       - sensor.kloetinge_humidity
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: blue
       line_width: 8
       name: Vocht
       type: custom:mini-graph-card
     - entities:
       - sensor.kloetinge_wind_force
       font_size_header: 10
-      line_color: blue
+      line_color: var(--accent-color)
       line_width: 8
       name: Wind
       type: custom:mini-graph-card
@@ -350,7 +359,7 @@ views:
       - entity: binary_sensor.ring_voordeur_motion
       - entity: sensor.ring_voordeur_last_ding
       - entity: sensor.ring_voordeur_last_motion
-      - entity: sensor.frontdoor_openclose
+      - entity: binary_sensor.frontdoor_openclose_sensor
       show_header_toggle: false
       title: Ring Doorbell
       type: entities
@@ -371,11 +380,11 @@ views:
       type: custom:mini-graph-card
     - entities:
       - entity: sensor.power_consumption
+      - entity: sensor.daily_energy_offpeak
+        name: Power Consumption Today
       - entity: sensor.solaredge_energy_today
-        name: Power Production
+        name: Power Production Today
       - entity: sensor.power_tariff
-      - entity: sensor.gas_consumption
-      - entity: sensor.hourly_gas_consumption
       - entity: sensor.solaredge_lifetime_energy
         name: Power Production All Time
       state_color: false
@@ -394,27 +403,26 @@ views:
     title: Weer
     type: vertical-stack
   - cards:
-    - dateBottomFormat: ddd
-      dateTopFormat: D MMMM
+    - enableModeChange: true
       entities:
-      - calendar.afvalkalender
-      hideHeader: true
-      hideTime: true
-      numberOfDays: 30
-      startFromToday: true
-      title: Afval
-      type: custom:calendar-card
-    - dateBottomFormat: dddd
-      dateTopFormat: D MMMM
+      - entity: calendar.afvalkalender
+      firstDayOfWeek: 1
+      fullDayEventText: ''
+      maxDaysToShow: 14
+      showFullDayProgress: false
+      showRelativeTime: false
+      sortByStartTime: false
+      type: custom:atomic-calendar-revive
+    - enableModeChange: true
       entities:
-      - calendar.joep
-      eventsLimit: 5
-      hideHeader: true
-      numberOfDays: 30
-      progressBar: true
-      startFromToday: true
-      title: Joep
-      type: custom:calendar-card
+      - entity: calendar.joep
+      firstDayOfWeek: 1
+      fullDayEventText: ''
+      maxDaysToShow: 14
+      showFullDayProgress: false
+      showRelativeTime: false
+      sortByStartTime: false
+      type: custom:atomic-calendar-revive
     title: Agenda
     type: vertical-stack
   - cards:
@@ -432,36 +440,36 @@ views:
 - cards:
   - cards:
     - cards:
-      - entity: sensor.backdoor_openclose
+      - entity: binary_sensor.backdoor_openclose_sensor
         show_name: true
         type: custom:button-card
-      - entity: sensor.frontdoor_openclose
+      - entity: binary_sensor.frontdoor_openclose_sensor
         show_name: true
         type: custom:button-card
-      - entity: sensor.sheddoor_openclose
+      - entity: binary_sensor.sheddoor_openclose_sensor
         show_name: true
         type: custom:button-card
       title: Deuren
       type: horizontal-stack
     - cards:
-      - entity: sensor.windowdoor_ground_1_openclose
+      - entity: binary_sensor.windowdoor_ground_1_openclose_sensor
         show_name: true
         type: custom:button-card
-      - entity: sensor.windowdoor_ground_2_openclose
+      - entity: binary_sensor.windowdoor_ground_2_openclose_sensor
         show_name: true
         type: custom:button-card
-      - entity: sensor.windowdoor_ground_3_openclose
+      - entity: binary_sensor.windowdoor_ground_3_openclose_sensor
         show_name: true
         type: custom:button-card
       type: horizontal-stack
     - cards:
-      - entity: sensor.windowdoor_ground_4_openclose
+      - entity: binary_sensor.windowdoor_ground_4_openclose_sensor
         show_name: true
         type: custom:button-card
-      - entity: sensor.window_office_openclose
+      - entity: binary_sensor.window_office_openclose_sensor
         show_name: true
         type: custom:button-card
-      - entity: sensor.door_hallcloset_openclose
+      - entity: binary_sensor.door_hallcloset_openclose_sensor
         show_name: true
         type: custom:button-card
       type: horizontal-stack
@@ -470,28 +478,28 @@ views:
         type: entities
       filter:
         include:
-        - entity_id: sensor.backdoor_openclose
+        - entity_id: binary_sensor.backdoor_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.frontdoor_openclose
+        - entity_id: binary_sensor.frontdoor_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.sheddoor_openclose
+        - entity_id: binary_sensor.sheddoor_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.windowdoor_ground_1_openclose
+        - entity_id: binary_sensor.windowdoor_ground_1_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.windowdoor_ground_2_openclose
+        - entity_id: binary_sensor.windowdoor_ground_2_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.windowdoor_ground_3_openclose
+        - entity_id: binary_sensor.windowdoor_ground_3_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.windowdoor_ground_4_openclose
+        - entity_id: binary_sensor.windowdoor_ground_4_openclose_sensor
           options:
             secondary_info: last-changed
-        - entity_id: sensor.window_office_openclose
+        - entity_id: binary_sensor.window_office_openclose_sensor
           options:
             secondary_info: last-changed
       sort:
@@ -630,7 +638,7 @@ views:
         - binary_sensor.ring_voordeur_motion
         - sensor.ring_voordeur_last_ding
         - sensor.ring_voordeur_last_motion
-        - sensor.frontdoor_openclose
+        - binary_sensor.frontdoor_openclose_sensor
         show_header_toggle: false
         title: Ring Doorbell
         type: entities
@@ -735,6 +743,15 @@ views:
       type: custom:xiaomi-vacuum-card
     title: Sjorsje
     type: vertical-stack
+  - entities:
+    - buttons_position: left
+      entity: cover.voorraam
+      invert_percentage: true
+      name: Voorkant
+      title_position: bottom
+    - cover.zijraam
+    title: Screens
+    type: custom:shutter-card
   icon: mdi:sofa-outline
   show_empty: true
   title: Begane grond
@@ -742,33 +759,32 @@ views:
   cards:
   - cards:
     - cards:
-      - entity: sensor.window_masterbed_1_openclose
+      - entity: binary_sensor.window_masterbed_1_openclose_sensor
         name: Master links
         show_name: true
         type: custom:button-card
-      - entity: sensor.window_masterbed_2_openclose
+      - entity: binary_sensor.window_masterbed_2_openclose_sensor
         name: Master rechts
         show_name: true
         type: custom:button-card
-      - entity: sensor.window_evaroom_openclose
+      - entity: binary_sensor.window_evaroom_openclose_sensor
         name: Kamer Eva
         show_name: true
         type: custom:button-card
       title: Ramen
       type: horizontal-stack
     - cards:
-      - entity: sensor.window_atticroom_openclose
+      - entity: binary_sensor.window_atticroom_openclose_sensor
         name: Zolderkamer
         show_name: true
         type: custom:button-card
-      - entity: sensor.window_guestroom_openclose
+      - entity: binary_sensor.window_guestroom_openclose_sensor
         name: Logeerkamer
         show_name: true
         type: custom:button-card
       type: horizontal-stack
     - cards:
-      - color_type: card
-        entity: input_boolean.night_mode
+      - entity: input_boolean.night_mode
         show_icon: true
         type: custom:button-card
       - color: rgb(255, 0, 0)

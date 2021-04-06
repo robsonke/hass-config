@@ -137,7 +137,7 @@
         - conditions:
             # TODO add more sensors and notify which ones are pending
             - condition: state
-              entity_id: sensor.backdoor_openclose
+              entity_id: binary_sensor.backdoor_openclose_sensor
               state: "Open"
           sequence:
             - service: alarm_control_panel.alarm_disarm

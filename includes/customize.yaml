@@ -66,48 +66,51 @@ light.hallcloset:
   icon: mdi:globe-light
   friendly_name: Lamp gangkast
 
-sensor.backdoor_openclose:
+binary_sensor.backdoor_openclose_sensor:
   friendly_name: Achterdeur
   device_class: door
-sensor.frontdoor_openclose:
+binary_sensor.frontdoor_openclose_sensor:
   friendly_name: Voordeur
   device_class: door
-sensor.sheddoor_openclose:
+binary_sensor.sheddoor_openclose_sensor:
   friendly_name: Schuurdeur
   device_class: door
-sensor.windowdoor_ground_1_openclose:
+binary_sensor.windowdoor_ground_1_openclose_sensor:
   friendly_name: Kanteldeur beneden 1
   device_class: door
-sensor.windowdoor_ground_2_openclose:
+binary_sensor.windowdoor_ground_2_openclose_sensor:
   friendly_name: Kanteldeur beneden 2
   device_class: door
-sensor.windowdoor_ground_3_openclose:
+binary_sensor.windowdoor_ground_3_openclose_sensor:
   friendly_name: Kanteldeur beneden 3
   device_class: door
-sensor.windowdoor_ground_4_openclose:
+binary_sensor.windowdoor_ground_4_openclose_sensor:
   friendly_name: Kanteldeur beneden 4
   device_class: door
-sensor.window_office_openclose:
+binary_sensor.window_office_openclose_sensor:
   friendly_name: Raam kantoor
-  device_class: door
-sensor.door_hallcloset_openclose:
+  device_class: window
+binary_sensor.door_hallcloset_openclose_sensor:
   friendly_name: Deur gangkast
   device_class: door
-sensor.window_atticroom_openclose:
+binary_sensor.hallwaydoor_openclose_sensor:
+  friendly_name: Deur gang
+  device_class: door
+binary_sensor.window_atticroom_openclose_sensor:
   friendly_name: Raam zolderkamer
-  device_class: door
-sensor.window_guestroom_openclose:
+  device_class: window
+binary_sensor.window_guestroom_openclose_sensor:
   friendly_name: Raam logeerkamer
-  device_class: door
-sensor.window_evaroom_openclose:
+  device_class: window
+binary_sensor.window_evaroom_openclose_sensor:
   friendly_name: Raam Eva
-  device_class: door
-sensor.window_masterbed_1_openclose:
+  device_class: window
+binary_sensor.window_masterbed_1_openclose_sensor:
   friendly_name: Raam master bedroom 1
-  device_class: door
-sensor.window_masterbed_2_openclose:
+  device_class: window
+binary_sensor.window_masterbed_2_openclose_sensor:
   friendly_name: Raam master bedroom 2
-  device_class: door
+  device_class: window
 
 binary_sensor.mailbox_vibration_sensor:
   friendly_name: Brievenbus

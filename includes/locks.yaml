@@ -8,6 +8,6 @@
 # https://github.com/robsonke/hass-config
 #
 
-- platform: nuki
-  host: !secret nuki_bridge_host
-  token: !secret nuki_api_key
+# - platform: nuki
+#   host: !secret nuki_bridge_host
+#   token: !secret nuki_api_key

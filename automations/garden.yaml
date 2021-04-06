@@ -15,7 +15,7 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      below: 200
+      below: 50
     # faking this once more since it was already dark
     - platform: time
       at: "06:16:00"
@@ -50,7 +50,7 @@
             state: 'off'
           - condition: numeric_state
             entity_id: sensor.lightlevel_living
-            below: 200
+            below: 50
   action:
     - service: light.turn_on
       data:
@@ -68,7 +68,7 @@
       at: "09:00:00"
     - platform: numeric_state
       entity_id: sensor.lightlevel_living
-      above: 200
+      above: 30
   condition:
     - condition: state
       entity_id: input_boolean.enable_automatic_garden_lights

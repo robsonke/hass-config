@@ -32,3 +32,9 @@
   entities:
     - light.keuken_kook
     - light.keuken_nis
+- platform: group
+  name: Boekenkast
+  entities:
+    - light.ledstrip_book1
+    - light.ledstrip_book2
+    - light.ledstrip_book3

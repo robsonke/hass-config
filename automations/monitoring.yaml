@@ -94,3 +94,18 @@
     - service: notify.telegram
       data_template:
         message: "🏠 Het raam in de slaapkamer staat open en het begint nu wel een beetje fris te worden."
+
+- alias: "Calculate energy consumption"
+  description: "Calculate energy consumption for low and high tarifs"
+  trigger:
+    - platform: time
+      at: "07:00:00"
+    - platform: time
+      at: "23:00:00"
+  action:
+    - service: utility_meter.next_tariff
+      target:
+        entity_id: utility_meter.daily_energy
+    - service: utility_meter.next_tariff
+      target:
+        entity_id: utility_meter.monthly_energy

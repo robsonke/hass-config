@@ -25,26 +25,26 @@
 
 # Somebody is AWAY/HOME now
 # TEST
-- alias: "Test - Presence detection"
-  description: Send a Telegram message in case the presence of a person changes
-  trigger:
-    platform: state
-    for:
-      seconds: 15
-    entity_id:
-      - device_tracker.rob_presence
-      - device_tracker.steffi_presence
-  condition:
-    # do not trigger at hass startup
-    - condition: numeric_state
-      entity_id: sensor.ha_uptime
-      above: 3
-    - condition: template
-      value_template: "{{ trigger.to_state.state != trigger.from_state.state }}"
-  action:
-    service: notify.telegram
-    data_template:
-      message: "🏠 Status van {{ state_attr(trigger.entity_id, 'friendly_name') }} gewijzigd naar {{ trigger.to_state.state }}"
+# - alias: "Test - Presence detection"
+#   description: Send a Telegram message in case the presence of a person changes
+#   trigger:
+#     platform: state
+#     for:
+#       seconds: 15
+#     entity_id:
+#       - device_tracker.rob_presence
+#       - device_tracker.steffi_presence
+#   condition:
+#     # do not trigger at hass startup
+#     - condition: numeric_state
+#       entity_id: sensor.ha_uptime
+#       above: 3
+#     - condition: template
+#       value_template: "{{ trigger.to_state.state != trigger.from_state.state }}"
+#   action:
+#     service: notify.telegram
+#     data_template:
+#       message: "🏠 Status van {{ state_attr(trigger.entity_id, 'friendly_name') }} gewijzigd naar {{ trigger.to_state.state }}"
 
 # Shout through speakers that somebody is arriving when the other one is home
 - alias: Presence - Inform that one of us comes home
@@ -256,18 +256,18 @@
         location_name: not_home
         source_type: gps
 
-- alias: Notify of events in Frigate
-  trigger:
-    platform: mqtt
-    topic: frigate/events
-  action:
-    - service: notify.telegram
-      data_template:
-        message: 'A {{trigger.payload_json["after"]["label"]}} was detected.'
-        data:
-          photo:
-            - url: 'http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg'
-              caption: 'A {{trigger.payload_json["after"]["label"]}} was detected on {{ trigger.payload_json["after"]["camera"] }} camera'
+# - alias: Notify of events in Frigate
+#   trigger:
+#     platform: mqtt
+#     topic: frigate/events
+#   action:
+#     - service: notify.telegram
+#       data_template:
+#         message: 'A {{trigger.payload_json["after"]["label"]}} was detected.'
+#         data:
+#           photo:
+#             - url: 'http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg'
+#               caption: 'A {{trigger.payload_json["after"]["label"]}} was detected on {{ trigger.payload_json["after"]["camera"] }} camera'
 
 # Restart monitor nodes when hass restarts
 - alias: Restart monitor.sh at Hass startup
