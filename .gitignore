@@ -13,6 +13,7 @@ custom_components
 
 # And some files
 secrets.yaml
+frigate.yml
 known_devices.yaml
 google_calendars.yaml
 home-assistant.log

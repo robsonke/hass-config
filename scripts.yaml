@@ -1,0 +1,73 @@
+flash_office:
+  alias: Flash Office On
+  sequence:
+  - service: light.turn_on
+    data:
+      entity_id: light.office
+  - delay:
+      seconds: 1
+  - service: light.turn_off
+    data:
+      entity_id: light.office
+  - service: script.turn_on
+    data:
+      entity_id: script.flash_office_loop
+flash_office_loop:
+  alias: Flash Lights loop
+  sequence:
+  - delay:
+      seconds: 1
+  - service: script.turn_on
+    data:
+      entity_id: script.flash_office
+  mode: single
+sonos_say:
+  alias: Sonos TTS script
+  sequence:
+  - service: sonos.snapshot
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+  - service: sonos.unjoin
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+  - service: media_player.volume_set
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+      volume_level: '{{ volume }}'
+  - service: sonos.set_option
+    data_template:
+      speech_enhance: true
+  - service: tts.google_translate_say
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+      message: '{{ message }}'
+  - delay: '{{ delay }}'
+  - service: sonos.restore
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+sonos_play_sound:
+  alias: Sonos Play MP3
+  sequence:
+  - service: sonos.snapshot
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+  - service: sonos.unjoin
+    data_template:
+      entity_id: '{{ sonos_entity }}'
+  - service: media_player.volume_mute
+    data_template:
+      is_volume_muted: false
+      entity_id: '{{ sonos_entity }}'
+  - service: media_player.volume_set
+    data_template:
+      volume_level: '{{ volume }}'
+      entity_id: '{{ sonos_entity }}'
+  - service: media_player.play_media
+    data_template:
+      media_content_id: '{{ mp3_url }}'
+      media_content_type: music
+      entity_id: '{{ sonos_entity }}'
+  - delay: '{{ delay }}'
+  - service: sonos.restore
+    data_template:
+      entity_id: '{{ sonos_entity }}'

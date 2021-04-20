@@ -18,8 +18,8 @@ ios:
 stream:
 ffmpeg:
 
-alarm_control_panel: !include includes/alarm_control_panel.yaml
-automation: !include_dir_merge_list automations/
+#alarm_control_panel: !include includes/alarm_control_panel.yaml
+automation: !include automations.yaml
 binary_sensor: !include includes/binary_sensor.yaml
 camera: !include includes/cameras.yaml
 device_tracker: !include includes/device_trackers.yaml
@@ -40,7 +40,8 @@ person: !include includes/persons.yaml
 proxmoxve: !include includes/proxmoxve.yaml
 recorder: !include includes/recorder.yaml
 media_player: !include includes/samsungtv.yaml
-script: !include includes/scripts.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml
 sensor: !include includes/sensors.yaml
 shell_command:  !include includes/shell_command.yaml
 telegram_bot: !include includes/telegram_bot.yaml

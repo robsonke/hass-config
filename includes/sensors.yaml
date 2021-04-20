@@ -152,90 +152,107 @@
       friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Current"
       value_template: '{{ states.switch.kasa_winecooler.attributes["current_a"] | float }}'
       unit_of_measurement: 'A'
+      device_class: power
     kasa_winecooler_watts:
       friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Current Consumption"
       value_template: '{{ states.switch.kasa_winecooler.attributes["current_power_w"] | float }}'
       unit_of_measurement: 'W'
+      device_class: power
     kasa_winecooler_total_kwh:
       friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Total Consumption"
       value_template: '{{ states.switch.kasa_winecooler.attributes["total_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+      device_class: power
     kasa_winecooler_volts:
       friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Voltage"
       value_template: '{{ states.switch.kasa_winecooler.attributes["voltage"] | float }}'
       unit_of_measurement: 'V'
+      device_class: power
     kasa_winecooler_today_kwh:
       friendly_name_template: "{{ states.switch.kasa_winecooler.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_winecooler.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+      device_class: power
     kasa_wasmachine_amps:
-    
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Current"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["current_a"] | float }}'
       unit_of_measurement: 'A'
+      device_class: power
     kasa_wasmachine_watts:
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Current Consumption"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["current_power_w"] | float }}'
       unit_of_measurement: 'W'
+      device_class: power
     kasa_wasmachine_total_kwh:
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Total Consumption"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["total_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+      device_class: power
     kasa_wasmachine_volts:
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Voltage"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["voltage"] | float }}'
       unit_of_measurement: 'V'
+      device_class: power
     kasa_wasmachine_today_kwh:
       friendly_name_template: "{{ states.switch.kasa_wasmachine.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_wasmachine.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
-    
+      device_class: power
     kasa_vaatwasser_amps:
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Current"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["current_a"] | float }}'
       unit_of_measurement: 'A'
+      device_class: power
     kasa_vaatwasser_watts:
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Current Consumption"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["current_power_w"] | float }}'
       unit_of_measurement: 'W'
+      device_class: power
     kasa_vaatwasser_total_kwh:
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Total Consumption"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["total_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+      device_class: power
     kasa_vaatwasser_volts:
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Voltage"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["voltage"] | float }}'
       unit_of_measurement: 'V'
+      device_class: power
     kasa_vaatwasser_today_kwh:
       friendly_name_template: "{{ states.switch.kasa_vaatwasser.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_vaatwasser.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
-
+      device_class: power
     kasa_infrarood_slaapkamer_amps:
       friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Current"
       value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["current_a"] | float }}'
       unit_of_measurement: 'A'
+      device_class: power
     kasa_infrarood_slaapkamer_watts:
       friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Current Consumption"
       value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["current_power_w"] | float }}'
       unit_of_measurement: 'W'
+      device_class: power
     kasa_infrarood_slaapkamer_total_kwh:
       friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Total Consumption"
       value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["total_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
+      device_class: power
     kasa_infrarood_slaapkamer_volts:
       friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Voltage"
       value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["voltage"] | float }}'
       unit_of_measurement: 'V'
+      device_class: power
     kasa_infrarood_slaapkamer_today_kwh:
       friendly_name_template: "{{ states.switch.kasa_infrarood_slaapkamer.name}} Today's Consumption"
       value_template: '{{ states.switch.kasa_infrarood_slaapkamer.attributes["today_energy_kwh"] | float }}'
       unit_of_measurement: 'kWh'
-
+      device_class: power
     weather_temperature:
       friendly_name: Buitentemperatuur
       value_template: '{{ state_attr("weather.home", "temperature") }}'
       unit_of_measurement: '°C'
+      device_class: power
 
 - platform: buienradar
   name: !secret weather_city

@@ -46,8 +46,10 @@ device_tracker.steffi_presence:
   friendly_name: Combined Presence Steffi
 device_tracker.homekit_rob_homekit_present:
   friendly_name: iCloud Tracker Rob
+  device_class: presence
 device_tracker.homekit_steffi_homekit_present:
   friendly_name: iCloud Tracker Steffi
+  device_class: presence
 
 light.kantoor:
   icon: mdi:desktop-mac-dashboard

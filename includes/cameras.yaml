@@ -25,3 +25,6 @@
   name: Weer
   still_image_url: "https://api.buienradar.nl/image/1.0/RadarMapNL?w=480&h=480"
   content_type: "image/gif"
+- platform: ffmpeg
+  name: Reocam1Test
+  input: rtmp://192.168.0.40:1935/live/reocam1

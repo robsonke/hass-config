@@ -14,7 +14,7 @@ service_account: !include ../home-assistant-robsonke-b305832f3ee7.json
 report_state: true
 expose_by_default: false
 entity_config:
-  alarm_control_panel.alarm:
+  alarm_control_panel.alarmo:
     expose: true
   input_boolean.enable_automatic_lights:
     expose: true
