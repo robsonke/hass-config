@@ -14,6 +14,12 @@ frontend:
   themes: !include_dir_merge_named themes
 
 default_config:
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - 172.16.0.0/12
+    - ::1
 ios:
 stream:
 ffmpeg:
@@ -22,7 +28,6 @@ ffmpeg:
 automation: !include automations.yaml
 binary_sensor: !include includes/binary_sensor.yaml
 camera: !include includes/cameras.yaml
-device_tracker: !include includes/device_trackers.yaml
 discovery: !include includes/discovery.yaml
 google: !include includes/google.yaml
 google_assistant: !include includes/google_assistant.yaml
@@ -32,7 +37,6 @@ homekit: !include includes/homekit.yaml
 influxdb: !include includes/influxdb.yaml
 input_boolean: !include includes/input_boolean.yaml
 light: !include includes/lights.yaml
-lock: !include includes/locks.yaml
 logbook: !include includes/logbook.yaml
 logger: !include includes/logger.yaml
 notify: !include includes/notify.yaml
@@ -45,6 +49,7 @@ script: !include scripts.yaml
 sensor: !include includes/sensors.yaml
 shell_command:  !include includes/shell_command.yaml
 telegram_bot: !include includes/telegram_bot.yaml
+template: !include includes/templates.yaml
 tts: !include includes/tts.yaml
 utility_meter: !include includes/utility_meter.yaml
 weather: !include includes/weather.yaml

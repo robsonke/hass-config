@@ -20,27 +20,25 @@ entity_config:
     expose: true
   input_boolean.guest_mode:
     expose: true
-  input_boolean.rob_homekit_present:
-    expose: true
-  input_boolean.steffi_homekit_present:
+  input_boolean.night_mode:
     expose: true
   light.hal:
     expose: true
   light.keuken:
     expose: true
-  light.kookeiland:
+  light.kitchendesk_light:
     expose: true
-  light.kantoor:
+  light.office_lights:
     expose: true
   light.zwave_light_corner_level:
     expose: true
   light.zwave_light_couch_level:
     expose: true
-  light.eetkamer:
+  light.dining_light:
     expose: true
-  light.woonkamer_achter:
+  light.livingback_light:
     expose: true
-  light.woonkamer_voor:
+  light.livingfront_light:
     expose: true
   light.woonkamer:
     expose: true

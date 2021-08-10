@@ -13,17 +13,15 @@
     include_entities:
       - input_boolean.enable_automatic_lights
       - input_boolean.guest_mode
-      - input_boolean.rob_homekit_present
-      - input_boolean.steffi_homekit_present
       - light.hal
       - light.keuken
-      - light.kookeiland
-      - light.kantoor
+      - light.kitchendesk_light
+      - light.office_lights
       - light.zwave_light_corner_level
       - light.zwave_light_couch_level
-      - light.eetkamer
-      - light.woonkamer_achter
-      - light.woonkamer_voor
+      - light.dining_light
+      - light.livingback_light
+      - light.livingfrpmt_light
       - light.woonkamer
       - light.hoofdslaapkamer
       - light.douche
@@ -32,12 +30,13 @@
       - light.badkamer
       - media_player.office
       - media_player.living_room
-      - media_player.kitchen
+      - media_player.eetkamer
       - media_player.tv_room
       - alarm_control_panel.alarmo
-      - camera.babycam
-      - camera.gardencam
-      - camera.ring_voordeur
+      - camera.evacam
+      - camera.reocam1
+      - camera.reocam2
+      - camera.doorbell
   entity_config:
     camera.babycam:
       support_audio: true

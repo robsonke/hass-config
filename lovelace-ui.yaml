@@ -1,18 +1,4 @@
 ---
-sidebar:
-  date: true
-  digitalClock: true
-  hideOnPath: /lovelace/
-  hideTopMenu: true
-  style: ":host {\n    --sidebar-background: #000;\n    --sidebar-text-color: #FFF;\n\
-    \    --face-color: #000;\n    --face-border-color: #000;\n    --clock-hands-color:\
-    \ #FFF;\n    --clock-seconds-hand-color: #FF4B3E;\n    --clock-middle-background:\
-    \ #000;\n    --clock-middle-border: #FFF;\n}\n"
-  title: Sidebar title
-  width:
-    desktop: 20
-    mobile: 0
-    tablet: 25
 views:
 - cards:
   - cards:
@@ -67,6 +53,28 @@ views:
           - color: gray
           - font-size: 11px
         type: custom:button-card
+      - entity: person.bmw_ix3
+        name: BMW iX3
+        show_entity_picture: true
+        show_name: false
+        show_state: true
+        state:
+        - styles:
+            entity_picture:
+            - opacity: 0.4
+            - filter: grayscale(100%)
+          value: not_home
+        styles:
+          card:
+          - height: 110px
+          entity_picture:
+          - width: 45%
+          - border-radius: 50%
+          - opacity: 0.8
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace/car
+        type: custom:button-card
       type: horizontal-stack
     - cards:
       - card:
@@ -74,6 +82,8 @@ views:
         filter:
           include:
           - entity_id: lock.voordeur_slot
+          - entity_id: sensor.open_windows_and_doors_downstairs
+          - entity_id: sensor.open_windows_and_doors_upstairs
         type: custom:auto-entities
       type: horizontal-stack
     - cards:
@@ -145,11 +155,11 @@ views:
     type: vertical-stack
   - cards:
     - entities:
-      - entity: light.woonkamer_voor
+      - entity: light.livingfront_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.woonkamer_achter
+      - entity: light.livingback_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -166,7 +176,7 @@ views:
         toggle: true
         type: custom:slider-entity-row
       - type: divider
-      - entity: light.eetkamer
+      - entity: light.dining_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -174,15 +184,15 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.keuken_kook
+      - entity: light.kitchen_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.keuken_nis
+      - entity: light.kitchendesk_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.kookeiland
+      - entity: light.kitchencabin_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -191,7 +201,7 @@ views:
         toggle: true
         type: custom:slider-entity-row
       - type: divider
-      - entity: light.kantoor
+      - entity: light.office_lights
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -202,13 +212,17 @@ views:
       show_header_toggle: false
       type: entities
     - entities:
-      - entity: light.buitenlamp_zijdeur
+      - entity: light.garden_light
+      - entity: light.dimmer_cabinroof_level
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
       title: Buiten
       type: entities
     type: custom:vertical-stack-in-card
   - cards:
     - artwork: cover
-      entity: media_player.kitchen
+      entity: media_player.eetkamer
       group: true
       hide:
         icon: true
@@ -223,8 +237,8 @@ views:
           name: Sonos Kantoor
         - entity_id: media_player.living_room
           name: Sonos Woonkamer
-        - entity_id: media_player.kitchen
-          name: Sonos Keuken
+        - entity_id: media_player.eetkamer
+          name: Sonos Eetkamer
         - entity_id: media_player.tv_room
           name: Sonos TV
         platform: sonos
@@ -255,8 +269,8 @@ views:
           name: Sonos Kantoor
         - entity_id: media_player.living_room
           name: Sonos Woonkamer
-        - entity_id: media_player.kitchen
-          name: Sonos Keuken
+        - entity_id: media_player.eetkamer
+          name: Sonos Eetkamer
         - entity_id: media_player.tv_room
           name: Sonos TV
         platform: sonos
@@ -266,23 +280,34 @@ views:
     title: Media
     type: vertical-stack
   - cards:
+    - cards:
+      - entities:
+        - entity: binary_sensor.doorbell_lw_doorbell
+          name: Doorbell ding
+          secondary_info: last-changed
+        - binary_sensor.frontdoor_openclose_sensor
+        - entity: binary_sensor.doorbell_lw_motion
+          name: Last motion
+          secondary_info: last-changed
+        show_header_toggle: false
+        title: Doorbell
+        type: entities
+      - camera_image: camera.doorbell
+        entities:
+        - binary_sensor.doorbell_lw_doorbell
+        - binary_sensor.doorbell_lw_motion
+        title: Front Door
+        type: picture-glance
+      type: custom:vertical-stack-in-card
     - camera_image: camera.gardencam
       camera_view: live
-      entity: camera.gardencam
+      entity: camera.bijkeukencam
       type: picture-entity
-    - camera_image: camera.ring_voordeur
-      entities:
-      - entity: binary_sensor.ring_voordeur_ding
-      - entity: binary_sensor.ring_voordeur_motion
-      - entity: sensor.ring_voordeur_last_ding
-      - entity: sensor.ring_voordeur_last_motion
-      title: Front Door
-      type: picture-glance
     title: Camera's
     type: vertical-stack
   - cards:
     - entities:
-      - sensor.weather_temperature
+      - sensor.openweathermap_temperature
       font_size_header: 10
       line_color: '#e74c3c'
       line_width: 8
@@ -319,7 +344,7 @@ views:
     - entities:
       - sensor.lightlevel_living
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: '#F7BF10'
       line_width: 8
       name: Woonkamer
       type: custom:mini-graph-card
@@ -340,7 +365,7 @@ views:
     - entities:
       - sensor.lightlevel_kitchen
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: '#F7BF10'
       line_width: 8
       name: Keuken
       type: custom:mini-graph-card
@@ -361,7 +386,7 @@ views:
     - entities:
       - sensor.lightlevel_office
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: '#F7BF10'
       line_width: 8
       name: Kantoor
       type: custom:mini-graph-card
@@ -369,13 +394,9 @@ views:
     type: grid
   - cards:
     - entities:
-      - entity: binary_sensor.ring_voordeur_ding
-      - entity: binary_sensor.ring_voordeur_motion
-      - entity: sensor.ring_voordeur_last_ding
-      - entity: sensor.ring_voordeur_last_motion
-      - entity: binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.doorbell_lw_doorbell
+      - binary_sensor.frontdoor_openclose_sensor
       show_header_toggle: false
-      title: Ring Doorbell
       type: entities
     title: Voordeur
     type: vertical-stack
@@ -383,10 +404,11 @@ views:
     - entities:
       - entity: sensor.solaredge_current_power
         hours_to_show: 24
+        line_color: '#FFDD33'
         name: Zonnepanelen
         points_per_hour: 100
         show_state: true
-      - entity: sensor.power_consumption_w
+      - entity: sensor.power_consumption_watt
         hours_to_show: 24
         name: Stroomverbruik
         points_per_hour: 100
@@ -394,13 +416,16 @@ views:
       type: custom:mini-graph-card
     - entities:
       - entity: sensor.power_consumption
-      - entity: sensor.daily_energy_offpeak
+      - entity: sensor.daily_consumption_energy
+        icon: mdi:counter
         name: Power Consumption Today
       - entity: sensor.solaredge_energy_today
         name: Power Production Today
       - entity: sensor.power_tariff
-      - entity: sensor.solaredge_lifetime_energy
-        name: Power Production All Time
+      - entity: sensor.monthly_consumption_energy
+        name: Power Consumption this Month
+      - entity: sensor.solaredge_energy_this_month
+        name: Power Production this Month
       state_color: false
       title: Energie
       type: entities
@@ -534,27 +559,30 @@ views:
           name: Alarm uit
           show_state: false
           value: disarmed
-        - styles:
+        - color: orange
+          styles:
             card:
             - animation: blink 2s ease infinite
           value: arming
+        - color: red
+          value: armed_away
         - color: red
           icon: mdi:alert
           name: Intruder Alert
           styles:
             card:
             - animation: blink 2s ease infinite
-          value: armed_away
+          value: triggered
         type: custom:button-card
       type: horizontal-stack
     type: vertical-stack
   - cards:
     - entities:
-      - entity: light.woonkamer_voor
+      - entity: light.livingfront_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.woonkamer_achter
+      - entity: light.livingback_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -567,15 +595,19 @@ views:
         toggle: true
         type: custom:slider-entity-row
       - type: divider
-      - entity: light.eetkamer
+      - entity: light.dining_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.keuken
+      - entity: light.kitchen_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.kookeiland
+      - entity: light.kitchendesk_light
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
+      - entity: light.kitchencabin_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -583,7 +615,7 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.kantoor
+      - entity: light.office_lights
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -609,7 +641,7 @@ views:
     - entities:
       - sensor.lightlevel_living
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: '#F7BF10'
       line_width: 8
       name: Woonkamer
       type: custom:mini-graph-card
@@ -630,7 +662,7 @@ views:
     - entities:
       - sensor.lightlevel_kitchen
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: '#F7BF10'
       line_width: 8
       name: Keuken
       type: custom:mini-graph-card
@@ -638,30 +670,27 @@ views:
     type: grid
   - cards:
     - camera_view: live
-      entity: camera.babycam
-      type: picture-entity
-    - camera_view: live
-      entity: camera.gardencam
+      entity: camera.bijkeukencam
       type: picture-entity
     title: Camera's
     type: vertical-stack
   - cards:
     - cards:
       - entities:
-        - binary_sensor.ring_voordeur_ding
-        - binary_sensor.ring_voordeur_motion
-        - sensor.ring_voordeur_last_ding
-        - sensor.ring_voordeur_last_motion
+        - entity: binary_sensor.doorbell_lw_doorbell
+          name: Doorbell ding
+          secondary_info: last-changed
         - binary_sensor.frontdoor_openclose_sensor
+        - entity: binary_sensor.doorbell_lw_motion
+          name: Last motion
+          secondary_info: last-changed
         show_header_toggle: false
-        title: Ring Doorbell
+        title: Doorbell
         type: entities
-      - camera_image: camera.ring_voordeur
+      - camera_image: camera.doorbell
         entities:
-        - binary_sensor.ring_voordeur_ding
-        - binary_sensor.ring_voordeur_motion
-        - sensor.ring_voordeur_last_ding
-        - sensor.ring_voordeur_last_motion
+        - binary_sensor.doorbell_lw_doorbell
+        - binary_sensor.doorbell_lw_motion
         title: Front Door
         type: picture-glance
       type: custom:vertical-stack-in-card
@@ -669,7 +698,7 @@ views:
     type: vertical-stack
   - cards:
     - artwork: cover
-      entity: media_player.kitchen
+      entity: media_player.eetkamer
       group: true
       hide:
         icon: true
@@ -684,7 +713,7 @@ views:
           name: Sonos Kantoor
         - entity_id: media_player.living_room
           name: Sonos Woonkamer
-        - entity_id: media_player.kitchen
+        - entity_id: media_player.eetkamer
           name: Sonos Keuken
         - entity_id: media_player.tv_room
           name: Sonos TV
@@ -716,7 +745,7 @@ views:
           name: Sonos Kantoor
         - entity_id: media_player.living_room
           name: Sonos Woonkamer
-        - entity_id: media_player.kitchen
+        - entity_id: media_player.eetkamer
           name: Sonos Keuken
         - entity_id: media_player.tv_room
           name: Sonos TV
@@ -811,17 +840,20 @@ views:
           name: Alarm uit
           show_state: false
           value: disarmed
-        - styles:
+        - color: orange
+          styles:
             card:
             - animation: blink 2s ease infinite
           value: arming
+        - color: red
+          value: armed_away
         - color: red
           icon: mdi:alert
           name: Intruder Alert
           styles:
             card:
             - animation: blink 2s ease infinite
-          value: armed_away
+          value: triggered
         type: custom:button-card
       type: horizontal-stack
     type: vertical-stack
@@ -843,7 +875,7 @@ views:
     - entities:
       - sensor.lightlevel_masterbedroom
       font_size_header: 10
-      line_color: var(--accent-color)
+      line_color: '#F7BF10'
       line_width: 8
       name: Slaapkamer
       type: custom:mini-graph-card
@@ -926,8 +958,18 @@ views:
       name: Infrarood slaapkamer
     show_header_toggle: false
     type: entities
+  - entity: media_player.bedroom_googlehome
+    group: true
+    type: custom:mini-media-player
+    volume_stateless: false
+  - cards:
+    - camera_view: live
+      entity: camera.evacam
+      type: picture-entity
+    title: Camera's
+    type: vertical-stack
   - artwork: cover
-    entity: media_player.samsungtv_bedroom
+    entity: media_player.samsung_7_series_43
     icon: mdi:television
     name: Televisie
     shortcuts:
@@ -951,7 +993,222 @@ views:
   icon: mdi:bed
   path: boven
   title: Boven
+- badges: []
+  cards:
+  - elements:
+    - entity: binary_sensor.ix3_door_lock_state
+      style:
+        --paper-item-icon-color: white
+        left: 10%
+        top: 88.5%
+      tap_action: more-info
+      type: state-icon
+    - entity: binary_sensor.ix3_door_lock_state
+      style:
+        color: white
+        font-size: 0.8em
+        left: 10%
+        top: 95.5%
+      type: state-label
+    - entity: binary_sensor.ix3_windows
+      style:
+        --paper-item-icon-color: white
+        left: 20%
+        top: 88.5%
+      tap_action: more-info
+      type: state-icon
+    - entity: binary_sensor.ix3_windows
+      style:
+        color: white
+        font-size: 0.8em
+        left: 20%
+        top: 95.5%
+      type: state-label
+    - entity: binary_sensor.ix3_lids
+      style:
+        --paper-item-icon-color: white
+        left: 30%
+        top: 88.5%
+      tap_action: more-info
+      type: state-icon
+    - entity: binary_sensor.ix3_lids
+      style:
+        color: white
+        font-size: 0.8em
+        left: 30%
+        top: 95.5%
+      type: state-label
+    - entity: sensor.ix3_mileage
+      style:
+        --paper-item-icon-color: white
+        left: 40%
+        top: 88.5%
+      tap_action: more-info
+      type: state-icon
+    - entity: sensor.ix3_mileage
+      style:
+        color: white
+        font-size: 0.8em
+        left: 40%
+        top: 95.5%
+      type: state-label
+    - conditions:
+      - entity: sensor.ix3_connectionstatus
+        state: CONNECTED
+      elements:
+      - entity: sensor.ix3_connectionstatus
+        icon: mdi:ev-plug-type2
+        style:
+          --paper-item-icon-color: white
+          left: 53%
+          top: 88.5%
+        tap_action: more-info
+        type: state-icon
+      - style:
+          color: white
+          font-size: 0.8em
+          left: 53%
+          top: 95.5%
+        text: Plugged
+        type: custom:text-element
+      type: conditional
+    - conditions:
+      - entity: binary_sensor.ix3_charging_status
+        state: 'on'
+      elements:
+      - entity: sensor.ix3_charging_time_remaining
+        prefix: 'Laadtijd: '
+        style:
+          color: white
+          font-size: 0.8em
+          right: -5%
+          top: 93.5%
+        type: state-label
+      type: conditional
+    - color_stops:
+        '5': '#09C7E8'
+        '63': '#09A50C'
+      entity: sensor.ix3_charging_level_hv
+      fill: rgba(54, 65, 78, 0.6)
+      font_style:
+        color: white
+        font-size: 0.9em
+      gradient: true
+      max: 100
+      min: 0
+      name: Level
+      stroke_width: 15
+      style:
+        height: 4em
+        left: 5%
+        top: 6%
+        transform: none
+        width: 4em
+      type: custom:circle-sensor-card
+      units: '%'
+    - color_stops:
+        '100': '#09C7E8'
+        '300': '#09A50C'
+      entity: sensor.ix3_remaining_range_electric
+      fill: rgba(54, 65, 78, 0.6)
+      font_style:
+        color: white
+        font-size: 0.9em
+      gradient: true
+      max: 370
+      min: 0
+      name: Bereik
+      stroke_width: 15
+      style:
+        height: 4em
+        right: 5%
+        top: 6%
+        transform: none
+        width: 4em
+      type: custom:circle-sensor-card
+      units: km
+    image: /local/images/bmwix3_icon.png
+    type: picture-elements
+  - dark_mode: true
+    default_zoom: 13
+    entities:
+    - person.bmw_ix3
+    hours_to_show: 24
+    title: Auto
+    type: map
+  icon: mdi:car
+  path: car
+  type: custom:masonry-layout
+- badges: []
+  cards:
+  - entity: camera.evacam
+    name: Eva bed
+    type: picture-entity
+  - camera_view: live
+    entity: camera.doorbell
+    name: Voordeur
+    type: picture-entity
+  - entity: camera.bijkeukencam
+    type: picture-entity
+  - camera_view: live
+    entity: camera.reocam1
+    name: Achterdeur
+    type: picture-entity
+  - camera_image: camera.reocam2_3
+    entity: camera.reocam2
+    name: Achtertuin
+    type: picture-entity
+  - entities:
+    - entity: switch.evacam_detect
+    - entity: switch.bijkeukencam_detect
+    - entity: switch.reocam1_detect
+    - entity: switch.reocam2_detect
+    - entity: switch.doorbell_detect
+    show_header_toggle: false
+    state_color: false
+    title: Camera detectie
+    type: entities
+  icon: mdi:webcam
+  title: Cams
+  type: custom:masonry-layout
 - cards:
+  - entities:
+    - entity: person.rob
+    - entity: person.steffi
+    - entity: person.bmw_ix3
+    title: Home?
+    type: entities
+  - cards:
+    - entities:
+      - device_tracker.rob_presence
+      - device_tracker.iphone_rob
+      - device_tracker.rob_owntracks
+      - device_tracker.life360_rob_sonke
+      hours_to_show: 12
+      refresh_interval: 30
+      title: Presence Graphs Rob
+      type: history-graph
+    - entities:
+      - device_tracker.steffi_presence
+      - device_tracker.iphone_steffi
+      - device_tracker.steffi_owntracks
+      - device_tracker.life360_steffi_berks
+      hours_to_show: 12
+      refresh_interval: 30
+      title: Presence Graphs Steffi
+      type: history-graph
+    - entities:
+      - device_tracker.ix3
+      hours_to_show: 12
+      refresh_interval: 30
+      title: BMW iX3
+      type: history-graph
+    type: custom:vertical-stack-in-card
+  - entities:
+    - entity: input_boolean.enable_automatic_lights
+    - entity: input_boolean.dark_mode
+    show_header_toggle: false
+    type: entities
   - card:
       type: entities
     filter:
@@ -963,35 +1220,6 @@ views:
       method: last_changed
     title: Alarm Elements
     type: custom:auto-entities
-  - entities:
-    - person.rob
-    - person.steffi
-    - person.bmw_x1
-    title: Home?
-    type: entities
-  - entities:
-    - entity: input_boolean.enable_automatic_lights
-    - entity: input_boolean.dark_mode
-    show_header_toggle: false
-    type: entities
-  - cards:
-    - entities:
-      - device_tracker.rob_presence
-      - device_tracker.iphone_rob
-      - device_tracker.homekit_rob_homekit_present
-      hours_to_show: 12
-      refresh_interval: 30
-      title: Presence Graphs Rob
-      type: history-graph
-    - entities:
-      - device_tracker.steffi_presence
-      - device_tracker.iphone_steffi
-      - device_tracker.homekit_steffi_homekit_present
-      hours_to_show: 12
-      refresh_interval: 30
-      title: Presence Graphs Steffi
-      type: history-graph
-    type: custom:vertical-stack-in-card
   - cards:
     - entity: alarm_control_panel.alarmo
       type: custom:alarmo-card
@@ -1010,47 +1238,6 @@ views:
   icon: mdi:security
   id: alarm
   title: Alarm
-- badges: []
-  cards:
-  - camera_view: live
-    entity: camera.babycam
-    name: Eva bed
-    type: picture-entity
-  - camera_view: live
-    entity: camera.gardencam
-    type: picture-entity
-  - cards:
-    - camera_image: camera.ring_voordeur
-      entities:
-      - entity: binary_sensor.ring_voordeur_ding
-      - entity: binary_sensor.ring_voordeur_motion
-      - entity: sensor.ring_voordeur_last_ding
-      - entity: sensor.ring_voordeur_last_motion
-      title: Front Door
-      type: picture-glance
-    - entities:
-      - entity: binary_sensor.ring_voordeur_ding
-      - entity: binary_sensor.ring_voordeur_motion
-      - entity: sensor.ring_voordeur_last_ding
-      - entity: sensor.ring_voordeur_last_motion
-      show_header_toggle: false
-      title: Ring Doorbell
-      type: entities
-    type: vertical-stack
-  - entity: camera.weer
-    type: picture-entity
-  - camera_view: live
-    entity: camera.gardencam_person
-    type: picture-entity
-  - camera_view: live
-    entity: camera.reocam1
-    name: TEST
-    type: picture-entity
-  - camera_view: live
-    entity: camera.babycam_cat
-    type: picture-entity
-  icon: mdi:webcam
-  title: Cams
 - cards:
   - cards:
     - entity: sensor.current_version
@@ -1164,19 +1351,19 @@ views:
       type: entities
     type: vertical-stack
   - entities:
-    - sensor.count_automations
-    - sensor.count_device_trackers
-    - sensor.count_lights
-    - sensor.count_binary_sensors
-    - sensor.count_sensors
-    - sensor.count_switches
-    - sensor.count_zones
-    - sensor.count_cameras
-    - sensor.count_media_players
-    - sensor.count_scripts
-    - sensor.count_locks
-    - sensor.count_vacuums
-    - sensor.count_zwaves
+    - entity: sensor.automations_count
+    - entity: sensor.device_trackers_count
+    - entity: sensor.lights_count
+    - entity: sensor.binary_sensors_count
+    - entity: sensor.sensors_count
+    - entity: sensor.switches_count
+    - entity: sensor.zone_count
+    - entity: sensor.camera_count
+    - entity: sensor.media_players_count
+    - entity: sensor.scripts_count
+    - entity: sensor.locks_count
+    - entity: sensor.vacuum_count
+    - entity: sensor.zwave_count
     show_header_toggle: false
     title: Numbers
     type: entities
@@ -1199,7 +1386,7 @@ views:
 - badges: []
   cards:
   - entities:
-    - entity: sensor.kasa_winecooler_watts
+    - entity: sensor.winecooler_switch_current_consumption
       hours_to_show: 3
       name: Wijnklimaatkast
       points_per_hour: 60
@@ -1209,7 +1396,7 @@ views:
     points_per_hour: 60
     type: custom:mini-graph-card
   - entities:
-    - entity: sensor.kasa_wasmachine_watts
+    - entity: sensor.wasmachine_switch_current_consumption
       hours_to_show: 3
       name: Wasmachine
       points_per_hour: 60
@@ -1219,7 +1406,7 @@ views:
     points_per_hour: 60
     type: custom:mini-graph-card
   - entities:
-    - entity: sensor.kasa_vaatwasser_watts
+    - entity: sensor.vaatwasser_switch_current_consumption
       hours_to_show: 3
       name: Vaatwasser
       points_per_hour: 60
@@ -1273,7 +1460,7 @@ views:
         show:
           graph: bar
         show_state: true
-      - entity: sensor.power_consumption
+      - entity: sensor.power_consumption_watt
         hours_to_show: 24
         name: Stroomverbruik
         points_per_hour: 4
@@ -1283,13 +1470,20 @@ views:
       type: custom:mini-graph-card
     - entities:
       - entity: sensor.power_consumption
+      - entity: sensor.daily_consumption_energy
+        icon: mdi:counter
+        name: Power Consumption Today
       - entity: sensor.solaredge_energy_today
-        name: Power Production
+        name: Power Production Today
       - entity: sensor.power_tariff
-      - entity: sensor.gas_consumption
-      - entity: sensor.hourly_gas_consumption
-      - entity: sensor.solaredge_lifetime_energy
-        name: Power Production All Time
+      - entity: sensor.monthly_consumption_energy
+        name: Power Consumption this Month
+      - entity: sensor.solaredge_energy_this_month
+        name: Power Production this Month
+      - entity: sensor.yearly_consumption_energy
+        name: Power Consumption this Year
+      - entity: sensor.solaredge_energy_this_year
+        name: Power Production this Year
       state_color: false
       title: Energie
       type: entities
@@ -1303,7 +1497,7 @@ views:
       type: custom:auto-entities
     type: vertical-stack
   - entities:
-    - entity: sensor.kasa_infrarood_slaapkamer_watts
+    - entity: sensor.infrarood_slaapkamer_current_consumption
       hours_to_show: 3
       name: Infrarood paneel
       points_per_hour: 60

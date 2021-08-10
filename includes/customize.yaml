@@ -16,50 +16,23 @@ person.ha_catt_cast:
   entity_picture: "/local/images/huis_langeweide_icon.png"
 zone.home:
   entity_picture: "/local/images/huis_langeweide_icon.png"
-person.bmw_x1:
-  entity_picture: "/local/images/bmwx1_icon.png"
-
-## monitor.sh config
-# TODO review locations and add fourth pizero
-# sensor.phone_rob_ground_floor_confidence:
-#   friendly_name: iPhone Rob (Occupancy ground floor confidence)
-#   icon: mdi:cellphone-iphone
-# sensor.phone_rob_first_floor_confidence:
-#   friendly_name: iPhone Rob (Occupancy first floor confidence)
-#   icon: mdi:cellphone-iphone
-# sensor.phone_rob_garden_confidence:
-#   friendly_name: iPhone Rob (Occupancy garden confidence)
-#   icon: mdi:cellphone-iphone
-# sensor.phone_steffi_ground_floor_confidence:
-#   friendly_name: iPhone Steffi (Occupancy ground floor confidence)
-#   icon: mdi:cellphone-iphone
-# sensor.phone_steffi_first_floor_confidence:
-#   friendly_name: iPhone Steffi (Occupancy first floor confidence)
-#   icon: mdi:cellphone-iphone
-# sensor.phone_steffi_garden_confidence:
-#   friendly_name: iPhone Steffi (Occupancy garden confidence)
-#   icon: mdi:cellphone-iphone
+person.bmw_ix3:
+  entity_picture: "/local/images/bmwix3_icon.png"
 
 device_tracker.rob_presence:
   friendly_name: Combined Presence Rob
 device_tracker.steffi_presence:
   friendly_name: Combined Presence Steffi
-device_tracker.homekit_rob_homekit_present:
-  friendly_name: iCloud Tracker Rob
-  device_class: presence
-device_tracker.homekit_steffi_homekit_present:
-  friendly_name: iCloud Tracker Steffi
-  device_class: presence
 
-light.kantoor:
+light.office_lights:
   icon: mdi:desktop-mac-dashboard
   friendly_name: Kantoor verlichting
 media_player.living_room:
   friendly_name: Speakers Woonkamer
 media_player.tv_room:
   friendly_name: Speakers TV
-media_player.kitchen:
-  friendly_name: Speakers Keuken
+media_player.eetkamer:
+  friendly_name: Speakers Eetkamer
 media_player.office:
   friendly_name: Speakers Kantoor
 light.zwave_light_couch_level:

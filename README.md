@@ -20,7 +20,6 @@ Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basn
   - AppDaemon 4
   - Check Home Assistant configuration
   - Frigate
-  - Dnsmasq
   - Glances
   - Portainer
   - Grafana
@@ -31,12 +30,13 @@ Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basn
   - Mosquitto broker
   - NGINX Home Assistant SSL proxy
   - Node-RED
-  - OpenZWave
+  - Z-Wave JS to MQTT
   - SSH & Web Terminal
   - Visual Studio Code
   - WireGuard
   - deCONZ
   - phpMyAdmin
+  - Amcrest2Mqtt
 
 ## Hardware
 What drives all:
@@ -47,11 +47,11 @@ What drives all:
 - Synology DS918+
 
 ### Devices
-What controls and measures all.
 Lights:
 - Casambi lights and switches
+- 9 iCasa Zigbee dimmers
 - Philips Hue Bulbs
-- 4x Osram Zigbee Led Strip (3m)
+- 5x Osram Zigbee Led Strip
 
 Switches:
 - 3x Philips Hue Dimmer Switch
@@ -62,8 +62,9 @@ Switches:
 
 Media:
 - 4x Sonos One
-- 2x Sonos Play5
+- 4x Sonos Play5
 - 1x Sonos Beam
+- 1x Sonos Roam
 - 1x Google Nest Hub
 - 3x Google Nest Mini
 - 2x Chromecast
@@ -81,10 +82,15 @@ Vacuum:
 
 Cameras
 - 2x Foscam C2
+- 1x Reolink POE RLC-840A
+- 1x Reolink POE RLC-522A
+- 1x Reolink E1 Pro
 
 Doorbell
-- Ring Doorbell
-- Ring Chime
+- Amcrest AD410
+
+Locks:
+- Nuki Smart Lock 2.0
 
 # Presence Detection
 > TODO
@@ -98,6 +104,5 @@ Doorbell
 - Implement smart door locks
 - Implement floorplans
 - Improve security system
-- Separate IoT and other devices in differnet subnets
-- Document automations
+- Separate IoT and other devices in different vlans
 

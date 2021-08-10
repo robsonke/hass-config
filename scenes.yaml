@@ -1,10 +1,107 @@
 - id: '1614892184464'
   name: Sleep well
   entities:
-    light.eetkamer:
+    light.zwave_light_corner_level:
+      supported_color_modes:
+      - brightness
+      friendly_name: Hoeklamp
+      supported_features: 33
+      assumed_state: false
+      state: 'off'
+    light.zwave_light_couch_level:
+      supported_color_modes:
+      - brightness
+      friendly_name: Lamp bank
+      supported_features: 33
+      assumed_state: false
+      state: 'off'
+    light.dining_light:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
       brightness: 102
       friendly_name: Eetkamer
       supported_features: 1
       assumed_state: false
       state: 'on'
+    light.office_lights:
+      supported_color_modes:
+      - brightness
+      friendly_name: Kantoor verlichting
+      supported_features: 1
+      assumed_state: false
+      icon: mdi:desktop-mac-dashboard
+      state: 'off'
+    light.ledstrip_office:
+      min_mireds: 140
+      max_mireds: 650
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - hs
+      is_deconz_group: false
+      friendly_name: Ledstrip boekenkast
+      supported_features: 63
+      assumed_state: false
+      state: 'off'
+    light.keuken:
+      supported_color_modes:
+      - brightness
+      entity_id:
+      - light.kitchen_light
+      - light.kitchencabin_light
+      friendly_name: Keuken
+      icon: mdi:lightbulb-group
+      supported_features: 1
+      assumed_state: false
+      state: 'off'
+    light.woonkamer:
+      supported_color_modes:
+      - brightness
+      entity_id:
+      - light.livingback_light
+      - light.livingfront_light
+      friendly_name: Woonkamer
+      icon: mdi:lightbulb-group
+      supported_features: 1
+      assumed_state: false
+      state: 'off'
+    light.kitchendesk_light:
+      supported_color_modes:
+      - brightness
+      friendly_name: Kookeiland
+      supported_features: 1
+      assumed_state: false
+      state: 'off'
+    light.boekenkast:
+      min_mireds: 140
+      max_mireds: 650
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - hs
+      entity_id:
+      - light.ledstrip_book1
+      - light.ledstrip_book2
+      - light.ledstrip_book3
+      friendly_name: Boekenkast
+      icon: mdi:lightbulb-group
+      supported_features: 63
+      assumed_state: false
+      state: 'off'
+    light.ledstrip_tv:
+      min_mireds: 140
+      max_mireds: 650
+      effect_list:
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - hs
+      is_deconz_group: false
+      friendly_name: Ledstrip TV
+      supported_features: 63
+      assumed_state: false
+      state: 'off'
   icon: mdi:bed

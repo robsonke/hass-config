@@ -20,8 +20,8 @@
 - platform: group
   name: Woonkamer
   entities:
-    - light.woonkamer_achter
-    - light.woonkamer_voor
+    - light.livingback_light
+    - light.livingfront_light
 - platform: group
   name: Overloop
   entities:
@@ -30,8 +30,9 @@
 - platform: group
   name: Keuken
   entities:
-    - light.keuken_kook
-    - light.keuken_nis
+    - light.kitchen_light
+    - light.kitchendesk_light
+    - light.kitchencabin_light
 - platform: group
   name: Boekenkast
   entities:

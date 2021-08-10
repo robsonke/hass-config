@@ -12,21 +12,28 @@ flash_office:
   - service: script.turn_on
     data:
       entity_id: script.flash_office_loop
+  mode: single
+  icon: mdi:lightbulb
 flash_office_loop:
   alias: Flash Lights loop
   sequence:
   - delay:
-      seconds: 1
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
   - service: script.turn_on
     data:
       entity_id: script.flash_office
   mode: single
+  icon: mdi:lightbulb
 sonos_say:
   alias: Sonos TTS script
   sequence:
   - service: sonos.snapshot
     data_template:
       entity_id: '{{ sonos_entity }}'
+      with_group: true
   - service: sonos.unjoin
     data_template:
       entity_id: '{{ sonos_entity }}'
@@ -36,6 +43,7 @@ sonos_say:
       volume_level: '{{ volume }}'
   - service: sonos.set_option
     data_template:
+      entity_id: '{{ sonos_entity }}'
       speech_enhance: true
   - service: tts.google_translate_say
     data_template:
@@ -45,6 +53,8 @@ sonos_say:
   - service: sonos.restore
     data_template:
       entity_id: '{{ sonos_entity }}'
+  mode: single
+  icon: mdi:play
 sonos_play_sound:
   alias: Sonos Play MP3
   sequence:
@@ -71,3 +81,42 @@ sonos_play_sound:
   - service: sonos.restore
     data_template:
       entity_id: '{{ sonos_entity }}'
+  mode: single
+  icon: mdi:play
+sleep_well:
+  alias: Sleep well
+  sequence:
+  - service: media_player.media_pause
+    target:
+      entity_id:
+      - media_player.eetkamer
+      - media_player.office
+      - media_player.living_room
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.zwave_light_corner_level
+      - light.zwave_light_couch_level
+    data:
+      transition: 2
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: light.turn_off
+    data:
+      transition: 2
+    target:
+      entity_id:
+      - light.dining_light
+      - light.office_lights
+      - light.ledstrip_office
+      - light.keuken
+      - light.woonkamer
+      - light.kitchendesk_light
+      - light.boekenkast
+      - light.ledstrip_tv
+  mode: parallel
+  icon: mdi:sleep
+  max: 10

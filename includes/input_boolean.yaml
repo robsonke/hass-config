@@ -21,12 +21,6 @@ testrob:
   name: Test boolean to trigger automations
   icon: mdi:test-tube
   initial: false
-rob_homekit_present:
-  name: rob_homekit_present
-  icon: mdi:home
-steffi_homekit_present:
-  name: steffi_homekit_present
-  icon: mdi:home
 dark_mode:
   name: Dark mode
   icon: mdi:theme-light-dark

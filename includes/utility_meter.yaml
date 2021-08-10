@@ -21,6 +21,13 @@ monthly_energy_offpeak:
 monthly_energy_peak:
   source: sensor.energy_consumption_tarif_2
   cycle: monthly
+yearly_energy_offpeak:
+  source: sensor.energy_consumption_tarif_1
+  cycle: yearly
+yearly_energy_peak:
+  source: sensor.energy_consumption_tarif_2
+  cycle: yearly
+
 daily_energy:
   source: sensor.energy
   cycle: daily
@@ -33,3 +40,28 @@ monthly_energy:
   tariffs:
     - peak
     - offpeak
+yearly_energy:
+  source: sensor.energy
+  cycle: yearly
+  tariffs:
+    - peak
+    - offpeak
+
+# daily_energy_production_offpeak:
+#   source: sensor.energy_production_tarif_1
+#   cycle: daily
+# daily_energy_production_peak:
+#   source: sensor.energy_production_tarif_2
+#   cycle: daily
+# monthly_energy_production_offpeak:
+#   source: sensor.energy_production_tarif_1
+#   cycle: monthly
+# monthly_energy_production_peak:
+#   source: sensor.energy_production_tarif_2
+#   cycle: monthly
+# yearly_energy_production_offpeak:
+#   source: sensor.energy_production_tarif_1
+#   cycle: yearly
+# yearly_energy_production_peak:
+#   source: sensor.energy_production_tarif_2
+#   cycle: yearly

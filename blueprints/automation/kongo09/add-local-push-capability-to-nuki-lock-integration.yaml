@@ -1,0 +1,29 @@
+blueprint:
+  name: Update Nuki integration
+  domain: automation
+  description: Update the Nuki integration by listening to a webhook request from
+    the bridge
+  input:
+    webhook_id:
+      name: Webhook ID
+      description: A Home Assistant webhook ID that has been registered with the Nuki
+        bridge for a callback
+      selector:
+        text: {}
+    lock_entities:
+      name: Lock and sensor entities
+      description: A list of lock and sensor entities from the Nuki integration to
+        be updated when the Nuki bridge issues a callback
+      selector:
+        target:
+          device:
+            integration: nuki
+  source_url: https://community.home-assistant.io/t/add-local-push-capability-to-nuki-lock-integration/313976
+trigger:
+- platform: webhook
+  webhook_id: !input 'webhook_id'
+condition: []
+action:
+- service: homeassistant.update_entity
+  target: !input 'lock_entities'
+mode: single

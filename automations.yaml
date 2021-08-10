@@ -1,5 +1,5 @@
 - id: '1618070798660'
-  alias: Low battery level detection & notification for all battery sensors
+  alias: Battery - Low battery level detection & notification for all battery sensors
   description: Low battery level detection & notification for all battery sensors
   use_blueprint:
     path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
@@ -11,35 +11,33 @@
           message: 🔋 Low battery warning for {{sensors|replace("_"," ")}}
 - id: alarm_auto_arm_when_away
   alias: Alarm - Auto arm since we're away and all is closed
-  description: This enables the alart automatically when we're away from home and
-    we didn't enable the Guest mode, in case somebody known is home.
+  description: We didn't enable the Guest mode and we both left, arm the house
   trigger:
   - platform: state
     entity_id:
     - device_tracker.rob_presence
     - device_tracker.steffi_presence
     to: not_home
-    for: 0:05:00
+    for: 0:01:00
   condition:
   - condition: and
     conditions:
     - condition: state
-      entity_id:
-      - device_tracker.rob_presence
-      - device_tracker.steffi_presence
+      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
       state: not_home
-    - condition: template
-      value_template: '{{ states(''input_boolean.guest_mode'') != ''on'' }}'
     - condition: state
-      entity_id: alarm_control_panel.alarm
+      entity_id: alarm_control_panel.alarmo
       state: disarmed
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
   action:
   - service: notify.telegram
     data:
-      message: '⏰ ALARM: Deuren en ramen zijn gesloten, zowel Rob als Steffi zijn
-        weg en de gastmodus staat uit. Het alarm gaat nu aan.'
+      message: ⏰ We zijn beiden weg, het alarm wordt geactiveerd
   - service: alarm_control_panel.alarm_arm_away
-    entity_id: alarm_control_panel.alarm
+    target:
+      entity_id: alarm_control_panel.alarmo
   mode: single
 - id: alarm_auto_disarm_when_arriving
   alias: Alarm - Ready to auto disarm since one of us comes home
@@ -51,26 +49,41 @@
     - device_tracker.steffi_presence
     to: just_arrived
     for: 0:00:30
+  - platform: state
+    entity_id: device_tracker.ix3
+    from: not_home
+    to: home
   condition:
   - condition: and
     conditions:
-    - condition: state
-      entity_id: alarm_control_panel.alarmo
-      state: armed_away,armed_home,pending,triggered
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: armed_away
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: armed_home
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: pending
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: triggered
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
   - service: notify.telegram
     data:
-      message: '⏰ ALARM: Een van ons komt thuis, het alarm wordt gedeactiveerd.'
+      message: ⏰ Een van ons komt thuis, het alarm wordt gedeactiveerd.
   - service: alarm_control_panel.alarm_disarm
-    data:
+    data: {}
+    target:
       entity_id: alarm_control_panel.alarmo
-      code: '5568'
   mode: single
-- alias: Alarm - Trigger while armed away
-  id: alarm_trigger_when_armed_away
+- id: alarm_trigger_when_armed_away
+  alias: Alarm - Trigger when door and window status change
   description: Change the alarm state to triggering when an important door or window
     opens
   trigger:
@@ -82,45 +95,15 @@
       int }}'
   - condition: state
     entity_id: alarm_control_panel.alarmo
-    state:
-    - armed_away
-    - armed_home
-    - armed_night
+    state: armed_away,armed_home,armed_night
   action:
-    service: alarm_control_panel.alarm_trigger
+  - service: alarm_control_panel.alarm_trigger
     entity_id: alarm_control_panel.alarmo
-- alias: Alarm - Arming
-  id: alarm_arming_when_possible
-  description: In case we're arming the house manually or automatically (when leaving),
-    we should check if this is really possible
-  trigger:
-  - platform: state
-    entity_id: alarm_control_panel.alarmo
-    to: arming
-  mode: queued
-  action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: binary_sensor.backdoor_openclose_sensor
-        state: Open
-      sequence:
-      - service: alarm_control_panel.alarm_disarm
-        data:
-          entity_id: alarm_control_panel.alarmo
-      - service: tts.google_translate_say
-        entity_id: media_player.keuken_display
-        data:
-          message: De achterdeur staat nog open, sluit deze eerst
-    default:
-    - service: tts.google_translate_say
-      entity_id: media_player.keuken_display
-      data:
-        message: Het alarm is geactiveerd, je hebt 2 minuten de tijd om weg te gaan
-- alias: Alarm - Triggered
-  id: alarm_triggered_alert
-  description: Now we're in trouble, the alarm is triggered and we haven't disarmed
-    it. A lot of noise and lights will be activated
+  mode: single
+- id: alarm_triggered_alert
+  alias: Alarm - Triggered BEEP BEEP BEEP
+  description: Now we are in trouble, the alarm is triggered and we have not disarmed
+    it. A lot of noise and lights will be activated.
   trigger:
   - platform: state
     entity_id: alarm_control_panel.alarmo
@@ -128,7 +111,13 @@
   action:
   - service: notify.telegram
     data:
-      message: 🚨 ALARM! Het alarm gaat af en is te laat gedeactiveerd!
+      message: 🚨🚨 ALARM! Het alarm gaat af en is te laat gedeactiveerd! 🚨🚨
+  - service: light.turn_on
+    data:
+      entity_id:
+      - light.dining_light
+      - light.woonkamer
+      - light.keuken
   - repeat:
       while:
       - condition: state
@@ -140,15 +129,16 @@
       - service: script.sonos_say
         data:
           sonos_entity: media_player.living_room
-          volume: 0.5
-          message: Je bent gezien en wordt nu gefilmd! We zijn onderweg
+          volume: 0.3
+          message: Je bent gezien en wordt nu gefilmd!
           delay: 00:00:03
-  - service: script.sonos_play_sound
-    data:
-      mp3_url: https://home.tigrou.nl/local/sounds/alarm2.mp3
-      volume: 0.4
-      sonos_entity: media_player.living_room
-      delay: 00:00:10
+      - service: script.sonos_play_sound
+        data:
+          mp3_url: https://home.tigrou.nl/local/sounds/alarm2.mp3
+          volume: 0.3
+          sonos_entity: media_player.living_room
+          delay: 00:00:10
+  mode: single
 - alias: Alarm - Pending
   id: alarm_pending_trigger
   description: Warn the person that walked in about the armed alarm, goal is to disarm
@@ -276,7 +266,7 @@
     data:
       entity_id:
       - light.ledstrip_office
-      - light.eetkamer
+      - light.dining_light
       brightness_pct: 60
   - service: light.turn_on
     data:
@@ -284,16 +274,16 @@
       - light.boekenkast
       - light.ledstrip_tv
       brightness_pct: 60
-- alias: Lights - Turn on lights when dark - home
+- id: groundfloor_lights_on_when_dark_home
+  alias: Lights - Turn on lights when dark - home
   description: Switch standard lights on when it's after 2 PM and light level too
     low
-  id: groundfloor_lights_on_when_dark_home
   trigger:
   - platform: numeric_state
     entity_id: sensor.lightlevel_living
-    below: 50
+    below: '50'
   condition:
-    condition: and
+  - condition: and
     conditions:
     - condition: state
       entity_id: light.zwave_light_couch_level
@@ -309,17 +299,12 @@
       - condition: state
         entity_id:
         - device_tracker.rob_presence
-        state:
-        - home
+        state: home
       - condition: state
         entity_id:
         - device_tracker.steffi_presence
-        state:
-        - home
+        state: home
   action:
-  - service: notify.telegram_rob
-    data:
-      message: 💡 Verlichting automatisch aan - thuis
   - service: light.turn_on
     data:
       entity_id:
@@ -331,18 +316,20 @@
     data:
       entity_id:
       - light.ledstrip_office
-      - light.eetkamer
+      - light.dining_light
       - light.woonkamer
       brightness_pct: 40
   - service: light.turn_on
     data:
-      entity_id: light.kookeiland
-      brightness_pct: 15
+      brightness_pct: 40
+    target:
+      entity_id: light.kitchendesk_light
   - service: light.turn_on
     data:
       entity_id:
       - light.boekenkast
       - light.ledstrip_tv
+  mode: single
 - alias: Backups - Snapshots went stale
   id: backup_snapshots_stale
   description: Send a Telegram message when the backups are failing
@@ -390,7 +377,7 @@
   description: Say ding dong through the speakers when doorbell rings
   trigger:
     platform: state
-    entity_id: binary_sensor.ring_voordeur_ding
+    entity_id: binary_sensor.doorbell_lw_doorbell
     from: 'off'
     to: 'on'
   action:
@@ -400,18 +387,22 @@
       volume: 0.4
       sonos_entity: media_player.living_room
       delay: 00:00:03
-- alias: Garden - Turn on garden lights
-  id: garden_lights_turn_on
+- id: garden_lights_turn_on
+  alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
     garden
   trigger:
   - platform: numeric_state
     entity_id: sensor.lightlevel_living
-    below: 50
+    below: '10'
   - platform: time
     at: 06:16:00
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: '-3'
   condition:
-    condition: or
+  - condition: or
     conditions:
     - condition: and
       conditions:
@@ -423,7 +414,7 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'on'
       - condition: state
-        entity_id: light.buitenlamp_zijdeur
+        entity_id: light.dimmer_cabinroof_level
         state: 'off'
     - condition: and
       conditions:
@@ -435,20 +426,27 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'on'
       - condition: state
-        entity_id: light.buitenlamp_zijdeur
+        entity_id: light.dimmer_cabinroof_level
         state: 'off'
-      - condition: numeric_state
-        entity_id: sensor.lightlevel_living
-        below: 50
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.lightlevel_living
+          below: '10'
+        - condition: numeric_state
+          entity_id: sun.sun
+          attribute: elevation
+          below: '-4'
   action:
   - service: light.turn_on
     data:
-      entity_id: light.buitenlamp_zijdeur
-  - service: notify.telegram_rob
+      entity_id: light.dimmer_cabinroof_level
+  - service: light.turn_on
     data:
-      message: 💡 Tuinverlichting aan
-- alias: Garden - Turn off garden lights
-  id: garden_lights_turn_off
+      entity_id: light.garden_light
+  mode: single
+- id: garden_lights_turn_off
+  alias: Garden - Turn off garden lights
   description: Turn off lights in the garden at 11 PM
   trigger:
   - platform: time
@@ -457,60 +455,50 @@
     at: 09:00:00
   - platform: numeric_state
     entity_id: sensor.lightlevel_living
-    above: 30
+    above: '15'
+    for: 0:05:00
   condition:
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
   action:
   - service: light.turn_off
-    data:
-      entity_id: light.buitenlamp_zijdeur
-- alias: Everything off manually - goodnight
-  id: lights_turn_off_bedtime_manual
+    data: {}
+    target:
+      entity_id:
+      - light.garden_light
+      - light.dimmer_cabinroof_level
+  mode: single
+- id: lights_turn_off_bedtime_manual
+  alias: Sleep - Switch to night mode manually
   description: Go to bed switch, turn off all we don't need during the night. Lights,
-    music, tv, etc
+    music, tv, etc. And turn on the alarm
   trigger:
-    platform: event
-    event_type: deconz_event
-    event_data:
-      id: switch_round
-      event: 1004
+  - platform: state
+    entity_id: input_boolean.night_mode
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: or
+    conditions:
+    - condition: time
+      after: '21:00:00'
+    - condition: time
+      before: 05:00:00
   action:
-  - service: input_boolean.turn_off
-    data:
-      entity_id: input_boolean.enable_automatic_lights
-  - service: media_player.media_pause
-    data:
-      entity_id:
-      - media_player.kitchen
-      - media_player.office
-      - media_player.living_room
-  - service: light.turn_off
-    data:
-      entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
-  - delay: '1'
-  - service: light.turn_off
-    data:
-      entity_id:
-      - light.eetkamer
-      - light.kantoor
-      - light.ledstrip_office
-      - light.keuken
-      - light.woonkamer
-      - light.kookeiland
-      - light.boekenkast
-      - light.ledstrip_tv
-- alias: Lights - Turn off lights automatically - bedtime
-  id: lights_turn_off_bedtime_auto
+  - service: script.sleep_well
+  - service: alarm_control_panel.alarm_arm_night
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: lights_turn_off_bedtime_auto
+  alias: Lights - Turn off lights automatically - bedtime
   description: Turn off main lights when we're not home or already went to bed
   trigger:
-    platform: time_pattern
+  - platform: time_pattern
     minutes: /1
   condition:
-    condition: and
+  - condition: and
     conditions:
     - condition: state
       entity_id: light.zwave_light_couch_level
@@ -518,31 +506,20 @@
     - condition: time
       after: '23:03:00'
     - condition: state
-      entity_id: binary_sensor.samsungtv_livingroom_status
-      state: 'off'
-    - condition: state
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
+    - condition: state
+      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
+      state: not_home
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
   action:
   - service: notify.telegram_rob
     data:
       message: 💡 Verlichting automatisch uit
-  - service: light.turn_off
-    data:
-      entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
-  - delay: '1'
-  - service: light.turn_off
-    data:
-      entity_id:
-      - light.woonkamer
-      - light.keuken
-      - light.kantoor
-      - light.eetkamer
-      - light.kookeiland
-      - light.boekenkast
-      - light.ledstrip_tv
+  - service: script.sleep_well
+  mode: single
 - alias: Lights - Turn on lights when closet door opens
   id: closet_light_turn_on
   trigger:
@@ -553,16 +530,17 @@
   action:
     service: light.turn_on
     entity_id: light.hallcloset
-- alias: Lights - Turn off lights when closet door closes
-  id: closet_light_turn_off
+- id: closet_light_turn_off
+  alias: Lights - Turn off lights when closet door closes
   trigger:
-    platform: state
+  - platform: state
     entity_id: binary_sensor.door_hallcloset_openclose_sensor
     from: 'on'
     to: 'off'
   action:
-    service: light.turn_off
+  - service: light.turn_off
     entity_id: light.hallcloset
+  mode: single
 - alias: Lights - Turn on lights when hallway door opens in the early morning
   id: lights_kitchen_turn_on_when_awake_morning
   trigger:
@@ -581,15 +559,17 @@
   action:
   - service: light.turn_on
     data:
-      entity_id: light.kookeiland
+      entity_id: light.kitchendesk_light
       brightness_pct: 30
-- alias: Hass - Restart SSH Addon
-  id: restart_ssh_addon
+- id: restart_ssh_addon
+  alias: Hass - Restart SSH Addon
   description: Restart the ssh addon after a HA restart, required to get the hassio.addon_stdin
     to work
   trigger:
   - platform: homeassistant
     event: start
+  - platform: time
+    at: 01:00:00
   action:
   - delay: 00:04
   - service: hassio.addon_restart
@@ -600,6 +580,7 @@
     data:
       addon: a0d7b954_ssh
       input: bash /config/cast.sh
+  mode: single
 - alias: Heating - Turn on heating workspace Steffi
   id: heating_steffi_turn_on
   description: This turns on the infra red heating panel when Steffi has to work and
@@ -733,7 +714,7 @@
     - device_tracker.steffi_presence
   condition:
   - condition: numeric_state
-    entity_id: sensor.ha_uptime
+    entity_id: sensor.ha_uptime_minutes
     above: 3
   - condition: template
     value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
@@ -780,49 +761,34 @@
     data:
       entity_id: automation.cast_ha_to_nest_display
       skip_condition: false
-- alias: Presence - Homekit to device tracker
-  id: presence_homekit_to_device
-  description: ''
+- id: presence_frigate_object_detection
+  alias: Alarm - Notify of person events on camera
   trigger:
-  - entity_id: input_boolean.rob_homekit_present
-    platform: state
-  - entity_id: input_boolean.steffi_homekit_present
-    platform: state
-  condition: []
-  action:
-  - data_template:
-      dev_id: homekit_{{ trigger.to_state.name }}
-      location_name: '{{ ''home'' if trigger.to_state.state == ''on'' else ''not_home''
-        }}'
-      source_type: gps
-    service: device_tracker.see
-  mode: parallel
-  max: 10
-- alias: Re-initialise homekit device trackers
-  id: presence_homekit_hass_restart
-  description: Re-initialise homekit device trackers after a restart of home assistant,
-    required since they sometimes switch to not_home
-  trigger:
-    platform: homeassistant
-    event: start
-  action:
-  - service: device_tracker.see
-    data_template:
-      dev_id: homekit_rob_homekit_present
-      location_name: '{{ ''home'' if states.input_boolean.rob_homekit_present == ''on''
-        else ''not_home'' }}'
-      source_type: gps
-  - service: device_tracker.see
-    data_template:
-      dev_id: homekit_steffi_homekit_present
-      location_name: '{{ ''home'' if states.input_boolean.steffi_homekit_present ==
-        ''on'' else ''not_home'' }}'
-      source_type: gps
-- alias: Presence - Notify of events in Frigate
-  id: presence_frigate_object_detection
-  trigger:
-    platform: mqtt
+  - platform: mqtt
     topic: frigate/events
+  condition:
+  - condition: or
+    conditions:
+    - condition: device
+      device_id: 29fa064f108236608f9f0d8f063dbc17
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.alarmo
+      type: is_armed_night
+    - condition: device
+      device_id: 29fa064f108236608f9f0d8f063dbc17
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.alarmo
+      type: is_armed_away
+  - condition: template
+    value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
+  - condition: or
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam1''
+        }}'
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam2''
+        }}'
   action:
   - service: notify.telegram
     data_template:
@@ -830,12 +796,13 @@
       data:
         photo:
         - url: http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
-          caption: A {{trigger.payload_json["after"]["label"]}} was detected on {{
-            trigger.payload_json["after"]["camera"] }} camera
-- alias: Switch - Toggle office light from dimmer
-  id: switch_office_light_turn_on
+          caption: Er is een {{trigger.payload_json["after"]["label"]}} gedetecteerd
+            op de {{ trigger.payload_json["after"]["camera"] }} camera
+  mode: single
+- id: switch_office_light_turn_on
+  alias: Switch - Toggle office light from dimmer
   trigger:
-    platform: event
+  - platform: event
     event_type: deconz_event
     event_data:
       id: dimmer_switch_office
@@ -843,27 +810,32 @@
   action:
   - service: light.turn_on
     data:
-      entity_id: light.kantoor
       brightness_pct: 40
+    target:
+      entity_id: light.office_lights
   - service: light.turn_on
     entity_id: light.ledstrip_office
-- alias: Switch - Turn off office light from dimmer
-  id: switch_office_light_turn_off
+  mode: single
+- id: switch_office_light_turn_off
+  alias: Switch - Turn off office light from dimmer
   trigger:
-    platform: event
+  - platform: event
     event_type: deconz_event
     event_data:
       id: dimmer_switch_office
       event: 4002
   action:
   - service: light.turn_off
-    entity_id: light.kantoor
+    data: {}
+    target:
+      entity_id: light.office_lights
   - service: light.turn_off
     entity_id: light.ledstrip_office
-- alias: Switch - Increase brightness of office light from dimmer
-  id: switch_office_light_increase
+  mode: single
+- id: switch_office_light_increase
+  alias: Switch - Increase brightness of office light from dimmer
   trigger:
-    platform: event
+  - platform: event
     event_type: deconz_event
     event_data:
       id: dimmer_switch_office
@@ -871,9 +843,9 @@
   action:
   - service: light.turn_on
     data_template:
-      entity_id: light.kantoor
-      brightness: '{% set bri = state_attr(''light.kantoor'', ''brightness'') | int
-        %} {{ [bri+30, 249] | min }}
+      entity_id: light.office_lights
+      brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+        | int %} {{ [bri+30, 249] | min }}
 
         '
   - service: light.turn_on
@@ -883,10 +855,11 @@
         | int %} {{ [bri+30, 249] | min }}
 
         '
-- alias: Switch - Decrease brightness of office light from dimmer
-  id: switch_office_light_decrease
+  mode: single
+- id: switch_office_light_decrease
+  alias: Switch - Decrease brightness of office light from dimmer
   trigger:
-    platform: event
+  - platform: event
     event_type: deconz_event
     event_data:
       id: dimmer_switch_office
@@ -894,9 +867,9 @@
   action:
   - service: light.turn_on
     data_template:
-      entity_id: light.kantoor
-      brightness: '{% set bri = state_attr(''light.kantoor'', ''brightness'') | int
-        %} {{ [bri-30, 249] | min }}
+      entity_id: light.office_lights
+      brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+        | int %} {{ [bri-30, 249] | min }}
 
         '
   - service: light.turn_on
@@ -906,6 +879,7 @@
         | int %} {{ [bri-30, 249] | min }}
 
         '
+  mode: single
 - alias: Theme - Switch to dark mode
   id: theme_switch_dark
   trigger:
@@ -978,10 +952,7 @@
       - service: notify.telegram
         data:
           message: De wasmachine is klaar
-      - service: tts.google_translate_say
-        entity_id: media_player.office_googlehome
-        data_template:
-          message: De wasmachine is klaar
+      starting_hysteresis: 1
 - id: '1618732336311'
   alias: Dishwasher - Dishwasher ready
   description: ''
@@ -997,3 +968,521 @@
         entity_id: media_player.office_googlehome
         data_template:
           message: De vaatwasser is klaar
+- id: '1620153875064'
+  alias: Alarm - Reset night mode
+  description: In the early morning disable the night mode again
+  trigger:
+  - platform: time
+    at: 06:00:00
+  - platform: state
+    entity_id: binary_sensor.hallwaydoor_openclose_sensor
+    from: 'off'
+    to: 'on'
+    for: 00:00:30
+  condition:
+  - condition: and
+    conditions:
+    - condition: or
+      conditions:
+      - condition: time
+        after: 06:00:00
+      - condition: state
+        entity_id: binary_sensor.hallwaydoor_openclose_sensor
+        state: 'on'
+    - condition: device
+      device_id: 29fa064f108236608f9f0d8f063dbc17
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.alarmo
+      type: is_armed_night
+  action:
+  - service: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.night_mode
+  mode: single
+- id: '1620203713941'
+  alias: Locks - Auto lock the doors
+  description: We didn't enable the Guest mode and we both left, lock the doors if
+    they are not
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+    to: not_home
+    for: 0:05:00
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id:
+      - device_tracker.rob_presence
+      - device_tracker.steffi_presence
+      state: not_home
+    - condition: template
+      value_template: '{{ states(''input_boolean.guest_mode'') != ''on'' }}'
+    - condition: state
+      entity_id: lock.voordeur_slot
+      state: unlocked
+  action:
+  - service: notify.telegram
+    data:
+      message: '🔒 Lock: we zijn beiden weg, de deuren gaan op slot'
+  - service: lock.lock
+    target:
+      entity_id: lock.voordeur_slot
+  mode: single
+- id: '1621189950296'
+  alias: Presence - Enable detection because one of us left or in night mode
+  description: Activate Frigate object detection
+  trigger:
+  - platform: state
+    for: 0:00:15
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+    to: not_home
+  - platform: state
+    entity_id: input_boolean.night_mode
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id:
+      - switch.bijkeukencam_detect
+      - switch.reocam1_detect
+      - switch.reocam2_detect
+      - switch.evacam_detect
+  mode: single
+- id: '1621190465429'
+  alias: Presence - Disable detection because day starts
+  description: Deactivate Frigate object detection
+  trigger:
+  - platform: state
+    entity_id: input_boolean.night_mode
+    from: 'on'
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.night_mode
+    state: 'off'
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.bijkeukencam_detect
+      - switch.reocam1_detect
+      - switch.reocam2_detect
+      - switch.evacam_detect
+  mode: single
+- id: '1621192167984'
+  alias: Night - Check for open windows and doors
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.night_mode
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.open_windows_and_doors_downstairs
+      state: '0'
+  action:
+  - service: tts.google_translate_say
+    entity_id: media_player.keuken_display
+    data_template:
+      message: Let op, er staan beneden nog ramen of deuren open!
+  mode: single
+- id: '1621192941666'
+  alias: Doors - Alert when frontdoor is open too long
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.frontdoor_openclose_sensor
+    for: '1800'
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.telegram
+    data:
+      message: '🚪 Deur: let op, de voordeur staat al 10 minuten open'
+  mode: single
+- id: '1621232858848'
+  alias: Doors - Nuki battery critical
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: lock.voordeur_slot
+    attribute: battery_critical
+    from: 'false'
+    to: 'true'
+    for: '120'
+  condition: []
+  action:
+  - service: notify.telegram
+    data_template:
+      message: Let op, batterij status van {{ state_attr(trigger.entity_id, 'friendly_name')
+        }} is kritiek!
+  mode: single
+- id: '1623609811213'
+  alias: Screens - Close screens on warm sunny days
+  description: In case it's warm and sunny, close the screens in the morning
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  - platform: time
+    at: '11:00:00'
+  - platform: time
+    at: '12:00:00'
+  - platform: time
+    at: '13:00:00'
+  - platform: time
+    at: '14:00:00'
+  - platform: time
+    at: '15:00:00'
+  - platform: time
+    at: '16:00:00'
+  condition:
+  - condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_forecast_temperature
+      above: '20'
+    - condition: numeric_state
+      entity_id: sensor.openweathermap_forecast_cloud_coverage
+      below: '50'
+    - condition: device
+      device_id: 2391e89a5da9c2be534b1090df029f98
+      domain: cover
+      entity_id: cover.voorraam
+      type: is_open
+  action:
+  - service: notify.telegram
+    data:
+      message: ☀️De screens gaan dicht
+  - device_id: 2391e89a5da9c2be534b1090df029f98
+    domain: cover
+    entity_id: cover.voorraam
+    type: set_position
+    position: 0
+  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
+    domain: cover
+    entity_id: cover.zijraam
+    type: set_position
+  mode: single
+- id: '1623609934943'
+  alias: Screens - Open screen voorraam end of day
+  description: Open the screen by the end of the day
+  trigger:
+  - platform: time
+    at: '17:00:00'
+  - platform: numeric_state
+    entity_id: sensor.openweathermap_forecast_cloud_coverage
+    above: '60'
+  condition:
+  - condition: and
+    conditions:
+    - condition: device
+      device_id: 2391e89a5da9c2be534b1090df029f98
+      domain: cover
+      entity_id: cover.voorraam
+      type: is_closed
+  action:
+  - service: notify.telegram
+    data:
+      message: ☀️De screen aan de voorkant gaat open
+  - device_id: 2391e89a5da9c2be534b1090df029f98
+    domain: cover
+    entity_id: cover.voorraam
+    type: set_position
+    position: 100
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - device_id: 2391e89a5da9c2be534b1090df029f98
+    domain: cover
+    entity_id: cover.voorraam
+    type: set_position
+    position: 100
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - device_id: 2391e89a5da9c2be534b1090df029f98
+    domain: cover
+    entity_id: cover.voorraam
+    type: set_position
+    position: 100
+  mode: single
+- id: '1623610181205'
+  alias: Screens - Open screen zijraam end of day
+  description: Open the screen by the end of the day
+  trigger:
+  - platform: time
+    at: '21:00:00'
+  - platform: numeric_state
+    entity_id: sensor.openweathermap_forecast_cloud_coverage
+    above: '60'
+  condition:
+  - condition: and
+    conditions:
+    - condition: device
+      device_id: 6ec5ae7951ae28cba3ddcc78897851af
+      domain: cover
+      entity_id: cover.zijraam
+      type: is_closed
+  action:
+  - service: notify.telegram
+    data:
+      message: ☀️De screen aan de zijkant gaat open
+  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
+    domain: cover
+    entity_id: cover.zijraam
+    type: set_position
+    position: 100
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
+    domain: cover
+    entity_id: cover.zijraam
+    type: set_position
+    position: 100
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
+    domain: cover
+    entity_id: cover.zijraam
+    type: set_position
+    position: 100
+  mode: single
+- id: '1623656513564'
+  alias: Sleep - Switch to night mode automatically
+  description: In case we're home but forgot night mode, do it for us
+  trigger:
+  - platform: time
+    at: '23:30'
+  condition:
+  - condition: state
+    entity_id: input_boolean.night_mode
+    state: 'off'
+  - condition: state
+    entity_id: device_tracker.rob_presence
+    state: home
+  - condition: state
+    entity_id: device_tracker.steffi_presence
+    state: home
+  - condition: state
+    entity_id: light.zwave_light_couch_level
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.hallwaydoor_openclose_sensor
+    state: 'off'
+  action:
+  - service: script.sleep_well
+  - service: alarm_control_panel.alarm_arm_night
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: '1624175096159'
+  alias: Lock - Update Nuki integration with callback
+  description: ''
+  use_blueprint:
+    path: kongo09/add-local-push-capability-to-nuki-lock-integration.yaml
+    input:
+      webhook_id: '0'
+      lock_entities:
+        entity_id:
+        - lock.voordeur_slot
+        - binary_sensor.voordeur_slot
+- id: '1624807756444'
+  alias: Car - Alert when fully charged
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.ix3_charging_level_hv
+    to: '100'
+    for: 00:00:30
+  condition: []
+  action:
+  - service: notify.telegram
+    data:
+      message: 🚗 De auto is weer volledig opgeladen
+  mode: single
+- id: '1625051357630'
+  alias: Presence - Disable detection because we are both home
+  description: Deactivate Frigate object detection
+  trigger:
+  - platform: state
+    for: 0:00:15
+    entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
+    to: home
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.rob
+      state: home
+    - condition: state
+      entity_id: person.steffi
+      state: home
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.bijkeukencam_detect
+      - switch.reocam1_detect
+      - switch.reocam2_detect
+      - switch.evacam_detect
+  mode: single
+- id: '1625685392220'
+  alias: Car - Alert when full and still plugged in
+  description: Time to remove the cable
+  trigger:
+  - platform: state
+    entity_id: sensor.ix3_charging_level_hv
+    to: '100'
+    for: 01:00:00
+  condition:
+  - condition: state
+    entity_id: sensor.ix3_connectionstatus
+    state: CONNECTED
+  action:
+  - service: notify.telegram
+    data:
+      message: 🚗 De auto is al een uurtje opgeladen maar de stekker zit er nog in
+  mode: single
+- id: '1625685710817'
+  alias: Car - Lock the doors when open too long
+  description: Lock the car automatically after 15 minutes
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.ix3_door_lock_state
+    to: 'on'
+    for: 02:00:00
+  condition: []
+  action:
+  - service: notify.telegram
+    data:
+      message: 🚗 De auto is automatisch op slot gezet
+  - service: lock.lock
+    target:
+      entity_id: lock.ix3_lock
+  mode: single
+- id: '1625773685228'
+  alias: Alarm - Disable alarm manually
+  description: ''
+  trigger:
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      id: switch_round
+      event: 1000
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      id: switch_round
+      event: 1001
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      id: switch_round
+      event: 1002
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      id: switch_round
+      event: 1003
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      id: switch_round
+      event: 1004
+  condition:
+  - condition: not
+    conditions:
+    - condition: device
+      device_id: 29fa064f108236608f9f0d8f063dbc17
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.alarmo
+      type: is_disarmed
+  action:
+  - device_id: 29fa064f108236608f9f0d8f063dbc17
+    domain: alarm_control_panel
+    entity_id: alarm_control_panel.alarmo
+    type: disarm
+    code: ''
+  - delay:
+      hours: 0
+      minutes: 55
+      seconds: 0
+      milliseconds: 0
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.office
+      volume: 0.3
+      message: Let op, het alarm wordt over 5 minuten weer geactiveerd.
+      delay: 00:00:03
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - device_id: 29fa064f108236608f9f0d8f063dbc17
+    domain: alarm_control_panel
+    entity_id: alarm_control_panel.alarmo
+    type: arm_away
+  - service: notify.telegram
+    data:
+      message: ⏰ Het uur is om, het alarm wordt weer geactiveerd.
+  mode: single
+- id: '1625814711652'
+  alias: Doors - Alert when backdoor is open too long
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.backdoor_openclose_sensor
+    for: '1800'
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.telegram
+    data:
+      message: '🚪 Deur: let op, de achterdeur staat al 10 minuten open'
+  mode: single
+- id: '1627719809039'
+  alias: Doors - Alert when sheddoor is open too long and we're away
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.sheddoor_openclose_sensor
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: person.steffi
+    state: not_home
+  - condition: state
+    entity_id: person.rob
+    state: not_home
+  action:
+  - service: notify.telegram
+    data:
+      message: '🚪 Deur: let op, de schuurdeur gaat open maar wij zijn niet thuis'
+  mode: single
