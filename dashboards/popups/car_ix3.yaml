@@ -1,0 +1,209 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  large: true
+  title: BMW iX3
+  # style:
+  #   hui-vertical-stack-card:
+  #     $hui-history-graph-card$ : |
+  #       .content {
+  #         padding: 0.2em 1.7em 1.2em 1.7em !important;
+  #       }
+  #     $: |
+  #       button-card {
+  #         align-self: center;
+  #         padding: 0.2em 0 2.3em 0;
+  #       }
+  #     $hui-map-card:
+  #       $: |
+  #         mwc-icon-button {
+  #           color: var(--primary-color);
+  #         }
+  #         ha-card {
+  #           border-radius: 0;
+  #           animation: border 1s forwards;
+  #         }
+  #         @keyframes border {
+  #           0%, 100% {
+  #             border-top: 2px solid #1a1a1a;
+  #           }
+  #         }
+  #       $ha-map$: |
+  #         #map {
+  #           background-color: #191919 !important;
+  #         }
+  #         .leaflet-control-attribution {
+  #           display: none;
+  #         }
+  #         .leaflet-bar a {
+  #           background-color: rgba(47, 51, 51, 0.9) !important;
+  #           color: #9da0a2 !important;
+  #         }
+  #         a.leaflet-control-zoom-in {
+  #           border-bottom: 1px solid #181818 !important;
+  #         }
+  #         .leaflet-pane.leaflet-tile-pane {
+  #           filter: contrast(85%);
+  #         }
+  card:
+    type: horizontal-stack
+    cards:
+      - type: picture-elements
+        image: /local/images/bmwix3_icon.png
+        elements:
+          - type: state-icon
+            entity: binary_sensor.ix3_door_lock_state
+            tap_action: more-info
+            hold_action:
+              action: call-service
+              service: lock.lock
+              target:
+                entity_id: lock.ix3_lock
+            style:
+              top: 88.5%
+              left: 10%
+              '--paper-item-icon-color': white
+          - type: state-label
+            entity: binary_sensor.ix3_door_lock_state
+            style:
+              top: 95.5%
+              left: 10%
+              font-size: 0.8em
+              color: white
+          - type: state-icon
+            entity: binary_sensor.ix3_windows
+            tap_action: more-info
+            style:
+              top: 88.5%
+              left: 20%
+              '--paper-item-icon-color': white
+          - type: state-label
+            entity: binary_sensor.ix3_windows
+            style:
+              top: 95.5%
+              left: 20%
+              font-size: 0.8em
+              color: white
+          - type: state-icon
+            entity: binary_sensor.ix3_lids
+            tap_action: more-info
+            style:
+              top: 88.5%
+              left: 30%
+              '--paper-item-icon-color': white
+          - type: state-label
+            entity: binary_sensor.ix3_lids
+            style:
+              top: 95.5%
+              left: 30%
+              font-size: 0.8em
+              color: white
+          - type: state-icon
+            entity: sensor.ix3_mileage
+            tap_action: more-info
+            style:
+              top: 88.5%
+              left: 40%
+              '--paper-item-icon-color': white
+          - type: state-label
+            entity: sensor.ix3_mileage
+            style:
+              top: 95.5%
+              left: 40%
+              font-size: 0.8em
+              color: white
+          - type: state-icon
+            entity: binary_sensor.ix3_condition_based_services
+            tap_action: more-info
+            style:
+              top: 88.5%
+              left: 50%
+              '--paper-item-icon-color': white
+          - type: state-label
+            entity: binary_sensor.ix3_condition_based_services
+            style:
+              top: 95.5%
+              left: 50%
+              font-size: 0.8em
+              color: white
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.ix3_connection_status
+                state: 'on'
+            elements:
+              - type: state-icon
+                entity: binary_sensor.ix3_connection_status
+                tap_action: more-info
+                icon: mdi:ev-plug-type2
+                style:
+                  top: 88.5%
+                  left: 60%
+                  '--paper-item-icon-color': white
+              - type: custom:text-element
+                text: Plugged
+                style:
+                  top: 95.5%
+                  left: 60%
+                  font-size: 0.8em
+                  color: white
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.ix3_charging_status
+                state: 'on'
+            elements:
+              - type: state-label
+                entity: sensor.ix3_charging_time_remaining
+                prefix: 'Laadtijd: '
+                style:
+                  top: 93.5%
+                  right: '-5%'
+                  font-size: 0.8em
+                  color: white
+          - type: custom:circle-sensor-card
+            entity: sensor.ix3_charging_level_hv
+            max: 100
+            min: 0
+            stroke_width: 15
+            gradient: true
+            fill: rgba(54, 65, 78, 0.6)
+            name: Level
+            units: '%'
+            font_style:
+              font-size: 0.9em
+              color: white
+            color_stops:
+              '5': '#09C7E8'
+              '63': '#09A50C'
+            style:
+              top: 6%
+              left: 5%
+              width: 4em
+              height: 4em
+              transform: none
+          - type: custom:circle-sensor-card
+            entity: sensor.ix3_remaining_range_electric
+            max: 370
+            min: 0
+            stroke_width: 15
+            gradient: true
+            fill: rgba(54, 65, 78, 0.6)
+            name: Bereik
+            units: km
+            font_style:
+              font-size: 0.9em
+              color: white
+            color_stops:
+              '100': '#09C7E8'
+              '300': '#09A50C'
+            style:
+              top: 6%
+              right: 5%
+              width: 4em
+              height: 4em
+              transform: none
+      - type: map
+        default_zoom: 13
+        dark_mode: true
+        hours_to_show: 24
+        entities:
+          - person.bmw_ix3

@@ -1,0 +1,218 @@
+button_card_templates: !include_dir_merge_named ../templates
+
+kiosk_mode:
+  hide_header: true
+  hide_menubutton: true
+
+views:
+  - type: custom:grid-layout
+    path: 0
+    layout:
+      grid-gap: var(--custom-layout-card-padding)
+      grid-template-columns: repeat(4, 1fr) 0
+      grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
+      grid-template-areas: |
+        "sidebar  .        .          .        ."
+        "sidebar  living   kitchen    music    ."
+        "sidebar  dining   office     cameras  ."
+        "sidebar  garden   .          .        ."
+        "sidebar  .        .          .        ."
+      mediaquery:
+        '(max-width: 800px)':
+          grid-gap: calc(var(--custom-layout-card-padding) * 1.5)
+          grid-template-columns: 0 repeat(2, 1fr) 0
+          grid-template-rows: 0 repeat(5, fit-content(100%)) 0fr
+          grid-template-areas: |
+            ".  .          .       ."
+            ".  sidebar    sidebar ."
+            ".  living     kitchen ."
+            ".  music      dining   ."
+            ".  office     garden   ."
+            ".  .          .       ."
+        '(max-width: 1200px)':
+          grid-gap: var(--custom-layout-card-padding)
+          grid-template-columns: repeat(3, 1fr) 0
+          grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
+          grid-template-areas: |
+            "sidebar  .        .          ."
+            "sidebar  living   kitchen      ."
+            "sidebar  music    dining      ."
+            "sidebar  office    garden     ."
+
+    cards:
+      - type: custom:button-card
+        styles: #extra_styles fix, only works from second button card
+          card:
+            - display: none
+
+      #################################################
+      #                                               #
+      #                  Sidebar                      #
+      #                                               #
+      #################################################
+      - type: vertical-stack
+        view_layout:
+          grid-area: sidebar
+        cards:
+          - type: custom:button-card
+            entity: sensor.template_sidebar
+            template: sidebar_template
+          - type: horizontal-stack
+            cards:
+            # - type: custom:weather-card
+            #   entity: weather.kloetinge
+            #   current: true
+            #   details: false
+            #   forecast: false
+            #   style: |
+            #     div.current span.icon.bigger {
+            #       position: relative;
+            #       margin-top: -3em;
+            #       width: 50px;
+            #       height: 50px;
+            #     }
+            #     span.temp, span.tempc {
+            #       position: relative;
+            #       right: auto;
+            #     }
+            #     span.temp {
+            #       font-size: 1.5em;
+            #       bottom: 15px
+            #     }
+            #     span.tempc {
+            #       font-size: 1em;
+            #       top: -16px;
+            #     }
+            #     div.current {
+            #       margin-bottom: 0;
+            #     }
+            # - type: button
+            #   icon: mdi:weather-sunset
+            #   tap_action:
+            #     !include popups/sidebar_weather.yaml
+            - type: weather-forecast
+              entity: weather.kloetinge
+              show_forecast: false
+              style: |
+                div.state {
+                  display: none;
+                }
+              tap_action:
+                !include popups/sidebar_weather.yaml
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                entity: person.rob
+                name: Rob
+                triggers_update:
+                  - person.rob
+                tap_action:
+                  !include popups/person_rob.yaml
+                hold_action:
+                  action: none
+                template: person
+              - type: custom:button-card
+                entity: person.steffi
+                name: Steffi
+                triggers_update:
+                  - person.steffi
+                tap_action:
+                  !include popups/person_steffi.yaml
+                hold_action:
+                  action: none
+                template: person
+              - type: custom:button-card
+                entity: person.bmw_ix3
+                show_state: false
+                show_name: false
+                show_entity_picture: true
+                tap_action:
+                  !include popups/car_ix3.yaml
+                name: BMW iX3
+                styles:
+                  card:
+                    - height: 120px
+                  entity_picture:
+                    - width: 100%
+                    - border-radius: 50%
+                    - opacity: 1.0
+                state:
+                  - value: not_home
+                    styles:
+                      entity_picture:
+                        - opacity: 0.4
+                        - filter: grayscale(100%)
+
+          ### bottom
+          - type: grid
+            cards:
+              - type: button
+                icon: mdi:arrow-up-bold-circle-outline
+                tap_action:
+                  !include popups/sidebar_update.yaml
+              - type: button
+                icon: 'mdi:restart'
+                tap_action:
+                  action: call-service
+                  service: browser_mod.lovelace_reload
+                hold_action:
+                  action: call-service
+                  service: frontend.reload_themes
+
+
+      #################################################
+      #                                               #
+      #                  Living                       #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Woonkamer
+        view_layout:
+          grid-area: living
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: cover.voorraam
+            name: Screens
+            template:
+              - cover
+            #   - icon_hue
+
+      #################################################
+      #                                               #
+      #                  Office                       #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Kantoor
+        view_layout:
+          grid-area: office
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: light.office_lights
+            name: kantoor
+            template:
+              - light
+            #   - icon_hue
+
+      #################################################
+      #                                               #
+      #                  Music                        #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Muziek
+        view_layout:
+          grid-area: music
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: media_player.living_room
+            name: Muziek
+            icon: mdi:speaker
+            template:
+              - music

@@ -1,0 +1,222 @@
+@font-face {
+	font-family: sf display;
+	font-weight: 900;
+	src: url(/local/fonts/SF-Pro-Display-Black.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 700;
+	src: url(/local/fonts/SF-Pro-Display-Bold.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 800;
+	src: url(/local/fonts/SF-Pro-Display-Heavy.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 200;
+	src: url(/local/fonts/SF-Pro-Display-Light.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 500;
+	src: url(/local/fonts/SF-Pro-Display-Medium.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 400;
+	src: url(/local/fonts/SF-Pro-Display-Regular.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 600;
+	src: url(/local/fonts/SF-Pro-Display-Semibold.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 300;
+	src: url(/local/fonts/SF-Pro-Display-Thin.otf)
+}
+
+@font-face {
+	font-family: sf display;
+	font-weight: 100;
+	src: url(/local/fonts/SF-Pro-Display-Ultralight.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 700;
+	src: url(/local/fonts/SF-Pro-Text-Bold.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 700;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-BoldItalic.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 800;
+	src: url(/local/fonts/SF-Pro-Text-Heavy.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 800;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-HeavyItalic.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 200;
+	src: url(/local/fonts/SF-Pro-Text-Light.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 200;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-LightItalic.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 500;
+	src: url(/local/fonts/SF-Pro-Text-Medium.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 500;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-MediumItalic.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 400;
+	src: url(/local/fonts/SF-Pro-Text-Regular.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 400;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-RegularItalic.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 600;
+	src: url(/local/fonts/SF-Pro-Text-Semibold.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 600;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-SemiboldItalic.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 100;
+	src: url(/local/fonts/SF-Pro-Text-Ultrathin.otf)
+}
+
+@font-face {
+	font-family: sf text;
+	font-weight: 100;
+	font-style: italic;
+	src: url(/local/fonts/SF-Pro-Text-UltrathinItalic.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 700;
+	src: url(/local/fonts/SFMono-Bold.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 700;
+	font-style: italic;
+	src: url(/local/fonts/SFMono-BoldItalic.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 800;
+	src: url(/local/fonts/SFMono-Heavy.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 800;
+	font-style: italic;
+	src: url(/local/fonts/SFMono-HeavyItalic.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 200;
+	src: url(/local/fonts/SFMono-Light.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 200;
+	font-style: italic;
+	src: url(/local/fonts/SFMono-LightItalic.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 500;
+	src: url(/local/fonts/SFMono-Medium.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 500;
+	font-style: italic;
+	src: url(/local/fonts/SFMono-MediumItalic.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 400;
+	src: url(/local/fonts/SFMono-Regular.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 400;
+	font-style: italic;
+	src: url(/local/fonts/SFMono-RegularItalic.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 600;
+	src: url(/local/fonts/SFMono-Semibold.otf)
+}
+
+@font-face {
+	font-family: sf mono;
+	font-weight: 600;
+	font-style: italic;
+	src: url(/local/fonts/SFMono-SemiboldItalic.otf)
+}

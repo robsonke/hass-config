@@ -36,6 +36,8 @@ entity_config:
     expose: true
   light.dining_light:
     expose: true
+  light.diningtable_light:
+    expose: true
   light.livingback_light:
     expose: true
   light.livingfront_light:

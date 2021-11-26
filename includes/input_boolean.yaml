@@ -22,8 +22,11 @@ testrob:
   icon: mdi:test-tube
   initial: false
 dark_mode:
-  name: Dark mode
+  name: Dark Mode
   icon: mdi:theme-light-dark
 night_mode:
   name: Nacht Mode
   icon: mdi:weather-night
+alarm_active:
+  name: Alarm actief
+  icon: mdi:alarm-light

@@ -14,6 +14,8 @@ Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basn
 > TODO more
 ![Main Dashboard](https://github.com/robsonke/hass-config/blob/master/www/screenshots/main-dashboard.jpg)
 
+I used a lot of input from [Matt's config](https://github.com/matt8707/hass-config)
+
 ## Software
 - Hassio with quite some add-ons
   - A better presence
@@ -40,7 +42,7 @@ Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basn
 
 ## Hardware
 What drives all:
-- Intel NUC10i3FNK with 16 GB memory running Proxmox VE
+- Intel NUC10i3FNK with 16 GB memory
 - Aeotec Gen 5 Z-Wave Plus USB Stick
 - ConBee II Zigbee USB Stick
 - Coral USB Accelerator

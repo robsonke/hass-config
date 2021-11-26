@@ -6,9 +6,12 @@
     input:
       time: '10:00:00'
       actions:
-      - service: notify.telegram_rob
+      - service: notify.mobile_app_iphone_rob
         data:
           message: 🔋 Low battery warning for {{sensors|replace("_"," ")}}
+          data:
+            persistent: true
+            tag: persistent
 - id: alarm_auto_arm_when_away
   alias: Alarm - Auto arm since we're away and all is closed
   description: We didn't enable the Guest mode and we both left, arm the house
@@ -32,9 +35,12 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: ⏰ We zijn beiden weg, het alarm wordt geactiveerd
+      data:
+        persistent: true
+        tag: persistent
   - service: alarm_control_panel.alarm_arm_away
     target:
       entity_id: alarm_control_panel.alarmo
@@ -74,9 +80,12 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: ⏰ Een van ons komt thuis, het alarm wordt gedeactiveerd.
+      data:
+        persistent: true
+        tag: persistent
   - service: alarm_control_panel.alarm_disarm
     data: {}
     target:
@@ -109,15 +118,20 @@
     entity_id: alarm_control_panel.alarmo
     to: triggered
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: 🚨🚨 ALARM! Het alarm gaat af en is te laat gedeactiveerd! 🚨🚨
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.dining_light
-      - light.woonkamer
-      - light.keuken
+      data:
+        persistent: true
+        tag: persistent
+        push:
+          sound: alarm.caf
+          critical: 1
+          volume: 1
+          interruption-level: critical
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.alarm_active
   - repeat:
       while:
       - condition: state
@@ -138,6 +152,9 @@
           volume: 0.3
           sonos_entity: media_player.living_room
           delay: 00:00:10
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.alarm_active
   mode: single
 - alias: Alarm - Pending
   id: alarm_pending_trigger
@@ -179,9 +196,12 @@
     from: triggered,pending
     to: disarmed
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: '✅ ALARM: Het alarm is uitgezet.'
+      data:
+        persistent: true
+        tag: persistent
   - service: tts.google_translate_say
     entity_id: media_player.keuken_display
     data:
@@ -202,9 +222,12 @@
     value_template: '{{ states.automation.mailbox_notification.attributes.last_triggered
       != none }}'
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: ✉ Er is post bezorgd.
+      data:
+        persistent: true
+        tag: persistent
 - alias: Lights - Reset lights automation
   description: When we have disabled all automatic lighting, we reset this in the
     early morning to make sure we're back to normal the next day
@@ -226,56 +249,8 @@
     entity_id: input_boolean.enable_automatic_lights
   - service: homeassistant.turn_on
     entity_id: input_boolean.enable_automatic_garden_lights
-- alias: Lights - Turn on lights when dark - away
-  description: Switch standard lights on when it's after 2 PM and light level too
-    low
-  id: groundfloor_lights_on_when_dark_away
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.lightlevel_living
-    below: 50
-  condition:
-    condition: and
-    conditions:
-    - condition: state
-      entity_id: light.zwave_light_couch_level
-      state: 'off'
-    - condition: time
-      after: '14:00:00'
-      before: '22:30:00'
-    - condition: state
-      entity_id: input_boolean.enable_automatic_lights
-      state: 'on'
-    - condition: state
-      entity_id:
-      - device_tracker.rob_presence
-      - device_tracker.steffi_presence
-      state:
-      - not_home
-  action:
-  - service: notify.telegram_rob
-    data:
-      message: 💡 Verlichting automatisch aan - niet thuis
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
-  - delay: '1'
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.ledstrip_office
-      - light.dining_light
-      brightness_pct: 60
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.boekenkast
-      - light.ledstrip_tv
-      brightness_pct: 60
-- id: groundfloor_lights_on_when_dark_home
-  alias: Lights - Turn on lights when dark - home
+- id: groundfloor_lights_on_when_dark_away
+  alias: Lights - Turn on lights when dark - away
   description: Switch standard lights on when it's after 2 PM and light level too
     low
   trigger:
@@ -289,50 +264,73 @@
       entity_id: light.zwave_light_couch_level
       state: 'off'
     - condition: time
-      after: '14:00:00'
-      before: '22:30:00'
+      after: '14:00'
+      before: '22:30'
     - condition: state
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
-    - condition: or
-      conditions:
-      - condition: state
-        entity_id:
-        - device_tracker.rob_presence
-        state: home
-      - condition: state
-        entity_id:
-        - device_tracker.steffi_presence
-        state: home
+    - condition: state
+      entity_id:
+      - device_tracker.rob_presence
+      - device_tracker.steffi_presence
+      state: not_home
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
   action:
-  - service: light.turn_on
+  - service: notify.mobile_app_iphone_rob
     data:
-      entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
-      - light.keuken
-  - delay: '1'
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.ledstrip_office
-      - light.dining_light
-      - light.woonkamer
-      brightness_pct: 40
-  - service: light.turn_on
-    data:
-      brightness_pct: 40
-    target:
-      entity_id: light.kitchendesk_light
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.boekenkast
-      - light.ledstrip_tv
+      message: 💡 Verlichting automatisch aan - niet thuis
+      data:
+        persistent: true
+        tag: persistent
+  - service: script.lights_on_away
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
   mode: single
-- alias: Backups - Snapshots went stale
-  id: backup_snapshots_stale
-  description: Send a Telegram message when the backups are failing
+- id: groundfloor_lights_on_when_dark_home
+  alias: Lights - Turn on lights when dark - home
+  description: Switch standard lights on when it's after 2 PM and light level too
+    low
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.lightlevel_living
+    below: '50'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: light.zwave_light_couch_level
+      state: 'off'
+    - condition: time
+      after: '10:00'
+      before: '22:30'
+    - condition: state
+      entity_id: input_boolean.enable_automatic_lights
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.people_home_and_awake
+      state: 'on'
+  - condition: device
+    device_id: 29fa064f108236608f9f0d8f063dbc17
+    domain: alarm_control_panel
+    entity_id: alarm_control_panel.alarmo
+    type: is_disarmed
+  action:
+  - service: script.lights_on_home
+  - delay: '1'
+  mode: single
+- id: backup_snapshots_stale
+  alias: Backup - Snapshots went stale
+  description: Send a push message when the backups are failing
   trigger:
   - platform: state
     entity_id: binary_sensor.snapshots_stale
@@ -340,23 +338,49 @@
     to: 'True'
   condition: []
   action:
-  - service: notify.telegram_rob
+  - service: notify.mobile_app_iphone_rob
     data:
       title: 🚨🚨 Snapshots are Stale 🚨🚨
       message: Please visit the Hass.io Google Drive Backup add-on status page for
         details.
-- alias: Calendar - Afval Calendar Alert
-  id: calendar_trash_alert
+      data:
+        persistent: true
+        tag: persistent
+- id: calendar_trash_alert
+  alias: Calendar - Afval Calendar Alert
   description: Send messages when a trash bin should be put outside
   trigger:
-  - entity_id: calendar.afvalkalender
+  - entity_id: sensor.groene_bak_dag
     platform: state
-    to: 'on'
+    to: Morgen
+    for:
+      hours: 20
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - entity_id: sensor.grijze_bak_dag
+    platform: state
+    to: Morgen
+    for:
+      hours: 20
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - entity_id: sensor.papier_bak_dag
+    platform: state
+    to: Vandaag
+    for:
+      hours: 16
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
   action:
-    service: notify.telegram
+  - service: notify.all_phones
     data_template:
-      message: 📅 {{ state_attr('calendar.afvalkalender', 'message') }} wordt vandaag
-        opgehaald
+      message: 📅 Het is {{ state_attr(trigger.entity_id, 'friendly_name') }}!
+      data:
+        persistent: true
+        tag: persistent
 - alias: Cast - Cast HA to Nest display
   id: cast_hass_to_nest
   description: Push a stream every 10 minutes to the Google Nest Display in the kitchen
@@ -364,7 +388,7 @@
   - minutes: /10
     platform: time_pattern
   condition:
-  - after: '6:00'
+  - after: 06:00
     before: '23:30'
     condition: time
   action:
@@ -372,11 +396,11 @@
       addon: a0d7b954_ssh
       input: bash /config/cast.sh
     service: hassio.addon_stdin
-- alias: Doorbell - Notification Sonos - Doorbell Ring
-  id: doorbell_ring_sonos
+- id: doorbell_ring_sonos
+  alias: Doorbell - Notification Sonos - Doorbell Ring
   description: Say ding dong through the speakers when doorbell rings
   trigger:
-    platform: state
+  - platform: state
     entity_id: binary_sensor.doorbell_lw_doorbell
     from: 'off'
     to: 'on'
@@ -384,19 +408,31 @@
   - service: script.sonos_play_sound
     data:
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-      volume: 0.4
+      volume: 0.6
       sonos_entity: media_player.living_room
       delay: 00:00:03
+  - service: script.sonos_play_sound
+    data:
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+      volume: 0.6
+      sonos_entity: media_player.bedroom_googlehome
+      delay: 00:00:03
+  - service: notify.all_phones
+    data:
+      message: 🔔 Ding Dong!
+      data:
+        persistent: true
+        tag: persistent
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
     garden
   trigger:
   - platform: numeric_state
-    entity_id: sensor.lightlevel_living
-    below: '10'
+    entity_id: sensor.light_sensor_garden
+    below: '15'
   - platform: time
-    at: 06:16:00
+    at: 07:00
   - platform: numeric_state
     entity_id: sun.sun
     attribute: elevation
@@ -419,9 +455,9 @@
     - condition: and
       conditions:
       - condition: time
-        after: 06:15:00
+        after: 06:15
       - condition: time
-        before: 08:55:00
+        before: 08:55
       - condition: state
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'on'
@@ -444,18 +480,23 @@
   - service: light.turn_on
     data:
       entity_id: light.garden_light
+  - service: switch.turn_on
+    target:
+      entity_id:
+      - switch.light_garden_front
+      - switch.light_garden_fenceback
   mode: single
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights
   description: Turn off lights in the garden at 11 PM
   trigger:
   - platform: time
-    at: '23:00:00'
+    at: '23:00'
   - platform: time
-    at: 09:00:00
+    at: 09:00
   - platform: numeric_state
-    entity_id: sensor.lightlevel_living
-    above: '15'
+    entity_id: sensor.light_sensor_garden
+    above: '10'
     for: 0:05:00
   condition:
   - condition: state
@@ -468,6 +509,11 @@
       entity_id:
       - light.garden_light
       - light.dimmer_cabinroof_level
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.light_garden_front
+      - switch.light_garden_fenceback
   mode: single
 - id: lights_turn_off_bedtime_manual
   alias: Sleep - Switch to night mode manually
@@ -515,9 +561,12 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.telegram_rob
+  - service: notify.mobile_app_iphone_rob
     data:
       message: 💡 Verlichting automatisch uit
+      data:
+        persistent: true
+        tag: persistent
   - service: script.sleep_well
   mode: single
 - alias: Lights - Turn on lights when closet door opens
@@ -541,26 +590,41 @@
   - service: light.turn_off
     entity_id: light.hallcloset
   mode: single
-- alias: Lights - Turn on lights when hallway door opens in the early morning
-  id: lights_kitchen_turn_on_when_awake_morning
+- id: lights_kitchen_turn_on_when_awake_morning
+  alias: Lights - Turn on lights when hallway door opens in the early morning
   trigger:
-    platform: state
-    entity_id: binary_sensor.door_hallway_openclose_sensor
+  - platform: state
+    entity_id: binary_sensor.hallwaydoor_openclose_sensor
     from: 'off'
     to: 'on'
   condition:
   - condition: time
-    after: 05:00:00
+    after: 05:00
   - condition: time
-    before: 09:00:00
+    before: '10:00'
+  action:
+  - service: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.night_mode
+  - condition: time
+    after: 06:00
+  - service: media_player.media_play
+    target:
+      entity_id: media_player.eetkamer
   - condition: numeric_state
     entity_id: sensor.lightlevel_living
-    below: 60
-  action:
+    below: '60'
   - service: light.turn_on
     data:
-      entity_id: light.kitchendesk_light
-      brightness_pct: 30
+      brightness_pct: 40
+    target:
+      entity_id:
+      - light.kitchendesk_light
+      - light.diningtable_light
+  mode: single
 - id: restart_ssh_addon
   alias: Hass - Restart SSH Addon
   description: Restart the ssh addon after a HA restart, required to get the hassio.addon_stdin
@@ -650,7 +714,7 @@
     condition: and
     conditions:
     - condition: time
-      after: '5:30:00'
+      after: 05:30:00
       before: '20:30:00'
     - condition: or
       conditions:
@@ -661,9 +725,12 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'off'
   action:
-    service: notify.telegram_rob
+    service: notify.mobile_app_iphone_rob
     data:
       message: De automatische verlichting is uitgeschakeld, dit is mogelijk onbewust.
+      data:
+        persistent: true
+        tag: persistent
 - alias: Windows - Alert when window is open and temperature is low
   id: window_bedroom_open_cold
   description: This helps in informing that a window needs to be closed
@@ -683,10 +750,13 @@
       state: 'on'
       for: 00:30
   action:
-  - service: notify.telegram
+  - service: notify.mobile_app_iphone_rob
     data:
       message: 🏠 Het raam in de slaapkamer staat open en het begint nu wel een beetje
         fris te worden.
+      data:
+        persistent: true
+        tag: persistent
 - alias: Energy - Calculate energy consumption
   id: energy_tariff_switch
   description: Calculate energy consumption for low and high tarifs
@@ -704,7 +774,7 @@
       entity_id: utility_meter.monthly_energy
 - alias: Presence - Presence detection message
   id: presence_detection_message
-  description: Send a Telegram message in case the presence of a person changes
+  description: Send a push message in case the presence of a person changes
   trigger:
     platform: state
     for:
@@ -719,16 +789,19 @@
   - condition: template
     value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
   action:
-    service: notify.telegram
+    service: notify.all_phones
     data_template:
       message: 🏠 Status van {{ state_attr(trigger.entity_id, 'friendly_name') }} gewijzigd
         naar {{ trigger.to_state.state }}
-- alias: Presence - Inform that one of us comes home
-  id: presence_detection_message_speakers
+      data:
+        persistent: true
+        tag: persistent
+- id: presence_detection_message_speakers
+  alias: Presence - Inform that one of us comes home
   description: Shout through speakers that somebody is arriving when the other one
     is home
   trigger:
-    platform: state
+  - platform: state
     for:
       seconds: 15
     entity_id:
@@ -736,7 +809,7 @@
     - device_tracker.steffi_presence
     to: just_arrived
   condition:
-    condition: or
+  - condition: or
     conditions:
     - condition: state
       entity_id: person.rob
@@ -744,6 +817,9 @@
     - condition: state
       entity_id: person.steffi
       state: home
+  - condition: state
+    state: 'off'
+    entity_id: input_boolean.guest_mode
   action:
   - service: tts.google_translate_say
     entity_id: media_player.keuken_display
@@ -761,6 +837,7 @@
     data:
       entity_id: automation.cast_ha_to_nest_display
       skip_condition: false
+  mode: single
 - id: presence_frigate_object_detection
   alias: Alarm - Notify of person events on camera
   trigger:
@@ -790,14 +867,14 @@
       value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam2''
         }}'
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data_template:
-      message: A {{trigger.payload_json["after"]["label"]}} was detected.
+      message: Er is een {{trigger.payload_json["after"]["label"]}} gedetecteerd op
+        de {{ trigger.payload_json["after"]["camera"] }} camera
       data:
-        photo:
-        - url: http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
-          caption: Er is een {{trigger.payload_json["after"]["label"]}} gedetecteerd
-            op de {{ trigger.payload_json["after"]["camera"] }} camera
+        persistent: true
+        tag: persistent
+        image: http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
   mode: single
 - id: switch_office_light_turn_on
   alias: Switch - Toggle office light from dimmer
@@ -926,11 +1003,14 @@
   trigger:
   - entity_id: binary_sensor.sjorsje_bin_full
     platform: state
-    to: 'true'
+    to: 'on'
   action:
-    service: notify.telegram
+    service: notify.all_phones
     data:
       message: 🧹 Sjorsje's opvangbak zit bol
+      data:
+        persistent: true
+        tag: persistent
 - alias: Vacuum - Sjorsje Battery Empty
   id: sjorsje_battery_empty
   trigger:
@@ -938,20 +1018,26 @@
     platform: numeric_state
     below: 20
   action:
-    service: notify.telegram
+    service: notify.all_phones
     data:
       message: 🔋 Sjorsje's accu raakt leeg
+      data:
+        persistent: true
+        tag: persistent
 - id: '1618729855664'
   alias: Laundry - Laundry ready
   description: ''
   use_blueprint:
     path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
     input:
-      power_sensor: sensor.kasa_wasmachine_watts
+      power_sensor: sensor.wasmachine_switch_current_consumption
       actions:
-      - service: notify.telegram
+      - service: notify.all_phones
         data:
           message: De wasmachine is klaar
+          data:
+            persistent: true
+            tag: persistent
       starting_hysteresis: 1
 - id: '1618732336311'
   alias: Dishwasher - Dishwasher ready
@@ -959,11 +1045,14 @@
   use_blueprint:
     path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
     input:
-      power_sensor: sensor.kasa_vaatwasser_watts
+      power_sensor: sensor.vaatwasser_switch_current_consumption
       actions:
-      - service: notify.telegram
+      - service: notify.all_phones
         data:
           message: De vaatwasser is klaar
+          data:
+            persistent: true
+            tag: persistent
       - service: tts.google_translate_say
         entity_id: media_player.office_googlehome
         data_template:
@@ -973,19 +1062,23 @@
   description: In the early morning disable the night mode again
   trigger:
   - platform: time
-    at: 06:00:00
+    at: 07:00
   - platform: state
     entity_id: binary_sensor.hallwaydoor_openclose_sensor
     from: 'off'
     to: 'on'
-    for: 00:00:30
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
   condition:
   - condition: and
     conditions:
     - condition: or
       conditions:
       - condition: time
-        after: 06:00:00
+        after: 07:00
       - condition: state
         entity_id: binary_sensor.hallwaydoor_openclose_sensor
         state: 'on'
@@ -1027,9 +1120,12 @@
       entity_id: lock.voordeur_slot
       state: unlocked
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: '🔒 Lock: we zijn beiden weg, de deuren gaan op slot'
+      data:
+        persistent: true
+        tag: persistent
   - service: lock.lock
     target:
       entity_id: lock.voordeur_slot
@@ -1110,9 +1206,12 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: '🚪 Deur: let op, de voordeur staat al 10 minuten open'
+      data:
+        persistent: true
+        tag: persistent
   mode: single
 - id: '1621232858848'
   alias: Doors - Nuki battery critical
@@ -1126,10 +1225,13 @@
     for: '120'
   condition: []
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data_template:
       message: Let op, batterij status van {{ state_attr(trigger.entity_id, 'friendly_name')
         }} is kritiek!
+      data:
+        persistent: true
+        tag: persistent
   mode: single
 - id: '1623609811213'
   alias: Screens - Close screens on warm sunny days
@@ -1164,9 +1266,12 @@
       entity_id: cover.voorraam
       type: is_open
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
-      message: ☀️De screens gaan dicht
+      message: ☀️ De screens gaan dicht
+      data:
+        persistent: true
+        tag: persistent
   - device_id: 2391e89a5da9c2be534b1090df029f98
     domain: cover
     entity_id: cover.voorraam
@@ -1195,9 +1300,12 @@
       entity_id: cover.voorraam
       type: is_closed
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
-      message: ☀️De screen aan de voorkant gaat open
+      message: ☀️ De screen aan de voorkant gaat open
+      data:
+        persistent: true
+        tag: persistent
   - device_id: 2391e89a5da9c2be534b1090df029f98
     domain: cover
     entity_id: cover.voorraam
@@ -1229,10 +1337,12 @@
   description: Open the screen by the end of the day
   trigger:
   - platform: time
-    at: '21:00:00'
+    at: '21:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
     above: '60'
+  - platform: sun
+    event: sunset
   condition:
   - condition: and
     conditions:
@@ -1242,9 +1352,12 @@
       entity_id: cover.zijraam
       type: is_closed
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
-      message: ☀️De screen aan de zijkant gaat open
+      message: ☀️ De screen aan de zijkant gaat open
+      data:
+        persistent: true
+        tag: persistent
   - device_id: 6ec5ae7951ae28cba3ddcc78897851af
     domain: cover
     entity_id: cover.zijraam
@@ -1320,9 +1433,12 @@
     for: 00:00:30
   condition: []
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: 🚗 De auto is weer volledig opgeladen
+      data:
+        persistent: true
+        tag: persistent
   mode: single
 - id: '1625051357630'
   alias: Presence - Disable detection because we are both home
@@ -1363,9 +1479,12 @@
     entity_id: sensor.ix3_connectionstatus
     state: CONNECTED
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: 🚗 De auto is al een uurtje opgeladen maar de stekker zit er nog in
+      data:
+        persistent: true
+        tag: persistent
   mode: single
 - id: '1625685710817'
   alias: Car - Lock the doors when open too long
@@ -1377,9 +1496,12 @@
     for: 02:00:00
   condition: []
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: 🚗 De auto is automatisch op slot gezet
+      data:
+        persistent: true
+        tag: persistent
   - service: lock.lock
     target:
       entity_id: lock.ix3_lock
@@ -1391,28 +1513,13 @@
   - platform: event
     event_type: deconz_event
     event_data:
-      id: switch_round
-      event: 1000
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: switch_round
-      event: 1001
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: switch_round
+      id: switch_1
       event: 1002
   - platform: event
     event_type: deconz_event
     event_data:
-      id: switch_round
-      event: 1003
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: switch_round
-      event: 1004
+      id: switch_1
+      event: 2002
   condition:
   - condition: not
     conditions:
@@ -1447,9 +1554,19 @@
     domain: alarm_control_panel
     entity_id: alarm_control_panel.alarmo
     type: arm_away
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: ⏰ Het uur is om, het alarm wordt weer geactiveerd.
+      data:
+        persistent: true
+        tag: persistent
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.office
+      volume: 0.3
+      message: Let op, het alarm is weer geactiveerd. Druk op de knop om het weer
+        uit te zetten.
+      delay: 00:00:03
   mode: single
 - id: '1625814711652'
   alias: Doors - Alert when backdoor is open too long
@@ -1462,9 +1579,12 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: '🚪 Deur: let op, de achterdeur staat al 10 minuten open'
+      data:
+        persistent: true
+        tag: persistent
   mode: single
 - id: '1627719809039'
   alias: Doors - Alert when sheddoor is open too long and we're away
@@ -1481,8 +1601,389 @@
   - condition: state
     entity_id: person.rob
     state: not_home
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
-  - service: notify.telegram
+  - service: notify.all_phones
     data:
       message: '🚪 Deur: let op, de schuurdeur gaat open maar wij zijn niet thuis'
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1628796760216'
+  alias: Alarm - Turn on lights when person events on camera
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: frigate/events
+  condition:
+  - condition: or
+    conditions:
+    - condition: device
+      device_id: 29fa064f108236608f9f0d8f063dbc17
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.alarmo
+      type: is_armed_night
+    - condition: device
+      device_id: 29fa064f108236608f9f0d8f063dbc17
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.alarmo
+      type: is_armed_away
+  - condition: template
+    value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
+  - condition: or
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam1''
+        }}'
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam2''
+        }}'
+  - condition: numeric_state
+    entity_id: sensor.light_sensor_garden
+    below: '10'
+  - condition: state
+    entity_id: light.garden_light
+    state: 'off'
+  action:
+  - service: light.turn_on
+    target:
+      entity_id:
+      - light.garden_light
+      - light.dimmer_cabinroof_level
+  - service: notify.all_phones
+    data:
+      message: Er is een persoon gedetecteerd op een camera!
+      data:
+        persistent: true
+        tag: persistent
+        push:
+          sound: alarm.caf
+          critical: 1
+          volume: 1
+          interruption-level: critical
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.garden_light
+      - light.dimmer_cabinroof_level
+  mode: single
+- id: '1629016952694'
+  alias: Alarm - Notify why arming failed
+  description: ''
+  trigger:
+  - platform: event
+    event_type: alarmo_failed_to_arm
+  condition:
+  - condition: template
+    value_template: '{{ trigger.event.data.reason == ''open_sensors'' }}'
+  action:
+  - service: notify.all_phones
+    data:
+      message: "\U0001F6A8 Alarm kan niet geactiveerd worden omdat: {% for entity_id\
+        \ in trigger.event.data.sensors %}\n  - {{ state_attr(entity_id, 'friendly_name')\
+        \ }} is {{ states(entity_id) }}\n{% endfor %}\n"
+      data:
+        persistent: true
+        tag: persistent
+  - service: tts.google_translate_say
+    entity_id: media_player.keuken_display
+    data:
+      message: "Alarm kan niet geactiveerd worden omdat: {% for entity_id in trigger.event.data.sensors\
+        \ %}\n  - {{ state_attr(entity_id, 'friendly_name') }} staat {{ states(entity_id)\
+        \ }}\n{% endfor %}\n"
+  mode: single
+- id: '1633552734408'
+  alias: Alarm - Enable guest mode when nanny home
+  description: ''
+  trigger:
+  - platform: time
+    at: '14:00'
+  condition:
+  - condition: time
+    weekday:
+    - thu
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.guest_mode
+  - device_id: 29fa064f108236608f9f0d8f063dbc17
+    domain: alarm_control_panel
+    entity_id: alarm_control_panel.alarmo
+    type: disarm
+    code: ''
+  - service: notify.all_phones
+    data:
+      message: Guest modus aangezet en alarm uit voor Maartje
+      data:
+        persistent: true
+        tag: persistent
+  - delay:
+      hours: 5
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.guest_mode
+  mode: single
+- id: '1635279877594'
+  alias: Lights - Turn on lights when dark - arriving
+  description: When we come home after sunset, a few lights are on, so turn on more
+    lights
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+    to: just_arrived
+    for: 0:00:30
+  - platform: state
+    entity_id: device_tracker.ix3
+    from: not_home
+    to: home
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.people_home_and_awake
+      state: 'off'
+    - condition: state
+      entity_id: light.livingfront_light
+      state: 'off'
+    - condition: numeric_state
+      entity_id: sensor.lightlevel_living
+      below: '50'
+  action:
+  - service: script.lights_on_home
+  mode: single
+- id: '1635280472840'
+  alias: Lights - Turn off lights when dark - leaving
+  description: We leave the house in when dark, turn off a few lights
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+    to: not_home
+    for: 0:01:00
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
+      state: not_home
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.kitchendesk_light
+      - light.diningtable_light
+      - light.livingfront_light
+  - service: light.turn_on
+    target:
+      entity_id: light.livingback_light
+    data:
+      brightness_pct: 30
+  mode: single
+- id: '1635280845679'
+  alias: Lights - Turn off lights when lighter
+  description: Turn off lights in the morning or during the day after a darker period
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.lightlevel_living
+    above: '60'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  condition:
+  - condition: and
+    conditions:
+    - condition: time
+      after: 05:00
+      before: '22:30'
+    - condition: state
+      entity_id: input_boolean.enable_automatic_lights
+      state: 'on'
+  action:
+  - service: script.lights_down_stairs_off
+  mode: single
+- id: '1635281191811'
+  alias: Music - Turn off music when we left
+  description: We didn't enable the Guest mode and we both left, stop the music
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+    to: not_home
+    for: 0:01:00
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
+      state: not_home
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: disarmed
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+  action:
+  - service: media_player.media_pause
+    target:
+      entity_id:
+      - media_player.eetkamer
+      - media_player.office
+      - media_player.living_room
+  mode: single
+- id: '1636140145870'
+  alias: Fire - Stookalert active
+  description: There's a Dutch RIVM Stookalert
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.stookalert_zeeland
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.all_phones
+    data:
+      message: Het RIVM heeft een stookalert afgegeven, kacheltje uit.
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1636140398636'
+  alias: Garden - Turn off fountain
+  description: Lets cool down during the night
+  trigger:
+  - platform: time
+    at: '23:00'
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 7db37314f71225b6af4c4ad58bea13ad
+    entity_id: switch.pool_fountain
+    domain: switch
+  action:
+  - type: turn_off
+    device_id: 7db37314f71225b6af4c4ad58bea13ad
+    entity_id: switch.pool_fountain
+    domain: switch
+  mode: single
+- id: '1636140450532'
+  alias: Garden - Turn on fountain
+  description: Lets float in daytime
+  trigger:
+  - platform: time
+    at: 07:00
+  condition:
+  - condition: device
+    type: is_off
+    device_id: 7db37314f71225b6af4c4ad58bea13ad
+    entity_id: switch.pool_fountain
+    domain: switch
+  action:
+  - type: turn_on
+    device_id: 7db37314f71225b6af4c4ad58bea13ad
+    entity_id: switch.pool_fountain
+    domain: switch
+  mode: single
+- id: '1636140714636'
+  alias: Car - Alert when car windows open too long
+  description: Lets not let the rain in for too long, again
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.ix3_windows
+    to: 'on'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  condition: []
+  action:
+  - service: notify.all_phones
+    data:
+      message: 🚗 De ramen van de auto staan al een uurtje open.
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1636204195732'
+  alias: Unavailable - Notify entities being offline
+  description: Check for a specific list of monitored entities if they are available
+  trigger:
+  - platform: state
+    entity_id: sensor.unavailable_entities
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 10
+      milliseconds: 0
+    from: Online
+  action:
+  - service: notify.mobile_app_iphone_rob
+    data_template:
+      message: 💡 Er is een belangrijke entity offline
+      data:
+        persistent: true
+        tag: persistent
+  variables:
+    from_state: '{{ states(''input_text.unavailable_entities_temp_state'') }}'
+    from_state_list: '{{ from_state.split('', '') }}'
+    to_state: '{{ trigger.to_state.state if trigger.to_state.state != ''Online'' else
+      '''' }}'
+    to_state_list: '{{ to_state.split('', '') }}'
+    became_online: '{{ from_state_list | reject(''in'', to_state_list) | join('',
+      '') }}'
+    became_unavailable_list: '{{ to_state_list | reject(''in'', from_state_list) |
+      list }}'
+    became_unavailable: '{{ became_unavailable_list | join('', '') }}'
+    other_unavailable_entities: '{{ to_state_list | reject(''in'', became_unavailable_list)
+      | join('', '') }}'
+- id: '1636228242323'
+  alias: Alarm - Flash lights
+  description: If the alarm is triggered, flash the lights in house and garden and
+    restore the state afterwards
+  use_blueprint:
+    path: myGithub-Markus/flashing_lights.yaml
+    input:
+      target_lights:
+        entity_id:
+        - light.office_lights
+        - light.livingback_light
+        - light.livingfront_light
+        - light.dining_light
+        - light.garden_light
+        - light.kitchen_light
+      activated: input_boolean.alarm_active
+      delay: 500
+- id: '1637270230892'
+  alias: Backup - Backup Mariadb with mysqldump
+  description: Copy this dump to /config/backup, the google drive backup will include
+    it
+  trigger:
+  - platform: time
+    at: 02:00
+  condition: []
+  action:
+  - data:
+      addon: a0d7b954_ssh
+      input: bash /config/backup/backup-mariadb.sh
+    service: hassio.addon_stdin
   mode: single

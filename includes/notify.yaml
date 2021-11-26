@@ -8,16 +8,22 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-- name: pushover_rob
-  platform: pushover
-  api_key: !secret pushover_rob_api_key
-  user_key: !secret pushover_rob_user_key
-- name: telegram_rob
-  platform: telegram
-  chat_id: !secret telegram_chat_id_rob
-- name: telegram_steffi
-  platform: telegram
-  chat_id: !secret telegram_chat_id_steffi
-- name: telegram
-  platform: telegram
-  chat_id: !secret telegram_chat_id
+# - name: pushover_rob
+#   platform: pushover
+#   api_key: !secret pushover_rob_api_key
+#   user_key: !secret pushover_rob_user_key
+# - name: telegram_rob
+#   platform: telegram
+#   chat_id: !secret telegram_chat_id_rob
+# - name: telegram_steffi
+#   platform: telegram
+#   chat_id: !secret telegram_chat_id_steffi
+# - name: telegram
+#   platform: telegram
+#   chat_id: !secret telegram_chat_id
+
+- platform: group
+  name: all_phones
+  services:
+    - service: mobile_app_iphone_rob
+    - service: mobile_app_iphone_steffi

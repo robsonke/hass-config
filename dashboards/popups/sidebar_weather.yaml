@@ -1,0 +1,27 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  large: true
+  title: Het weer in Kloetinge
+  card:
+    type: horizontal-stack
+    cards:
+      - type: custom:weather-card
+        entity: weather.kloetinge
+        current: true
+        details: true
+        forecast: true
+        hourly_forecast: false
+        number_of_forecasts: '5'
+      # - type: 'custom:buien-rain-forecast'
+      #   long: !secret longitude_coordinate
+      #   lat: !secret latitude_coordinate
+      #   lineColor: 'rgba(89, 160, 238, 1)'
+      #   fillColor: 'rgba(89, 160, 238, 0.2)'
+      #   update_interval: 10
+      #   icon: 'mdi:weather-rainy'
+        # height: 300  
+
+      - type: picture-glance
+        entities: []
+        camera_image: camera.buienradar

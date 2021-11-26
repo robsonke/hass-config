@@ -97,6 +97,7 @@ sleep_well:
       entity_id:
       - light.zwave_light_corner_level
       - light.zwave_light_couch_level
+      - light.diningtable_light
     data:
       transition: 2
   - delay:
@@ -120,3 +121,90 @@ sleep_well:
   mode: parallel
   icon: mdi:sleep
   max: 10
+lights_on_away:
+  alias: Lights on - away
+  mode: single
+  sequence:
+  - service: light.turn_on
+    data:
+      entity_id:
+      - light.zwave_light_corner_level
+      - light.zwave_light_couch_level
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      brightness_pct: 30
+    target:
+      entity_id:
+      - light.dining_light
+      - light.livingback_light
+  - service: light.turn_on
+    data:
+      brightness_pct: 60
+    target:
+      entity_id:
+      - light.boekenkast
+      - light.ledstrip_tv
+      - light.ledstrip_office
+lights_on_home:
+  alias: Lights on - home
+  sequence:
+  - service: light.turn_on
+    data:
+      entity_id:
+      - light.zwave_light_corner_level
+      - light.zwave_light_couch_level
+      - light.keuken
+  - delay: '1'
+  - service: light.turn_on
+    data:
+      entity_id:
+      - light.ledstrip_office
+      - light.dining_light
+      - light.woonkamer
+      brightness_pct: 40
+  - service: light.turn_on
+    data:
+      brightness_pct: 35
+    target:
+      entity_id: light.kitchendesk_light
+  - service: light.turn_on
+    data:
+      entity_id:
+      - light.boekenkast
+      - light.ledstrip_tv
+      - light.ledstrip_office
+  mode: single
+lights_down_stairs_off:
+  alias: Lights off - downstairs
+  sequence:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.zwave_light_corner_level
+      - light.zwave_light_couch_level
+      - light.diningtable_light
+    data:
+      transition: 2
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: light.turn_off
+    data:
+      transition: 2
+    target:
+      entity_id:
+      - light.dining_light
+      - light.ledstrip_office
+      - light.keuken
+      - light.woonkamer
+      - light.kitchendesk_light
+      - light.boekenkast
+      - light.ledstrip_tv
+  mode: single

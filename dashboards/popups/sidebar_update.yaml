@@ -1,0 +1,219 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Update Info
+  style:
+    .: |
+      :host .content {
+        width: 60em;
+        height: 100%;
+        padding: 2.1em 1.9em 1.9em 2.7em;
+      }
+    hui-grid-card:
+      $: |
+        button-card:nth-child(2), button-card:nth-child(4), button-card:nth-child(6) {
+          margin: 0.5em 0 3em 0.4em;
+        }
+        #root {
+          grid-gap: 0 !important;
+        }
+  card:
+    type: grid
+    columns: 1
+    square: false
+    cards:
+      ## hassio
+      - type: custom:button-card
+        entity: sensor.hass_version_installed
+        triggers_update:
+          - sensor.hass_version_latest
+          - sensor.hass_release_notes_rc
+          - sensor.hass_release_notes
+        state_display: |
+          [[[
+            if (entity && variables) {
+              // markdown parser
+              variables.markedjs;
+              let links = new RegExp('<a href="([^"]+)"', "g");
+              // states
+              let installed = entity.state;
+              let latest = states["sensor.hass_version_latest"].state;
+              let release_notes = marked.parse(states["sensor.hass_release_notes"].attributes.body);
+              // return
+              let subtitle = installed == latest ?
+                `Geen update` :
+                `${latest} beschikbaar ${String.fromCodePoint("0x1f389")}`;
+              let output = installed == latest ?
+                `<ul></ul>` :
+                release_notes.replace(links, '<a href="#" onclick="window.open(\'$1\')"');
+              return `
+                <ha-icon icon="mdi:home-assistant"></ha-icon> <span class="title">Home Assistant ${installed}</span><br>
+                <p class="subtitle">${subtitle}</p>
+                ${output}
+              `;
+            }
+          ]]]
+        template:
+          - updater
+          - markedjs
+      - type: custom:button-card
+        entity: sensor.hass_version_installed
+        triggers_update:
+          - sensor.hass_version_latest
+        name: Update Home Assistant
+        icon: mdi:update
+        styles:
+          card:
+            - width: max-content
+            - filter: >
+                [[[
+                  return entity.state === (states['sensor.hass_version_latest'].state) ? 
+                    'opacity(30%)' : 
+                    'drop-shadow(3px 3px 5px #00000050)';
+                ]]]
+        tap_action:
+          action: fire-dom-event
+          browser_mod:
+            command: popup
+            title: Supervisor and Addons
+            style: >
+              :host .content {
+                width: 75em;
+              }
+            card:
+              type: iframe
+              url: /hassio/dashboard
+              aspect_ratio: 65%
+              style: |
+                ha-card {
+                  border-radius: 0 0 1em 1em;
+                }
+        template: icon_name
+
+      ### supervisor
+      - type: custom:button-card
+        entity: sensor.supervisor_updates
+        state_display: |
+          [[[
+            if (entity) {
+              let count = entity.state | 0;
+              // check if there's a supervisor update
+              if (entity.attributes.update_available) {
+                count++;
+              }
+
+              let subtitle = count == 0
+                  ? `Geen updates`
+                  : `${count} ${count == 1 ? "update beschikbaar" : "updates beschikbaar"} 
+                    ${String.fromCodePoint("0x1f389")}`;
+
+              let output = '';
+              // supervisor info
+              if (entity.attributes.update_available) {
+                output += `<li><b>Supervisor</b> ${entity.attributes.current_version} \u279e ${entity.attributes.newest_version}</li>`
+              }
+              // addon info
+              var arr = entity.attributes.addons;
+              for (var i = 0; i < arr.length; i++) {
+                output += `<li><b>${arr[i].name}</b> ${arr[i].version} \u279e ${arr[i].version_latest}</li>`
+              }
+
+              return `
+                <ha-icon icon="mdi:home-assistant"></ha-icon> <span class="title">Supervisor (${entity.attributes['current_version']}) and Addons</span><br>
+                <p class="subtitle">${subtitle}</p>
+                <ul>${output}</ul>
+              `;
+            }
+          ]]]
+        template: updater
+      - type: custom:button-card
+        entity: sensor.supervisor_updates
+        triggers_update:
+          - sensor.supervisor_updates
+        name: Update Supervisor of Addons
+        icon: mdi:update
+        styles:
+          card:
+            - width: max-content
+            - filter: >
+                [[[
+                  return entity.state === '0' ?
+                    'opacity(30%)' : 
+                    'drop-shadow(3px 3px 5px #00000050)';
+                ]]]
+        tap_action:
+          action: fire-dom-event
+          browser_mod:
+            command: popup
+            title: Supervisor and Addons
+            style: >
+              :host .content {
+                width: 75em;
+              }
+            card:
+              type: iframe
+              url: /hassio/dashboard
+              aspect_ratio: 65%
+              style: |
+                ha-card {
+                  border-radius: 0 0 1em 1em;
+                }
+        template: icon_name
+
+      ### hacs
+      - type: custom:button-card
+        entity: sensor.hacs
+        state_display: |
+          [[[
+            if (entity) {
+              let output = '';
+              var arr = entity.attributes.repositories;
+              for (var i = 0; i < arr.length; i++) {
+                output += `<li><b><a href="#" onclick="window.open('https://github.com/${arr[i].name}/releases');">
+                  ${arr[i].display_name}</a></b> ${arr[i].installed_version} \u279e ${arr[i].available_version}</li>`
+              }
+              let count = arr.length;
+              let subtitle = count == 0
+                  ? `Geen updates`
+                  : `${count} ${count == 1 ? "update beschikbaar" : "updates beschikbaar"} 
+                    ${String.fromCodePoint("0x1f389")}`;
+              return `
+                <ha-icon icon="hacs:hacs"></ha-icon> <span class="title">Community Store ${states['sensor.template_hacs_version'].state}</span><br>
+                <p class="subtitle">${subtitle}</p>
+                <ul>${output}</ul>
+              `;
+            }
+          ]]]
+        template: updater
+
+      - type: custom:button-card
+        entity: sensor.hacs
+        name: Open HACS
+        icon: mdi:open-in-new
+        styles:
+          card:
+            - width: max-content
+            - filter: >
+                [[[
+                  return entity.state === '0' ?
+                    'opacity(30%)' :
+                    'drop-shadow(3px 3px 5px #00000050)';
+                ]]]
+        tap_action:
+          action: fire-dom-event
+          browser_mod:
+            command: popup
+            title: Home Assistant Community Store
+            style: >
+              :host .content {
+                width: 75em;
+              }
+            card:
+              type: iframe
+              url: /hacs
+              aspect_ratio: 65%
+              style: |
+                ha-card {
+                  border-radius: 0 0 1em 1em;
+                }
+        template: icon_name

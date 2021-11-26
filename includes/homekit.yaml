@@ -20,6 +20,7 @@
       - light.zwave_light_corner_level
       - light.zwave_light_couch_level
       - light.dining_light
+      - light.diningtable_light
       - light.livingback_light
       - light.livingfrpmt_light
       - light.woonkamer
@@ -37,6 +38,7 @@
       - camera.reocam1
       - camera.reocam2
       - camera.doorbell
+      - binary_sensor.people_home_and_awake
   entity_config:
     camera.babycam:
       support_audio: true
