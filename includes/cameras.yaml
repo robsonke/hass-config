@@ -7,20 +7,7 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-# - platform: foscam
-#   ip: !secret babycam_ip
-#   port: 88
-#   rtsp_port: 88
-#   username: !secret babycam_username
-#   password: !secret babycam_password
-#   name: Babycam
-# - platform: foscam
-#   ip: !secret gardencam_ip
-#   port: 88
-#   rtsp_port: 88
-#   username: !secret babycam_username
-#   password: !secret babycam_password
-#   name: Gardencam
+
 - platform: generic
   name: Weer
   still_image_url: "https://api.buienradar.nl/image/1.0/RadarMapNL?w=480&h=480"

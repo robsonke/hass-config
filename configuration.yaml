@@ -38,7 +38,6 @@ ffmpeg:
 browser_mod:
   prefix: browser_
 
-#alarm_control_panel: !include includes/alarm_control_panel.yaml
 automation: !include automations.yaml
 binary_sensor: !include includes/binary_sensor.yaml
 camera: !include includes/cameras.yaml
@@ -62,9 +61,7 @@ scene: !include scenes.yaml
 script: !include scripts.yaml
 sensor: !include includes/sensors.yaml
 shell_command:  !include includes/shell_command.yaml
-#telegram_bot: !include includes/telegram_bot.yaml
 template: !include includes/templates.yaml
 tts: !include includes/tts.yaml
 utility_meter: !include includes/utility_meter.yaml
-weather: !include includes/weather.yaml
 zone: !include includes/zones.yaml

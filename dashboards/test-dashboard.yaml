@@ -91,7 +91,7 @@ views:
             #   tap_action:
             #     !include popups/sidebar_weather.yaml
             - type: weather-forecast
-              entity: weather.kloetinge
+              entity: weather.home
               show_forecast: false
               style: |
                 div.state {
