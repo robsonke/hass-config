@@ -31,6 +31,7 @@ http:
     - 127.0.0.1
     - 172.16.0.0/12
     - ::1
+
 ios:
 stream:
 ffmpeg:
@@ -41,10 +42,10 @@ browser_mod:
 automation: !include automations.yaml
 binary_sensor: !include includes/binary_sensor.yaml
 camera: !include includes/cameras.yaml
+cloud: !include includes/cloud.yaml
 device_tracker: !include includes/device_tracker.yaml
 discovery: !include includes/discovery.yaml
 google: !include includes/google.yaml
-google_assistant: !include includes/google_assistant.yaml
 group: !include includes/groups.yaml
 history: !include includes/history.yaml
 homekit: !include includes/homekit.yaml
