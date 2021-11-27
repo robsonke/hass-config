@@ -52,7 +52,7 @@
 # tracks changes in the lovelace file
 - platform: filesize
   file_paths:
-    - /config/.storage/lovelace
+    - .storage/lovelace
 
 - platform: systemmonitor
   resources:

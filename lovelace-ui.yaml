@@ -1228,6 +1228,21 @@ views:
     view_default: live
     webrtc:
       entity: camera.reoachtertuin_camera_webrtc
+  - camera_entity: camera.reocam1
+    controls:
+      nextprev: chevrons
+    dimensions:
+      aspect_ratio_mode: unconstrained
+    frigate_camera_name: Achterdeur
+    live_provider: webrtc
+    menu_buttons:
+      frigate: false
+      frigate_ui: true
+    menu_mode: overlay-top
+    type: custom:frigate-card
+    view_default: live
+    webrtc:
+      entity: camera.reoachterdeur_camera_webrtc
   - camera_entity: camera.doorbell
     controls:
       nextprev: chevrons
@@ -1249,21 +1264,6 @@ views:
     view_default: live
     webrtc:
       entity: camera.doorbell_camera_webrtc
-  - camera_entity: camera.reocam1
-    controls:
-      nextprev: chevrons
-    dimensions:
-      aspect_ratio_mode: unconstrained
-    frigate_camera_name: Achterdeur
-    live_provider: webrtc
-    menu_buttons:
-      frigate: false
-      frigate_ui: true
-    menu_mode: overlay-top
-    type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.reoachterdeur_camera_webrtc
   - entities:
     - entity: switch.evacam_detect
     - entity: switch.bijkeukencam_detect

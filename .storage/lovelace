@@ -2015,6 +2015,27 @@
                             "controls": {
                                 "nextprev": "chevrons"
                             },
+                            "webrtc": {
+                                "entity": "camera.reoachterdeur_camera_webrtc"
+                            },
+                            "camera_entity": "camera.reocam1",
+                            "menu_mode": "overlay-top",
+                            "dimensions": {
+                                "aspect_ratio_mode": "unconstrained"
+                            },
+                            "frigate_camera_name": "Achterdeur",
+                            "menu_buttons": {
+                                "frigate": false,
+                                "frigate_ui": true
+                            },
+                            "view_default": "live",
+                            "live_provider": "webrtc"
+                        },
+                        {
+                            "type": "custom:frigate-card",
+                            "controls": {
+                                "nextprev": "chevrons"
+                            },
                             "camera_entity": "camera.doorbell",
                             "menu_mode": "overlay-top",
                             "dimensions": {
@@ -2043,27 +2064,6 @@
                                     "image": true
                                 }
                             }
-                        },
-                        {
-                            "type": "custom:frigate-card",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
-                            "webrtc": {
-                                "entity": "camera.reoachterdeur_camera_webrtc"
-                            },
-                            "camera_entity": "camera.reocam1",
-                            "menu_mode": "overlay-top",
-                            "dimensions": {
-                                "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate_camera_name": "Achterdeur",
-                            "menu_buttons": {
-                                "frigate": false,
-                                "frigate_ui": true
-                            },
-                            "view_default": "live",
-                            "live_provider": "webrtc"
                         },
                         {
                             "type": "entities",
