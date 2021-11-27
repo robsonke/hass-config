@@ -1,0 +1,18 @@
+{
+  "domain": "casambi",
+  "name": "casambi",
+  "version": "0.59",
+  "config_flow": true,
+  "documentation": "https://github.com/hellqvio86/home_assistant_casambi",
+  "issue_tracker": "https://github.com/hellqvio86/home_assistant_casambi/issues",
+  "requirements": [
+    "aiocasambi==0.227"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@hellqvio86"
+  ]
+}

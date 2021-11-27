@@ -1,0 +1,23 @@
+{
+  "title": "Casambi",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fill in your information",
+        "description": "Enter your Casambi credentials.",
+        "data": {
+          "email": "Email",
+          "user_password": "User password (site password)",
+          "network_password": "Network password",
+          "api_key": "api key",
+          "network_timeout": "Network timeout",
+          "scan_interval": "Scan interval"
+        }
+      }
+    },
+    "error": {
+      "auth_user_password":"Invalid user password",
+      "auth_network_password":"Invalid network password"
+    }
+  }
+}
