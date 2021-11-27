@@ -1,5 +1,5 @@
 # Ignore folders.
-.storage
+/.storage/*
 .cloud
 .google.token
 glances
@@ -25,5 +25,5 @@ home-assistant.log.fault
 daikin_data.json
 daikin_puredata.json
 
-# And ignore some files
-!.storage/lovelace
+# And ignore the ignore for some files
+!/.storage/lovelace
