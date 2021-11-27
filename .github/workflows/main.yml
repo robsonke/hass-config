@@ -10,8 +10,36 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate:
-    runs-on: "ubuntu-latest"
+  lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
     steps:
-        - uses: "actions/checkout@v2"
-        - uses: "home-assistant/actions/hassfest@master"
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Lint Code Base
+        uses: github/super-linter@v3
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+#   home-assistant:
+#     name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         version: ["stable", "beta", "dev"]
+#     steps:
+#       - name: ⤵️ Check out configuration from GitHub
+#         uses: actions/checkout@v2
+#       - name: 🚀 Run Home Assistant Configuration Check
+#         uses: frenck/action-home-assistant@v1
+#         with:
+#           path: "./config"
+#           secrets: fakesecrets.yaml
+#           version: "${{ matrix.version }}"
+#   validate:
+#     runs-on: "ubuntu-latest"
+#     steps:
+#         - uses: "actions/checkout@v2"
+#         - uses: "home-assistant/actions/hassfest@master"
