@@ -24,3 +24,6 @@ home-assistant.log.1
 home-assistant.log.fault
 daikin_data.json
 daikin_puredata.json
+
+# And ignore some files
+!.storage/lovelace
