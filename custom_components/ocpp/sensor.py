@@ -19,8 +19,13 @@ from homeassistant.const import (
 )
 
 from .api import CentralSystem
-from .const import CONF_CPID, DEFAULT_CPID, DOMAIN, ICON
+from .const import CONF_CPID, DEFAULT_CPID, DOMAIN, ICON, Measurand
 from .enums import HAChargerDetails, HAChargerSession, HAChargerStatuses
+
+# To be added when home assistant supports it
+DEVICE_CLASS_FREQUENCY = None
+FREQUENCY_RPM = "rpm"
+FREQUENCY_HERTZ = "Hz"
 
 
 async def async_setup_entry(hass, entry, async_add_devices):
@@ -93,9 +98,12 @@ class ChargePointMetric(SensorEntity):
         elif self.device_class is DEVICE_CLASS_TEMPERATURE:
             unit_of_measurement = ha.TEMP_CELSIUS
         elif self.device_class is DEVICE_CLASS_TIMESTAMP:
+            # Home assistant does not define a unit, must be a Datetime object or timestamp string (ISO 8601).
             unit_of_measurement = None
         elif self.device_class is DEVICE_CLASS_VOLTAGE:
             unit_of_measurement = ha.ELECTRIC_POTENTIAL_VOLT
+        elif self.metric in [Measurand.rpm, Measurand.frequency]:
+            unit_of_measurement = FREQUENCY_RPM
         return unit_of_measurement
 
     @property
@@ -130,12 +138,17 @@ class ChargePointMetric(SensorEntity):
         state_class = None
         if self.device_class is DEVICE_CLASS_ENERGY:
             state_class = STATE_CLASS_TOTAL_INCREASING
-        elif self.device_class in [
-            DEVICE_CLASS_CURRENT,
-            DEVICE_CLASS_POWER,
-            DEVICE_CLASS_TEMPERATURE,
-            DEVICE_CLASS_BATTERY,
-        ]:
+        elif (
+            self.device_class
+            in [
+                DEVICE_CLASS_CURRENT,
+                DEVICE_CLASS_VOLTAGE,
+                DEVICE_CLASS_POWER,
+                DEVICE_CLASS_TEMPERATURE,
+                DEVICE_CLASS_BATTERY,
+            ]
+            or self.metric in [Measurand.rpm, Measurand.frequency]
+        ):
             state_class = STATE_CLASS_MEASUREMENT
         return state_class
 
@@ -143,24 +156,33 @@ class ChargePointMetric(SensorEntity):
     def device_class(self):
         """Return the device class of the sensor."""
         device_class = None
-        if self.metric.lower().startswith("current"):
+        if self.metric.lower().startswith("current."):
             device_class = DEVICE_CLASS_CURRENT
-        elif self.metric.lower().startswith("voltage"):
+        elif self.metric.lower().startswith("voltage."):
             device_class = DEVICE_CLASS_VOLTAGE
-        elif self.metric.lower().startswith("energy"):
+        elif self.metric.lower().startswith("energy."):
             device_class = DEVICE_CLASS_ENERGY
-        elif self.metric.lower().startswith("power"):
+        elif (
+            self.metric
+            in [
+                Measurand.frequency,
+                Measurand.rpm,
+            ]
+            or self.metric.lower().startswith("frequency")
+        ):
+            device_class = DEVICE_CLASS_FREQUENCY
+        elif self.metric.lower().startswith("power."):
             device_class = DEVICE_CLASS_POWER
-        elif self.metric.lower().startswith("temperature"):
+        elif self.metric.lower().startswith("temperature."):
             device_class = DEVICE_CLASS_TEMPERATURE
-        elif self.metric.lower().startswith("soc"):
-            device_class = DEVICE_CLASS_BATTERY
-        elif self.metric in [
+        elif self.metric.lower().startswith("timestamp.") or self.metric in [
             HAChargerDetails.config_response.value,
             HAChargerDetails.data_response.value,
             HAChargerStatuses.heartbeat.value,
         ]:
             device_class = DEVICE_CLASS_TIMESTAMP
+        elif self.metric.lower().startswith("soc"):
+            device_class = DEVICE_CLASS_BATTERY
         return device_class
 
     @property

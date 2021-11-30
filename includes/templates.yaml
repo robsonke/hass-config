@@ -87,18 +87,18 @@
     name: "Unavailable Entities"
     state_class: measurement
     unit_of_measurement: entities
-    state: "{{ expand('group.monitored_entities') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
+    state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') |selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
 
 # all unavailable entities
 - trigger:
-    - platform: time_pattern
-      minutes: "*"
+  - platform: time_pattern
+    minutes: "*"
   sensor:
     unique_id: all_unavailable_entities
     name: "All Unavailable Entities"
     unit_of_measurement: entities
     state: >
-      {% if state_attr('sensor.all_unavailable_entities','entities')|lower not in ['unknown','unavailable','none'] %}
+      {% if states('sensor.all_unavailable_entities') and state_attr('sensor.all_unavailable_entities','entities') | lower not in ['unknown','unavailable','none'] %}
         {{ state_attr('sensor.all_unavailable_entities','entities')|count }}
       {% endif %}
     attributes:
@@ -107,6 +107,7 @@
         {% set unavail = namespace(entities=[]) %}
         {% set entities = states|rejectattr('domain','eq','group')
           |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+          |rejectattr('state', 'equalto', '')
           |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
         {% for item in entities %}
           {% if states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
@@ -133,8 +134,31 @@
   # convert the uptime one to a real value
   - unique_id: ha_uptime
     name: 'HA uptime minutes'
+    icon: mdi:arrow-up-circle-outline
     state: >
       {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'))) / 60 }}
+
+# count all possible updates to one sensor
+- trigger:
+  - platform: time_pattern
+    minutes: "*"
+  sensor:
+  - unique_id: ha_all_updates
+    name: All Updates
+    icon: mdi:update
+    state: >
+      {% set count = namespace(value=0) %}
+      {% set count.value = count.value + states('sensor.supervisor_updates') | int %}
+      {% if states('sensor.hass_version_latest') != states('sensor.hass_version_installed') %}
+        {% set count.value = count.value + 1 %}
+      {% endif %}
+      {% if state_attr('sensor.supervisor_updates', 'update_available') %}
+        {% set count.value = count.value + 1 %}
+      {% endif %}
+      {% set count.value = count.value + (state_attr('sensor.hacs', 'repositories') | length) %}
+      {{ count.value }}
+    unit_of_measurement: "Update(s)"
+
 
 - sensor:
   - unique_id: daily_consumption_energy

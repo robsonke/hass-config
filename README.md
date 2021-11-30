@@ -5,6 +5,8 @@
 |  _  | (_) | | | | | |  __/  / ___ \\__ \__ \ \__ \ || (_| | | | | |_ 
 |_| |_|\___/|_| |_| |_|\___| /_/   \_\___/___/_|___/\__\__,_|_| |_|\__|
 ```
+[![Validate Home Assistant Config](https://github.com/robsonke/hass-config/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/robsonke/hass-config/actions/workflows/main.yml)
+
 # Rob's Home Assistant Configuration
 Welcome to my repository representing all Home Assistant configuration. I'm sharing this to help others, since many such other repositories helped me a lot.
 Keeping this up to date is a continuous process, I discover daily new possibilities and face situations that ask for automation.

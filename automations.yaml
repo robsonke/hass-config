@@ -602,6 +602,14 @@
     after: 05:00
   - condition: time
     before: '10:00'
+  - condition: state
+    entity_id: input_boolean.night_mode
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
   action:
   - service: alarm_control_panel.alarm_disarm
     target:

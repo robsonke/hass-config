@@ -15,7 +15,7 @@ views:
         "sidebar  .        .          .        ."
         "sidebar  living   kitchen    music    ."
         "sidebar  dining   office     cameras  ."
-        "sidebar  garden   .          .        ."
+        "sidebar  garden   energy     .        ."
         "sidebar  .        .          .        ."
       mediaquery:
         '(max-width: 800px)':
@@ -26,8 +26,9 @@ views:
             ".  .          .       ."
             ".  sidebar    sidebar ."
             ".  living     kitchen ."
-            ".  music      dining   ."
-            ".  office     garden   ."
+            ".  music      dining  ."
+            ".  office     garden  ."
+            ".  energy     .       ."
             ".  .          .       ."
         '(max-width: 1200px)':
           grid-gap: var(--custom-layout-card-padding)
@@ -35,9 +36,10 @@ views:
           grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
           grid-template-areas: |
             "sidebar  .        .          ."
-            "sidebar  living   kitchen      ."
-            "sidebar  music    dining      ."
-            "sidebar  office    garden     ."
+            "sidebar  living   kitchen    ."
+            "sidebar  music    dining     ."
+            "sidebar  office   garden     ."
+            "sidebar  ernergy  .          ."
 
     cards:
       - type: custom:button-card
@@ -56,40 +58,12 @@ views:
         cards:
           - type: custom:button-card
             entity: sensor.template_sidebar
+            tap_action:
+              action: call-service
+              service: script.reload_frontend
             template: sidebar_template
           - type: horizontal-stack
             cards:
-            # - type: custom:weather-card
-            #   entity: weather.kloetinge
-            #   current: true
-            #   details: false
-            #   forecast: false
-            #   style: |
-            #     div.current span.icon.bigger {
-            #       position: relative;
-            #       margin-top: -3em;
-            #       width: 50px;
-            #       height: 50px;
-            #     }
-            #     span.temp, span.tempc {
-            #       position: relative;
-            #       right: auto;
-            #     }
-            #     span.temp {
-            #       font-size: 1.5em;
-            #       bottom: 15px
-            #     }
-            #     span.tempc {
-            #       font-size: 1em;
-            #       top: -16px;
-            #     }
-            #     div.current {
-            #       margin-bottom: 0;
-            #     }
-            # - type: button
-            #   icon: mdi:weather-sunset
-            #   tap_action:
-            #     !include popups/sidebar_weather.yaml
             - type: weather-forecast
               entity: weather.home
               show_forecast: false
@@ -147,17 +121,19 @@ views:
           - type: grid
             cards:
               - type: button
-                icon: mdi:arrow-up-bold-circle-outline
+                icon: mdi:repeat-off
                 tap_action:
                   !include popups/sidebar_update.yaml
-              - type: button
-                icon: 'mdi:restart'
-                tap_action:
-                  action: call-service
-                  service: browser_mod.lovelace_reload
-                hold_action:
-                  action: call-service
-                  service: frontend.reload_themes
+                card_mod:
+                  style: |
+                    {% if not is_state('sensor.all_updates', '0') %}
+                    :host ha-state-icon {
+                      color: green;
+                    }
+                    :host {
+                      --card-mod-icon: mdi:repeat-once;
+                    }
+                    {% endif %}
 
 
       #################################################
@@ -216,3 +192,18 @@ views:
             icon: mdi:speaker
             template:
               - music
+
+      #################################################
+      #                                               #
+      #                  Energy                       #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Energy
+        view_layout:
+          grid-area: energy
+        columns: 1
+        cards:
+          - type: energy-distribution
+            link_dashboard: true

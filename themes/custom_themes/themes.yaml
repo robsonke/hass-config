@@ -55,7 +55,7 @@ homecustom:
 
   card-mod-root: |
     ha-app-layout {
-      #background: url('/local/background.jpg');
+      background: url('/local/background.png');
       background-size: cover;
     }
   card-mod-view-yaml: |

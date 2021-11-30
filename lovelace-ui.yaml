@@ -811,210 +811,6 @@ views:
   title: Begane grond
 - badges: []
   cards:
-  - cards:
-    - cards:
-      - entity: binary_sensor.window_masterbed_1_openclose_sensor
-        name: Master links
-        show_name: true
-        type: custom:button-card
-      - entity: binary_sensor.window_masterbed_2_openclose_sensor
-        name: Master rechts
-        show_name: true
-        type: custom:button-card
-      - entity: binary_sensor.window_evaroom_openclose_sensor
-        name: Kamer Eva
-        show_name: true
-        type: custom:button-card
-      title: Ramen
-      type: horizontal-stack
-    - cards:
-      - entity: binary_sensor.window_atticroom_openclose_sensor
-        name: Zolderkamer
-        show_name: true
-        type: custom:button-card
-      - entity: binary_sensor.window_guestroom_openclose_sensor
-        name: Logeerkamer
-        show_name: true
-        type: custom:button-card
-      type: horizontal-stack
-    - cards:
-      - entity: input_boolean.night_mode
-        show_icon: true
-        type: custom:button-card
-      - color: rgb(255, 0, 0)
-        entity: alarm_control_panel.alarmo
-        icon: mdi:security
-        name: Alarm actief
-        state:
-        - color: rgb(0, 255, 0)
-          name: Alarm uit
-          show_state: false
-          value: disarmed
-        - color: orange
-          styles:
-            card:
-            - animation: blink 2s ease infinite
-          value: arming
-        - color: red
-          value: armed_away
-        - color: red
-          icon: mdi:alert
-          name: Intruder Alert
-          styles:
-            card:
-            - animation: blink 2s ease infinite
-          value: triggered
-        type: custom:button-card
-      type: horizontal-stack
-    type: vertical-stack
-  - entity: media_player.bedroom_googlehome
-    group: true
-    type: custom:mini-media-player
-    volume_stateless: false
-  - entities:
-    - entity: light.hoofdslaapkamer
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - entity: light.douche
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - entity: light.inloopkast
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - entity: light.overloop
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - type: divider
-    - entity: light.slaapkamer_eva
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - entity: light.logeerkamer
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - entity: light.zolder
-      secondary_info: brightness
-      toggle: true
-      type: custom:slider-entity-row
-    - type: divider
-    - entity: switch.kasa_infrarood_slaapkamer
-      name: Infrarood slaapkamer
-    show_header_toggle: false
-    type: entities
-  - camera_entity: camera.evacam
-    controls:
-      nextprev: chevrons
-    dimensions:
-      aspect_ratio_mode: unconstrained
-    frigate_camera_name: Eva
-    live_provider: webrtc
-    menu_buttons:
-      frigate: false
-      frigate_ui: false
-      fullscreen: true
-    menu_mode: overlay-top
-    type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.eva_camera_webrtc
-  - cards:
-    - entities:
-      - sensor.climate_sensor_masterbedroom_temperature
-      font_size_header: 10
-      line_color: '#e74c3c'
-      line_width: 8
-      name: Slaapkamer
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_masterbedroom_humidity
-      font_size_header: 10
-      line_color: blue
-      line_width: 8
-      name: Slaapkamer
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.lightlevel_masterbedroom
-      font_size_header: 10
-      line_color: '#F7BF10'
-      line_width: 8
-      name: Slaapkamer
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_eva_temperature
-      font_size_header: 10
-      line_color: '#e74c3c'
-      line_width: 8
-      name: Eva
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_eva_humidity
-      font_size_header: 10
-      line_color: blue
-      line_width: 8
-      name: Eva
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_eva_pressure
-      font_size_header: 10
-      line_color: blue
-      line_width: 8
-      name: Eva
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_guestroom_temperature
-      font_size_header: 10
-      line_color: '#e74c3c'
-      line_width: 8
-      name: Logeer
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_guestroom_humidity
-      font_size_header: 10
-      line_color: blue
-      line_width: 8
-      name: Logeer
-      type: custom:mini-graph-card
-    - entities:
-      - sensor.climate_sensor_guestroom_pressure
-      font_size_header: 10
-      line_color: blue
-      line_width: 8
-      name: Logeer
-      type: custom:mini-graph-card
-    title: Klimaat
-    type: grid
-  - artwork: cover
-    entity: media_player.samsung_7_series_43
-    icon: mdi:television
-    name: Televisie
-    shortcuts:
-      buttons:
-      - data:
-          entity_id: media_player.samsungtv_bedroom
-          source: Netflix
-        icon: mdi:netflix
-        id: media_player.select_source
-        name: Netflix
-        type: service
-      - data:
-          entity_id: media_player.samsungtv_bedroom
-          source: ChromeCast
-        icon: mdi:chromecast
-        id: media_player.select_source
-        name: ChromeCast
-        type: service
-    show_source: false
-    type: custom:mini-media-player
-  icon: mdi:bed
-  path: boven
-  title: Boven
-- badges: []
-  cards:
   - elements:
     - entity: binary_sensor.ix3_door_lock_state
       hold_action:
@@ -1180,90 +976,333 @@ views:
   type: custom:masonry-layout
 - badges: []
   cards:
+  - cards:
+    - cards:
+      - entity: binary_sensor.window_masterbed_1_openclose_sensor
+        name: Master links
+        show_name: true
+        type: custom:button-card
+      - entity: binary_sensor.window_masterbed_2_openclose_sensor
+        name: Master rechts
+        show_name: true
+        type: custom:button-card
+      - entity: binary_sensor.window_evaroom_openclose_sensor
+        name: Kamer Eva
+        show_name: true
+        type: custom:button-card
+      title: Ramen
+      type: horizontal-stack
+    - cards:
+      - entity: binary_sensor.window_atticroom_openclose_sensor
+        name: Zolderkamer
+        show_name: true
+        type: custom:button-card
+      - entity: binary_sensor.window_guestroom_openclose_sensor
+        name: Logeerkamer
+        show_name: true
+        type: custom:button-card
+      type: horizontal-stack
+    - cards:
+      - entity: input_boolean.night_mode
+        show_icon: true
+        type: custom:button-card
+      - color: rgb(255, 0, 0)
+        entity: alarm_control_panel.alarmo
+        icon: mdi:security
+        name: Alarm actief
+        state:
+        - color: rgb(0, 255, 0)
+          name: Alarm uit
+          show_state: false
+          value: disarmed
+        - color: orange
+          styles:
+            card:
+            - animation: blink 2s ease infinite
+          value: arming
+        - color: red
+          value: armed_away
+        - color: red
+          icon: mdi:alert
+          name: Intruder Alert
+          styles:
+            card:
+            - animation: blink 2s ease infinite
+          value: triggered
+        type: custom:button-card
+      type: horizontal-stack
+    type: vertical-stack
+  - entity: media_player.bedroom_googlehome
+    group: true
+    type: custom:mini-media-player
+    volume_stateless: false
+  - entities:
+    - entity: light.hoofdslaapkamer
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - entity: light.douche
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - entity: light.inloopkast
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - entity: light.overloop
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - type: divider
+    - entity: light.slaapkamer_eva
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - entity: light.logeerkamer
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - entity: light.zolder
+      secondary_info: brightness
+      toggle: true
+      type: custom:slider-entity-row
+    - type: divider
+    - entity: switch.kasa_infrarood_slaapkamer
+      name: Infrarood slaapkamer
+    show_header_toggle: false
+    type: entities
   - camera_entity: camera.evacam
-    controls:
-      nextprev: chevrons
     dimensions:
       aspect_ratio_mode: unconstrained
-    frigate_camera_name: Eva
-    live_provider: webrtc
-    menu_buttons:
-      frigate: false
-      frigate_ui: false
-      fullscreen: true
-      snapshots: true
-    menu_mode: overlay-top
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+        thumbnails:
+          mode: below
+    frigate:
+      camera_name: Eva
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.eva_camera_webrtc
+    menu:
+      buttons:
+        frigate: false
+        frigate_ui: false
+        fullscreen: true
+      mode: overlay-top
     type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.eva_camera_webrtc
+    view:
+      default: live
+  - cards:
+    - entities:
+      - sensor.climate_sensor_masterbedroom_temperature
+      font_size_header: 10
+      line_color: '#e74c3c'
+      line_width: 8
+      name: Slaapkamer
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_masterbedroom_humidity
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Slaapkamer
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.lightlevel_masterbedroom
+      font_size_header: 10
+      line_color: '#F7BF10'
+      line_width: 8
+      name: Slaapkamer
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_eva_temperature
+      font_size_header: 10
+      line_color: '#e74c3c'
+      line_width: 8
+      name: Eva
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_eva_humidity
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Eva
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_eva_pressure
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Eva
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_guestroom_temperature
+      font_size_header: 10
+      line_color: '#e74c3c'
+      line_width: 8
+      name: Logeer
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_guestroom_humidity
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Logeer
+      type: custom:mini-graph-card
+    - entities:
+      - sensor.climate_sensor_guestroom_pressure
+      font_size_header: 10
+      line_color: blue
+      line_width: 8
+      name: Logeer
+      type: custom:mini-graph-card
+    title: Klimaat
+    type: grid
+  - artwork: cover
+    entity: media_player.samsung_7_series_43
+    icon: mdi:television
+    name: Televisie
+    shortcuts:
+      buttons:
+      - data:
+          entity_id: media_player.samsungtv_bedroom
+          source: Netflix
+        icon: mdi:netflix
+        id: media_player.select_source
+        name: Netflix
+        type: service
+      - data:
+          entity_id: media_player.samsungtv_bedroom
+          source: ChromeCast
+        icon: mdi:chromecast
+        id: media_player.select_source
+        name: ChromeCast
+        type: service
+    show_source: false
+    type: custom:mini-media-player
+  icon: mdi:bed
+  path: boven
+  title: Boven
+- badges: []
+  cards:
+  - camera_entity: camera.evacam
+    dimensions:
+      aspect_ratio_mode: unconstrained
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+        thumbnails:
+          mode: below
+    frigate:
+      camera_name: Eva
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.eva_camera_webrtc
+    menu:
+      buttons:
+        frigate: false
+        frigate_ui: false
+        fullscreen: true
+        snapshots: true
+      mode: overlay-top
+    type: custom:frigate-card
+    view:
+      default: live
   - camera_entity: camera.bijkeukencam
-    controls:
-      nextprev: chevrons
     dimensions:
       aspect_ratio_mode: unconstrained
-    frigate_camera_name: Bijkeuken
-    live_provider: webrtc
-    menu_buttons:
-      frigate: false
-      frigate_ui: false
-      fullscreen: true
-    menu_mode: overlay-top
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+    frigate:
+      camera_name: Bijkeuken
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.bijkeuken_camera_webrtc
+    menu:
+      buttons:
+        frigate: false
+        frigate_ui: false
+        fullscreen: true
+      mode: overlay-top
     type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.bijkeuken_camera_webrtc
+    view:
+      default: live
   - camera_entity: camera.reocam2
-    controls:
-      nextprev: chevrons
     dimensions:
       aspect_ratio_mode: unconstrained
-    frigate_camera_name: Achtertuin
-    live_provider: webrtc
-    menu_buttons:
-      frigate: false
-      frigate_ui: false
-    menu_mode: overlay-top
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+    frigate:
+      camera_name: Achtertuin
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.reoachtertuin_camera_webrtc
+    menu:
+      buttons:
+        frigate: false
+        frigate_ui: false
+      mode: overlay-top
     type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.reoachtertuin_camera_webrtc
+    view:
+      default: live
   - camera_entity: camera.reocam1
-    controls:
-      nextprev: chevrons
     dimensions:
       aspect_ratio_mode: unconstrained
-    frigate_camera_name: Achterdeur
-    live_provider: webrtc
-    menu_buttons:
-      frigate: false
-      frigate_ui: true
-    menu_mode: overlay-top
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+        thumbnails:
+          mode: below
+    frigate:
+      camera_name: Achterdeur
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.reoachterdeur_camera_webrtc
+    menu:
+      buttons:
+        frigate: false
+        frigate_ui: true
+      mode: overlay-top
     type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.reoachterdeur_camera_webrtc
+    view:
+      default: live
   - camera_entity: camera.doorbell
-    controls:
-      nextprev: chevrons
     dimensions:
       aspect_ratio_mode: unconstrained
     entities:
     - entity: binary_sensor.doorbell_lw_doorbell
     - entity: binary_sensor.doorbell_lw_motion
-    frigate_camera_name: Voordeur
-    live_provider: webrtc
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+    frigate:
+      camera_name: Voordeur
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.doorbell_camera_webrtc
     menu:
       buttons:
-        image: true
-    menu_buttons:
-      frigate: false
-      frigate_ui: false
-    menu_mode: overlay-top
+        frigate: false
+        frigate_ui: false
+      mode: overlay-top
     type: custom:frigate-card
-    view_default: live
-    webrtc:
-      entity: camera.doorbell_camera_webrtc
+    view:
+      default: live
   - entities:
     - entity: switch.evacam_detect
     - entity: switch.bijkeukencam_detect
@@ -1348,7 +1387,8 @@ views:
   title: Alarm
 - cards:
   - cards:
-    - entity: sensor.current_version
+    - entity: sensor.hass_version_installed
+      name: Version
       type: entity
     - entities:
       - sensor.processor_use
@@ -1613,11 +1653,22 @@ views:
       - entity: sensor.power_consumption_watt
         hours_to_show: 24
         name: Stroomverbruik
-        points_per_hour: 4
+        points_per_hour: 20
         show:
           graph: bar
         show_state: true
       type: custom:mini-graph-card
+    - entity: sensor.power_consumption
+      max: 15
+      min: 0
+      name: Power usage
+      needle: true
+      severity:
+        green: 0
+        red: 8
+        yellow: 3
+      type: gauge
+      unit: kW
     - entities:
       - entity: sensor.power_consumption
       - entity: sensor.daily_consumption_energy
@@ -1637,14 +1688,6 @@ views:
       state_color: false
       title: Energie
       type: entities
-    - card:
-        columns: 3
-        type: glance
-      filter:
-        include:
-        - entity_id: sensor.*power*
-      title: Stroomverbruik
-      type: custom:auto-entities
     type: vertical-stack
   - entities:
     - entity: sensor.infrarood_slaapkamer_current_consumption
@@ -1659,6 +1702,19 @@ views:
   - link_dashboard: true
     title: Energy distribution today
     type: energy-distribution
+  - card:
+      columns: 2
+      state_color: true
+      type: glance
+    filter:
+      include:
+      - entity_id: sensor.*power*
+    sort:
+      method: state
+      numeric: false
+      reverse: true
+    title: Stroomverbruik
+    type: custom:auto-entities
   icon: mdi:battery
   path: power
   title: Power

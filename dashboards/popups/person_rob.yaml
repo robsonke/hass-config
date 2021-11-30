@@ -46,9 +46,24 @@ browser_mod:
             filter: contrast(85%);
           }
   card:
-    type: horizontal-stack
+    type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 50% 50%
+      grid-template-rows: auto
+      grid-template-areas: |
+        "presence map"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "presence"
+            "map"
     cards:
       - type: vertical-stack
+        view_layout:
+          grid-area: presence
         cards:
           - type: entities
             card_mod:
@@ -56,15 +71,22 @@ browser_mod:
             entities:
               - entity: person.rob
                 secondary_info: last-changed
-
           - type: history-graph
             entities:
               - entity: person.rob
-
+          - type: history-graph
+            title: Presence Graphs Rob
+            hours_to_show: 12
+            refresh_interval: 30
+            entities:
+              - device_tracker.rob_presence
+              - device_tracker.iphone_rob
+              - device_tracker.rob_owntracks
+              - device_tracker.life360_rob_sonke
+              - device_tracker.iphonedetect_rob
           - type: glance
             show_state: false
             entities:
-
               - entity: device_tracker.iphonedetect_rob
                 name: Router
                 icon: mdi:wifi
@@ -72,12 +94,10 @@ browser_mod:
                   state-badge {
                     color: {{ '#3182b7' if is_state(config.entity, 'home') else '#3c3f3f' }};
                   }
-
               - entity: device_tracker.life360_rob_sonke
                 name: Life360
                 icon: mdi:account
                 style: *state
-
               - entity: device_tracker.iphone_rob
                 name: GPS
                 icon: mdi:cellphone
@@ -88,3 +108,5 @@ browser_mod:
         dark_mode: true
         entities:
           - device_tracker.rob_presence
+        view_layout:
+            grid-area: map

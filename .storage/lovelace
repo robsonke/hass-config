@@ -1381,327 +1381,6 @@
                     ]
                 },
                 {
-                    "title": "Boven",
-                    "path": "boven",
-                    "icon": "mdi:bed",
-                    "badges": [],
-                    "cards": [
-                        {
-                            "type": "vertical-stack",
-                            "cards": [
-                                {
-                                    "type": "horizontal-stack",
-                                    "title": "Ramen",
-                                    "cards": [
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "binary_sensor.window_masterbed_1_openclose_sensor",
-                                            "name": "Master links",
-                                            "show_name": true
-                                        },
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "binary_sensor.window_masterbed_2_openclose_sensor",
-                                            "name": "Master rechts",
-                                            "show_name": true
-                                        },
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "binary_sensor.window_evaroom_openclose_sensor",
-                                            "name": "Kamer Eva",
-                                            "show_name": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "horizontal-stack",
-                                    "cards": [
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "binary_sensor.window_atticroom_openclose_sensor",
-                                            "name": "Zolderkamer",
-                                            "show_name": true
-                                        },
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "binary_sensor.window_guestroom_openclose_sensor",
-                                            "name": "Logeerkamer",
-                                            "show_name": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "horizontal-stack",
-                                    "cards": [
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "input_boolean.night_mode",
-                                            "show_icon": true
-                                        },
-                                        {
-                                            "type": "custom:button-card",
-                                            "entity": "alarm_control_panel.alarmo",
-                                            "icon": "mdi:security",
-                                            "color": "rgb(255, 0, 0)",
-                                            "name": "Alarm actief",
-                                            "state": [
-                                                {
-                                                    "value": "disarmed",
-                                                    "show_state": false,
-                                                    "color": "rgb(0, 255, 0)",
-                                                    "name": "Alarm uit"
-                                                },
-                                                {
-                                                    "value": "arming",
-                                                    "color": "orange",
-                                                    "styles": {
-                                                        "card": [
-                                                            {
-                                                                "animation": "blink 2s ease infinite"
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "value": "armed_away",
-                                                    "color": "red"
-                                                },
-                                                {
-                                                    "value": "triggered",
-                                                    "color": "red",
-                                                    "icon": "mdi:alert",
-                                                    "name": "Intruder Alert",
-                                                    "styles": {
-                                                        "card": [
-                                                            {
-                                                                "animation": "blink 2s ease infinite"
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "type": "custom:mini-media-player",
-                            "entity": "media_player.bedroom_googlehome",
-                            "group": true,
-                            "volume_stateless": false
-                        },
-                        {
-                            "type": "entities",
-                            "show_header_toggle": false,
-                            "entities": [
-                                {
-                                    "entity": "light.hoofdslaapkamer",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "entity": "light.douche",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "entity": "light.inloopkast",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "entity": "light.overloop",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "type": "divider"
-                                },
-                                {
-                                    "entity": "light.slaapkamer_eva",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "entity": "light.logeerkamer",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "entity": "light.zolder",
-                                    "type": "custom:slider-entity-row",
-                                    "toggle": true,
-                                    "secondary_info": "brightness"
-                                },
-                                {
-                                    "type": "divider"
-                                },
-                                {
-                                    "entity": "switch.kasa_infrarood_slaapkamer",
-                                    "name": "Infrarood slaapkamer"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "custom:frigate-card",
-                            "view_default": "live",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
-                            "webrtc": {
-                                "entity": "camera.eva_camera_webrtc"
-                            },
-                            "camera_entity": "camera.evacam",
-                            "menu_mode": "overlay-top",
-                            "dimensions": {
-                                "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate_camera_name": "Eva",
-                            "live_provider": "webrtc",
-                            "menu_buttons": {
-                                "frigate": false,
-                                "frigate_ui": false,
-                                "fullscreen": true
-                            }
-                        },
-                        {
-                            "type": "grid",
-                            "title": "Klimaat",
-                            "cards": [
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Slaapkamer",
-                                    "entities": [
-                                        "sensor.climate_sensor_masterbedroom_temperature"
-                                    ],
-                                    "line_color": "#e74c3c",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Slaapkamer",
-                                    "entities": [
-                                        "sensor.climate_sensor_masterbedroom_humidity"
-                                    ],
-                                    "line_color": "blue",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Slaapkamer",
-                                    "entities": [
-                                        "sensor.lightlevel_masterbedroom"
-                                    ],
-                                    "line_color": "#F7BF10",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Eva",
-                                    "entities": [
-                                        "sensor.climate_sensor_eva_temperature"
-                                    ],
-                                    "line_color": "#e74c3c",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Eva",
-                                    "entities": [
-                                        "sensor.climate_sensor_eva_humidity"
-                                    ],
-                                    "line_color": "blue",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Eva",
-                                    "entities": [
-                                        "sensor.climate_sensor_eva_pressure"
-                                    ],
-                                    "line_color": "blue",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Logeer",
-                                    "entities": [
-                                        "sensor.climate_sensor_guestroom_temperature"
-                                    ],
-                                    "line_color": "#e74c3c",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Logeer",
-                                    "entities": [
-                                        "sensor.climate_sensor_guestroom_humidity"
-                                    ],
-                                    "line_color": "blue",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                },
-                                {
-                                    "type": "custom:mini-graph-card",
-                                    "name": "Logeer",
-                                    "entities": [
-                                        "sensor.climate_sensor_guestroom_pressure"
-                                    ],
-                                    "line_color": "blue",
-                                    "line_width": 8,
-                                    "font_size_header": 10
-                                }
-                            ]
-                        },
-                        {
-                            "type": "custom:mini-media-player",
-                            "name": "Televisie",
-                            "artwork": "cover",
-                            "icon": "mdi:television",
-                            "show_source": false,
-                            "shortcuts": {
-                                "buttons": [
-                                    {
-                                        "icon": "mdi:netflix",
-                                        "type": "service",
-                                        "name": "Netflix",
-                                        "id": "media_player.select_source",
-                                        "data": {
-                                            "entity_id": "media_player.samsungtv_bedroom",
-                                            "source": "Netflix"
-                                        }
-                                    },
-                                    {
-                                        "icon": "mdi:chromecast",
-                                        "type": "service",
-                                        "name": "ChromeCast",
-                                        "id": "media_player.select_source",
-                                        "data": {
-                                            "entity_id": "media_player.samsungtv_bedroom",
-                                            "source": "ChromeCast"
-                                        }
-                                    }
-                                ]
-                            },
-                            "entity": "media_player.samsung_7_series_43"
-                        }
-                    ]
-                },
-                {
                     "icon": "mdi:car",
                     "type": "custom:masonry-layout",
                     "path": "car",
@@ -1939,6 +1618,342 @@
                     ]
                 },
                 {
+                    "title": "Boven",
+                    "path": "boven",
+                    "icon": "mdi:bed",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "type": "vertical-stack",
+                            "cards": [
+                                {
+                                    "type": "horizontal-stack",
+                                    "title": "Ramen",
+                                    "cards": [
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "binary_sensor.window_masterbed_1_openclose_sensor",
+                                            "name": "Master links",
+                                            "show_name": true
+                                        },
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "binary_sensor.window_masterbed_2_openclose_sensor",
+                                            "name": "Master rechts",
+                                            "show_name": true
+                                        },
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "binary_sensor.window_evaroom_openclose_sensor",
+                                            "name": "Kamer Eva",
+                                            "show_name": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "horizontal-stack",
+                                    "cards": [
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "binary_sensor.window_atticroom_openclose_sensor",
+                                            "name": "Zolderkamer",
+                                            "show_name": true
+                                        },
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "binary_sensor.window_guestroom_openclose_sensor",
+                                            "name": "Logeerkamer",
+                                            "show_name": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "horizontal-stack",
+                                    "cards": [
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "input_boolean.night_mode",
+                                            "show_icon": true
+                                        },
+                                        {
+                                            "type": "custom:button-card",
+                                            "entity": "alarm_control_panel.alarmo",
+                                            "icon": "mdi:security",
+                                            "color": "rgb(255, 0, 0)",
+                                            "name": "Alarm actief",
+                                            "state": [
+                                                {
+                                                    "value": "disarmed",
+                                                    "show_state": false,
+                                                    "color": "rgb(0, 255, 0)",
+                                                    "name": "Alarm uit"
+                                                },
+                                                {
+                                                    "value": "arming",
+                                                    "color": "orange",
+                                                    "styles": {
+                                                        "card": [
+                                                            {
+                                                                "animation": "blink 2s ease infinite"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "value": "armed_away",
+                                                    "color": "red"
+                                                },
+                                                {
+                                                    "value": "triggered",
+                                                    "color": "red",
+                                                    "icon": "mdi:alert",
+                                                    "name": "Intruder Alert",
+                                                    "styles": {
+                                                        "card": [
+                                                            {
+                                                                "animation": "blink 2s ease infinite"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.bedroom_googlehome",
+                            "group": true,
+                            "volume_stateless": false
+                        },
+                        {
+                            "type": "entities",
+                            "show_header_toggle": false,
+                            "entities": [
+                                {
+                                    "entity": "light.hoofdslaapkamer",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "entity": "light.douche",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "entity": "light.inloopkast",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "entity": "light.overloop",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "type": "divider"
+                                },
+                                {
+                                    "entity": "light.slaapkamer_eva",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "entity": "light.logeerkamer",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "entity": "light.zolder",
+                                    "type": "custom:slider-entity-row",
+                                    "toggle": true,
+                                    "secondary_info": "brightness"
+                                },
+                                {
+                                    "type": "divider"
+                                },
+                                {
+                                    "entity": "switch.kasa_infrarood_slaapkamer",
+                                    "name": "Infrarood slaapkamer"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "custom:frigate-card",
+                            "camera_entity": "camera.evacam",
+                            "dimensions": {
+                                "aspect_ratio_mode": "unconstrained"
+                            },
+                            "frigate": {
+                                "camera_name": "Eva"
+                            },
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.eva_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    },
+                                    "thumbnails": {
+                                        "mode": "below"
+                                    }
+                                }
+                            },
+                            "menu": {
+                                "mode": "overlay-top",
+                                "buttons": {
+                                    "frigate": false,
+                                    "frigate_ui": false,
+                                    "fullscreen": true
+                                }
+                            }
+                        },
+                        {
+                            "type": "grid",
+                            "title": "Klimaat",
+                            "cards": [
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Slaapkamer",
+                                    "entities": [
+                                        "sensor.climate_sensor_masterbedroom_temperature"
+                                    ],
+                                    "line_color": "#e74c3c",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Slaapkamer",
+                                    "entities": [
+                                        "sensor.climate_sensor_masterbedroom_humidity"
+                                    ],
+                                    "line_color": "blue",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Slaapkamer",
+                                    "entities": [
+                                        "sensor.lightlevel_masterbedroom"
+                                    ],
+                                    "line_color": "#F7BF10",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Eva",
+                                    "entities": [
+                                        "sensor.climate_sensor_eva_temperature"
+                                    ],
+                                    "line_color": "#e74c3c",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Eva",
+                                    "entities": [
+                                        "sensor.climate_sensor_eva_humidity"
+                                    ],
+                                    "line_color": "blue",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Eva",
+                                    "entities": [
+                                        "sensor.climate_sensor_eva_pressure"
+                                    ],
+                                    "line_color": "blue",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Logeer",
+                                    "entities": [
+                                        "sensor.climate_sensor_guestroom_temperature"
+                                    ],
+                                    "line_color": "#e74c3c",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Logeer",
+                                    "entities": [
+                                        "sensor.climate_sensor_guestroom_humidity"
+                                    ],
+                                    "line_color": "blue",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                },
+                                {
+                                    "type": "custom:mini-graph-card",
+                                    "name": "Logeer",
+                                    "entities": [
+                                        "sensor.climate_sensor_guestroom_pressure"
+                                    ],
+                                    "line_color": "blue",
+                                    "line_width": 8,
+                                    "font_size_header": 10
+                                }
+                            ]
+                        },
+                        {
+                            "type": "custom:mini-media-player",
+                            "name": "Televisie",
+                            "artwork": "cover",
+                            "icon": "mdi:television",
+                            "show_source": false,
+                            "shortcuts": {
+                                "buttons": [
+                                    {
+                                        "icon": "mdi:netflix",
+                                        "type": "service",
+                                        "name": "Netflix",
+                                        "id": "media_player.select_source",
+                                        "data": {
+                                            "entity_id": "media_player.samsungtv_bedroom",
+                                            "source": "Netflix"
+                                        }
+                                    },
+                                    {
+                                        "icon": "mdi:chromecast",
+                                        "type": "service",
+                                        "name": "ChromeCast",
+                                        "id": "media_player.select_source",
+                                        "data": {
+                                            "entity_id": "media_player.samsungtv_bedroom",
+                                            "source": "ChromeCast"
+                                        }
+                                    }
+                                ]
+                            },
+                            "entity": "media_player.samsung_7_series_43"
+                        }
+                    ]
+                },
+                {
                     "title": "Cams",
                     "icon": "mdi:webcam",
                     "type": "custom:masonry-layout",
@@ -1946,98 +1961,148 @@
                     "cards": [
                         {
                             "type": "custom:frigate-card",
-                            "view_default": "live",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
-                            "webrtc": {
-                                "entity": "camera.eva_camera_webrtc"
-                            },
                             "camera_entity": "camera.evacam",
-                            "menu_mode": "overlay-top",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
-                            "frigate_camera_name": "Eva",
-                            "live_provider": "webrtc",
-                            "menu_buttons": {
-                                "snapshots": true,
-                                "frigate": false,
-                                "frigate_ui": false,
-                                "fullscreen": true
+                            "frigate": {
+                                "camera_name": "Eva"
+                            },
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.eva_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "thumbnails": {
+                                        "mode": "below"
+                                    },
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    }
+                                }
+                            },
+                            "menu": {
+                                "mode": "overlay-top",
+                                "buttons": {
+                                    "snapshots": true,
+                                    "frigate": false,
+                                    "frigate_ui": false,
+                                    "fullscreen": true
+                                }
                             }
                         },
                         {
                             "type": "custom:frigate-card",
-                            "view_default": "live",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
-                            "webrtc": {
-                                "entity": "camera.bijkeuken_camera_webrtc"
-                            },
                             "camera_entity": "camera.bijkeukencam",
-                            "menu_mode": "overlay-top",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
-                            "frigate_camera_name": "Bijkeuken",
-                            "live_provider": "webrtc",
-                            "menu_buttons": {
-                                "frigate_ui": false,
-                                "fullscreen": true,
-                                "frigate": false
+                            "frigate": {
+                                "camera_name": "Bijkeuken"
+                            },
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.bijkeuken_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    }
+                                }
+                            },
+                            "menu": {
+                                "mode": "overlay-top",
+                                "buttons": {
+                                    "frigate_ui": false,
+                                    "fullscreen": true,
+                                    "frigate": false
+                                }
                             }
                         },
                         {
                             "type": "custom:frigate-card",
-                            "view_default": "live",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
-                            "webrtc": {
-                                "entity": "camera.reoachtertuin_camera_webrtc"
-                            },
                             "camera_entity": "camera.reocam2",
-                            "menu_mode": "overlay-top",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
-                            "frigate_camera_name": "Achtertuin",
-                            "live_provider": "webrtc",
-                            "menu_buttons": {
-                                "frigate": false,
-                                "frigate_ui": false
+                            "frigate": {
+                                "camera_name": "Achtertuin"
+                            },
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.reoachtertuin_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    }
+                                }
+                            },
+                            "menu": {
+                                "mode": "overlay-top",
+                                "buttons": {
+                                    "frigate": false,
+                                    "frigate_ui": false
+                                }
                             }
                         },
                         {
                             "type": "custom:frigate-card",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
-                            "webrtc": {
-                                "entity": "camera.reoachterdeur_camera_webrtc"
-                            },
                             "camera_entity": "camera.reocam1",
-                            "menu_mode": "overlay-top",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
-                            "frigate_camera_name": "Achterdeur",
-                            "menu_buttons": {
-                                "frigate": false,
-                                "frigate_ui": true
+                            "frigate": {
+                                "camera_name": "Achterdeur"
                             },
-                            "view_default": "live",
-                            "live_provider": "webrtc"
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.reoachterdeur_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    },
+                                    "thumbnails": {
+                                        "mode": "below"
+                                    }
+                                }
+                            },
+                            "menu": {
+                                "mode": "overlay-top",
+                                "buttons": {
+                                    "frigate": false,
+                                    "frigate_ui": true
+                                }
+                            }
                         },
                         {
                             "type": "custom:frigate-card",
-                            "controls": {
-                                "nextprev": "chevrons"
-                            },
                             "camera_entity": "camera.doorbell",
-                            "menu_mode": "overlay-top",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -2049,19 +2114,30 @@
                                     "entity": "binary_sensor.doorbell_lw_motion"
                                 }
                             ],
-                            "frigate_camera_name": "Voordeur",
-                            "webrtc": {
-                                "entity": "camera.doorbell_camera_webrtc"
-                            },
-                            "live_provider": "webrtc",
-                            "view_default": "live",
-                            "menu_buttons": {
-                                "frigate": false,
-                                "frigate_ui": false
-                            },
                             "menu": {
                                 "buttons": {
-                                    "image": true
+                                    "frigate": false,
+                                    "frigate_ui": false
+                                },
+                                "mode": "overlay-top"
+                            },
+                            "frigate": {
+                                "camera_name": "Voordeur"
+                            },
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.doorbell_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    }
                                 }
                             }
                         },
@@ -2229,7 +2305,8 @@
                             "cards": [
                                 {
                                     "type": "entity",
-                                    "entity": "sensor.current_version"
+                                    "name": "Version",
+                                    "entity": "sensor.hass_version_installed"
                                 },
                                 {
                                     "type": "custom:mini-graph-card",
@@ -2654,12 +2731,26 @@
                                             "name": "Stroomverbruik",
                                             "show_state": true,
                                             "hours_to_show": 24,
-                                            "points_per_hour": 4,
+                                            "points_per_hour": 20,
                                             "show": {
                                                 "graph": "bar"
                                             }
                                         }
                                     ]
+                                },
+                                {
+                                    "type": "gauge",
+                                    "name": "Power usage",
+                                    "unit": "kW",
+                                    "entity": "sensor.power_consumption",
+                                    "min": 0,
+                                    "max": 15,
+                                    "needle": true,
+                                    "severity": {
+                                        "green": 0,
+                                        "yellow": 3,
+                                        "red": 8
+                                    }
                                 },
                                 {
                                     "type": "entities",
@@ -2698,21 +2789,6 @@
                                     ],
                                     "state_color": false,
                                     "title": "Energie"
-                                },
-                                {
-                                    "title": "Stroomverbruik",
-                                    "type": "custom:auto-entities",
-                                    "card": {
-                                        "type": "glance",
-                                        "columns": 3
-                                    },
-                                    "filter": {
-                                        "include": [
-                                            {
-                                                "entity_id": "sensor.*power*"
-                                            }
-                                        ]
-                                    }
                                 }
                             ]
                         },
@@ -2736,6 +2812,27 @@
                             "title": "Energy distribution today",
                             "type": "energy-distribution",
                             "link_dashboard": true
+                        },
+                        {
+                            "title": "Stroomverbruik",
+                            "type": "custom:auto-entities",
+                            "card": {
+                                "type": "glance",
+                                "columns": 2,
+                                "state_color": true
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "entity_id": "sensor.*power*"
+                                    }
+                                ]
+                            },
+                            "sort": {
+                                "method": "state",
+                                "reverse": true,
+                                "numeric": false
+                            }
                         }
                     ]
                 }

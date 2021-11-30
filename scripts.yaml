@@ -208,3 +208,10 @@ lights_down_stairs_off:
       - light.boekenkast
       - light.ledstrip_tv
   mode: single
+reload_frontend:
+  alias: Reload frontend
+  sequence:
+  - service: browser_mod.lovelace_reload
+  - service: frontend.reload_themes
+  mode: single
+  icon: mdi:restart
