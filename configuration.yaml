@@ -57,7 +57,6 @@ logger: !include includes/logger.yaml
 notify: !include includes/notify.yaml
 person: !include includes/persons.yaml
 recorder: !include includes/recorder.yaml
-media_player: !include includes/samsungtv.yaml
 scene: !include scenes.yaml
 script: !include scripts.yaml
 sensor: !include includes/sensors.yaml

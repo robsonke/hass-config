@@ -14,7 +14,7 @@
       {{ device_attr(device_id('sensor.hacs'), 'sw_version') }}
 
 - sensor:
-  - unique_id: sidebar
+  - unique_id: sidebar_time
     state: template
     attributes:
       time: >
@@ -32,13 +32,18 @@
           {{- days[now().weekday()] }}, {{ strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
         {%- endif -%}
         </b></font>
+  - unique_id: sidebar_trash
+    state: template
+    attributes:
       trash: >
-        {% if "Vandaag" in states('sensor.groene_bak_dag') %} <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> Vandaag groene bak aan de straat {% endif %}
-        {% if "Vandaag" in states('sensor.papier_bak_dag') %} <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon>Vandaag papierbak aan de straat {% endif %}
-        {% if "Vandaag" in states('sensor.grijze_bak_dag') %} <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon>Vandaag grijze bak aan de straat {% endif %}
-        {% if "Morgen" in states('sensor.groene_bak_dag') %} <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon>Morgen groene bak aan de straat {% endif %}
-        {% if "Morgen" in states('sensor.papier_bak_dag') %} <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon>Morgen papierbak aan de straat {% endif %}
-        {% if "Morgen" in states('sensor.grijze_bak_dag') %} <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon>Morgen grijze bak aan de straat {% endif %}
+        <font color='#6a7377'><b>
+        {% if "Vandaag" in states('sensor.groene_bak_dag') %} Vandaag groene bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Vandaag" in states('sensor.papier_bak_dag') %} Vandaag papierbak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Vandaag" in states('sensor.grijze_bak_dag') %} Vandaag grijze bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Morgen" in states('sensor.groene_bak_dag') %} Morgen groene bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Morgen" in states('sensor.papier_bak_dag') %} Morgen papierbak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Morgen" in states('sensor.grijze_bak_dag') %} Morgen grijze bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        </b></font>
 
 # Trash can sensors
 - trigger:

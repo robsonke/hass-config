@@ -211,6 +211,7 @@ lights_down_stairs_off:
 reload_frontend:
   alias: Reload frontend
   sequence:
+  - service: template.reload
   - service: browser_mod.lovelace_reload
   - service: frontend.reload_themes
   mode: single

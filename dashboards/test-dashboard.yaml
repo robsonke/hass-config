@@ -56,20 +56,38 @@ views:
         view_layout:
           grid-area: sidebar
         cards:
-          - type: custom:button-card
-            entity: sensor.template_sidebar
-            tap_action:
-              action: call-service
-              service: script.reload_frontend
-            template: sidebar_template
           - type: horizontal-stack
+            card_mod:
+              style: |
+                :host {
+                  display: flex;
+                }
             cards:
+            - type: custom:button-card
+              entity: sensor.template_sidebar_time
+              style: |
+                :host {
+                  flex: auto important!;
+                }
+                div.name-state {
+                  display: none;
+                }
+              tap_action:
+                action: call-service
+                service: script.reload_frontend
+              template: sidebar_template
             - type: weather-forecast
               entity: weather.home
               show_forecast: false
               style: |
-                div.state {
+                :host {
+                  flex: auto important!;
+                }
+                div.name-state {
                   display: none;
+                }
+                div.content {
+                  flex-direction: column;
                 }
               tap_action:
                 !include popups/sidebar_weather.yaml
@@ -116,6 +134,9 @@ views:
                       entity_picture:
                         - opacity: 0.4
                         - filter: grayscale(100%)
+          - type: custom:button-card
+            entity: sensor.template_sidebar_trash
+            template: sidebar_template
 
           ### bottom
           - type: grid
