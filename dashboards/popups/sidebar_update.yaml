@@ -95,7 +95,7 @@ browser_mod:
         entity: sensor.supervisor_updates
         state_display: |
           [[[
-            if (entity) {
+            if (entity && entity != "None") {
               let count = entity.state | 0;
               // check if there's a supervisor update
               if (entity.attributes.update_available) {

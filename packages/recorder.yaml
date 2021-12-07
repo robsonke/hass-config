@@ -1,0 +1,20 @@
+#  ____                        _           
+# |  _ \ ___  ___ ___  _ __ __| | ___ _ __ 
+# | |_) / _ \/ __/ _ \| '__/ _` |/ _ \ '__|
+# |  _ <  __/ (_| (_) | | | (_| |  __/ |   
+# |_| \_\___|\___\___/|_|  \__,_|\___|_|   
+#
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+recorder:
+  db_url: !secret mysql_db_url
+  purge_keep_days: 14
+  commit_interval: 10
+  exclude:
+    domains:
+      - sun
+    entity_globs:
+      - sensor.browser_*

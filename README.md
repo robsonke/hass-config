@@ -21,7 +21,6 @@ I used a lot of input from [Matt's config](https://github.com/matt8707/hass-conf
 ## Software
 - Hassio with quite some add-ons
   - A better presence
-  - AppDaemon 4
   - Check Home Assistant configuration
   - Frigate
   - Glances
@@ -36,8 +35,10 @@ I used a lot of input from [Matt's config](https://github.com/matt8707/hass-conf
   - Node-RED
   - Z-Wave JS to MQTT
   - SSH & Web Terminal
-  - Visual Studio Code
+  - Studio Code Server
+  - VSCode Remote
   - WireGuard
+  - Samba Share
   - deCONZ
   - phpMyAdmin
   - Amcrest2Mqtt

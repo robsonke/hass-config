@@ -27,7 +27,7 @@ from homeassistant.components.alarm_control_panel import (
 
 from homeassistant.helpers import config_validation as cv
 
-VERSION = "1.8.0"
+VERSION = "1.8.1"
 NAME = "Alarmo"
 MANUFACTURER = "@nielsfaber"
 
@@ -65,6 +65,13 @@ ARM_MODES = [
     STATE_ALARM_ARMED_NIGHT,
     STATE_ALARM_ARMED_CUSTOM_BYPASS,
 ]
+
+SHORT_MODE_TO_STATE = {
+    "away": STATE_ALARM_ARMED_AWAY,
+    "home": STATE_ALARM_ARMED_HOME,
+    "night": STATE_ALARM_ARMED_NIGHT,
+    "custom": STATE_ALARM_ARMED_CUSTOM_BYPASS,
+}
 
 COMMAND_ARM_NIGHT = "arm_night"
 COMMAND_ARM_AWAY = "arm_away"

@@ -1,0 +1,436 @@
+#  _____                    _       _
+# |_   _|__ _ __ ___  _ __ | | __ _| |_ ___  ___
+#   | |/ _ \ '_ ` _ \| '_ \| |/ _` | __/ _ \/ __|
+#   | |  __/ | | | | | |_) | | (_| | ||  __/\__ \
+#   |_|\___|_| |_| |_| .__/|_|\__,_|\__\___||___/
+#                    |_|
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+template:
+- sensor:
+  - unique_id: hacs_version
+    state: >
+      {{ device_attr(device_id('sensor.hacs'), 'sw_version') }}
+    attributes:
+      friendly_name: HACS Version
+
+- sensor:
+  - unique_id: sidebar_time
+    state: template
+    attributes:
+      #friendly_name: Sidebar Date/Time
+      time: >
+        {% set hours = now().strftime('%H') %}
+        {% set minutes = now().strftime('%M') %}
+        <span class="time">
+          {{ hours }}<span class="time-colon">:</span>{{ minutes }}
+        </span>
+      date: |
+        <font color='#6a7377'><b>
+        {%- if strptime(states('sensor.date'), '%Y-%m-%d').day != null %}
+        {%- set days = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'] %}
+        {%- set months = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
+        'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'] %}
+          {{- days[now().weekday()] }}<br/>{{ strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
+        {%- endif -%}
+        </b></font>
+  - unique_id: sidebar_trash
+    state: template
+    attributes:
+      #friendly_name: Sidebar Trash Info
+      trash: >
+        <font color='#6a7377'><b>
+        {% if "Vandaag" in states('sensor.groene_bak_dag') %} Vandaag groene bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Vandaag" in states('sensor.papier_bak_dag') %} Vandaag papierbak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Vandaag" in states('sensor.grijze_bak_dag') %} Vandaag grijze bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Morgen" in states('sensor.groene_bak_dag') %} Morgen groene bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Morgen" in states('sensor.papier_bak_dag') %} Morgen papierbak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        {% if "Morgen" in states('sensor.grijze_bak_dag') %} Morgen grijze bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
+        </b></font>
+
+# Trash can sensors
+- trigger:
+    - platform: time_pattern
+      minutes: "/5"
+  sensor:
+    unique_id: groene_bak
+    icon: mdi:trash-can
+    attributes:
+      friendly_name: Groene Bak dag
+    state: >
+      {% set midnight = now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp() %}
+      {% set event = state_attr('calendar.groenebak', 'start_time') | as_timestamp %}
+      {% set delta = ((event - midnight) // 86400) | int %}
+      {% set values = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+      {{ values[delta] if delta < values | length else 'Over %s dagen'%delta }}
+- trigger:
+    - platform: time_pattern
+      minutes: "/5"
+  sensor:
+    unique_id: grijze_bak
+    attributes:
+      friendly_name: Grijze Bak dag
+    icon: mdi:trash-can
+    state: >
+      {% set midnight = now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp() %}
+      {% set event = state_attr('calendar.grijzebak', 'start_time') | as_timestamp %}
+      {% set delta = ((event - midnight) // 86400) | int %}
+      {% set values = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+      {{ values[delta] if delta < values | length else 'Over %s dagen'%delta }}
+- trigger:
+    - platform: time_pattern
+      minutes: "/5"
+  sensor:
+    unique_id: papier_bak
+    attributes:
+      friendly_name: Papier Bak dag
+    icon: mdi:trash-can
+    state: >
+      {% set midnight = now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp() %}
+      {% set event = state_attr('calendar.papierbak', 'start_time') | as_timestamp %}
+      {% set delta = ((event - midnight) // 86400) | int %}
+      {% set values = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+      {{ values[delta] if delta < values | length else 'Over %s dagen'%delta }}
+
+- sensor:
+  # altherma sensor values
+  - unique_id: altherma_operation_mode
+    attributes:
+      friendly_name: Altherma Operation Mode
+    state_class: measurement
+    state: "{{ state_attr('sensor.althermasensors', 'Operation Mode') }}"
+    icon: >
+      {% if is_state("sensor.altherma_operation_mode", "Heating") %}
+        mdi:hvac
+      {% elif is_state("sensor.altherma_operation_mode", "Cooling") %}
+        mdi:hvac-off
+      {% else %}
+        mdi:fan
+      {% endif %}
+  - unique_id: altherma_inv_primary_current
+    attributes:
+      friendly_name: Altherma INV primary current
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    state: "{{ state_attr('sensor.althermasensors', 'INV primary current (A)') | float(default=0) }}"
+    icon: mdi:current-ac
+  - unique_id: altherma_inv_secundary_current
+    attributes:
+      friendly_name: Altherma INV secondary current
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    state: "{{ state_attr('sensor.althermasensors', 'INV secondary current (A)') | float(default=0) }}"
+    icon: mdi:current-ac
+  - unique_id: altherma_voltage_n_phase
+    attributes:
+      friendly_name: Altherma Voltage N-phase
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    state: "{{ state_attr('sensor.althermasensors', 'Voltage (N-phase) (V)') | int(default=0) }}"
+    icon: mdi:power-socket-eu
+  - unique_id: altherma_flow_sensor
+    attributes:
+      friendly_name: Altherma Flow Sensor
+    state_class: measurement
+    unit_of_measurement: l/min
+    state: "{{ state_attr('sensor.althermasensors', 'Flow sensor (l/min)') | float(default=0) }}"
+    icon: mdi:waves-arrow-left
+  - unique_id: altherma_leaving_water_temp_before_buh
+    attributes:
+      friendly_name: Altherma Leaving water temp. before BUH (R1T)
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: °C
+    state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. before BUH (R1T)') | float(default=0) }}"
+    icon: mdi:thermometer
+  - unique_id: altherma_leaving_water_temp_after_buh
+    attributes:
+      friendly_name: Altherma Leaving water temp. after BUH (R1T)
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: °C
+    state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. after BUH (R1T)') | float(default=0) }}"
+    icon: mdi:thermometer
+  - unique_id: altherma_inlet_water_temp
+    attributes:
+      friendly_name: Altherma Inlet water temp.(R4T)
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: °C
+    state: "{{ state_attr('sensor.althermasensors', 'Inlet water temp.(R4T)') | float(default=0) }}"
+    icon: mdi:thermometer
+
+  # calculated altherma values
+  # - unique_id: altherma_current_total
+  #   attributes:
+  #     friendly_name: Altherma Current Total
+  #   device_class: current
+  #   state_class: measurement
+  #   unit_of_measurement: A
+  #   state: "{{ states('sensor.altherma_inv_primary_current') | float(default=0) + states('sensor.altherma_inv_secondary_current') | float(default=0) }}"
+  #   icon: mdi:current-ac
+  - unique_id: altherma_power_usage
+    attributes:
+      friendly_name: Altherma Power Usage
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    state: "{{ states('sensor.altherma_inv_primary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
+    icon: mdi:flash
+  - unique_id: altherma_cop
+    attributes:
+      friendly_name: Alterma COP
+    unit_of_measurement: 'COP'
+    state_class: measurement
+    state: >
+      {% if is_state('sensor.altherma_operation_mode', 'Heating') %} 
+      {{ 
+        ((states('altherma_flow_sensor')| float * 0.06 * 1.16 * (states('altherma_leaving_water_temp_before_buh') | float - states('sensor.altherma_inlet_water_temp') | float) )
+          /
+        (states('sensor.altherma_inv_primary_current') | float * states('sensor.altherma_voltage_n_phase') | float / 1000))
+        |round(2)
+      }}
+      {% else %} 0 {%endif%}
+
+# important entities
+- trigger:
+  - platform: time_pattern
+    minutes: "*"
+  sensor:
+  - unique_id: unavailable_entities
+    attributes:
+      friendly_name: "Unavailable Entities"
+    state_class: measurement
+    unit_of_measurement: entities
+    state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') |selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
+
+# all unavailable entities
+- trigger:
+  - platform: time_pattern
+    minutes: "/5"
+  sensor:
+    unique_id: all_unavailable_entities
+    unit_of_measurement: entities
+    state: >
+      {% if state_attr('sensor.all_unavailable_entities','entities') | lower not in ['unknown','unavailable','none'] %}
+        {{ state_attr('sensor.all_unavailable_entities','entities') | count }}
+      {% endif %}
+    attributes:
+      friendly_name: "All Unavailable Entities"
+      entities: >
+        {% set ignore_time = 15 %}
+        {% set unavail = namespace(entities=[]) %}
+        {% set entities = states|rejectattr('domain','eq','group')
+          |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+          |rejectattr('state', 'equalto', '')
+          |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
+        {% for item in entities %}
+          {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
+            {% set unavail.entities = unavail.entities + [item] %}
+          {% endif %}
+        {% endfor %}
+        {{ unavail.entities }}
+
+- binary_sensor:
+  - unique_id: people_home_and_awake
+    attributes:
+      friendly_name: People home and awake
+    state: >
+      {{ ( is_state('person.rob', 'home')
+            or is_state('person.steffi', 'home')
+            or is_state('input_boolean.guest_mode', 'on')
+          )
+          and is_state('alarm_control_panel.alarmo', 'disarmed') }}
+  - unique_id: home_at_least_one_of_us
+    attributes:
+      friendly_name: Home at least one of us
+    state: >
+      {{ is_state('person.rob', 'home') or is_state('person.steffi', 'home') }}
+  - unique_id: home_only_one_of_us
+    attributes:
+      friendly_name: Home only one of us
+    state: >
+      {{ (is_state('person.rob', 'home') and not is_state('person.steffi', 'home')) or (not is_state('person.rob', 'home') and is_state('person.steffi', 'home')) }}
+  - unique_id: home_both_of_us
+    attributes:
+      friendly_name: Home both of us
+    state: >
+      {{ is_state('person.rob', 'home') and is_state('person.steffi', 'home') }}
+  
+- sensor:
+  # same sensor but with other unit of measurement
+  - unique_id: power_consumption_watt
+    attributes:
+      friendly_name: Power Consumption Watt
+    unit_of_measurement: 'W'
+    state: "{{ states('sensor.power_consumption') | float * 1000 | round(0) }}"
+  # convert the uptime one to a real value
+  - unique_id: ha_uptime
+    attributes:
+      friendly_name: 'HA uptime minutes'
+    icon: mdi:arrow-up-circle-outline
+    state: >
+      {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'))) / 60 }}
+
+# count all possible updates to one sensor
+- trigger:
+  - platform: time_pattern
+    minutes: "*"
+  sensor:
+  - unique_id: ha_all_updates
+    attributes:
+      friendly_name: All Updates
+    icon: mdi:update
+    state: >
+      {% set count = namespace(value=0) %}
+      {% if states('sensor.hass_version_latest') %}
+        {% set count.value = count.value + states('sensor.supervisor_updates') | int(default=0) %}
+        {% if states('sensor.hass_version_latest') != states('sensor.hass_version_installed') %}
+          {% set count.value = count.value + 1 %}
+        {% endif %}
+        {% if state_attr('sensor.supervisor_updates', 'update_available') %}
+          {% set count.value = count.value + 1 %}
+        {% endif %}
+        {% set count.value = count.value + (state_attr('sensor.hacs', 'repositories') | length) %}
+      {% endif %}
+      {{ count.value }}
+    unit_of_measurement: "Update(s)"
+
+
+- sensor:
+  - unique_id: daily_consumption_energy
+    attributes:
+      friendly_name: "Daily Consumption Energy"
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: measurement
+    state: "{{ states('sensor.daily_energy_offpeak')|float + states('sensor.daily_energy_peak')|float }}"
+  - unique_id: monthly_consumption_energy
+    attributes:
+      friendly_name: "Monthly Consumption Energy"
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: measurement
+    state: "{{ states('sensor.monthly_energy_offpeak')|float + states('sensor.monthly_energy_peak')|float }}"
+  - unique_id: yearly_consumption_energy
+    attributes:
+      friendly_name: "Yearly Consumption Energy"
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: measurement
+    state: "{{ states('sensor.yearly_energy_offpeak')|float + states('sensor.yearly_energy_peak')|float }}"
+
+- sensor:
+  - unique_id: open_windows_and_doors_upstairs
+    attributes:
+      friendly_name: Open windows and doors upstairs
+    state: >
+      {% set sensors = [states.binary_sensor.window_atticroom_openclose_sensor,
+                        states.binary_sensor.window_evaroom_openclose_sensor,
+                        states.binary_sensor.window_masterbed_1_openclose_sensor,
+                        states.binary_sensor.window_masterbed_2_openclose_sensor,
+                        states.binary_sensor.window_guestroom_openclose_sensor] %}
+      {{ sensors | selectattr('state', 'eq', 'on') | list | count }}
+  - unique_id: open_windows_and_doors_downstairs
+    attributes:
+      friendly_name: Open windows and doors downstairs
+    state: >
+      {% set sensors = [states.binary_sensor.backdoor_openclose_sensor,
+                        states.binary_sensor.frontdoor_openclose_sensor,
+                        states.binary_sensor.sheddoor_openclose_sensor,
+                        states.binary_sensor.windowdoor_ground_1_openclose_sensor,
+                        states.binary_sensor.windowdoor_ground_2_openclose_sensor,
+                        states.binary_sensor.windowdoor_ground_3_openclose_sensor,
+                        states.binary_sensor.windowdoor_ground_4_openclose_sensor,
+                        states.binary_sensor.window_office_openclose_sensor] %}
+      {{ sensors | selectattr('state', 'eq', 'on') | list | count }}
+  - unique_id: open_windows_and_doors
+    attributes:
+      friendly_name: Open windows and doors
+    state: >
+      {{ states('sensor.open_windows_and_doors_upstairs') | int(default=0) + states('sensor.open_windows_and_doors_downstairs') | int(default=0) }}
+
+- sensor:
+  - unique_id: count_automations
+    attributes:
+      friendly_name: Automations count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.automation | count }}
+  - unique_id: count_device_trackers
+    attributes:
+      friendly_name: Device Trackers count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.device_tracker | count }}
+  - unique_id: count_lights
+    attributes:
+      friendly_name: Lights count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.light | count }}
+  - unique_id: count_binary_sensors
+    attributes:
+      friendly_name: Binary Sensors count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.binary_sensor | count }}
+  - unique_id: count_sensors
+    attributes:
+      friendly_name: Sensors count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.sensor | count }}
+  - unique_id: count_switches
+    attributes:
+      friendly_name: Switches count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.switch | count }}
+  - unique_id: count_zones
+    attributes:
+      friendly_name: Zone count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.zone | count }}
+  - unique_id: count_cameras
+    attributes:
+      friendly_name: Camera count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.camera | count }}
+  - unique_id: count_media_players
+    attributes:
+      friendly_name: Media Players count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.media_player | count }}
+  - unique_id: count_scripts
+    attributes:
+      friendly_name: Scripts count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.script | count }}
+  - unique_id: count_locks
+    attributes:
+      friendly_name: Locks count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.lock | count }}
+  - unique_id: count_vacuums
+    attributes:
+      friendly_name: Vacuum count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.vacuum | count }}
+  - unique_id: count_zwaves
+    attributes:
+      friendly_name: ZWave count
+    state: >
+      {% set dummy = states("sensor.date") %}
+      {{ states.zwave | count }}

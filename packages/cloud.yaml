@@ -1,0 +1,33 @@
+#   ____ _                 _
+#  / ___| | ___  _   _  __| |
+# | |   | |/ _ \| | | |/ _` |
+# | |___| | (_) | |_| | (_| |
+#  \____|_|\___/ \__,_|\__,_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+cloud:
+  google_actions:
+    filter:
+      include_entities:
+        - alarm_control_panel.alarmo
+        - input_boolean.enable_automatic_lights
+        - input_boolean.guest_mode
+        - input_boolean.night_mode
+        - light.hal
+        - light.keuken
+        - light.kitchendesk_light
+        - light.office_lights
+        - light.zwave_light_corner_level
+        - light.zwave_light_couch_level
+        - light.dining_light
+        - light.diningtable_light
+        - light.livingback_light
+        - light.livingfront_light
+        - light.woonkamer
+        - light.hoofdslaapkamer
+        - light.douche
+        - light.inloopkast
+        - light.overloop
+        - light.badkamer

@@ -1,4 +1,5 @@
-button_card_templates: !include_dir_merge_named ../templates
+button_card_templates: !include ../templates/button_card_templates.yaml
+apexcharts_card_templates: !include ../templates/apexcharts_card_templates.yaml
 
 kiosk_mode:
   hide_header: true
@@ -67,7 +68,7 @@ views:
               entity: sensor.template_sidebar_time
               style: |
                 :host {
-                  flex: auto important!;
+                  flex: auto !important;
                 }
                 div.name-state {
                   display: none;
@@ -81,7 +82,7 @@ views:
               show_forecast: false
               style: |
                 :host {
-                  flex: auto important!;
+                  flex: auto !important;
                 }
                 div.name-state {
                   display: none;

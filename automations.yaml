@@ -17,17 +17,16 @@
   description: We didn't enable the Guest mode and we both left, arm the house
   trigger:
   - platform: state
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: not_home
-    for: 0:01:00
+    entity_id: binary_sensor.template_home_both_of_us
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+    to: 'off'
   condition:
   - condition: and
     conditions:
-    - condition: state
-      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
-      state: not_home
     - condition: state
       entity_id: alarm_control_panel.alarmo
       state: disarmed
@@ -57,8 +56,8 @@
     for: 0:00:30
   - platform: state
     entity_id: device_tracker.ix3
-    from: not_home
     to: home
+    from: not_home
   condition:
   - condition: and
     conditions:
@@ -270,10 +269,8 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id:
-      - device_tracker.rob_presence
-      - device_tracker.steffi_presence
-      state: not_home
+      entity_id: binary_sensor.template_home_both_of_us
+      state: 'off'
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -530,7 +527,7 @@
     - condition: time
       after: '21:00:00'
     - condition: time
-      before: 05:00:00
+      before: 05:00
   action:
   - service: script.sleep_well
   - service: alarm_control_panel.alarm_arm_night
@@ -550,13 +547,13 @@
       entity_id: light.zwave_light_couch_level
       state: 'on'
     - condition: time
-      after: '23:03:00'
+      after: '23:03'
     - condition: state
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
-      state: not_home
+      entity_id: binary_sensor.template_home_both_of_us
+      state: 'off'
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -599,7 +596,7 @@
     to: 'on'
   condition:
   - condition: time
-    after: 05:00
+    after: 04:00
   - condition: time
     before: '10:00'
   - condition: state
@@ -1066,11 +1063,12 @@
         data_template:
           message: De vaatwasser is klaar
 - id: '1620153875064'
-  alias: Alarm - Reset night mode
-  description: In the early morning disable the night mode again
+  alias: Alarm - Reset night mode when home
+  description: In the early morning disable the night mode again - disabled, the door
+    should do this
   trigger:
   - platform: time
-    at: 07:00
+    at: '10:00'
   - platform: state
     entity_id: binary_sensor.hallwaydoor_openclose_sensor
     from: 'off'
@@ -1109,21 +1107,15 @@
     they are not
   trigger:
   - platform: state
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: not_home
+    entity_id: binary_sensor.template_home_both_of_us
+    to: 'off'
     for: 0:05:00
   condition:
   - condition: and
     conditions:
     - condition: state
-      entity_id:
-      - device_tracker.rob_presence
-      - device_tracker.steffi_presence
-      state: not_home
-    - condition: template
-      value_template: '{{ states(''input_boolean.guest_mode'') != ''on'' }}'
+      entity_id: input_boolean.guest_mode
+      state: 'off'
     - condition: state
       entity_id: lock.voordeur_slot
       state: unlocked
@@ -1144,14 +1136,15 @@
   trigger:
   - platform: state
     for: 0:00:15
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: not_home
+    entity_id: binary_sensor.template_home_only_one_of_us
+    to: 'on'
   - platform: state
     entity_id: input_boolean.night_mode
     from: 'off'
     to: 'on'
+  - platform: state
+    entity_id: binary_sensor.template_home_both_of_us
+    to: 'off'
   condition: []
   action:
   - service: switch.turn_on
@@ -1393,11 +1386,11 @@
     position: 100
   mode: single
 - id: '1623656513564'
-  alias: Sleep - Switch to night mode automatically
+  alias: Sleep - Switch to night mode automatically when home
   description: In case we're home but forgot night mode, do it for us
   trigger:
   - platform: time
-    at: '23:30'
+    at: 00:30
   condition:
   - condition: state
     entity_id: input_boolean.night_mode
@@ -1484,8 +1477,8 @@
     for: 01:00:00
   condition:
   - condition: state
-    entity_id: sensor.ix3_connectionstatus
-    state: CONNECTED
+    entity_id: binary_sensor.ix3_connection_status
+    state: 'on'
   action:
   - service: notify.all_phones
     data:
@@ -1604,11 +1597,8 @@
     to: 'on'
   condition:
   - condition: state
-    entity_id: person.steffi
-    state: not_home
-  - condition: state
-    entity_id: person.rob
-    state: not_home
+    entity_id: binary_sensor.template_home_both_of_us
+    state: 'off'
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
@@ -1768,7 +1758,7 @@
       state: 'off'
     - condition: numeric_state
       entity_id: sensor.lightlevel_living
-      below: '50'
+      below: 50
   action:
   - service: script.lights_on_home
   mode: single
@@ -1777,17 +1767,12 @@
   description: We leave the house in when dark, turn off a few lights
   trigger:
   - platform: state
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: not_home
+    entity_id: binary_sensor.template_home_both_of_us
+    to: 'off'
     for: 0:01:00
   condition:
   - condition: and
     conditions:
-    - condition: state
-      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
-      state: not_home
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -1833,17 +1818,12 @@
   description: We didn't enable the Guest mode and we both left, stop the music
   trigger:
   - platform: state
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: not_home
+    entity_id: binary_sensor.template_home_both_of_us
+    to: 'off'
     for: 0:01:00
   condition:
   - condition: and
     conditions:
-    - condition: state
-      entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
-      state: not_home
     - condition: state
       entity_id: alarm_control_panel.alarmo
       state: disarmed

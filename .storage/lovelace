@@ -3,6 +3,35 @@
     "key": "lovelace",
     "data": {
         "config": {
+            "apexcharts_card_templates": {
+                "default": {
+                    "color_list": [
+                        "red",
+                        "green",
+                        "blue"
+                    ]
+                },
+                "energy_chart": {
+                    "graph_span": "24h",
+                    "config_templates": "default",
+                    "span": {
+                        "start": "day"
+                    },
+                    "now": {
+                        "show": true
+                    },
+                    "header": {
+                        "show": true,
+                        "show_states": true,
+                        "colorize_states": true
+                    },
+                    "all_series_config": {
+                        "stroke_width": 1,
+                        "opacity": 0.5,
+                        "type": "area"
+                    }
+                }
+            },
             "views": [
                 {
                     "title": "Home",
@@ -2117,7 +2146,8 @@
                             "menu": {
                                 "buttons": {
                                     "frigate": false,
-                                    "frigate_ui": false
+                                    "frigate_ui": false,
+                                    "image": false
                                 },
                                 "mode": "overlay-top"
                             },
@@ -2131,6 +2161,12 @@
                                 "provider": "webrtc",
                                 "webrtc": {
                                     "entity": "camera.doorbell_camera_webrtc"
+                                },
+                                "controls": {
+                                    "thumbnails": {
+                                        "mode": "below",
+                                        "media": "snapshots"
+                                    }
                                 }
                             },
                             "event_viewer": {
@@ -2833,6 +2869,55 @@
                                 "reverse": true,
                                 "numeric": false
                             }
+                        },
+                        {
+                            "type": "custom:mini-graph-card",
+                            "points_per_hour": 60,
+                            "entities": [
+                                {
+                                    "entity": "sensor.droger_energy_power",
+                                    "points_per_hour": 60,
+                                    "hours_to_show": 3,
+                                    "name": "Droger",
+                                    "show": {
+                                        "graph": "bar"
+                                    },
+                                    "show_state": true
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "Energy",
+                    "path": "energy",
+                    "icon": "mdi:lightning-bolt-circle",
+                    "type": "custom:masonry-layout",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "type": "custom:apexcharts-card",
+                            "config_templates": "energy_chart",
+                            "series": [
+                                {
+                                    "entity": "sensor.radiator_badkamer_energy_power",
+                                    "type": "line"
+                                },
+                                {
+                                    "entity": "sensor.radiator_douche_energy_power",
+                                    "type": "line"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "custom:apexcharts-card",
+                            "config_templates": "energy_chart",
+                            "series": [
+                                {
+                                    "entity": "sensor.altherma_power_usage",
+                                    "type": "line"
+                                }
+                            ]
                         }
                     ]
                 }

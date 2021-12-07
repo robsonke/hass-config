@@ -257,18 +257,17 @@ class AlarmoBaseEntity(AlarmControlPanelEntity, RestoreEntity):
         self._expiration = value
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the data of the entity."""
 
         return {
-            "changed_by": self.changed_by,
-            "code_arm_required": self.code_arm_required,
             "arm_mode": self.arm_mode,
             "open_sensors": self.open_sensors,
             "bypassed_sensors": self.bypassed_sensors,
             "delay": self.delay,
             "expiration": self.expiration,
         }
+
 
     def _validate_code(self, code, state):
         """Validate given code."""
@@ -346,8 +345,9 @@ class AlarmoBaseEntity(AlarmControlPanelEntity, RestoreEntity):
         """handle external arm request from alarmo.arm service"""
         _LOGGER.debug("Service alarmo.arm was called")
 
-        if "armed_" not in mode:
-            mode = "armed_{}".format(mode)
+        if mode in const.SHORT_MODE_TO_STATE:
+            mode = const.SHORT_MODE_TO_STATE[mode]
+
         await self.async_handle_arm_request(
             mode,
             code=code,

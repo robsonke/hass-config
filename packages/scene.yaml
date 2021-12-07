@@ -1,0 +1,11 @@
+#  ____
+# / ___|  ___ ___ _ __   ___  ___
+# \___ \ / __/ _ \ '_ \ / _ \/ __|
+#  ___) | (_|  __/ | | |  __/\__ \
+# |____/ \___\___|_| |_|\___||___/
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# This include is for the scene editor/UI
+scene: !include ../scenes.yaml

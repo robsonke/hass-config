@@ -1,4 +1,25 @@
 ---
+apexcharts_card_templates:
+  default:
+    color_list:
+    - red
+    - green
+    - blue
+  energy_chart:
+    all_series_config:
+      opacity: 0.5
+      stroke_width: 1
+      type: area
+    config_templates: default
+    graph_span: 24h
+    header:
+      colorize_states: true
+      show: true
+      show_states: true
+    now:
+      show: true
+    span:
+      start: day
 views:
 - cards:
   - cards:
@@ -1292,6 +1313,10 @@ views:
     frigate:
       camera_name: Voordeur
     live:
+      controls:
+        thumbnails:
+          media: snapshots
+          mode: below
       provider: webrtc
       webrtc:
         entity: camera.doorbell_camera_webrtc
@@ -1299,6 +1324,7 @@ views:
       buttons:
         frigate: false
         frigate_ui: false
+        image: false
       mode: overlay-top
     type: custom:frigate-card
     view:
@@ -1715,6 +1741,34 @@ views:
       reverse: true
     title: Stroomverbruik
     type: custom:auto-entities
+  - entities:
+    - entity: sensor.droger_energy_power
+      hours_to_show: 3
+      name: Droger
+      points_per_hour: 60
+      show:
+        graph: bar
+      show_state: true
+    points_per_hour: 60
+    type: custom:mini-graph-card
   icon: mdi:battery
   path: power
   title: Power
+- badges: []
+  cards:
+  - config_templates: energy_chart
+    series:
+    - entity: sensor.radiator_badkamer_energy_power
+      type: line
+    - entity: sensor.radiator_douche_energy_power
+      type: line
+    type: custom:apexcharts-card
+  - config_templates: energy_chart
+    series:
+    - entity: sensor.altherma_power_usage
+      type: line
+    type: custom:apexcharts-card
+  icon: mdi:lightning-bolt-circle
+  path: energy
+  title: Energy
+  type: custom:masonry-layout

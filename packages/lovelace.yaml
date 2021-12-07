@@ -1,0 +1,18 @@
+#  _                   _
+# | |    _____   _____| | __ _  ___ ___
+# | |   / _ \ \ / / _ \ |/ _` |/ __/ _ \
+# | |__| (_) \ V /  __/ | (_| | (_|  __/
+# |_____\___/ \_/ \___|_|\__,_|\___\___|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+lovelace:
+  mode: storage
+  dashboards:
+    test-yaml:
+      mode: yaml
+      title: New dashboard
+      icon: mdi:script
+      show_in_sidebar: true
+      filename: dashboards/test-dashboard.yaml

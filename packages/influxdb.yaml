@@ -1,0 +1,18 @@
+#  ___        __ _               _ _     
+# |_ _|_ __  / _| |_   ___  ____| | |__  
+#  | || '_ \| |_| | | | \ \/ / _` | '_ \ 
+#  | || | | |  _| | |_| |>  < (_| | |_) |
+# |___|_| |_|_| |_|\__,_/_/\_\__,_|_.__/ 
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+influxdb:
+  host: a0d7b954-influxdb
+  port: 8086
+  database: !secret influxdb_username
+  username: !secret influxdb_username
+  password: !secret influxdb_password
+  max_retries: 3
+  default_measurement: state
+  precision: s

@@ -172,12 +172,15 @@ homecustom:
           align-items: flex-end;
         }
         /* phone */
+        /*
+        moves update icon to top, don't want that
         @media screen and (max-width: 800px) {
           hui-grid-card {
             position: absolute;
             right: 4vw;
           }
         }
+        */
       $: |
         #root {
           width: 100%;

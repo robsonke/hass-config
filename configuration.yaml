@@ -1,67 +1,39 @@
-#  __  __       _          ____             __ _       
-# |  \/  | __ _(_)_ __    / ___|___  _ __  / _(_) __ _ 
-# | |\/| |/ _` | | '_ \  | |   / _ \| '_ \| |_| |/ _` |
-# | |  | | (_| | | | | | | |__| (_) | | | |  _| | (_| |
-# |_|  |_|\__,_|_|_| |_|  \____\___/|_| |_|_| |_|\__, |
-#                                                |___/ 
+#  _   _                         _            _     _              _   
+# | | | | ___  _ __ ___   ___   / \   ___ ___(_)___| |_ __ _ _ __ | |_ 
+# | |_| |/ _ \| '_ ` _ \ / _ \ / _ \ / __/ __| / __| __/ _` | '_ \| __|
+# |  _  | (_) | | | | | |  __// ___ \\__ \__ \ \__ \ || (_| | | | | |_ 
+# |_| |_|\___/|_| |_| |_|\___/_/   \_\___/___/_|___/\__\__,_|_| |_|\__|
 #
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
 
-homeassistant: !include includes/homeassistant.yaml
-frontend:
-  themes: !include_dir_merge_named themes
-  extra_module_url:
-    - /hacsfiles/lovelace-card-mod/card-mod.js
-lovelace:
-  mode: storage
-  dashboards:
-    test-yaml:
-      mode: yaml
-      title: New dashboard
-      icon: mdi:script
-      show_in_sidebar: true
-      filename: dashboards/test-dashboard.yaml
+homeassistant:
+  packages: !include_dir_named packages
+  name: Home
+  latitude: !secret latitude_coordinate
+  longitude: !secret longitude_coordinate
+  elevation: 0
+  unit_system: metric
+  time_zone: !secret time_zone
+  allowlist_external_dirs:
+    - '/config/'
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - !secret kitchen_display_ip
+      trusted_users:
+        192.168.0.0/24: 63bf7bab0d174dc6abc880085d3c4b5e
+      allow_bypass_login: true
 
+ios:
+ffmpeg:
 default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.1
     - 172.16.0.0/12
+    - 172.30.0.0/24
     - ::1
-
-ios:
-stream:
-ffmpeg:
-
-browser_mod:
-  prefix: browser_
-
-automation: !include automations.yaml
-binary_sensor: !include includes/binary_sensor.yaml
-camera: !include includes/cameras.yaml
-cloud: !include includes/cloud.yaml
-device_tracker: !include includes/device_tracker.yaml
-discovery: !include includes/discovery.yaml
-google: !include includes/google.yaml
-group: !include includes/groups.yaml
-history: !include includes/history.yaml
-homekit: !include includes/homekit.yaml
-influxdb: !include includes/influxdb.yaml
-input_boolean: !include includes/input_boolean.yaml
-light: !include includes/lights.yaml
-logbook: !include includes/logbook.yaml
-logger: !include includes/logger.yaml
-notify: !include includes/notify.yaml
-person: !include includes/persons.yaml
-recorder: !include includes/recorder.yaml
-scene: !include scenes.yaml
-script: !include scripts.yaml
-sensor: !include includes/sensors.yaml
-shell_command:  !include includes/shell_command.yaml
-template: !include includes/templates.yaml
-tts: !include includes/tts.yaml
-utility_meter: !include includes/utility_meter.yaml
-zone: !include includes/zones.yaml
