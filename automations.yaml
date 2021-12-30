@@ -17,7 +17,7 @@
   description: We didn't enable the Guest mode and we both left, arm the house
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_both_of_us
+    entity_id: binary_sensor.template_home_at_least_one_of_us
     for:
       hours: 0
       minutes: 1
@@ -128,6 +128,13 @@
           critical: 1
           volume: 1
           interruption-level: critical
+        actions:
+        - action: URI
+          title: Bekijk cams
+          uri: /lovelace/4
+        - action: SILENCE_ALARM
+          title: Alarm uit
+          icon: sfsymbols:bell.slash
   - service: input_boolean.turn_on
     target:
       entity_id: input_boolean.alarm_active
@@ -215,8 +222,8 @@
     to: vibration
   condition:
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.mailbox_notification.attributes.last_triggered)
-      | int > 20 }}'
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.mailbox_notification.attributes.last_triggered,
+      0) | int > 20 }}'
   - condition: template
     value_template: '{{ states.automation.mailbox_notification.attributes.last_triggered
       != none }}'
@@ -269,7 +276,7 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: binary_sensor.template_home_both_of_us
+      entity_id: binary_sensor.template_home_at_least_one_of_us
       state: 'off'
     - condition: state
       entity_id: input_boolean.guest_mode
@@ -304,9 +311,6 @@
   condition:
   - condition: and
     conditions:
-    - condition: state
-      entity_id: light.zwave_light_couch_level
-      state: 'off'
     - condition: time
       after: '10:00'
       before: '22:30'
@@ -314,7 +318,7 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: binary_sensor.people_home_and_awake
+      entity_id: binary_sensor.template_people_home_and_awake
       state: 'on'
   - condition: device
     device_id: 29fa064f108236608f9f0d8f063dbc17
@@ -406,7 +410,7 @@
     data:
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
       volume: 0.6
-      sonos_entity: media_player.living_room
+      sonos_entity: media_player.office_googlehome
       delay: 00:00:03
   - service: script.sonos_play_sound
     data:
@@ -414,12 +418,24 @@
       volume: 0.6
       sonos_entity: media_player.bedroom_googlehome
       delay: 00:00:03
+  - service: script.sonos_play_sound
+    data:
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+      volume: 0.6
+      sonos_entity: media_player.living_googlehome
+      delay: 00:00:03
   - service: notify.all_phones
     data:
       message: 🔔 Ding Dong!
       data:
         persistent: true
         tag: persistent
+  - service: script.sonos_play_sound
+    data:
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+      volume: 0.6
+      sonos_entity: media_player.keuken_display
+      delay: 00:00:03
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -552,7 +568,7 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: binary_sensor.template_home_both_of_us
+      entity_id: binary_sensor.template_home_at_least_one_of_us
       state: 'off'
     - condition: state
       entity_id: input_boolean.guest_mode
@@ -681,8 +697,8 @@
   action:
   - service: switch.turn_on
     entity_id: switch.kasa_infrarood_slaapkamer
-- alias: Heating - Turn off heating workspace Steffi
-  id: heating_steffi_turn_off
+- id: heating_steffi_turn_off
+  alias: Heating - Turn off heating workspace Steffi
   description: This turns off the infra red heating panel when it's warm enough or
     work day is over or she left
   trigger:
@@ -690,12 +706,16 @@
     entity_id: sensor.climate_sensor_guestroom_temperature
     platform: numeric_state
   - platform: time
-    at: '16:00:00'
+    at: '16:00'
   - platform: state
     entity_id: device_tracker.steffi_presence
     to: not_home
     for:
       minutes: 60
+  condition:
+  - condition: state
+    entity_id: switch.kasa_infrarood_slaapkamer
+    state: 'on'
   action:
   - service: switch.turn_off
     entity_id: switch.kasa_infrarood_slaapkamer
@@ -736,6 +756,10 @@
       data:
         persistent: true
         tag: persistent
+        actions:
+        - action: URI
+          title: Open Hass
+          uri: /lovelace/0
 - alias: Windows - Alert when window is open and temperature is low
   id: window_bedroom_open_cold
   description: This helps in informing that a window needs to be closed
@@ -762,14 +786,18 @@
       data:
         persistent: true
         tag: persistent
-- alias: Energy - Calculate energy consumption
-  id: energy_tariff_switch
+        actions:
+        - action: URI
+          title: Open bedroom
+          uri: /lovelace/boven
+- id: energy_tariff_switch
+  alias: Energy - Change energy tariff
   description: Calculate energy consumption for low and high tarifs
   trigger:
   - platform: time
     at: 07:00:00
   - platform: time
-    at: '23:00:00'
+    at: '23:00'
   action:
   - service: utility_meter.next_tariff
     target:
@@ -866,10 +894,16 @@
   - condition: or
     conditions:
     - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam1''
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''achterdeur''
         }}'
     - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam2''
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''terras''
+        }}'
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''veranda''
+        }}'
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''bijkeuken''
         }}'
   action:
   - service: notify.all_phones
@@ -984,18 +1018,17 @@
   action:
     entity_id: input_boolean.dark_mode
     service: input_boolean.turn_off
-- alias: Theme - Change theme manually
-  id: theme_switch_manually
+- id: theme_switch_manually
+  alias: Theme - Change theme manually
   trigger:
   - platform: state
     entity_id: input_boolean.dark_mode
-  - platform: homeassistant
-    event: start
   action:
-    service: frontend.set_theme
+  - service: frontend.set_theme
     data:
-      name: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  ios-dark-mode-light-blue\n\
-        {% else %}\n  ios-light-mode-light-blue\n{% endif %}\n"
+      name: custom-dark
+      mode: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else\
+        \ %}\n  light\n{% endif %}\n"
 - alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
   id: lovelace_convert_json_yaml
   trigger:
@@ -1107,7 +1140,7 @@
     they are not
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_both_of_us
+    entity_id: binary_sensor.template_home_at_least_one_of_us
     to: 'off'
     for: 0:05:00
   condition:
@@ -1120,12 +1153,6 @@
       entity_id: lock.voordeur_slot
       state: unlocked
   action:
-  - service: notify.all_phones
-    data:
-      message: '🔒 Lock: we zijn beiden weg, de deuren gaan op slot'
-      data:
-        persistent: true
-        tag: persistent
   - service: lock.lock
     target:
       entity_id: lock.voordeur_slot
@@ -1150,10 +1177,11 @@
   - service: switch.turn_on
     target:
       entity_id:
-      - switch.bijkeukencam_detect
-      - switch.reocam1_detect
-      - switch.reocam2_detect
-      - switch.evacam_detect
+      - switch.achterdeur_detect
+      - switch.terras_detect
+      - switch.veranda_detect
+      - switch.bijkeuken_detect
+      - switch.evabed_detect
   mode: single
 - id: '1621190465429'
   alias: Presence - Disable detection because day starts
@@ -1171,10 +1199,11 @@
   - service: switch.turn_off
     target:
       entity_id:
-      - switch.bijkeukencam_detect
-      - switch.reocam1_detect
-      - switch.reocam2_detect
-      - switch.evacam_detect
+      - switch.achterdeur_detect
+      - switch.terras_detect
+      - switch.veranda_detect
+      - switch.bijkeuken_detect
+      - switch.evabed_detect
   mode: single
 - id: '1621192167984'
   alias: Night - Check for open windows and doors
@@ -1462,10 +1491,11 @@
   - service: switch.turn_off
     target:
       entity_id:
-      - switch.bijkeukencam_detect
-      - switch.reocam1_detect
-      - switch.reocam2_detect
-      - switch.evacam_detect
+      - switch.achterdeur_detect
+      - switch.terras_detect
+      - switch.veranda_detect
+      - switch.bijkeuken_detect
+      - switch.evabed_detect
   mode: single
 - id: '1625685392220'
   alias: Car - Alert when full and still plugged in
@@ -1542,7 +1572,7 @@
       milliseconds: 0
   - service: script.sonos_say
     data:
-      sonos_entity: media_player.office
+      sonos_entity: media_player.living_room
       volume: 0.3
       message: Let op, het alarm wordt over 5 minuten weer geactiveerd.
       delay: 00:00:03
@@ -1563,7 +1593,7 @@
         tag: persistent
   - service: script.sonos_say
     data:
-      sonos_entity: media_player.office
+      sonos_entity: media_player.living_room
       volume: 0.3
       message: Let op, het alarm is weer geactiveerd. Druk op de knop om het weer
         uit te zetten.
@@ -1597,11 +1627,21 @@
     to: 'on'
   condition:
   - condition: state
-    entity_id: binary_sensor.template_home_both_of_us
+    entity_id: binary_sensor.template_home_at_least_one_of_us
     state: 'off'
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: person.steffi
+      state: just_arrived
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: person.rob
+      state: just_arrived
   action:
   - service: notify.all_phones
     data:
@@ -1634,10 +1674,16 @@
   - condition: or
     conditions:
     - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam1''
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''achterdeur''
         }}'
     - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''reocam2''
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''terras''
+        }}'
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''veranda''
+        }}'
+    - condition: template
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''bijkeuken''
         }}'
   - condition: numeric_state
     entity_id: sensor.light_sensor_garden
@@ -1738,9 +1784,7 @@
     lights
   trigger:
   - platform: state
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
+    entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
     to: just_arrived
     for: 0:00:30
   - platform: state
@@ -1751,14 +1795,14 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: binary_sensor.people_home_and_awake
+      entity_id: binary_sensor.template_home_at_least_one_of_us
       state: 'off'
     - condition: state
       entity_id: light.livingfront_light
       state: 'off'
     - condition: numeric_state
       entity_id: sensor.lightlevel_living
-      below: 50
+      below: '50'
   action:
   - service: script.lights_on_home
   mode: single
@@ -1767,7 +1811,7 @@
   description: We leave the house in when dark, turn off a few lights
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_both_of_us
+    entity_id: binary_sensor.template_home_at_least_one_of_us
     to: 'off'
     for: 0:01:00
   condition:
@@ -1776,6 +1820,17 @@
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: light.livingfront_light
+        state: 'on'
+      - condition: state
+        entity_id: light.kitchendesk_light
+        state: 'on'
+      - condition: state
+        entity_id: light.diningtable_light
+        state: ''
   action:
   - service: light.turn_off
     target:
@@ -1783,9 +1838,15 @@
       - light.kitchendesk_light
       - light.diningtable_light
       - light.livingfront_light
+      - light.office_lights
   - service: light.turn_on
     target:
-      entity_id: light.livingback_light
+      entity_id:
+      - light.livingback_light
+      - light.kitchen_light
+      - light.dining_light
+      - light.zwave_light_couch_level
+      - light.zwave_light_corner_level
     data:
       brightness_pct: 30
   mode: single
@@ -1798,9 +1859,8 @@
     above: '60'
     for:
       hours: 0
-      minutes: 15
+      minutes: 5
       seconds: 0
-      milliseconds: 0
   condition:
   - condition: and
     conditions:
@@ -1810,6 +1870,9 @@
     - condition: state
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
+    - condition: state
+      entity_id: light.zwave_light_corner_level
+      state: 'on'
   action:
   - service: script.lights_down_stairs_off
   mode: single
@@ -1818,7 +1881,7 @@
   description: We didn't enable the Guest mode and we both left, stop the music
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_both_of_us
+    entity_id: binary_sensor.template_home_at_least_one_of_us
     to: 'off'
     for: 0:01:00
   condition:
@@ -1913,7 +1976,7 @@
         tag: persistent
   mode: single
 - id: '1636204195732'
-  alias: Unavailable - Notify entities being offline
+  alias: System - Notify entities being offline
   description: Check for a specific list of monitored entities if they are available
   trigger:
   - platform: state
@@ -1922,15 +1985,18 @@
       hours: 0
       minutes: 5
       seconds: 10
-      milliseconds: 0
     from: Online
   action:
   - service: notify.mobile_app_iphone_rob
     data_template:
-      message: 💡 Er is een belangrijke entity offline
+      message: 💡 Er is een belangrijke entity offline {{ became_unavailable }}
       data:
         persistent: true
         tag: persistent
+        actions:
+        - action: URI
+          title: Open hardware
+          uri: /lovelace/6
   variables:
     from_state: '{{ states(''input_text.unavailable_entities_temp_state'') }}'
     from_state_list: '{{ from_state.split('', '') }}'
@@ -1974,4 +2040,71 @@
       addon: a0d7b954_ssh
       input: bash /config/backup/backup-mariadb.sh
     service: hassio.addon_stdin
+  mode: single
+- id: '1638997192801'
+  alias: Lights - Turn off lights upstairs when leaving
+  description: When we move away, all upstairs can be turned off
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.template_home_at_least_one_of_us
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
+  - condition: state
+    entity_id: light.bovenverdieping
+    state: 'on'
+  action:
+  - service: script.lights_off_upstairs
+  mode: single
+- id: '1639680674230'
+  alias: iOS - Good night
+  description: Good night action from app or watch
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: good_night
+  condition:
+  - condition: time
+    after: '21:00'
+    before: 05:00
+  action:
+  - service: script.sleep_well
+  - service: alarm_control_panel.alarm_arm_night
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: '1639684695002'
+  alias: Alarm - Silence alarm
+  description: Silence alarm when beeping through push notification action when
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: SILENCE_ALARM
+    context:
+      user_id:
+      - 56ef6157f087451399aa545f32dc78d3
+      - 71e44d7d313b4695a8bf51705f7adfc3
+  condition: []
+  action:
+  - service: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
+- id: '1640431186550'
+  alias: System - Count error in system log
+  description: ''
+  trigger:
+  - platform: event
+    event_type: system_log_event
+    event_data:
+      level: ERROR
+  condition: []
+  action:
+  - service: counter.increment
+    target:
+      entity_id: counter.error_counter
   mode: single

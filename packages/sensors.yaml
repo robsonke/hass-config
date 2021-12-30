@@ -28,6 +28,49 @@ sensor:
   method: trapezoidal
   unit_prefix: k
   round: 2
+- platform: integration
+  source: sensor.template_altherma_power_usage_secundary
+  name: Altherma Energy Usage Secundary
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+
+- platform: integration
+  source: sensor.shelly_plug_office_power
+  name: Shelly Plug Office Energy Usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+- platform: integration
+  source: sensor.shelly_plug_droger_power
+  name: Shelly Plug Droger Energy Usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+- platform: integration
+  source: sensor.shelly_plug_douche_verwarming_relay_power
+  name: Shelly Plug Douche Verwarming Energy Usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+- platform: integration
+  source: sensor.shelly_plug_badkamer_verwarming_relay_power
+  name: Shelly Plug Badkamer Verwarming Energy Usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+
+# - platform: statistics
+#   entity_id: binary_sensor.motion_sensor_cats_presence
+#   state_characteristic: count
+#   sensor:
+- platform: history_stats
+  name: Cat door today
+  entity_id: binary_sensor.motion_sensor_cats_presence
+  state: "on"
+  type: count
+  start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+  end: "{{ now() }}"
 
 - platform: rest
   name: hass_release_notes

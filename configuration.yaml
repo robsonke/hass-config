@@ -27,6 +27,9 @@ homeassistant:
         192.168.0.0/24: 63bf7bab0d174dc6abc880085d3c4b5e
       allow_bypass_login: true
 
+system_log:
+  fire_event: true
+  max_entries: 100
 ios:
 ffmpeg:
 default_config:

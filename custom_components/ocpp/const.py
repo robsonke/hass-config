@@ -11,9 +11,6 @@ CONF_CPID = "cpid"
 CONF_CSID = "csid"
 CONF_HOST = ha.CONF_HOST
 CONF_ICON = ha.CONF_ICON
-CONF_INITIAL = input_number.CONF_INITIAL
-CONF_MAX = input_number.CONF_MAX
-CONF_MIN = input_number.CONF_MIN
 CONF_METER_INTERVAL = "meter_interval"
 CONF_MODE = ha.CONF_MODE
 CONF_MONITORED_VARIABLES = ha.CONF_MONITORED_VARIABLES
@@ -32,16 +29,15 @@ DEFAULT_SUBPROTOCOL = "ocpp1.6"
 DEFAULT_METER_INTERVAL = 60
 DOMAIN = "ocpp"
 ICON = "mdi:ev-station"
-MODE_SLIDER = input_number.MODE_SLIDER
-MODE_BOX = input_number.MODE_BOX
 SLEEP_TIME = 60
 
 # Platforms
 NUMBER = "number"
 SENSOR = "sensor"
 SWITCH = "switch"
+BUTTON = "button"
 
-PLATFORMS = [SENSOR, SWITCH, NUMBER]
+PLATFORMS = [SENSOR, SWITCH, NUMBER, BUTTON]
 
 # Ocpp supported measurands
 MEASURANDS = [
@@ -76,7 +72,7 @@ HA_ENERGY_UNIT = UnitOfMeasure.kwh.value
 HA_POWER_UNIT = UnitOfMeasure.kw.value
 
 # Switch configuration definitions
-# At a minimum define switch name and on service call, pulse used to call a service once such as reset
+# At a minimum define switch name and on service call,
 # metric and condition combination can be used to drive switch state, use default to set initial state to True
 SWITCH_CHARGE = {
     "name": "Charge_Control",
@@ -93,42 +89,21 @@ SWITCH_AVAILABILITY = {
     "metric": HAChargerStatuses.status.value,
     "condition": ChargePointStatus.available.value,
 }
-SWITCH_RESET = {
-    "name": "Reset",
-    "on": HAChargerServices.service_reset.name,
-    "pulse": True,
-}
-SWITCH_UNLOCK = {
-    "name": "Unlock",
-    "on": HAChargerServices.service_unlock.name,
-    "pulse": True,
-}
-SWITCHES = [SWITCH_CHARGE, SWITCH_RESET, SWITCH_UNLOCK, SWITCH_AVAILABILITY]
 
-# Input number definitions
-NUMBER_MAX_CURRENT = {
-    CONF_NAME: "Maximum_Current",
-    CONF_ICON: ICON,
-    CONF_MIN: 0,
-    CONF_MAX: 32,
-    CONF_STEP: 1,
-    CONF_INITIAL: 32,
-    CONF_MODE: MODE_SLIDER,
-    CONF_UNIT_OF_MEASUREMENT: "A",
-}
-NUMBERS = [NUMBER_MAX_CURRENT]
+SWITCHES = [SWITCH_CHARGE, SWITCH_AVAILABILITY]
 
+# Where a HA unit does not exist use Ocpp unit
 UNITS_OCCP_TO_HA = {
     UnitOfMeasure.wh: ha.ENERGY_WATT_HOUR,
     UnitOfMeasure.kwh: ha.ENERGY_KILO_WATT_HOUR,
-    UnitOfMeasure.varh: None,
-    UnitOfMeasure.kvarh: None,
+    UnitOfMeasure.varh: UnitOfMeasure.varh,
+    UnitOfMeasure.kvarh: UnitOfMeasure.kvarh,
     UnitOfMeasure.w: ha.POWER_WATT,
     UnitOfMeasure.kw: ha.POWER_KILO_WATT,
     UnitOfMeasure.va: ha.POWER_VOLT_AMPERE,
-    UnitOfMeasure.kva: None,
-    UnitOfMeasure.var: None,
-    UnitOfMeasure.kvar: None,
+    UnitOfMeasure.kva: UnitOfMeasure.kva,
+    UnitOfMeasure.var: UnitOfMeasure.var,
+    UnitOfMeasure.kvar: UnitOfMeasure.kvar,
     UnitOfMeasure.a: ha.ELECTRIC_CURRENT_AMPERE,
     UnitOfMeasure.v: ha.ELECTRIC_POTENTIAL_VOLT,
     UnitOfMeasure.celsius: ha.TEMP_CELSIUS,

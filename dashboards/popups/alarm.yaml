@@ -1,0 +1,60 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Alarm
+  large: true
+  card:
+    type: grid
+    columns: 2
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:alarmo-card
+            entity: alarm_control_panel.alarmo
+          - type: custom:auto-entities
+            card:
+              type: entities
+              title: Recent geopende deuren en ramen
+              show_header_toggle: false
+            filter:
+              include:
+                - domain: binary_sensor
+                  attributes:
+                    device_class: door
+                  options:
+                    secondary_info: last-changed
+                - domain: binary_sensor
+                  attributes:
+                    device_class: window
+                  options:
+                    secondary_info: last-changed
+              exclude:
+                - entity_id: binary_sensor.voordeur_slot
+            show_empty: false
+            unique: entity
+            sort:
+              method: last_changed
+              count: 5
+              reverse: true
+      - type: custom:swipe-card
+        start_card: 1
+        parameters:
+          roundLengths: true
+          effect: coverflow
+          speed: 650
+          spaceBetween: 20
+          threshold: 7
+          coverflowEffect:
+            rotate: 80
+            depth: 300
+        cards:
+          - type: 'custom:webrtc-camera'
+            entity: camera.doorbell_camera_webrtc
+          - type: 'custom:webrtc-camera'
+            entity: camera.reoveranda_camera_webrtc
+          - type: 'custom:webrtc-camera'
+            entity: camera.bijkeuken_camera_webrtc
+          - type: 'custom:webrtc-camera'
+            entity: camera.reoachterdeur_camera_webrtc
+          - type: 'custom:webrtc-camera'
+            entity: camera.reoachtertuin_camera_webrtc

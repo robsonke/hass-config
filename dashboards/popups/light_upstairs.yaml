@@ -1,0 +1,44 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Bovenverdieping verlichting
+  card:
+    type: custom:layout-card
+    layout_type: custom:masonry-layout
+    cards:
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.douche
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.badkamer
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.hal
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.hoofdslaapkamer
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.inloopkast
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.logeerkamer
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.overloop
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.zolder
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.slaapkamer_eva

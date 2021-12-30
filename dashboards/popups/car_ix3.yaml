@@ -127,8 +127,8 @@ browser_mod:
                     state: 'on'
                 elements:
                   - type: state-label
-                    entity: sensor.ix3_charging_time_remaining
-                    prefix: 'Laadtijd: '
+                    entity: sensor.ix3_charging_end_time
+                    prefix: ''
                     style:
                       top: 93.5%
                       right: '-5%'
@@ -182,6 +182,12 @@ browser_mod:
             refresh_interval: 30
             entities:
               - device_tracker.ix3
+          - type: entities
+            card_mod:
+              class: content
+            entities:
+              - entity: device_tracker.ix3
+                secondary_info: last-changed
       - type: map
         default_zoom: 13
         dark_mode: true

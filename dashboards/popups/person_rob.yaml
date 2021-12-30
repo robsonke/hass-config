@@ -81,7 +81,6 @@ browser_mod:
             entities:
               - device_tracker.rob_presence
               - device_tracker.iphone_rob
-              - device_tracker.rob_owntracks
               - device_tracker.life360_rob_sonke
               - device_tracker.iphonedetect_rob
           - type: glance

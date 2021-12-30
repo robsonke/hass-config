@@ -14,6 +14,7 @@ www/fonts
 
 # And some files
 secrets.yaml
+esphome/secrets.yaml
 frigate.yml
 rtsp-simple-server.yml
 known_devices.yaml

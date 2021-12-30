@@ -1,0 +1,20 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Keuken verlichting
+  card:
+    type: custom:layout-card
+    layout_type: custom:masonry-layout
+    cards:
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.kitchen_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.kitchencabin_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.kitchendesk_light

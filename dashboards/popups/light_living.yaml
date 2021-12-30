@@ -1,0 +1,34 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  large: true
+  title: Woonkamer verlichting
+  card:
+    type: custom:layout-card
+    layout_type: custom:masonry-layout
+    #layout:
+      #width: 150
+      #max_width: 200
+      #max_cols: 5
+      #min_height: 150
+    cards:
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.livingback_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.livingfront_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.zwave_light_couch_level
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.zwave_light_corner_level
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.ledstrip_tv

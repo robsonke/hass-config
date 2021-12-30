@@ -81,7 +81,6 @@ browser_mod:
             entities:
               - device_tracker.steffi_presence
               - device_tracker.iphone_steffi
-              - device_tracker.steffi_owntracks
               - device_tracker.life360_steffi_berks
               - device_tracker.iphonedetect_steffi
           - type: glance

@@ -1,0 +1,36 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Kantoor klimaat
+  card:
+    type: custom:layout-card
+    layout_type: custom:masonry-layout
+    cards:
+      - type: custom:mini-graph-card
+        name: Temperatuur
+        entities:
+          - sensor.climate_sensor_office_temperature
+        line_color: '#e74c3c'
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Luchtvochtigheid
+        entities:
+          - sensor.climate_sensor_office_humidity
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Luchtdruk
+        entities:
+          - sensor.climate_sensor_office_pressure
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Lichtsterkte
+        entities:
+          - sensor.lightlevel_office
+        line_color: '#F7BF10'
+        line_width: 8
+        font_size_header: 10

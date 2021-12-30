@@ -1,5 +1,6 @@
 {
     "version": 1,
+    "minor_version": 1,
     "key": "lovelace",
     "data": {
         "config": {
@@ -617,8 +618,8 @@
                                 },
                                 {
                                     "camera_view": "live",
-                                    "camera_image": "camera.bijkeukencam",
-                                    "entity": "camera.bijkeukencam",
+                                    "camera_image": "camera.bijkeuken",
+                                    "entity": "camera.bijkeuken",
                                     "type": "picture-entity",
                                     "show_state": false,
                                     "show_name": false
@@ -976,7 +977,8 @@
                                     },
                                     "sort": {
                                         "count": 3,
-                                        "method": "last_changed"
+                                        "method": "last_changed",
+                                        "reverse": true
                                     },
                                     "type": "custom:auto-entities"
                                 },
@@ -1189,7 +1191,7 @@
                             "cards": [
                                 {
                                     "camera_view": "live",
-                                    "entity": "camera.bijkeukencam",
+                                    "entity": "camera.bijkeuken",
                                     "type": "picture-entity"
                                 }
                             ]
@@ -1569,11 +1571,11 @@
                                     "elements": [
                                         {
                                             "type": "state-label",
-                                            "entity": "sensor.ix3_charging_time_remaining",
-                                            "prefix": "Laadtijd: ",
+                                            "entity": "sensor.ix3_charging_end_time",
+                                            "prefix": "",
                                             "style": {
                                                 "top": "93.5%",
-                                                "right": "-5%",
+                                                "right": "-15%",
                                                 "font-size": "0.8em",
                                                 "color": "white"
                                             }
@@ -1817,7 +1819,7 @@
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.evacam",
+                            "camera_entity": "camera.evabed",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -1990,7 +1992,7 @@
                     "cards": [
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.evacam",
+                            "camera_entity": "camera.evabed",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -2028,7 +2030,7 @@
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.bijkeukencam",
+                            "camera_entity": "camera.bijkeuken",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -2062,7 +2064,7 @@
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.reocam2",
+                            "camera_entity": "camera.terras",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -2095,7 +2097,7 @@
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.reocam1",
+                            "camera_entity": "camera.achterdeur",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -2181,24 +2183,63 @@
                             "type": "entities",
                             "entities": [
                                 {
-                                    "entity": "switch.evacam_detect"
+                                    "entity": "switch.evabed_detect"
                                 },
                                 {
-                                    "entity": "switch.bijkeukencam_detect"
+                                    "entity": "switch.bijkeuken_detect"
                                 },
                                 {
-                                    "entity": "switch.reocam1_detect"
+                                    "entity": "switch.achterdeur_detect"
                                 },
                                 {
-                                    "entity": "switch.reocam2_detect"
+                                    "entity": "switch.terras_detect"
                                 },
                                 {
                                     "entity": "switch.doorbell_detect"
+                                },
+                                {
+                                    "entity": "switch.veranda_detect"
                                 }
                             ],
                             "title": "Camera detectie",
                             "show_header_toggle": false,
                             "state_color": false
+                        },
+                        {
+                            "type": "custom:frigate-card",
+                            "camera_entity": "camera.veranda",
+                            "dimensions": {
+                                "aspect_ratio_mode": "unconstrained"
+                            },
+                            "frigate": {
+                                "camera_name": "Veranda"
+                            },
+                            "view": {
+                                "default": "live"
+                            },
+                            "live": {
+                                "provider": "webrtc",
+                                "webrtc": {
+                                    "entity": "camera.reoveranda_camera_webrtc"
+                                }
+                            },
+                            "event_viewer": {
+                                "controls": {
+                                    "next_previous": {
+                                        "style": "chevrons"
+                                    },
+                                    "thumbnails": {
+                                        "mode": "below"
+                                    }
+                                }
+                            },
+                            "menu": {
+                                "mode": "overlay-top",
+                                "buttons": {
+                                    "frigate": false,
+                                    "frigate_ui": true
+                                }
+                            }
                         }
                     ]
                 },
@@ -2233,7 +2274,6 @@
                                     "entities": [
                                         "device_tracker.rob_presence",
                                         "device_tracker.iphone_rob",
-                                        "device_tracker.rob_owntracks",
                                         "device_tracker.life360_rob_sonke",
                                         "device_tracker.iphonedetect_rob"
                                     ]
@@ -2246,7 +2286,6 @@
                                     "entities": [
                                         "device_tracker.steffi_presence",
                                         "device_tracker.iphone_steffi",
-                                        "device_tracker.steffi_owntracks",
                                         "device_tracker.life360_steffi_berks",
                                         "device_tracker.iphonedetect_steffi"
                                     ]
@@ -2900,12 +2939,20 @@
                             "config_templates": "energy_chart",
                             "series": [
                                 {
-                                    "entity": "sensor.radiator_badkamer_energy_power",
-                                    "type": "line"
+                                    "entity": "sensor.altherma_power_usage",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "5min",
+                                        "func": "max"
+                                    }
                                 },
                                 {
-                                    "entity": "sensor.radiator_douche_energy_power",
-                                    "type": "line"
+                                    "entity": "sensor.template_altherma_power_usage_secundary",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "5min",
+                                        "func": "max"
+                                    }
                                 }
                             ]
                         },
@@ -2914,10 +2961,66 @@
                             "config_templates": "energy_chart",
                             "series": [
                                 {
-                                    "entity": "sensor.altherma_power_usage",
-                                    "type": "line"
+                                    "entity": "sensor.altherma_voltage_n_phase",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "5min",
+                                        "func": "max"
+                                    }
                                 }
                             ]
+                        },
+                        {
+                            "type": "energy-usage-graph"
+                        },
+                        {
+                            "type": "history-graph",
+                            "title": "Operation mode",
+                            "hours_to_show": 12,
+                            "refresh_interval": 30,
+                            "entities": [
+                                "sensor.altherma_operation_mode"
+                            ]
+                        },
+                        {
+                            "type": "custom:apexcharts-card",
+                            "config_templates": "energy_chart",
+                            "series": [
+                                {
+                                    "entity": "sensor.altherma_cop",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "2min",
+                                        "func": "max"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "custom:apexcharts-card",
+                            "config_templates": "energy_chart",
+                            "series": [
+                                {
+                                    "entity": "sensor.shelly_plug_badkamer_verwarming_energy_usage",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "5min",
+                                        "func": "max"
+                                    }
+                                },
+                                {
+                                    "entity": "sensor.shelly_plug_douche_verwarming_energy_usage",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "5min",
+                                        "func": "max"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "energy-distribution",
+                            "link_dashboard": true
                         }
                     ]
                 }

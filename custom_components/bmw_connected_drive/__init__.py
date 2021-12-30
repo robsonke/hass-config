@@ -34,7 +34,6 @@ from .const import (
     CONF_ACCOUNT,
     CONF_ALLOWED_REGIONS,
     CONF_READ_ONLY,
-    CONF_USE_LOCATION,
     DATA_ENTRIES,
     DATA_HASS_CONFIG,
 )
@@ -64,7 +63,6 @@ SERVICE_SCHEMA = vol.Schema(
 
 DEFAULT_OPTIONS = {
     CONF_READ_ONLY: False,
-    CONF_USE_LOCATION: False,
 }
 
 PLATFORMS = ["binary_sensor", "device_tracker", "lock", "notify", "sensor"]

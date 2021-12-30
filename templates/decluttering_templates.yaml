@@ -1,0 +1,173 @@
+
+light_button:
+  card:
+    type: custom:button-card
+    entity: '[[entity]]'
+    template:
+      - light
+    custom_fields:
+      icon: >
+        [[[
+          if (entity.attributes.icon)
+            return html`<state-badge .stateObj="${entity}" .hass="${hass}"></state-badge>`;
+          return html`<state-badge .stateObj="${entity}" .hass="${hass}" icon="mdi:lightbulb"></state-badge>`;
+        ]]]
+    styles:
+      card:
+        - --mdc-icon-size: 100%
+    extra_styles: |
+      state-badge {
+        width: 100%;
+        height: 100%;
+      }
+    hold_action:
+      action: fire-dom-event
+      browser_mod:
+        command: popup
+        title: >
+          [[[ return entity.attributes.friendly_name; ]]]
+        card:
+          type: custom:light-popup-card
+          entity: >
+            [[[ return entity.entity_id ]]]
+          icon: fire
+          fullscreen: false
+          brightnessWidth: 130px
+          brightnessHeight: 360px
+          borderRadius: 1.7em
+          sliderColor: '#c7c7c7'
+          sliderTrackColor: rgba(25, 25, 25, 0.9)
+          displayType: slider
+          actions:
+            - action: fire-dom-event
+              image: >-
+                data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
+                50 50"%3E%3Cstyle%3Esvg%7Bbackground:radial-gradient(circle,rgba(255,255,
+                255,1) 0%25,rgba(255,255,255,0) 80%25),conic-gradient(%237827e6,%23e622e7,
+                %23e40588,%23e41919,%23e5691e,%23e8e22e,%237de629,%2334e828,%2333e75c,
+                %2334e8e0,%23207de5,%231227e5,%237827e6)%7D%3C/style%3E%3C/svg%3E
+              browser_mod:
+                command: popup
+                title: >
+                  [[[ return entity.attributes.friendly_name ]]]
+                card:
+                  type: custom:light-entity-card
+                  entity: >
+                    [[[ return entity.entity_id ]]]
+                  brightness: true
+                  color_temp: true
+                  effects_list: false
+                  full_width_sliders: false
+                  hide_header: true
+                  show_slider_percent: true
+                  smooth_color_wheel: true
+                  persist_features: true
+                  consolidate_entities: false
+
+
+
+# selects master speaker
+sonos_master:
+  default:
+    font-size: 20px
+  card:
+    entity: binary_sensor.sonos_master_[[speaker]]
+    name: '[[name]]'
+    tap_action:
+      action: call-service
+      service: input_select.select_option
+      service_data:
+        entity_id: input_select.sonos_master
+        option: media_player.sonos_[[speaker]]
+    styles:
+      name:
+        - font-size: '[[font-size]]'
+    template: sonos_input_button_thick_name
+    type: 'custom:button-card'
+    
+#conditional card that shows the master speaker, controls volume on master speaker,   
+sonos_player:
+  card:
+    card:
+      cards:
+        - entity: media_player.sonos_[[speaker]]
+          hide:
+            icon: true
+            power: true
+            source: true
+            shuffle: false
+          artwork: full-cover
+          info: scroll
+          type: 'custom:mini-media-player'
+        - cards:
+          - color_type: blank-card
+            type: "custom:button-card"
+          - color_type: icon
+            icon: mdi:volume-minus
+            tap_action:
+              action: call-service
+              service: media_player.volume_down
+              service_data:
+                entity_id:  media_player.sonos_[[speaker]]
+            type: "custom:button-card"
+          - color_type: blank-card
+            type: "custom:button-card"
+          - color_type: icon
+            icon: mdi:volume-plus
+            tap_action:
+              action: call-service
+              service: media_player.volume_up
+              service_data:
+                entity_id:  media_player.sonos_[[speaker]]
+            type: "custom:button-card"
+          - color_type: blank-card
+            type: "custom:button-card"
+          type: horizontal-stack
+      type: 'custom:stack-in-card'
+    conditions:
+      - entity: input_select.sonos_master
+        state: media_player.sonos_[[speaker]]
+    type: conditional
+
+# selects the playlist/source to play and calls the script
+sonos_playlist:
+  default:
+    - shuffle: true
+  card:
+    entity:
+    name: '[[name]]'
+    color: var(--paper-card-background-color)
+    tap_action:
+      action: call-service
+      service: script.play_sonos
+      service_data:
+        playlist: '[[playlist]]'
+        shuffle: '[[shuffle]]'
+    template: sonos_input_button_thick_name
+    type: 'custom:button-card'
+    
+# selects which speakers to join with the master.  Locks the button for the master to avoid confusion    
+sonos_group:
+  default:
+    - font-size: 20px
+  card:
+    entity: switch.group_sonos_[[speaker]]
+    lock:
+      enabled: >
+        [[[ return states['binary_sensor.sonos_master_[[speaker]]'].state === 'on' ]]]
+      exemptions: []
+    name: '[[name]]'
+    state:
+      - operator: template
+        styles:
+          card:
+            - border-color: var(--disabled-text-color)
+          name:
+            - color: var(--disabled-text-color)
+        value: >
+          [[[ return states['binary_sensor.sonos_master_[[speaker]]'].state === 'on' ]]]
+    styles:
+      name:
+        - font-size: '[[font-size]]'
+    template: sonos_switch_button_thick_name
+    type: 'custom:button-card'

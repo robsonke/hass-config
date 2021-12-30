@@ -1,9 +1,7 @@
-default:
-  color_list: ['red', 'green', 'blue']
-
 energy_chart:
   graph_span: 24h
-  config_templates: default
+  #layout: minimal
+  locale: nl
   span:
     start: day
   now:
@@ -16,3 +14,49 @@ energy_chart:
     stroke_width: 1
     opacity: 0.5
     type: area
+  apex_config:
+    grid:
+      show: false
+    stroke:
+      width: 3
+    xaxis:
+      crosshairs:
+        show: false
+    yaxis:
+      crosshairs:
+        show: true
+
+climate_chart:
+  layout: minimal
+  locale: nl
+  graph_span: 8h
+  show:
+    loading: false
+  all_series_config:
+    color: '#3182b7'
+  apex_config:
+    plotOptions:
+      area:
+        fillTo: end
+    grid:
+      padding:
+        top: -15
+    fill:
+      type: gradient
+      gradient:
+        type: vertical
+        opacityFrom: 1.0
+        opacityTo: 0.2
+        stops:
+          - 0
+          - 99
+          - 100
+    stroke:
+      width: 3
+    tooltip: 
+      enabled: false
+    chart:
+      height: 60px
+    xaxis:
+      crosshairs:
+        show: false

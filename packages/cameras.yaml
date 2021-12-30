@@ -33,3 +33,7 @@ camera:
     stream_source: !secret reocam2_rtsp_path
     name: ReoAchtertuin Camera WebRTC
     still_image_url: !secret reocam2_still_image_path
+  - platform: generic
+    stream_source: !secret veranda_rtsp_path
+    name: ReoVeranda Camera WebRTC
+    still_image_url: !secret veranda_still_image_path

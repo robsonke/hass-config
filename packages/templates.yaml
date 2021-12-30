@@ -41,14 +41,12 @@ template:
     attributes:
       #friendly_name: Sidebar Trash Info
       trash: >
-        <font color='#6a7377'><b>
-        {% if "Vandaag" in states('sensor.groene_bak_dag') %} Vandaag groene bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
-        {% if "Vandaag" in states('sensor.papier_bak_dag') %} Vandaag papierbak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
-        {% if "Vandaag" in states('sensor.grijze_bak_dag') %} Vandaag grijze bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
-        {% if "Morgen" in states('sensor.groene_bak_dag') %} Morgen groene bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
-        {% if "Morgen" in states('sensor.papier_bak_dag') %} Morgen papierbak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
-        {% if "Morgen" in states('sensor.grijze_bak_dag') %} Morgen grijze bak aan de straat <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon> {% endif %}
-        </b></font>
+        {% if "Vandaag" in states('sensor.groene_bak_dag') %} <p style="color: #6a7377; font-weight: bold;">Vandaag groene bak <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon></p> {% endif %}
+        {% if "Vandaag" in states('sensor.papier_bak_dag') %} <p style="color: #6a7377; font-weight: bold;">Vandaag papierbak <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon></p> {% endif %}
+        {% if "Vandaag" in states('sensor.grijze_bak_dag') %} <p style="color: #6a7377; font-weight: bold;">Vandaag grijze bak <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon></p> {% endif %}
+        {% if "Morgen" in states('sensor.groene_bak_dag') %} <p style="color: #6a7377; font-weight: bold;">Morgen groene bak <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon></p> {% endif %}
+        {% if "Morgen" in states('sensor.papier_bak_dag') %} <p style="color: #6a7377; font-weight: bold;">Morgen papierbak <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon></p> {% endif %}
+        {% if "Morgen" in states('sensor.grijze_bak_dag') %} <p style="color: #6a7377; font-weight: bold;">Morgen grijze bak <ha-icon icon="mdi:trash-can-outline" class="trash"></ha-icon></p> {% endif %}
 
 # Trash can sensors
 - trigger:
@@ -61,7 +59,7 @@ template:
       friendly_name: Groene Bak dag
     state: >
       {% set midnight = now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp() %}
-      {% set event = state_attr('calendar.groenebak', 'start_time') | as_timestamp %}
+      {% set event = state_attr('calendar.groenebak', 'start_time') | as_timestamp(0) %}
       {% set delta = ((event - midnight) // 86400) | int %}
       {% set values = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
       {{ values[delta] if delta < values | length else 'Over %s dagen'%delta }}
@@ -75,7 +73,7 @@ template:
     icon: mdi:trash-can
     state: >
       {% set midnight = now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp() %}
-      {% set event = state_attr('calendar.grijzebak', 'start_time') | as_timestamp %}
+      {% set event = state_attr('calendar.grijzebak', 'start_time') | as_timestamp(0) %}
       {% set delta = ((event - midnight) // 86400) | int %}
       {% set values = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
       {{ values[delta] if delta < values | length else 'Over %s dagen'%delta }}
@@ -89,7 +87,7 @@ template:
     icon: mdi:trash-can
     state: >
       {% set midnight = now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp() %}
-      {% set event = state_attr('calendar.papierbak', 'start_time') | as_timestamp %}
+      {% set event = state_attr('calendar.papierbak', 'start_time') | as_timestamp(0) %}
       {% set delta = ((event - midnight) // 86400) | int %}
       {% set values = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
       {{ values[delta] if delta < values | length else 'Over %s dagen'%delta }}
@@ -99,7 +97,6 @@ template:
   - unique_id: altherma_operation_mode
     attributes:
       friendly_name: Altherma Operation Mode
-    state_class: measurement
     state: "{{ state_attr('sensor.althermasensors', 'Operation Mode') }}"
     icon: >
       {% if is_state("sensor.altherma_operation_mode", "Heating") %}
@@ -119,7 +116,7 @@ template:
     icon: mdi:current-ac
   - unique_id: altherma_inv_secundary_current
     attributes:
-      friendly_name: Altherma INV secondary current
+      friendly_name: Altherma INV secundary current
     device_class: current
     state_class: measurement
     unit_of_measurement: A
@@ -140,7 +137,7 @@ template:
     unit_of_measurement: l/min
     state: "{{ state_attr('sensor.althermasensors', 'Flow sensor (l/min)') | float(default=0) }}"
     icon: mdi:waves-arrow-left
-  - unique_id: altherma_leaving_water_temp_before_buh
+  - unique_id: altherma_leaving_water_temp_before_buh_r1t
     attributes:
       friendly_name: Altherma Leaving water temp. before BUH (R1T)
     device_class: temperature
@@ -148,7 +145,7 @@ template:
     unit_of_measurement: °C
     state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. before BUH (R1T)') | float(default=0) }}"
     icon: mdi:thermometer
-  - unique_id: altherma_leaving_water_temp_after_buh
+  - unique_id: altherma_leaving_water_temp_after_buh_r1t
     attributes:
       friendly_name: Altherma Leaving water temp. after BUH (R1T)
     device_class: temperature
@@ -165,15 +162,6 @@ template:
     state: "{{ state_attr('sensor.althermasensors', 'Inlet water temp.(R4T)') | float(default=0) }}"
     icon: mdi:thermometer
 
-  # calculated altherma values
-  # - unique_id: altherma_current_total
-  #   attributes:
-  #     friendly_name: Altherma Current Total
-  #   device_class: current
-  #   state_class: measurement
-  #   unit_of_measurement: A
-  #   state: "{{ states('sensor.altherma_inv_primary_current') | float(default=0) + states('sensor.altherma_inv_secondary_current') | float(default=0) }}"
-  #   icon: mdi:current-ac
   - unique_id: altherma_power_usage
     attributes:
       friendly_name: Altherma Power Usage
@@ -182,15 +170,23 @@ template:
     unit_of_measurement: W
     state: "{{ states('sensor.altherma_inv_primary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
     icon: mdi:flash
+  - unique_id: altherma_power_usage_secundary
+    attributes:
+      friendly_name: Altherma Power Usage Secundary
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    state: "{{ states('sensor.altherma_inv_secundary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
+    icon: mdi:flash
   - unique_id: altherma_cop
     attributes:
-      friendly_name: Alterma COP
+      friendly_name: Altherma COP
     unit_of_measurement: 'COP'
     state_class: measurement
     state: >
       {% if is_state('sensor.altherma_operation_mode', 'Heating') %} 
       {{ 
-        ((states('altherma_flow_sensor')| float * 0.06 * 1.16 * (states('altherma_leaving_water_temp_before_buh') | float - states('sensor.altherma_inlet_water_temp') | float) )
+        ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.template_altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) )
           /
         (states('sensor.altherma_inv_primary_current') | float * states('sensor.altherma_voltage_n_phase') | float / 1000))
         |round(2)
@@ -275,7 +271,7 @@ template:
       friendly_name: 'HA uptime minutes'
     icon: mdi:arrow-up-circle-outline
     state: >
-      {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'))) / 60 }}
+      {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'), 0)) / 60 }}
 
 # count all possible updates to one sensor
 - trigger:
@@ -296,7 +292,9 @@ template:
         {% if state_attr('sensor.supervisor_updates', 'update_available') %}
           {% set count.value = count.value + 1 %}
         {% endif %}
-        {% set count.value = count.value + (state_attr('sensor.hacs', 'repositories') | length) %}
+        {% if states('sensor.hacs') not in ['unavailable', 'none', 'unknown'] %}
+          {% set count.value = count.value + (state_attr('sensor.hacs', 'repositories') | length) %}
+        {% endif %}
       {% endif %}
       {{ count.value }}
     unit_of_measurement: "Update(s)"

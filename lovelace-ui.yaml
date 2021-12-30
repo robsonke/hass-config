@@ -339,9 +339,9 @@ views:
         webrtc:
           entity: camera.doorbell_camera_webrtc
       type: custom:vertical-stack-in-card
-    - camera_image: camera.bijkeukencam
+    - camera_image: camera.bijkeuken
       camera_view: live
-      entity: camera.bijkeukencam
+      entity: camera.bijkeuken
       show_name: false
       show_state: false
       type: picture-entity
@@ -559,6 +559,7 @@ views:
       sort:
         count: 3
         method: last_changed
+        reverse: true
       type: custom:auto-entities
     - cards:
       - color_type: card
@@ -689,7 +690,7 @@ views:
     type: grid
   - cards:
     - camera_view: live
-      entity: camera.bijkeukencam
+      entity: camera.bijkeuken
       type: picture-entity
     title: Camera's
     type: vertical-stack
@@ -932,12 +933,12 @@ views:
       - entity: binary_sensor.ix3_charging_status
         state: 'on'
       elements:
-      - entity: sensor.ix3_charging_time_remaining
-        prefix: 'Laadtijd: '
+      - entity: sensor.ix3_charging_end_time
+        prefix: ''
         style:
           color: white
           font-size: 0.8em
-          right: -5%
+          right: -15%
           top: 93.5%
         type: state-label
       type: conditional
@@ -1092,7 +1093,7 @@ views:
       name: Infrarood slaapkamer
     show_header_toggle: false
     type: entities
-  - camera_entity: camera.evacam
+  - camera_entity: camera.evabed
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1209,7 +1210,7 @@ views:
   title: Boven
 - badges: []
   cards:
-  - camera_entity: camera.evacam
+  - camera_entity: camera.evabed
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1234,7 +1235,7 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.bijkeukencam
+  - camera_entity: camera.bijkeuken
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1256,7 +1257,7 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.reocam2
+  - camera_entity: camera.terras
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1277,7 +1278,7 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.reocam1
+  - camera_entity: camera.achterdeur
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1330,15 +1331,39 @@ views:
     view:
       default: live
   - entities:
-    - entity: switch.evacam_detect
-    - entity: switch.bijkeukencam_detect
-    - entity: switch.reocam1_detect
-    - entity: switch.reocam2_detect
+    - entity: switch.evabed_detect
+    - entity: switch.bijkeuken_detect
+    - entity: switch.achterdeur_detect
+    - entity: switch.terras_detect
     - entity: switch.doorbell_detect
+    - entity: switch.veranda_detect
     show_header_toggle: false
     state_color: false
     title: Camera detectie
     type: entities
+  - camera_entity: camera.veranda
+    dimensions:
+      aspect_ratio_mode: unconstrained
+    event_viewer:
+      controls:
+        next_previous:
+          style: chevrons
+        thumbnails:
+          mode: below
+    frigate:
+      camera_name: Veranda
+    live:
+      provider: webrtc
+      webrtc:
+        entity: camera.reoveranda_camera_webrtc
+    menu:
+      buttons:
+        frigate: false
+        frigate_ui: true
+      mode: overlay-top
+    type: custom:frigate-card
+    view:
+      default: live
   icon: mdi:webcam
   title: Cams
   type: custom:masonry-layout
@@ -1353,7 +1378,6 @@ views:
     - entities:
       - device_tracker.rob_presence
       - device_tracker.iphone_rob
-      - device_tracker.rob_owntracks
       - device_tracker.life360_rob_sonke
       - device_tracker.iphonedetect_rob
       hours_to_show: 12
@@ -1363,7 +1387,6 @@ views:
     - entities:
       - device_tracker.steffi_presence
       - device_tracker.iphone_steffi
-      - device_tracker.steffi_owntracks
       - device_tracker.life360_steffi_berks
       - device_tracker.iphonedetect_steffi
       hours_to_show: 12
@@ -1758,16 +1781,55 @@ views:
   cards:
   - config_templates: energy_chart
     series:
-    - entity: sensor.radiator_badkamer_energy_power
+    - entity: sensor.altherma_power_usage
+      group_by:
+        duration: 5min
+        func: max
       type: line
-    - entity: sensor.radiator_douche_energy_power
+    - entity: sensor.template_altherma_power_usage_secundary
+      group_by:
+        duration: 5min
+        func: max
       type: line
     type: custom:apexcharts-card
   - config_templates: energy_chart
     series:
-    - entity: sensor.altherma_power_usage
+    - entity: sensor.altherma_voltage_n_phase
+      group_by:
+        duration: 5min
+        func: max
       type: line
     type: custom:apexcharts-card
+  - type: energy-usage-graph
+  - entities:
+    - sensor.altherma_operation_mode
+    hours_to_show: 12
+    refresh_interval: 30
+    title: Operation mode
+    type: history-graph
+  - config_templates: energy_chart
+    series:
+    - entity: sensor.altherma_cop
+      group_by:
+        duration: 2min
+        func: max
+      type: line
+    type: custom:apexcharts-card
+  - config_templates: energy_chart
+    series:
+    - entity: sensor.shelly_plug_badkamer_verwarming_energy_usage
+      group_by:
+        duration: 5min
+        func: max
+      type: line
+    - entity: sensor.shelly_plug_douche_verwarming_energy_usage
+      group_by:
+        duration: 5min
+        func: max
+      type: line
+    type: custom:apexcharts-card
+  - link_dashboard: true
+    type: energy-distribution
   icon: mdi:lightning-bolt-circle
   path: energy
   title: Energy

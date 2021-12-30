@@ -41,10 +41,6 @@ sonos_say:
     data_template:
       entity_id: '{{ sonos_entity }}'
       volume_level: '{{ volume }}'
-  - service: sonos.set_option
-    data_template:
-      entity_id: '{{ sonos_entity }}'
-      speech_enhance: true
   - service: tts.google_translate_say
     data_template:
       entity_id: '{{ sonos_entity }}'
@@ -115,9 +111,22 @@ sleep_well:
       - light.ledstrip_office
       - light.keuken
       - light.woonkamer
-      - light.kitchendesk_light
       - light.boekenkast
       - light.ledstrip_tv
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.living_room
+      volume: 0.3
+      message: Slaap lekker
+      delay: 00:00:02
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - service: light.turn_off
+    target:
+      entity_id: light.kitchendesk_light
   mode: parallel
   icon: mdi:sleep
   max: 10
@@ -214,5 +223,14 @@ reload_frontend:
   - service: template.reload
   - service: browser_mod.lovelace_reload
   - service: frontend.reload_themes
+  - service: browser_mod.window_reload
   mode: single
   icon: mdi:restart
+lights_off_upstairs:
+  alias: Lights off - upstairs
+  sequence:
+  - service: light.turn_off
+    target:
+      entity_id: light.bovenverdieping
+  mode: single
+  icon: mdi:lamps-outline

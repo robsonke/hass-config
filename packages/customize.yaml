@@ -14,7 +14,7 @@ homeassistant:
       assumed_state: false
   customize:
     person.rob:
-      entity_picture: "/local/images/rob_icon.png"
+      entity_picture: "/local/images/rob_icon-mirror.png"
     person.steffi:
       entity_picture: "/local/images/steffi_icon.png"
     person.ha_catt_cast:
@@ -29,9 +29,8 @@ homeassistant:
     device_tracker.steffi_presence:
       friendly_name: Combined Presence Steffi
 
-    light.office_lights:
-      icon: mdi:desktop-mac-dashboard
-      friendly_name: Kantoor verlichting
+    light.boekenkast:
+      icon: mdi:led-strip-variant
     media_player.living_room:
       friendly_name: Speakers Woonkamer
     media_player.tv_room:
@@ -48,7 +47,6 @@ homeassistant:
 
     switch.kasa_infrarood_slaapkamer:
       icon: mdi:radiator
-
     binary_sensor.backdoor_openclose_sensor:
       friendly_name: Achterdeur
       device_class: door
@@ -123,3 +121,20 @@ homeassistant:
       friendly_name: Luchtdruk sensor kantoor
     sensor.climate_sensor_office_battery_level:
       friendly_name: Klimaat sensor kantoor batterij
+
+    sensor.altherma_energy_usage:
+      device_class: energy
+      state_class: measurement
+      last_reset: '1970-01-01T00:00:00+00:00'
+      unit_of_measurement: kWh
+    sensor.altherma_energy_usage_secundary:
+      device_class: energy
+      state_class: measurement
+      last_reset: '1970-01-01T00:00:00+00:00'
+      unit_of_measurement: kWh
+    sensor.shelly_plug_office_energy_usage:
+      last_reset: '1970-01-01T00:00:00+00:00'
+    sensor.shelly_plug_douche_verwarming_energy_usage:
+      last_reset: '1970-01-01T00:00:00+00:00'
+    sensor.shelly_plug_badkamer_verwarming_energy_usage:
+      last_reset: '1970-01-01T00:00:00+00:00'

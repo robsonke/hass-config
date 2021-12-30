@@ -82,7 +82,7 @@ browser_mod:
               }
             card:
               type: iframe
-              url: /hassio/dashboard
+              url: /config/dashboard
               aspect_ratio: 65%
               style: |
                 ha-card {
@@ -152,7 +152,7 @@ browser_mod:
               }
             card:
               type: iframe
-              url: /hassio/dashboard
+              url: /config/dashboard
               aspect_ratio: 65%
               style: |
                 ha-card {

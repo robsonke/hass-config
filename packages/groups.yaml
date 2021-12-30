@@ -63,3 +63,46 @@ group:
     entities:
       - binary_sensor.updater
       - sensor.althermasensors
+
+  lights_living:
+    name: Woonkamer
+    icon: mdi:lamps
+    entities:
+      - light.livingback_light
+      - light.livingfront_light
+      - light.zwave_light_couch_level
+      - light.zwave_light_corner_level
+      - light.ledstrip_tv
+  lights_dining:
+    name: Eetkamer
+    icon: mdi:lamps
+    entities:
+      - light.dining_light
+      - light.boekenkast
+      - light.diningtable_light
+  lights_kitchen:
+    name: Keuken
+    icon: mdi:lamps
+    entities:
+      - light.kitchen_light
+      - light.kitchencabin_light
+      - light.kitchendesk_light
+  lights_office:
+    name: Kantoor
+    icon: mdi:lamps
+    entities:
+      - light.office_lights
+      - light.ledstrip_office
+  lights_upstairs:
+    name: Bovenverdieping
+    icon: mdi:lamps
+    entities:
+      - light.douche
+      - light.badkamer
+      - light.hal
+      - light.hoofdslaapkamer
+      - light.inloopkast
+      - light.logeerkamer
+      - light.overloop
+      - light.zolder
+      - light.slaapkamer_eva
