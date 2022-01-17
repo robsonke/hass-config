@@ -1054,10 +1054,17 @@ views:
         type: custom:button-card
       type: horizontal-stack
     type: vertical-stack
-  - entity: media_player.bedroom_googlehome
-    group: true
+  - artwork: cover
+    entity: media_player.bedroom_googlehome
+    hide:
+      icon: true
+      power: true
+      power_state: false
+      source: false
+    info: short
+    scale: '1'
     type: custom:mini-media-player
-    volume_stateless: false
+    volume_stateless: true
   - entities:
     - entity: light.hoofdslaapkamer
       secondary_info: brightness
@@ -1091,6 +1098,8 @@ views:
     - type: divider
     - entity: switch.kasa_infrarood_slaapkamer
       name: Infrarood slaapkamer
+    - entity: switch.shelly_plug_kachel_slaapkamer
+    - entity: switch.infraroodpanel_eva
     show_header_toggle: false
     type: entities
   - camera_entity: camera.evabed
@@ -1817,12 +1826,12 @@ views:
     type: custom:apexcharts-card
   - config_templates: energy_chart
     series:
-    - entity: sensor.shelly_plug_badkamer_verwarming_energy_usage
+    - entity: sensor.shelly_plug_badkamer_verwarming_relay_power
       group_by:
         duration: 5min
         func: max
       type: line
-    - entity: sensor.shelly_plug_douche_verwarming_energy_usage
+    - entity: sensor.shelly_plug_douche_verwarming_relay_power
       group_by:
         duration: 5min
         func: max
@@ -1830,7 +1839,54 @@ views:
     type: custom:apexcharts-card
   - link_dashboard: true
     type: energy-distribution
+  - config_templates: energy_chart
+    series:
+    - entity: sensor.water_meter_current_usage
+      group_by:
+        duration: 5min
+        func: max
+      type: line
+    type: custom:apexcharts-card
+  - graph_span: 24h
+    header:
+      colorize_states: true
+      show: true
+      show_states: true
+      title: Waterverbruik vandaag
+    series:
+    - entity: sensor.water_meter_current_usage
+      group_by:
+        duration: 60min
+        func: sum
+      type: column
+    - entity: sensor.water_meter_current_usage
+      group_by:
+        duration: 60min
+        func: sum
+      offset: -1d
+      type: column
+    span:
+      start: day
+    type: custom:apexcharts-card
   icon: mdi:lightning-bolt-circle
   path: energy
   title: Energy
   type: custom:masonry-layout
+- badges: []
+  cards:
+  - entity: media_player.office
+    type: custom:mini-media-player
+  - entity: media_player.zithoek
+    type: custom:mini-media-player
+  - background: cover
+    entities:
+    - media_player.office
+    - media_player.living_room
+    - media_player.eetkamer
+    - media_player.zithoek
+    name: Musica!
+    type: custom:sonos-card
+  icon: mdi:test-tube
+  path: test
+  title: ''
+  type: custom:grid-layout

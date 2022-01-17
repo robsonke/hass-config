@@ -33,7 +33,7 @@ template:
         {%- set days = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'] %}
         {%- set months = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
         'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'] %}
-          {{- days[now().weekday()] }}<br/>{{ strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
+          {{- days[now().weekday()] }}, {{ strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
         {%- endif -%}
         </b></font>
   - unique_id: sidebar_trash
@@ -192,6 +192,15 @@ template:
         |round(2)
       }}
       {% else %} 0 {%endif%}
+
+- sensor:
+  - unique_id: water_meter_total_m3
+    attributes:
+      friendly_name: Water Meter Total m3
+    state_class: measurement
+    unit_of_measurement: m³
+    state: "{{ states('counter.watermeter_consumption_counter') |float * 0.001 }}"
+    icon: mdi:water-pump
 
 # important entities
 - trigger:

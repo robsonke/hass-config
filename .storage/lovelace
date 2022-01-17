@@ -1756,8 +1756,16 @@
                         {
                             "type": "custom:mini-media-player",
                             "entity": "media_player.bedroom_googlehome",
-                            "group": true,
-                            "volume_stateless": false
+                            "scale": "1",
+                            "hide": {
+                                "power": true,
+                                "power_state": false,
+                                "icon": true,
+                                "source": false
+                            },
+                            "info": "short",
+                            "volume_stateless": true,
+                            "artwork": "cover"
                         },
                         {
                             "type": "entities",
@@ -1814,6 +1822,12 @@
                                 {
                                     "entity": "switch.kasa_infrarood_slaapkamer",
                                     "name": "Infrarood slaapkamer"
+                                },
+                                {
+                                    "entity": "switch.shelly_plug_kachel_slaapkamer"
+                                },
+                                {
+                                    "entity": "switch.infraroodpanel_eva"
                                 }
                             ]
                         },
@@ -3001,7 +3015,7 @@
                             "config_templates": "energy_chart",
                             "series": [
                                 {
-                                    "entity": "sensor.shelly_plug_badkamer_verwarming_energy_usage",
+                                    "entity": "sensor.shelly_plug_badkamer_verwarming_relay_power",
                                     "type": "line",
                                     "group_by": {
                                         "duration": "5min",
@@ -3009,7 +3023,7 @@
                                     }
                                 },
                                 {
-                                    "entity": "sensor.shelly_plug_douche_verwarming_energy_usage",
+                                    "entity": "sensor.shelly_plug_douche_verwarming_relay_power",
                                     "type": "line",
                                     "group_by": {
                                         "duration": "5min",
@@ -3021,6 +3035,80 @@
                         {
                             "type": "energy-distribution",
                             "link_dashboard": true
+                        },
+                        {
+                            "type": "custom:apexcharts-card",
+                            "config_templates": "energy_chart",
+                            "series": [
+                                {
+                                    "entity": "sensor.water_meter_current_usage",
+                                    "type": "line",
+                                    "group_by": {
+                                        "duration": "5min",
+                                        "func": "max"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "custom:apexcharts-card",
+                            "graph_span": "24h",
+                            "span": {
+                                "start": "day"
+                            },
+                            "header": {
+                                "show": true,
+                                "title": "Waterverbruik vandaag",
+                                "show_states": true,
+                                "colorize_states": true
+                            },
+                            "series": [
+                                {
+                                    "entity": "sensor.water_meter_current_usage",
+                                    "type": "column",
+                                    "group_by": {
+                                        "duration": "60min",
+                                        "func": "sum"
+                                    }
+                                },
+                                {
+                                    "entity": "sensor.water_meter_current_usage",
+                                    "type": "column",
+                                    "group_by": {
+                                        "duration": "60min",
+                                        "func": "sum"
+                                    },
+                                    "offset": "-1d"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "icon": "mdi:test-tube",
+                    "title": "",
+                    "path": "test",
+                    "type": "custom:grid-layout",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.office"
+                        },
+                        {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.zithoek"
+                        },
+                        {
+                            "type": "custom:sonos-card",
+                            "name": "Musica!",
+                            "background": "cover",
+                            "entities": [
+                                "media_player.office",
+                                "media_player.living_room",
+                                "media_player.eetkamer",
+                                "media_player.zithoek"
+                            ]
                         }
                     ]
                 }

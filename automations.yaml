@@ -397,8 +397,8 @@
       addon: a0d7b954_ssh
       input: bash /config/cast.sh
     service: hassio.addon_stdin
-- id: doorbell_ring_sonos
-  alias: Doorbell - Notification Sonos - Doorbell Ring
+- id: doorbell_ring_notification
+  alias: Doorbell - Notification Doorbell Ring
   description: Say ding dong through the speakers when doorbell rings
   trigger:
   - platform: state
@@ -406,36 +406,40 @@
     from: 'off'
     to: 'on'
   action:
-  - service: script.sonos_play_sound
+  - service: script.googlehome_play_sound
     data:
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-      volume: 0.6
-      sonos_entity: media_player.office_googlehome
+      volume: 0.7
+      volume_restore: 0.4
+      googlehome_entity: media_player.office_googlehome
       delay: 00:00:03
-  - service: script.sonos_play_sound
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+  - service: script.googlehome_play_sound
     data:
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-      volume: 0.6
-      sonos_entity: media_player.bedroom_googlehome
+      volume: 0.7
+      volume_restore: 0.4
+      googlehome_entity: media_player.bedroom_googlehome
       delay: 00:00:03
-  - service: script.sonos_play_sound
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+  - service: script.googlehome_play_sound
     data:
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-      volume: 0.6
-      sonos_entity: media_player.living_googlehome
+      volume: 0.7
+      volume_restore: 0.4
+      googlehome_entity: media_player.living_googlehome
       delay: 00:00:03
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
   - service: notify.all_phones
     data:
       message: 🔔 Ding Dong!
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_play_sound
+  - service: script.googlehome_play_sound
     data:
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-      volume: 0.6
-      sonos_entity: media_player.keuken_display
+      volume: 0.7
+      volume_restore: 0.4
+      googlehome_entity: media_player.keuken_display
       delay: 00:00:03
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -458,7 +462,7 @@
       - condition: time
         after: '16:00:00'
       - condition: time
-        before: '22:55:00'
+        before: '22:55'
       - condition: state
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'on'
@@ -493,11 +497,6 @@
   - service: light.turn_on
     data:
       entity_id: light.garden_light
-  - service: switch.turn_on
-    target:
-      entity_id:
-      - switch.light_garden_front
-      - switch.light_garden_fenceback
   mode: single
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights
@@ -522,11 +521,6 @@
       entity_id:
       - light.garden_light
       - light.dimmer_cabinroof_level
-  - service: switch.turn_off
-    target:
-      entity_id:
-      - switch.light_garden_front
-      - switch.light_garden_fenceback
   mode: single
 - id: lights_turn_off_bedtime_manual
   alias: Sleep - Switch to night mode manually
@@ -854,22 +848,24 @@
     state: 'off'
     entity_id: input_boolean.guest_mode
   action:
-  - service: tts.google_translate_say
-    entity_id: media_player.keuken_display
+  - service: script.googlehome_say
     data_template:
+      volume: 0.6
+      volume_restore: 0.4
+      googlehome_entity: media_player.keuken_display
+      delay: 00:00:03
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
         komt er aan!
   - delay: '2'
-  - service: tts.google_translate_say
-    entity_id: media_player.office_googlehome
+  - service: script.googlehome_say
     data_template:
+      volume: 0.6
+      volume_restore: 0.4
+      googlehome_entity: media_player.office_googlehome
+      delay: 00:00:03
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
         komt er aan!
   - delay: '5'
-  - service: automation.trigger
-    data:
-      entity_id: automation.cast_ha_to_nest_display
-      skip_condition: false
   mode: single
 - id: presence_frigate_object_detection
   alias: Alarm - Notify of person events on camera
@@ -1746,14 +1742,22 @@
   mode: single
 - id: '1633552734408'
   alias: Alarm - Enable guest mode when nanny home
-  description: ''
+  description: Enable on Thursday when we're away or leaving the house
   trigger:
   - platform: time
     at: '14:00'
+  - platform: state
+    entity_id: binary_sensor.template_home_at_least_one_of_us
+    to: 'off'
   condition:
   - condition: time
     weekday:
     - thu
+    before: '18:30'
+    after: '13:50'
+  - condition: state
+    entity_id: binary_sensor.template_home_at_least_one_of_us
+    state: 'off'
   action:
   - service: input_boolean.turn_on
     target:
@@ -2108,3 +2112,46 @@
     target:
       entity_id: counter.error_counter
   mode: single
+- id: '1641574319382'
+  alias: Energy - Count Water Usage
+  description: Count Water Usage through Esphome sensor
+  use_blueprint:
+    path: Techwolf12/watermeter.yaml
+    input:
+      counter: counter.watermeter_consumption_counter
+      watermeterkit: sensor.water_meter_total_consumption
+- id: '1642265273034'
+  alias: Heating - Turn on heating main bedroom
+  description: Turn on heating before schedule turns on
+  trigger:
+  - platform: time
+    at: 09:55
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id: switch.shelly_plug_kachel_slaapkamer
+  mode: single
+- id: '1642265325725'
+  alias: Heating - Turn off heating main bedroom
+  description: Turn on heating after schedule turns off
+  trigger:
+  - platform: time
+    at: '19:05'
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id: switch.shelly_plug_kachel_slaapkamer
+  mode: single
+- id: '1642349871460'
+  alias: Heating - Control heating Eva
+  description: This turns on the infra red heating panel in Eva's room
+  use_blueprint:
+    path: robsonke/heating.yaml
+    input:
+      heating: switch.infraroodpanel_eva
+      temp_sensor: sensor.climate_sensor_eva_temperature
+      min_temp: 17
+      time_after: 09:00:00
+      time_before: '18:00:00'

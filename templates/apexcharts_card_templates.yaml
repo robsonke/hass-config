@@ -1,6 +1,6 @@
 energy_chart:
   graph_span: 24h
-  #layout: minimal
+  layout: minimal
   locale: nl
   span:
     start: day
@@ -14,6 +14,7 @@ energy_chart:
     stroke_width: 1
     opacity: 0.5
     type: area
+    color: '#3182b7'
   apex_config:
     grid:
       show: false

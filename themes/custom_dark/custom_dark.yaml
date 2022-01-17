@@ -16,6 +16,9 @@ custom-dark:
       sidebar-background-color: var(--card-background-color)
       divider-color: rgba(225, 225, 225, 0.12)
 
+      #background-image: 
+      lovelace-background: center / cover no-repeat fixed url('/local/background.png')
+
       # edited
       ha-card-box-shadow: none
       ha-card-background: none
@@ -47,6 +50,7 @@ custom-dark:
       sidebar-font-size: 1.5vw
       sidebar-line-height: 2.1vw
       card-content-padding: 1.8em 2.2em 1.8em 2em
+
       
     light:
       # default light mode
@@ -61,6 +65,9 @@ custom-dark:
       table-row-alternative-background-color: var(--secondary-background-color)
       sidebar-background-color: var(--card-background-color)
       divider-color: rgba(225, 225, 225, 0.12)
+
+      background-image: "center / cover no-repeat fixed url('/hacsfiles/themes/ios-themes/homekit-bg-dark-green.jpg')"
+      #lovelace-background: var(--background-image)
 
       # edited
       ha-card-box-shadow: none
@@ -104,11 +111,11 @@ custom-dark:
 
   card-mod-theme: custom-dark
 
-  card-mod-root: |
-    ha-app-layout {
-      background: url('/local/background.png');
-      background-size: cover;
-    }
+  # card-mod-root: |
+  #   ha-app-layout {
+  #     background: url('/local/background.png');
+  #     background-size: cover;
+  #   }
   card-mod-view-yaml: |
     .: |
       hui-view {

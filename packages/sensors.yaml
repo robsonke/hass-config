@@ -59,11 +59,14 @@ sensor:
   method: trapezoidal
   unit_prefix: k
   round: 2
+- platform: integration
+  source: sensor.shelly_plug_kachel_slaapkamer_power
+  name: Shelly Plug Slaapkamer Verwarming Energy Usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
 
-# - platform: statistics
-#   entity_id: binary_sensor.motion_sensor_cats_presence
-#   state_characteristic: count
-#   sensor:
+
 - platform: history_stats
   name: Cat door today
   entity_id: binary_sensor.motion_sensor_cats_presence

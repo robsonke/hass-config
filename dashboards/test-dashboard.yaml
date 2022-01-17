@@ -38,7 +38,7 @@ views:
         '(max-width: 1200px)':
           grid-gap: var(--grid-card-gap)
           grid-template-columns: 1fr repeat(2, 3fr) 0
-          grid-template-rows: 0 repeat(4, fit-content(100%)) 0fr
+          grid-template-rows: 0 repeat(4, fit-content(100%))
           grid-template-areas: |
             "sidebar  .        .          ."
             "sidebar  home     living     ."
@@ -61,41 +61,34 @@ views:
         view_layout:
           grid-area: sidebar
         cards:
-          - type: horizontal-stack
+          - type: custom:button-card
+            entity: sensor.template_sidebar_time
             card_mod:
               style: |
-                :host {
-                  display: flex;
-                }
-            cards:
-            - type: custom:button-card
-              entity: sensor.template_sidebar_time
-              style: |
-                :host {
-                  flex: auto !important;
-                }
                 div.name-state {
                   display: none;
                 }
-              tap_action:
-                action: call-service
-                service: script.reload_frontend
-              template: sidebar_template
-            - type: weather-forecast
-              entity: weather.home
-              show_forecast: false
-              style: |
-                :host {
-                  flex: auto !important;
-                }
-                div.name-state {
-                  display: none;
-                }
-                div.content {
-                  flex-direction: column;
-                }
-              tap_action:
-                !include popups/sidebar_weather.yaml
+            tap_action:
+              action: call-service
+              service: script.reload_frontend
+            template: sidebar_template
+          - type: weather-forecast
+            entity: weather.home
+            show_forecast: false
+            style: |
+              div.name-state {
+                display: none;
+              }
+              :host([verynarrow]) div.attribute {
+                display: block;
+              }
+              :host([veryVeryNarrow]) div.content {
+                flex-flow: row nowrap;
+                justify-content: space-around;
+                align-items: normal;
+              }
+            tap_action:
+              !include popups/sidebar_weather.yaml
           - type: custom:button-card
             entity: person.rob
             name: Rob
@@ -140,7 +133,6 @@ views:
                 icon: mdi:repeat-off
                 tap_action:
                   !include popups/sidebar_update.yaml
-
                 card_mod:
                   style: |
                     {% if not is_state('sensor.all_updates', '0') and not is_state('sensor.all_updates', 'Unknown') %}
@@ -150,19 +142,16 @@ views:
                     }
                     :host {
                       --card-mod-icon: mdi:repeat-once;
-                      
                     }
                     {% else %}
                     :host ha-state-icon {
                       color: var(--paper-item-icon-color, #44739e);
-                      
                     }
                     :host {
                       --card-mod-icon: mdi:repeat-off;
                       --mdc-icon-size: 40%;
                     }
                     {% endif %}
-                    
               - type: button
                 icon: mdi:information-outline
                 # tap_action:
@@ -298,11 +287,28 @@ views:
             tap_action:
               !include popups/car_ix3.yaml
             name: BMW iX3
+            triggers_update:
+              - binary_sensor.ix3_connection_status
+              - binary_sensor.ix3_charging_status
             styles:
               entity_picture:
                 - width: 45%
                 - border-radius: 50%
                 - opacity: 0.8
+              custom_fields:
+                icon:
+                  - color: >
+                      [[[
+                        let plugged = states['binary_sensor.ix3_connection_status'].state;
+                        if (plugged === 'on') return 'var(--state-icon-active-color)';
+                        return 'rgba(255, 255, 255, 0.3)';
+                      ]]]
+                  - animation: >
+                      [[[
+                        let charging = states['binary_sensor.ix3_charging_status'].state;
+                        if (charging === 'on') return 'blink 4s ease infinite';
+                        return 'none';
+                      ]]]
             state:
               - value: not_home
                 styles:
@@ -336,8 +342,9 @@ views:
                       border-radius: 0 0 1em 1em;
                     }
             variables:
+              unit: kWh
               circle_input: >
-                [[[ return Math.round(states['sensor.daily_consumption_energy'].state * 10) / 10; ]]]
+                [[[ return Math.round(states['sensor.daily_consumption_energy'].state); ]]]
               
 
 
@@ -412,38 +419,155 @@ views:
               browser_mod:
                 command: popup
                 title:  Muziek
-                large: true
                 card:
                   type: vertical-stack
                   cards:
-                    - name: Group
-                      template: sonos_header
-                      type: 'custom:button-card'
+                    ### MASTER
+                    - type: 'custom:stack-in-card'
+                      keep:
+                        border_radius: true
+                        background: true
+                        margins: true
+                      cards:
+                        - name: Speakers
+                          template: sonos_header
+                          type: 'custom:button-card'
+                        - type: horizontal-stack
+                          cards:
+                            - type: custom:decluttering-card
+                              template: sonos_master
+                              variables:
+                                - name: Living<br/>Room
+                                - speaker: living_room
+                                - font-size: 19px
+                            - type: custom:decluttering-card
+                              template: sonos_master
+                              variables:
+                                - name: Eetkamer
+                                - speaker: eetkamer
+                        - color_type: blank-card
+                          styles:
+                            card:
+                              - height: 7px
+                          type: 'custom:button-card'
+                        - type: horizontal-stack
+                          cards:
+                            - type: custom:decluttering-card
+                              template: sonos_master
+                              variables:
+                                - name: Office
+                                - speaker: office
+                            - type: custom:decluttering-card
+                              template: sonos_master
+                              variables:
+                                - name: Zithoek
+                                - speaker: zithoek
+                        - type: 'custom:button-card'
+                          color_type: blank-card
+                          styles:
+                            card:
+                              - height: 10px
+
+                    ### PLAYER
+                    - type: 'custom:stack-in-card'
+                      cards:
+                        - type: custom:decluttering-card
+                          template: sonos_player
+                          variables:
+                            - speaker: living_room
+                        - type: custom:decluttering-card
+                          template: sonos_player
+                          variables:
+                            - speaker: eetkamer
+                        - type: custom:decluttering-card
+                          template: sonos_player
+                          variables:
+                            - speaker: office
+                        - type: custom:decluttering-card
+                          template: sonos_player
+                          variables:
+                            - speaker: zithoek
+                        
+                    ### PLAYLIST
+                    - type: 'custom:stack-in-card'
+                      keep:
+                        border_radius: true
+                      cards:
+                        - name: Playlists
+                          template: sonos_header
+                          type: 'custom:button-card'
+                        - cards:
+                            - type: custom:decluttering-card
+                              template: sonos_playlist
+                              variables:
+                                - name: NPO Radio 2
+                                - playlist: NPO Radio 2
+                                - shuffle: false
+                            - type: custom:decluttering-card
+                              template: sonos_playlist
+                              variables:
+                                - name: Techno
+                                - playlist: Techno
+                            - type: custom:decluttering-card
+                              template: sonos_playlist
+                              variables:
+                                - name: Ouwe shizzles
+                                - playlist: Ouwe shizzles
+                          type: horizontal-stack
+                        - color_type: blank-card
+                          styles:
+                            card:
+                              - height: 10px
+                          type: 'custom:button-card'
+
+                    ### GROUPS
+                    - type: 'custom:stack-in-card'
+                      keep:
+                        background: keep
+                        border_radius: true
+                        margins: keep
+                      cards:
+                        - name: Group
+                          template: sonos_header
+                          type: 'custom:button-card'
+                        - type: horizontal-stack
+                          cards:
+                            - type: custom:decluttering-card
+                              template: sonos_group
+                              variables:
+                                - name: Living<br/>Room
+                                - speaker: living_room
+                                - font-size: 19px
+                            - type: custom:decluttering-card
+                              template: sonos_group
+                              variables:
+                                - name: Eetkamer
+                                - speaker: eetkamer
+                            
+                        - color_type: blank-card
+                          styles:
+                            card:
+                              - height: 7px
+                          type: 'custom:button-card'
+                        - cards:
+                            - type: custom:decluttering-card
+                              template: sonos_group
+                              variables:
+                                - name: Office
+                                - speaker: office
+                            - type: custom:decluttering-card
+                              template: sonos_group
+                              variables:
+                                - name: Zithoek
+                                - speaker: zithoek
+                          type: horizontal-stack
+                        - color_type: blank-card
+                          styles:
+                            card:
+                              - height: 10px
+                          type: 'custom:button-card'
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    # - media_player.living_room
-                    # - media_player.office
-                    # - media_player.eetkamer
-                    # - media_player.zithoek
-
-                
-
-      
       #################################################
       #                                               #
       #                  Kitchen                      #
@@ -518,3 +642,18 @@ views:
               - music
             tap_action:
               action: more-info
+          - type: custom:button-card
+            entity: sensor.climate_sensor_masterbedroom_temperature
+            name: Klimaat
+            template:
+              - climate
+              - icon_temp
+            tap_action:
+              !include popups/climate_upstairs.yaml
+            hold_action:
+              action: none
+            custom_fields:
+              graph:
+                card:
+                  series:
+                    - entity: sensor.climate_sensor_masterbedroom_temperature

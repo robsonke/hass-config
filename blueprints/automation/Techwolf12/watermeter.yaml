@@ -1,0 +1,37 @@
+blueprint:
+  name: Watermeterkit Meter Value
+  description: Update a counter when the watermeterkit.nl sensor gets updated
+  domain: automation
+  input:
+    watermeterkit:
+      name: Watermeterkit Total Consumption counter
+      description: Watermeterkit Total cosumption counter (provided by ESPHome)
+      selector:
+        entity: {}
+    counter:
+      name: Helper Counter
+      description: The helper counter you made
+      default: []
+      selector:
+        entity:
+          domain: counter
+  source_url: https://gist.github.com/Techwolf12/8d0ffb596e0931f5e16b5b37740071b0
+mode: single
+trigger:
+- platform: state
+  entity_id: !input 'watermeterkit'
+condition:
+- condition: not
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: !input 'watermeterkit'
+      state: '0.000'
+    - condition: state
+      entity_id: !input 'watermeterkit'
+      state: unavailable
+action:
+- service: counter.increment
+  target:
+    entity_id: !input 'counter'

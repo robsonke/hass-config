@@ -3,8 +3,10 @@ browser_mod:
   command: popup
   title: Bovenverdieping verlichting
   card:
-    type: custom:layout-card
-    layout_type: custom:masonry-layout
+    # type: custom:layout-card
+    # layout_type: custom:masonry-layout
+    type: grid
+    columns: 3
     cards:
       - type: custom:decluttering-card
         template: light_button

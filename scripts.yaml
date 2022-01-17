@@ -234,3 +234,91 @@ lights_off_upstairs:
       entity_id: light.bovenverdieping
   mode: single
   icon: mdi:lamps-outline
+play_sonos_playlist:
+  alias: Play Sonos Playlist
+  sequence:
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.sonos_playlist
+      option: '{{ playlist }}'
+  - service: media_player.shuffle_set
+    data_template:
+      entity_id: '{{ states.input_select.sonos_master.state }}'
+      shuffle: '{{shuffle}}'
+  - service: media_player.select_source
+    data_template:
+      entity_id: '{{ states.input_select.sonos_master.state }}'
+      source: '{{ states.input_select.sonos_playlist.state }}'
+
+googlehome_play_sound:
+  alias: Google Home Play MP3
+  mode: single
+  icon: mdi:play
+  sequence:
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: true
+  - service: media_player.volume_set
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      volume_level: '{{ volume }}'
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: false
+  - service: media_player.play_media
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      media_content_type: music
+      media_content_id: '{{ mp3_url }}'
+  - delay:
+      seconds: '{{ delay }}'
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: true
+  - service: media_player.volume_set
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      volume_level: '{{ volume_restore }}'
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: false
+
+googlehome_say:
+  alias: Google Home TTS script
+  mode: single
+  icon: mdi:play
+  sequence:
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: true
+  - service: media_player.volume_set
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      volume_level: '{{ volume }}'
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: false
+  - service: tts.google_translate_say
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      message: '{{ message }}'
+  - delay:
+      seconds: '{{ delay }}'
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: true
+  - service: media_player.volume_set
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      volume_level: '{{ volume_restore }}'
+  - service: media_player.volume_mute
+    data_template:
+      entity_id: '{{ googlehome_entity }}'
+      is_volume_muted: false

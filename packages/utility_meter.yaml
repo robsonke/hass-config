@@ -46,3 +46,13 @@ utility_meter:
     tariffs:
       - peak
       - offpeak
+
+  water_daily:
+    source: sensor.template_water_meter_total_m3
+    cycle: daily
+  water_monthly:
+    source: sensor.template_water_meter_total_m3
+    cycle: monthly
+  water_yearly:
+    source: sensor.template_water_meter_total_m3
+    cycle: yearly

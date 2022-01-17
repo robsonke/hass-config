@@ -1,0 +1,74 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Slaapkamers klimaat
+  large: true
+  card:
+    type: custom:layout-card
+    layout_type: custom:masonry-layout
+    cards:
+      - type: custom:mini-graph-card
+        name: Slaapkamer
+        entities:
+          - sensor.climate_sensor_masterbedroom_temperature
+        line_color: '#e74c3c'
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Slaapkamer
+        entities:
+          - sensor.climate_sensor_masterbedroom_humidity
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Slaapkamer
+        entities:
+          - sensor.lightlevel_masterbedroom
+        line_color: '#F7BF10'
+        line_width: 8
+        font_size_header: 10
+
+      - type: custom:mini-graph-card
+        name: Eva
+        entities:
+          - sensor.climate_sensor_eva_temperature
+        line_color: '#e74c3c'
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Eva
+        entities:
+          - sensor.climate_sensor_eva_humidity
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Eva
+        entities:
+          - sensor.climate_sensor_eva_pressure
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+
+      - type: custom:mini-graph-card
+        name: Logeerkamer
+        entities:
+          - sensor.climate_sensor_guestroom_temperature
+        line_color: '#e74c3c'
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Logeerkamer
+        entities:
+          - sensor.climate_sensor_guestroom_humidity
+        line_color: blue
+        line_width: 8
+        font_size_header: 10
+      - type: custom:mini-graph-card
+        name: Logeerkamer
+        entities:
+          - sensor.climate_sensor_guestroom_pressure
+        line_color: blue
+        line_width: 8
+        font_size_header: 10

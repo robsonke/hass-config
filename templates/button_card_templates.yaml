@@ -23,6 +23,7 @@ base:
           state === 'open'
         );
       ]]]
+    unit: '%'
   aspect_ratio: 1/1
   show_state: true
   show_icon: false
@@ -201,7 +202,7 @@ circle:
                 }
               </style>
               <circle cx="25" cy="25" r="${radius}" stroke="#b2b2b2" stroke-width="1.5" fill="none" />
-              <text x="50%" y="54%" fill="#8d8e90" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}<tspan font-size="10">%</tspan></text>
+              <text x="50%" y="54%" fill="#8d8e90" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}<tspan font-size="10">${variables.unit}</tspan></text>
             </svg>
           `;
         }
@@ -430,6 +431,13 @@ music:
     browser_mod:
       command: popup
       title:  Muziek
+      style:
+        .: |
+          :host .content {
+            width: 60em;
+            height: 100%;
+            padding: 2.1em 1.9em 1.9em 2.7em;
+          }
       card:
         type: "custom:sonos-card"
         name: "Sonos"
@@ -437,17 +445,16 @@ music:
           - media_player.living_room
           - media_player.office
           - media_player.eetkamer
-      style: 
-        .: |
-          :host .content {
-            width: 60em;
-            height: 100%;
-            padding: 2.1em 1.9em 1.9em 2.7em;
-          }
-  extra_styles: |
-    ul.members > li .member {
-      width: 150px;
-    }
+          - media_player.zithoek
+        background: cover
+        card_mod:
+          style: |
+            ha-card.type-custom-sonos-card {
+              --sns-button-size-width: 150px;
+              --sns-button-icon-color: var(--primary-color);
+              --sns-player-background: transparant;
+              --sns-card-primary-text-color: #fff;
+            }
 
 #################################################
 #                                               #
@@ -626,6 +633,7 @@ icon_cover:
 #################################################
 
 base_sidebar:
+  show_name: true
   styles:
     card:
       - font-family: Sf Display
@@ -656,16 +664,14 @@ person:
     - base_sidebar
   show_entity_picture: true
   show_icon: false
-  show_name: false
   show_state: true
-  state_display: '[[[ return `${entity.attributes.friendly_name} (${entity.state})`; ]]]'
   styles:
     grid:
       - grid-template-areas: >
-          "i s icon"
-      - grid-template-columns: 20% 3fr 1fr
+          "i n s icon"
+      - grid-template-columns: 20% 2fr 2fr 1fr
       - grid-template-rows: 30px
-    state:
+    name:
       - justify-self: start
       - align-self: left
     entity_picture:
@@ -678,7 +684,6 @@ person:
         entity_picture:
           - opacity: 0.4
           - filter: grayscale(100%)
-  triggers_update: sensor.time
   custom_fields:
     icon: >
       [[[
@@ -697,7 +702,6 @@ sidebar_button:
     - base_sidebar
   show_entity_picture: false
   show_icon: true
-  show_name: true
   show_state: true
   styles:
     grid:
@@ -705,7 +709,6 @@ sidebar_button:
           "i n s"
       - grid-template-columns: 20% 3fr 1fr
       - grid-template-rows: 30px
-  triggers_update: sensor.time
 
 
 #################################################
