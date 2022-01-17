@@ -5,6 +5,7 @@
 glances
 node-red
 appdaemon
+custom_components
 backup
 deps
 tts
