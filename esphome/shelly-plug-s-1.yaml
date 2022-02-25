@@ -1,5 +1,5 @@
 substitutions:
-  devicename: shelly-plug-s-1
+  devicename: shelly-plug-s-1-droger
   channel_1: Relay
   ip: !secret shellyplug1_ip
 

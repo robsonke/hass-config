@@ -16,18 +16,78 @@ energy_chart:
     type: area
     color: '#3182b7'
   apex_config:
+    chart:
+      offsetY: 0
+      parentHeightOffset: 0
     grid:
       show: false
     stroke:
       width: 3
     xaxis:
+      show: true
+      showAlways: true
+      labels:
+        show: true
       crosshairs:
         show: false
     yaxis:
+      show: true
+      showAlways: true
       crosshairs:
         show: true
 
 climate_chart:
+  layout: minimal
+  locale: nl
+  graph_span: 24h
+  show:
+    loading: false
+  header:
+    show: true
+    show_states: true
+    colorize_states: true
+  apex_config:
+    chart:
+      offsetY: 0
+      parentHeightOffset: 0
+    plotOptions:
+      area:
+        fillTo: end
+    # grid:
+    #   padding:
+    #     top: -15
+    fill:
+      type: gradient
+      gradient:
+        type: vertical
+        opacityFrom: 0.8
+        opacityTo: 0
+        stops:
+          - 0
+          - 99
+          - 100
+    stroke:
+      width: 4
+    tooltip:
+      style:
+        fontSize: 14px
+      x:
+        format: dddd HH:mm
+    # chart:
+    #   height: 140px
+    #   offsetY: -20px
+    xaxis:
+      show: true
+      showAlways: true
+      labels:
+        show: true
+      crosshairs:
+        show: false
+    yaxis:
+      show: true
+      showAlways: true
+
+climate_button_chart:
   layout: minimal
   locale: nl
   graph_span: 8h
@@ -47,7 +107,7 @@ climate_chart:
       gradient:
         type: vertical
         opacityFrom: 1.0
-        opacityTo: 0.2
+        opacityTo: 0.8
         stops:
           - 0
           - 99

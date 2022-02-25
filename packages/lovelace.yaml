@@ -10,9 +10,9 @@
 lovelace:
   mode: storage
   dashboards:
-    test-yaml:
+    main-dashboard:
       mode: yaml
-      title: New dashboard
-      icon: mdi:script
+      title: Main Dashboard
+      icon: mdi:view-dashboard-variant
       show_in_sidebar: true
-      filename: dashboards/test-dashboard.yaml
+      filename: dashboards/main-dashboard.yaml

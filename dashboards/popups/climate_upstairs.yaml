@@ -2,73 +2,134 @@ action: fire-dom-event
 browser_mod:
   command: popup
   title: Slaapkamers klimaat
-  large: true
+  style:
+    .: |
+      :host .content {
+        width: 60em;
+        height: 100%;
+      }
+      @media (max-width: 800px) {
+        :host .content {
+          width: 100%;
+        }
+      }
   card:
     type: custom:layout-card
-    layout_type: custom:masonry-layout
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: auto auto
+      grid-template-rows: auto
+      grid-template-areas: |
+        "climate thermostat"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "thermostat"
+            "climate"
     cards:
-      - type: custom:mini-graph-card
-        name: Slaapkamer
-        entities:
-          - sensor.climate_sensor_masterbedroom_temperature
-        line_color: '#e74c3c'
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Slaapkamer
-        entities:
-          - sensor.climate_sensor_masterbedroom_humidity
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Slaapkamer
-        entities:
-          - sensor.lightlevel_masterbedroom
-        line_color: '#F7BF10'
-        line_width: 8
-        font_size_header: 10
+      - type: vertical-stack
+        view_layout:
+          grid-area: thermostat
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.kasa_infrarood_slaapkamer
+                name: Infraroodpanel logeerkamer
+              - entity: switch.shelly_plug_kachel_slaapkamer
+              - entity: switch.infraroodpanel_eva
+              - entity: sensor.lightlevel_masterbedroom
+                name: Lichtsterkte slaapkamer
+          - type: conditional
+            conditions:
+              - entity: switch.shelly_plug_kachel_slaapkamer
+                state_not: "off"
+            card:
+              type: vertical-stack
+              title: Slaapkamer
+              cards:
+                - type: entities
+                  show_header_toggle: false
+                  entities:
+                    - entity: select.eurom_alutherm_capacity
+                      name: Verwarm mode slaapkamer
+                    - entity: sensor.eurom_alutherm_power
+                      name: Verbruik
+                - type: 'custom:simple-thermostat'
+                  entity: climate.eurom_alutherm_baseboard_heater
+                  version: 3
+                  layout:
+                    step: row
+                  header: false
+                  style: |
+                    div.mode-title {
+                      display: none;
+                    }
+                    .modes.heading {
+                      grid-template-columns: auto !important;
+                    }
 
-      - type: custom:mini-graph-card
-        name: Eva
-        entities:
-          - sensor.climate_sensor_eva_temperature
-        line_color: '#e74c3c'
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Eva
-        entities:
-          - sensor.climate_sensor_eva_humidity
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Eva
-        entities:
-          - sensor.climate_sensor_eva_pressure
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
-
-      - type: custom:mini-graph-card
-        name: Logeerkamer
-        entities:
-          - sensor.climate_sensor_guestroom_temperature
-        line_color: '#e74c3c'
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Logeerkamer
-        entities:
-          - sensor.climate_sensor_guestroom_humidity
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Logeerkamer
-        entities:
-          - sensor.climate_sensor_guestroom_pressure
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
+      - type: vertical-stack
+        view_layout:
+          grid-area: climate
+        cards:
+          - type: custom:apexcharts-card
+            view_layout:
+              grid-area: temp
+            config_templates: climate_chart
+            series:
+              - entity: sensor.climate_sensor_masterbedroom_temperature
+                name: Master
+                color: '#e74c3c'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+              - entity: sensor.climate_sensor_eva_temperature
+                name: Eva
+                color: '#e74c3c'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+              - entity: sensor.climate_sensor_guestroom_temperature
+                name: Logeerkamer
+                color: '#e74c3c'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+          - type: custom:apexcharts-card
+            view_layout:
+              grid-area: temp
+            config_templates: climate_chart
+            series:
+              - entity: sensor.climate_sensor_masterbedroom_humidity
+                name: Master
+                color: 'blue'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+              - entity: sensor.climate_sensor_eva_humidity
+                name: Eva
+                color: 'blue'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+              - entity: sensor.climate_sensor_guestroom_humidity
+                name: Logeerkamer
+                color: 'blue'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h

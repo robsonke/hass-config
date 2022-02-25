@@ -1,0 +1,20 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Afval
+  card:
+    type: vertical-stack
+    title: Afval
+    cards:
+      - type: custom:atomic-calendar-revive
+        enableModeChange: true
+        entities:
+          - entity: calendar.grijzebak
+          - entity: calendar.groenebak
+          - entity: calendar.papierbak
+        firstDayOfWeek: 1
+        maxDaysToShow: 40
+        showRelativeTime: false
+        sortByStartTime: false
+        showFullDayProgress: false
+        fullDayEventText: ''

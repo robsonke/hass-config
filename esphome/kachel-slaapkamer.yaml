@@ -1,0 +1,244 @@
+substitutions:
+  devicename: kachel-slaapkamer
+  device_description: "Eurom Heater Slaapkamer"
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ip: !secret heater_slaapkamer_ip
+
+esphome:
+  name: ${devicename}
+  platform: ESP8266
+  board: esp01_1m
+  # Two globals floats are written on a daily basis which should not have a too
+  # detrimental effect on the flash memory.
+  esp8266_restore_from_flash: true
+
+# INFO
+# https://community.home-assistant.io/t/eurom-e-convect-wifi/42390/46
+# https://esphome.io/components/tuya.html
+# https://esphome.io/components/climate/tuya.html
+# https://github.com/esphome/feature-requests/issues/470
+
+# Enable logging.
+logger:
+  baud_rate: 0
+
+wifi:
+  ssid: ${ssid}
+  password: ${password}
+  power_save_mode: none
+  manual_ip:
+    static_ip: ${ip}
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+captive_portal:
+
+# Enable Home Assistant API
+api:
+  password: ${password}
+
+ota:
+  password: ${password}
+
+web_server:
+  port: 80
+
+time:
+  - platform: sntp
+    id: my_time
+
+globals:
+  - id: total_energy
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+
+uart:
+  rx_pin: GPIO13
+  tx_pin: GPIO15
+  baud_rate: 9600
+
+# Register the Tuya MCU connection
+tuya:
+  time_id: my_time
+
+climate:
+  - platform: tuya
+    name: "Eurom Alutherm Baseboard Heater"
+    id: raw_climate
+    switch_datapoint: 1
+    target_temperature_datapoint: 2
+    current_temperature_datapoint: 3
+    visual:
+      min_temperature: 15
+      max_temperature: 30
+      temperature_step: 1
+    active_state_datapoint: 1
+
+sensor:
+  - platform: uptime
+    name: "Uptime"
+    id: sensor_uptime
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    update_interval: 60s
+  - platform: tuya
+    id: raw_m_or_p
+    sensor_datapoint: 4
+    on_value:
+      then:
+        - lambda: |-
+            if (id(raw_climate).mode != CLIMATE_MODE_OFF) {
+              if ((int)(x + 0.5) == 0) {
+                switch((int)(id(raw_capacity).state + 0.5)) {
+                  case 0:
+                    id(capacity).publish_state("Low");
+                    break;
+                  case 1:
+                    id(capacity).publish_state("Medium");
+                    break;
+                  case 2:
+                    id(capacity).publish_state("High");
+                    break;
+                  case 3:
+                    id(capacity).publish_state("Off");
+                    break;
+                }
+              } else {
+                id(capacity).publish_state("Auto");
+              }
+            }
+  - platform: tuya
+    id: raw_capacity
+    sensor_datapoint: 101
+    on_value:
+      then:
+        - lambda: |-
+            // If in P or Off mode, the raw capacity should not update the select.
+            if (
+              (int)(id(raw_m_or_p).state + 0.5) == 0 // M mode
+              // Let it switch to Off - you can use the select to turn it back on.
+              // && id(raw_climate).mode != CLIMATE_MODE_OFF
+            ) {
+              switch((int)(x + 0.5)) {
+                case 0:
+                  id(capacity).publish_state("Low");
+                  break;
+                case 1:
+                  id(capacity).publish_state("Medium");
+                  break;
+                case 2:
+                  id(capacity).publish_state("High");
+                  break;
+                case 3:
+                  id(capacity).publish_state("Off");
+                  break;
+              }
+            }
+  - platform: template
+    name: "Power"
+    id: power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    accuracy_decimals: 1
+    filters:
+      - sliding_window_moving_average:
+          window_size: 4
+          send_every: 1
+          send_first_at: 1
+      - or:
+        - delta: 1.0
+        - heartbeat: 10s
+    update_interval: 1s
+    lambda: |-
+      // The combination of delta and random makes sure that the wattage is not always
+      // exactly the same, which would be unrealistic. The sliding window makes it
+      // appear as power is ramping up or down when capacity is changed.
+      auto watt = 1.6;
+      auto random = 0.35;
+      if (id(raw_climate).mode != CLIMATE_MODE_OFF) {
+        switch((int)(id(raw_capacity).state + 0.5)) {
+          case 0:
+            watt = 773.6;
+            random = 4;
+            break;
+          case 1:
+            watt = 1173.4;
+            random = 6;
+            break;
+          case 2:
+            watt = 1917.2;
+            random = 8;
+            break;
+          case 3:
+            watt = 2.8;
+            random = 2.5;
+            break;
+        }
+      }
+      return watt + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / random));
+  - platform: total_daily_energy
+    name: "Energy"
+    id: energy
+    power_id: power
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    accuracy_decimals: 3
+    min_save_interval: 300s
+    force_update: true
+    filters:
+      # Multiplication factor from W to kW is 0.001.
+      - multiply: 0.001
+      - lambda: !lambda |-
+          static auto last_state = x;
+          if (x < last_state - 0.001) { // x was reset
+            id(total_energy) += last_state;
+          }
+          last_state = x;
+          return id(total_energy) + x;
+      - heartbeat: 60s
+
+select:
+  - platform: template
+    name: "Capacity"
+    id: capacity
+    optimistic: true
+    initial_option: "Off"
+    restore_value: true
+    icon: mdi:thermometer
+    options:
+      - "Off"
+      - "Low"
+      - "Medium"
+      - "High"
+      - "Auto"
+    set_action:
+      then:
+        - lambda: |-
+            // Switching capacity turns the device on and switches to manual.
+            // Switching to P does not turn the device on.
+            if (strcmp(x.c_str(), "Off") == 0) {
+              tuya_tuya->set_enum_datapoint_value(101, 0x3);
+            } else if (strcmp(x.c_str(), "Low") == 0) {
+              tuya_tuya->set_enum_datapoint_value(101, 0x0);
+            } else if (strcmp(x.c_str(), "Medium") == 0) {
+              tuya_tuya->set_enum_datapoint_value(101, 0x1);
+            } else if (strcmp(x.c_str(), "High") == 0) {
+              tuya_tuya->set_enum_datapoint_value(101, 0x2);
+            } else {
+              tuya_tuya->set_boolean_datapoint_value(1, true);
+              tuya_tuya->set_enum_datapoint_value(4, 0x1);
+            }
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+    ssid:
+      name: "Wi-Fi SSID"
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true

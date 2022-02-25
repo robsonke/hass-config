@@ -27,16 +27,10 @@ blueprint:
           max: 25.0
           step: 1.0
           mode: slider
-    set_temp:
-      name: Temperature Target
-      description: If the heating turns on, it heats to this target temperature.
-      default: 20
+    window_sensor:
+      description: Window Binary Sensor to check if opened, only start heating when the window is closed. Entity can also be a group of window/door entities.
       selector:
-        number:
-          min: 15.0
-          max: 25.0
-          step: 1.0
-          mode: slider
+        entity:
     time_after:
       name: Time After
       description: After this time the heating turns on, so it's warm in the morning
@@ -50,9 +44,60 @@ blueprint:
       default: '21:30:00'
       selector:
         time: {}
+    run_on_monday:
+      name: Run on Monday
+      default: true
+      selector:
+        boolean: {}
+    run_on_tuesday:
+      name: Run on Tuesday
+      default: true
+      selector:
+        boolean: {}
+    run_on_wednesday:
+      name: Run on Wednesday
+      default: true
+      selector:
+        boolean: {}
+    run_on_thursday:
+      name: Run on Thursday
+      default: true
+      selector:
+        boolean: {}
+    run_on_friday:
+      name: Run on Friday
+      default: true
+      selector:
+        boolean: {}
+    run_on_saturday:
+      name: Run on Saturday
+      default: true
+      selector:
+        boolean: {}
+    run_on_sunday:
+      name: Run on Sunday
+      default: true
+      selector:
+        boolean: {}
   source_url: https://gist.github.com/robsonke/850ca17a2ca3417601ae0f73d523cc34
 variables:
-  set_temp: !input 'set_temp'
+  current_day: '{{ now().weekday() | int }}'
+  run_on_monday: !input run_on_monday
+  run_on_tuesday: !input run_on_tuesday
+  run_on_wednesday: !input run_on_wednesday
+  run_on_thursday: !input run_on_thursday
+  run_on_friday: !input run_on_friday
+  run_on_saturday: !input run_on_saturday
+  run_on_sunday: !input run_on_sunday
+  window_sensor: !input window_sensor
+trigger_variables:
+  run_on_monday: !input run_on_monday
+  run_on_tuesday: !input run_on_tuesday
+  run_on_wednesday: !input run_on_wednesday
+  run_on_thursday: !input run_on_thursday
+  run_on_friday: !input run_on_friday
+  run_on_saturday: !input run_on_saturday
+  run_on_sunday: !input run_on_sunday
 trigger:
 - platform: homeassistant
   event: start
@@ -60,6 +105,13 @@ trigger:
   event_type: automation_reloaded
 - platform: time_pattern
   minutes: /10
+condition:
+- condition: template
+  value_template: "{{ \n  (current_day == 0 and run_on_monday) or \n  (current_day\
+    \ == 1 and run_on_tuesday) or \n  (current_day == 2 and run_on_wednesday) or\n\
+    \  (current_day == 3 and run_on_thursday) or \n  (current_day == 4 and run_on_friday)\
+    \ or\n  (current_day == 5 and run_on_saturday) or\n  (current_day == 6 and run_on_sunday)\n\
+    }}"
 action:
 - choose:
   - conditions:
@@ -69,6 +121,8 @@ action:
     - condition: time
       before: !input 'time_before'
       after: !input 'time_after'
+    - condition: template
+      value_template: "{{ window_sensor is not defined or states[window_sensor].state == 'off' }}"
     sequence:
     - service: switch.turn_on
       data:

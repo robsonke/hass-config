@@ -18,9 +18,9 @@ input_boolean:
   guest_mode:
     name: Guest Mode
     icon: mdi:account-group
-  testrob:
-    name: Test boolean to trigger automations
-    icon: mdi:test-tube
+  toilet_downstairs_occupied:
+    name: Track if toilet is in use by somebody
+    icon: mdi:paper-roll
     initial: false
   dark_mode:
     name: Dark Mode
@@ -31,16 +31,3 @@ input_boolean:
   alarm_active:
     name: Alarm actief
     icon: mdi:alarm-light
-
-  group_sonos_living_room:
-    name: Group with Living Room
-    icon: mdi:speaker-multiple
-  group_sonos_office:
-    name: Group with Office
-    icon: mdi:speaker-multiple
-  group_sonos_eetkamer:
-    name: Group with Eetkamer
-    icon: mdi:speaker-multiple
-  group_sonos_zithoek:
-    name: Group with Zithoek
-    icon: mdi:speaker-multiple

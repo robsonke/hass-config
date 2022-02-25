@@ -2,7 +2,17 @@
 light_button:
   card:
     type: custom:button-card
+    variables:
+      title: '[[title]]'
     entity: '[[entity]]'
+    name: >
+      [[[
+        // really weird workaround, but hey it works
+        const found = '[[title]]'.match(/\[\[title\]\]/g);
+        if (!found)
+          return '[[title]]';
+        return entity.attributes.friendly_name;
+      ]]]
     template:
       - light
     custom_fields:
@@ -15,15 +25,13 @@ light_button:
     styles:
       card:
         - --mdc-icon-size: 100%
-        #- height: 150px
-        #- width: 150px
     extra_styles: |
       state-badge {
         width: 100%;
         height: 100%;
       }
     aspect_ratio: 1/1
-    hold_action:
+    double_tap_action: &detailaction
       action: fire-dom-event
       browser_mod:
         command: popup
@@ -43,6 +51,25 @@ light_button:
           displayType: slider
           actions:
             - action: fire-dom-event
+              color: "#FFE7C0"
+              name: info
+              browser_mod:
+                command: popup
+                title: >
+                  [[[ return entity.attributes.friendly_name; ]]]
+                card:
+                  type: vertical-stack
+                  cards:
+                    - type: history-graph
+                      hours_to_show: 24
+                      entities:
+                        - entity: >
+                            [[[ return entity.entity_id ]]]
+                    - type: custom:more-info-card
+                      entity: >
+                        [[[ return entity.entity_id ]]]
+            - action: fire-dom-event
+              name: kleur
               image: >-
                 data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
                 50 50"%3E%3Cstyle%3Esvg%7Bbackground:radial-gradient(circle,rgba(255,255,
@@ -66,109 +93,5 @@ light_button:
                   smooth_color_wheel: true
                   persist_features: true
                   consolidate_entities: false
+    hold_action: *detailaction
 
-# selects master speaker
-sonos_master:
-  default:
-    font-size: 20px
-  card:
-    entity: binary_sensor.sonos_master_[[speaker]]
-    name: '[[name]]'
-    tap_action:
-      action: call-service
-      service: input_select.select_option
-      service_data:
-        entity_id: input_select.sonos_master
-        option: media_player.[[speaker]]
-    styles:
-      name:
-        - font-size: '[[font-size]]'
-    template: sonos_input_button_thick_name
-    type: 'custom:button-card'
-    
-#conditional card that shows the master speaker, controls volume on master speaker,   
-sonos_player:
-  card:
-    card:
-      cards:
-        - entity: media_player.[[speaker]]
-          hide:
-            icon: true
-            power: true
-            source: true
-            shuffle: false
-          artwork: full-cover
-          info: scroll
-          type: 'custom:mini-media-player'
-        - cards:
-          - color_type: blank-card
-            type: "custom:button-card"
-          - color_type: icon
-            icon: mdi:volume-minus
-            tap_action:
-              action: call-service
-              service: media_player.volume_down
-              service_data:
-                entity_id:  media_player.[[speaker]]
-            type: "custom:button-card"
-          - color_type: blank-card
-            type: "custom:button-card"
-          - color_type: icon
-            icon: mdi:volume-plus
-            tap_action:
-              action: call-service
-              service: media_player.volume_up
-              service_data:
-                entity_id:  media_player.[[speaker]]
-            type: "custom:button-card"
-          - color_type: blank-card
-            type: "custom:button-card"
-          type: horizontal-stack
-      type: 'custom:stack-in-card'
-    conditions:
-      - entity: input_select.sonos_master
-        state: media_player.[[speaker]]
-    type: conditional
-
-# selects the playlist/source to play and calls the script
-sonos_playlist:
-  default:
-    - shuffle: true
-  card:
-    entity:
-    name: '[[name]]'
-    color: var(--paper-card-background-color)
-    tap_action:
-      action: call-service
-      service: script.play_sonos_playlist
-      service_data:
-        playlist: '[[playlist]]'
-        shuffle: '[[shuffle]]'
-    template: sonos_input_button_thick_name
-    type: 'custom:button-card'
-    
-# selects which speakers to join with the master.  Locks the button for the master to avoid confusion    
-sonos_group:
-  default:
-    - font-size: 20px
-  card:
-    entity: switch.group_sonos_[[speaker]]
-    lock:
-      enabled: >
-        [[[ return states['binary_sensor.sonos_master_[[speaker]]'].state === 'on' ]]]
-      exemptions: []
-    name: '[[name]]'
-    state:
-      - operator: template
-        styles:
-          card:
-            - border-color: var(--disabled-text-color)
-          name:
-            - color: var(--disabled-text-color)
-        value: >
-          [[[ return states['binary_sensor.sonos_master_[[speaker]]'].state === 'on' ]]]
-    styles:
-      name:
-        - font-size: '[[font-size]]'
-    template: sonos_switch_button_thick_name
-    type: 'custom:button-card'

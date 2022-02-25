@@ -1,0 +1,60 @@
+blueprint:
+  name: Window Open Warning
+  description: Inform users when windows are open and the temperature is dropping
+    too much.
+  domain: automation
+  input:
+    temp_sensor:
+      name: Temperature Sensor
+      description: Temperature Sensor to check.
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    min_temp:
+      name: Minimum Temp
+      description: If temperature is below this value, notify people.
+      default: 15
+      selector:
+        number:
+          min: 5.0
+          max: 25.0
+          step: 1.0
+          mode: slider
+    window_sensor:
+      name: Window / Door Sensor
+      description: Window Binary Sensor to check if opened. Entity can also be a group
+        of window/door entities.
+      selector:
+        entity: {}
+    actions:
+      name: Actions when it's too cold
+      description: Actions (e.g. pushing a notification, TTS announcement, ...)
+      selector:
+        action: {}
+  source_url: https://gist.github.com/robsonke/753f9841c2337b58f4863942934b43a3
+variables:
+  window_sensor: !input 'window_sensor'
+  min_temp: !input 'min_temp'
+trigger:
+- platform: homeassistant
+  event: start
+- platform: event
+  event_type: automation_reloaded
+- below: !input 'min_temp'
+  entity_id: !input 'temp_sensor'
+  platform: numeric_state
+- platform: state
+  entity_id: !input 'window_sensor'
+  to: 'on'
+condition:
+- below: !input 'min_temp'
+  entity_id: !input 'temp_sensor'
+  condition: numeric_state
+- condition: state
+  entity_id: !input 'window_sensor'
+  state: 'on'
+action:
+- choose: []
+  default: !input 'actions'
+mode: single

@@ -10,43 +10,49 @@
 #
 utility_meter:
   daily_energy_offpeak:
-    source: sensor.energy_consumption_tarif_1
+    source: sensor.energy_consumed_tariff_1
     cycle: daily
   daily_energy_peak:
-    source: sensor.energy_consumption_tarif_2
+    source: sensor.energy_consumed_tariff_2
     cycle: daily
   monthly_energy_offpeak:
-    source: sensor.energy_consumption_tarif_1
+    source: sensor.energy_consumed_tariff_1
     cycle: monthly
   monthly_energy_peak:
-    source: sensor.energy_consumption_tarif_2
+    source: sensor.energy_consumed_tariff_2
     cycle: monthly
   yearly_energy_offpeak:
-    source: sensor.energy_consumption_tarif_1
+    source: sensor.energy_consumed_tariff_1
     cycle: yearly
   yearly_energy_peak:
-    source: sensor.energy_consumption_tarif_2
+    source: sensor.energy_consumed_tariff_2
     cycle: yearly
 
-  daily_energy:
-    source: sensor.energy
-    cycle: daily
-    tariffs:
-      - peak
-      - offpeak
-  monthly_energy:
-    source: sensor.energy
-    cycle: monthly
-    tariffs:
-      - peak
-      - offpeak
-  yearly_energy:
-    source: sensor.energy
-    cycle: yearly
-    tariffs:
-      - peak
-      - offpeak
+  # daily_energy:
+  #   source: sensor.energy
+  #   cycle: daily
+  #   tariffs:
+  #     - peak
+  #     - offpeak
+  # monthly_energy:
+  #   source: sensor.energy
+  #   cycle: monthly
+  #   tariffs:
+  #     - peak
+  #     - offpeak
+  # yearly_energy:
+  #   source: sensor.energy
+  #   cycle: yearly
+  #   tariffs:
+  #     - peak
+  #     - offpeak
 
+  water_quarterly:
+    source: sensor.template_water_meter_total_m3
+    cycle: quarter-hourly
+  water_hourly:
+    source: sensor.template_water_meter_total_m3
+    cycle: hourly
   water_daily:
     source: sensor.template_water_meter_total_m3
     cycle: daily

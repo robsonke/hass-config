@@ -1,5 +1,17 @@
 # https://matt8707.github.io/card-mod-helper/
 custom-dark:
+  custom-layout-card-padding: 3.3vw
+  custom-button-card-border-radius: 8%
+  sidebar-time-font-size: 5vw
+  sidebar-time-line-height: 4vw
+  sidebar-font-size: 1.5vw
+  sidebar-line-height: 2.1vw
+  ha-card-box-shadow: none
+  ha-card-background: none
+  grid-card-gap: 1vw
+  masonry-view-card-margin: 3px
+  vertical-stack-card-margin: 0
+  card-content-padding: 1.8em 2.2em 1.8em 2em
 
   modes:
     dark:
@@ -20,10 +32,6 @@ custom-dark:
       lovelace-background: center / cover no-repeat fixed url('/local/background.png')
 
       # edited
-      ha-card-box-shadow: none
-      ha-card-background: none
-      grid-card-gap: 1vw
-      masonry-view-card-margin: 3px
       state-icon-color: '#9da0a2'
       state-icon-active-color: '#3182b7'
       switch-checked-color: '#3182b7'
@@ -37,85 +45,89 @@ custom-dark:
       mdc-dialog-scrim-color: rgba(0, 0, 0, 0.5)
       paper-toast-color: var(--primary-text-color)
       paper-toast-background-color: '#1b1b1bf2'
-      vertical-stack-card-margin: 0
       paper-item-icon-active-color: '#fdd835'
 
       # custom variables
       ha-card-background-color: rgba(34,38,39,0.9)
       ha-card-header-background-color: rgba(48,52,52,0.8)
-      custom-layout-card-padding: 3.3vw
-      custom-button-card-border-radius: 8%
-      sidebar-time-font-size: 5vw
-      sidebar-time-line-height: 4vw
-      sidebar-font-size: 1.5vw
-      sidebar-line-height: 2.1vw
-      card-content-padding: 1.8em 2.2em 1.8em 2em
+      sidebar-font-color: rgba(255, 255, 255, 0.3)
 
-      
+      custom-button-card-color-on: rgba(0, 0, 0, 0.6)
+      custom-button-card-color-off: rgba(255, 255, 255, 0.3)
+      custom-circle-stroke-color: '#b2b2b2'
+      custom-circle-text-color: '#8d8e90'
+
     light:
       # default light mode
-      primary-text-color: '#e1e1e1'
+      primary-text-color: "#464a47"
+      secondary-text-color: "#000000"
+      text-primary-color: "#FFF"
+      disabled-text-color: "#555"  # XXX: https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/2
+      text-dark-color: "#FFF"
+
       primary-background-color: "#e5e5ea"
       secondary-background-color: rgba(255, 255, 255, 0.9)
       card-background-color: var(--secondary-background-color)
-      primary-color: '#03a9f4'
-      app-header-text-color: var(--primary-text-color)
-      app-header-background-color: rgba(61, 107, 86, 0.4)
+      
+      primary-color: '#ff9409'
       table-row-background-color: var(--primary-background-color)
       table-row-alternative-background-color: var(--secondary-background-color)
       sidebar-background-color: var(--card-background-color)
-      divider-color: rgba(225, 225, 225, 0.12)
+      divider-color: "#8e8e93"
+      accent-color: rgba(255, 159, 9, 1)
 
-      background-image: "center / cover no-repeat fixed url('/hacsfiles/themes/ios-themes/homekit-bg-dark-green.jpg')"
-      #lovelace-background: var(--background-image)
-
-      # edited
-      ha-card-box-shadow: none
-      ha-card-background: none
-      grid-card-gap: 5%
-      masonry-view-card-margin: 0px
-      state-icon-color: '#9da0a2'
-      state-icon-active-color: '#3182b7'
-      switch-checked-color: '#3182b7'
-      switch-unchecked-button-color: '#3b4041'
-      switch-unchecked-track-color: '#0c0d0d'
-      paper-slider-knob-color: '#a4abb1'
-      paper-slider-knob-start-color: '#a4abb1'
-      paper-slider-pin-color: '#626a6f'
-      paper-slider-active-color: '#626a6f'
-      paper-slider-container-color: '#202020'
-      mdc-dialog-scrim-color: rgba(0, 0, 0, 0.5)
-      paper-toast-color: var(--primary-text-color)
-      paper-toast-background-color: '#1b1b1bf2'
-      vertical-stack-card-margin: 0
-      paper-item-icon-active-color: '#fdd835'
+      background-image: "center / cover no-repeat fixed url('/local/bg-light-blue.jpg')"
+      lovelace-background: var(--background-image)
+      
+      # state-icon-color: '#9da0a2'
+      # state-icon-active-color: '#3182b7'
+      # switch-checked-color: '#3182b7'
+      # switch-unchecked-button-color: '#3b4041'
+      # switch-unchecked-track-color: '#0c0d0d'
+      # paper-slider-knob-color: '#a4abb1'
+      # paper-slider-knob-start-color: '#a4abb1'
+      # paper-slider-pin-color: '#626a6f'
+      # paper-slider-active-color: '#626a6f'
+      # paper-slider-container-color: '#202020'
+      # mdc-dialog-scrim-color: rgba(0, 0, 0, 0.5)
+      # paper-toast-color: var(--primary-text-color)
+      # paper-toast-background-color: '#1b1b1bf2'
+      # paper-item-icon-active-color: '#fdd835'
+      paper-dialog-background-color: rgba(55, 55, 55, 0.8)  # e.g., background of more-info
+      paper-item-icon-color: "#333333"
+      more-info-header-background: rgba(25, 25, 25, 0.5)
+      lumo-body-text-color: var(--primary-text-color)
+      app-header-background-color: rgba(1, 133, 162, 0.4)
+      markdown-code-background-color: "#464646"
+      code-editor-background-color: "#161616"
 
       # custom variables
-      ha-card-background-color: rgba(34,38,39,0.9)
-      ha-card-header-background-color: rgba(48,52,52,0.8)
-      custom-layout-card-padding: 2.0vw
-      custom-button-card-border-radius: 8%
-      sidebar-time-font-size: 5vw
-      sidebar-time-line-height: 4vw
-      sidebar-font-size: 1.5vw
-      sidebar-line-height: 2.1vw
-      card-content-padding: 1.8em 2.2em 1.8em 2em
+      ha-card-background-color: "#e5e5ea"
+      ha-card-header-background-color: rgba(255, 255, 255, 0.9)
+      sidebar-font-color: var(--custom-button-card-color-off)
+      
+      custom-button-card-color-on: rgba(0, 0, 0, 0.6)
+      custom-button-card-color-off: rgba(255, 255, 255, 0.6)
+      custom-circle-stroke-color: var(--custom-button-card-color-on)
+      custom-circle-text-color: var(--custom-button-card-color-on)
+      
 
 
-####################################################
-#                                                  #
-#                     CARD-MOD                     #
-#                                                  #
-####################################################
-# https://github.com/thomasloven/lovelace-card-mod/wiki/Card-mod-Themes
+    ####################################################
+    #                                                  #
+    #                     CARD-MOD                     #
+    #                                                  #
+    ####################################################
+    # https://github.com/thomasloven/lovelace-card-mod/wiki/Card-mod-Themes
 
   card-mod-theme: custom-dark
 
-  # card-mod-root: |
-  #   ha-app-layout {
-  #     background: url('/local/background.png');
-  #     background-size: cover;
-  #   }
+  card-mod-root: |
+    ha-app-layout {
+      background: var(--lovelace-background);
+      background-size: cover;
+    }
+  
   card-mod-view-yaml: |
     .: |
       hui-view {
@@ -214,7 +226,7 @@ custom-dark:
       $: |
         #root {
           width: 100%;
-          padding: 0 13% 25% 13%;
+          padding: 0 9% 9% 6%;
         }
         /* phone */
         @media screen and (max-width: 800px) {
@@ -226,9 +238,8 @@ custom-dark:
     .header .card-header {
       font-family: SF Text;
       letter-spacing: 0.005em;
-      font-size: 1.6em;
+      font-size: 1.4em;
       font-weight: 500;
-      padding: 1em 0 0 1.68em;
       line-height: initial;
       cursor: default;
     }
@@ -243,16 +254,16 @@ custom-dark:
     .type-button {
       display: block;
       --paper-item-icon-color: var(--state-icon-color);
-      opacity: 0.2;
+      opacity: 0.4;
       transition: 0.4s;
       height: initial;
     }
     .type-button:hover {
-      opacity: 0.5;
+      opacity: 0.8;
       transition: none;
     }
     .type-button:active {
-      opacity: 0.7;
+      opacity: 1.0;
       transition: none;
     }
     /* * * * * * * * * * * * * * * * * *
@@ -298,15 +309,18 @@ custom-dark:
         margin-top: -2px;
         color: #9e9e9e;
       }
+      .content {
+        margin: 0 !important;
+      }
     "mwc-icon-button":
       $: |
         button > mwc-ripple {
           margin-top: 3px;
         }
     "layout-card$grid-layout$": |
-        #root {
-          margin: 0 !important;
-        }
+      #root {
+        margin: 0 !important;
+      }
     $: |
       .mdc-dialog__scrim {
         -webkit-backdrop-filter: blur(1.5em);
@@ -324,6 +338,11 @@ custom-dark:
           var(--ha-card-background-color) 100%) !important;
         box-shadow: none !important;
         border-radius: 1em !important;
+      }
+      @media screen and (max-width: 800px) {
+        .mdc-dialog__surface {
+          border-radius: 0 !important;
+        }
       }
       .mdc-dialog--closing {
         display: none !important;
@@ -360,13 +379,4 @@ custom-dark:
       #popup>div.range-holder>input[type=range]::-webkit-slider-thumb {
         cursor: grabbing;
       }
-    
-    #################################################
-    #                                               #
-    #     CUSTOM POPUP WITH GRID CARD (lights)      #
-    #                                               #
-    #################################################
-    "ha-dialog>div>hui-grid-card$": |
-      #root {
-        margin: 20px;
-      }
+        

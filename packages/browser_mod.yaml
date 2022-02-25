@@ -9,3 +9,21 @@
 #
 browser_mod:
   prefix: browser_
+  devices:
+    c68d8871-9d239073:
+      name: macbook-brave
+      disable:
+        - sensor
+        - light
+        - media_player
+    c92a7509-b48762e3:
+      name: ipad-kitchen
+      disable:
+        - sensor
+    8d6fc780-d9bad7aa:
+      name: phone-rob
+      disable:
+        - sensor
+        - light
+  disable:
+    - all

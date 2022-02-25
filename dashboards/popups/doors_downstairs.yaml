@@ -1,0 +1,107 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Deuren en ramen beneden
+  style:
+    .: |
+      :host .content {
+        width: 60em;
+        height: 100%;
+      }
+      @media (max-width: 800px) {
+        :host .content {
+          width: 100%;
+        }
+      }
+  card:
+    type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: auto auto
+      grid-template-rows: auto
+      grid-template-areas: |
+        "frontdoor"
+        "doors"
+    cards:
+      - type: custom:frigate-card
+        view_layout:
+          grid-area: frontdoor
+        controls:
+          nextprev: chevrons
+        camera_entity: camera.doorbell
+        menu_mode: overlay-top
+        dimensions:
+          aspect_ratio_mode: unconstrained
+        entities:
+          - entity: binary_sensor.doorbell_lw_doorbell
+          - entity: binary_sensor.doorbell_lw_motion
+        frigate_camera_name: Voordeur
+        webrtc:
+          entity: camera.doorbell_camera_webrtc
+        live_provider: webrtc
+        view_default: live
+        menu_buttons:
+          frigate: false
+          frigate_ui: false
+        camera_image: camera.doorbell
+      - type: custom:vertical-stack-in-card
+        view_layout:
+          grid-area: doors
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - type: section
+                label: Voordeur
+              - entity: binary_sensor.doorbell_lw_doorbell
+                name: Doorbell ding
+                secondary_info: last-changed
+              - binary_sensor.frontdoor_openclose_sensor
+              - entity: binary_sensor.doorbell_lw_motion
+                name: Last motion
+                secondary_info: last-changed
+          - type: custom:auto-entities
+            card:
+              show_icon: false
+              type: entities
+            filter:
+              include:
+                - type: section
+                  label: Buitendeuren
+                - entity_id: binary_sensor.backdoor_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.frontdoor_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.sheddoor_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.sheddoor_back_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - type: section
+                  label: Kiep/kantel ramen
+                - entity_id: binary_sensor.windowdoor_ground_1_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.windowdoor_ground_2_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.windowdoor_ground_3_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.windowdoor_ground_4_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - type: section
+                  label: Overig
+                - entity_id: binary_sensor.window_office_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.door_hallcloset_openclose_sensor
+                  options:
+                    secondary_info: last-changed
+                - entity_id: binary_sensor.toiletdoordownstairs_openclose
+                  options:
+                    secondary_info: last-changed

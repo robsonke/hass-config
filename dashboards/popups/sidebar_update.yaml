@@ -7,7 +7,11 @@ browser_mod:
       :host .content {
         width: 60em;
         height: 100%;
-        padding: 2.1em 1.9em 1.9em 2.7em;
+      }
+      @media (max-width: 800px) {
+        :host .content {
+          width: 100%;
+        }
       }
     hui-grid-card:
       $: |
@@ -29,6 +33,7 @@ browser_mod:
           - sensor.hass_version_latest
           - sensor.hass_release_notes_rc
           - sensor.hass_release_notes
+          - binary_sensor.home_assistant_operating_system_update_available
         state_display: |
           [[[
             if (entity && variables) {
@@ -65,11 +70,9 @@ browser_mod:
         styles:
           card:
             - width: max-content
-            - filter: >
+            - display: >
                 [[[
-                  return entity.state === (states['sensor.hass_version_latest'].state) ? 
-                    'opacity(30%)' : 
-                    'drop-shadow(3px 3px 5px #00000050)';
+                  return entity.state === (states['sensor.hass_version_latest'].state) ? 'none' : 'block';
                 ]]]
         tap_action:
           action: fire-dom-event
@@ -101,6 +104,10 @@ browser_mod:
               if (entity.attributes.update_available) {
                 count++;
               }
+              // possible hassos update
+              if (states['binary_sensor.home_assistant_operating_system_update_available'].state === 'on') {
+                count++;
+              }
 
               let subtitle = count == 0
                   ? `Geen updates`
@@ -112,6 +119,13 @@ browser_mod:
               if (entity.attributes.update_available) {
                 output += `<li><b>Supervisor</b> ${entity.attributes.current_version} \u279e ${entity.attributes.newest_version}</li>`
               }
+              // hass os info
+              if (states['binary_sensor.home_assistant_operating_system_update_available'].state === 'on') {
+                const newVersion = states['sensor.home_assistant_operating_system_newest_version'].state;
+                const currentVersion = states['sensor.home_assistant_operating_system_version'].state;
+                output += `<li><b>Home Assistant Operating System</b> ${currentVersion} \u279e ${newVersion}</li>`
+              }
+
               // addon info
               var arr = entity.attributes.addons;
               for (var i = 0; i < arr.length; i++) {
@@ -135,11 +149,9 @@ browser_mod:
         styles:
           card:
             - width: max-content
-            - filter: >
+            - display: >
                 [[[
-                  return entity.state === '0' ?
-                    'opacity(30%)' : 
-                    'drop-shadow(3px 3px 5px #00000050)';
+                  return entity.state === '0' ? 'none' : 'block';
                 ]]]
         tap_action:
           action: fire-dom-event
@@ -193,11 +205,9 @@ browser_mod:
         styles:
           card:
             - width: max-content
-            - filter: >
+            - display: >
                 [[[
-                  return entity.state === '0' ?
-                    'opacity(30%)' :
-                    'drop-shadow(3px 3px 5px #00000050)';
+                  return entity.state === '0' ? 'none' : 'block';
                 ]]]
         tap_action:
           action: fire-dom-event

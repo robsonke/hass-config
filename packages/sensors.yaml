@@ -9,18 +9,6 @@
 #
 
 sensor:
-- platform: version
-  name: hass_version_installed
-  source: local
-
-- platform: version
-  name: hass_version_latest
-  source: container
-
-- platform: version
-  name: hass_version_latest_beta
-  source: container
-  beta: true
 
 - platform: integration
   source: sensor.altherma_power_usage
@@ -101,7 +89,6 @@ sensor:
 
 - platform: moon
 - platform: uptime
-- platform: dnsip
 
 # tracks changes in the lovelace file
 - platform: filesize
@@ -141,6 +128,21 @@ sensor:
   - newest_version
   - current_version
   - addons
+
+- platform: afvalinfo
+  resources:
+    - gft
+    - papier
+    - restafval
+    - trash_type_today
+    - trash_type_tomorrow
+  location: goes
+  postcode: 4481CP
+  streetnumber: 28
+  streetnumbersuffix: ""
+  dateformat: "%d-%m-%Y"
+  locale: "nl"
+  timespanindays: 365
 
 # - platform: command_line
 #   name: udm_unifios

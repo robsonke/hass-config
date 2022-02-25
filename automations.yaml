@@ -86,7 +86,8 @@
         persistent: true
         tag: persistent
   - service: alarm_control_panel.alarm_disarm
-    data: {}
+    data:
+      code: automation
     target:
       entity_id: alarm_control_panel.alarmo
   mode: single
@@ -162,14 +163,13 @@
     target:
       entity_id: input_boolean.alarm_active
   mode: single
-- alias: Alarm - Pending
-  id: alarm_pending_trigger
+- id: alarm_pending_trigger
+  alias: Alarm - Pending
   description: Warn the person that walked in about the armed alarm, goal is to disarm
     asap
   trigger:
   - platform: state
     entity_id: alarm_control_panel.alarmo
-    from: armed_away
     to: pending
   action:
   - service: script.sonos_say
@@ -178,6 +178,12 @@
       volume: 0.5
       message: Je bent gezien, deactiveer het alarm binnen 2 minuten!
       delay: 00:00:03
+  - service: browser_mod.popup
+    data:
+      title: Alarm actief
+      card:
+        type: custom:alarmo-card
+        entity: alarm_control_panel.alarmo
   - repeat:
       while:
       - condition: state
@@ -351,34 +357,31 @@
   alias: Calendar - Afval Calendar Alert
   description: Send messages when a trash bin should be put outside
   trigger:
-  - entity_id: sensor.groene_bak_dag
+  - entity_id: sensor.template_gft_days_until_collection
     platform: state
-    to: Morgen
+    to: '1'
     for:
       hours: 20
       minutes: 0
       seconds: 0
-      milliseconds: 0
-  - entity_id: sensor.grijze_bak_dag
+  - entity_id: sensor.template_rest_days_until_collection
     platform: state
-    to: Morgen
+    to: '1'
     for:
       hours: 20
       minutes: 0
       seconds: 0
-      milliseconds: 0
-  - entity_id: sensor.papier_bak_dag
+  - entity_id: sensor.template_paper_days_until_collection
     platform: state
-    to: Vandaag
+    to: '0'
     for:
       hours: 16
       minutes: 0
       seconds: 0
-      milliseconds: 0
   action:
   - service: notify.all_phones
     data_template:
-      message: 📅 Het is {{ state_attr(trigger.entity_id, 'friendly_name') }}!
+      message: 📅  Opletten {{ state_attr(trigger.entity_id, 'friendly_name') }}!
       data:
         persistent: true
         tag: persistent
@@ -433,6 +436,7 @@
       data:
         persistent: true
         tag: persistent
+        image: http://admin:qg4Y7DhhCTNJnCtuAZp_zJM@192.168.0.246/cgi-bin/snapshot.cgi
   - service: script.googlehome_play_sound
     data:
       volume: 0.7
@@ -460,7 +464,7 @@
     - condition: and
       conditions:
       - condition: time
-        after: '16:00:00'
+        after: '16:00'
       - condition: time
         before: '22:55'
       - condition: state
@@ -493,17 +497,29 @@
   action:
   - service: light.turn_on
     data:
-      entity_id: light.dimmer_cabinroof_level
+      brightness_pct: 50
+    target:
+      entity_id: light.garden_light
+  - type: turn_on
+    device_id: f071d7823a14ba363466cf1b864c0c30
+    entity_id: light.garden_lantern_light1
+    domain: light
+    brightness_pct: 50
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
   - service: light.turn_on
     data:
-      entity_id: light.garden_light
+      brightness_pct: 15
+    target:
+      entity_id: light.dimmer_cabinroof_level
   mode: single
 - id: garden_lights_turn_off
-  alias: Garden - Turn off garden lights
-  description: Turn off lights in the garden at 11 PM
+  alias: Garden - Turn off garden lights - morning
+  description: Turn off lights in the garden in the morning
   trigger:
-  - platform: time
-    at: '23:00'
   - platform: time
     at: 09:00
   - platform: numeric_state
@@ -519,8 +535,26 @@
     data: {}
     target:
       entity_id:
-      - light.garden_light
       - light.dimmer_cabinroof_level
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - type: turn_off
+    device_id: f071d7823a14ba363466cf1b864c0c30
+    entity_id: light.garden_lantern_light1
+    domain: light
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.garden_light
   mode: single
 - id: lights_turn_off_bedtime_manual
   alias: Sleep - Switch to night mode manually
@@ -576,27 +610,24 @@
         tag: persistent
   - service: script.sleep_well
   mode: single
-- alias: Lights - Turn on lights when closet door opens
-  id: closet_light_turn_on
+- id: closet_light_turn_on
+  alias: Lights - Turn on lights when closet door opens
   trigger:
-    platform: state
+  - platform: state
     entity_id: binary_sensor.door_hallcloset_openclose_sensor
     from: 'off'
     to: 'on'
   action:
-    service: light.turn_on
+  - service: light.turn_on
     entity_id: light.hallcloset
-- id: closet_light_turn_off
-  alias: Lights - Turn off lights when closet door closes
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.door_hallcloset_openclose_sensor
-    from: 'on'
-    to: 'off'
-  action:
+  - wait_for_trigger:
+    - platform: state
+      entity_id: binary_sensor.door_hallcloset_openclose_sensor
+      from: 'on'
+      to: 'off'
   - service: light.turn_off
-    entity_id: light.hallcloset
-  mode: single
+    target:
+      entity_id: light.hallcloset
 - id: lights_kitchen_turn_on_when_awake_morning
   alias: Lights - Turn on lights when hallway door opens in the early morning
   trigger:
@@ -607,8 +638,6 @@
   condition:
   - condition: time
     after: 04:00
-  - condition: time
-    before: '10:00'
   - condition: state
     entity_id: input_boolean.night_mode
     state: 'on'
@@ -616,19 +645,28 @@
       hours: 0
       minutes: 1
       seconds: 0
-      milliseconds: 0
   action:
   - service: alarm_control_panel.alarm_disarm
+    data:
+      code: automation
     target:
       entity_id: alarm_control_panel.alarmo
   - service: input_boolean.turn_off
     target:
       entity_id: input_boolean.night_mode
-  - condition: time
-    after: 06:00
-  - service: media_player.media_play
-    target:
-      entity_id: media_player.eetkamer
+    data: {}
+  - choose:
+    - conditions:
+      - condition: time
+        after: 06:00
+      - condition: state
+        entity_id: binary_sensor.template_home_at_least_one_of_us
+        state: 'on'
+      sequence:
+      - service: media_player.media_play
+        target:
+          entity_id: media_player.eetkamer
+        data: {}
   - condition: numeric_state
     entity_id: sensor.lightlevel_living
     below: '60'
@@ -660,59 +698,6 @@
       addon: a0d7b954_ssh
       input: bash /config/cast.sh
   mode: single
-- alias: Heating - Turn on heating workspace Steffi
-  id: heating_steffi_turn_on
-  description: This turns on the infra red heating panel when Steffi has to work and
-    is at home.
-  trigger:
-  - below: '18'
-    entity_id: sensor.climate_sensor_guestroom_temperature
-    platform: numeric_state
-  - platform: time
-    at: 07:00:00
-  condition:
-    condition: and
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.workday_steffi
-      state: 'on'
-    - condition: numeric_state
-      entity_id: sensor.climate_sensor_guestroom_temperature
-      below: '18'
-    - condition: state
-      entity_id:
-      - device_tracker.steffi_presence
-      state:
-      - home
-    - after: 07:00
-      condition: time
-    - before: '17:00'
-      condition: time
-  action:
-  - service: switch.turn_on
-    entity_id: switch.kasa_infrarood_slaapkamer
-- id: heating_steffi_turn_off
-  alias: Heating - Turn off heating workspace Steffi
-  description: This turns off the infra red heating panel when it's warm enough or
-    work day is over or she left
-  trigger:
-  - above: '19'
-    entity_id: sensor.climate_sensor_guestroom_temperature
-    platform: numeric_state
-  - platform: time
-    at: '16:00'
-  - platform: state
-    entity_id: device_tracker.steffi_presence
-    to: not_home
-    for:
-      minutes: 60
-  condition:
-  - condition: state
-    entity_id: switch.kasa_infrarood_slaapkamer
-    state: 'on'
-  action:
-  - service: switch.turn_off
-    entity_id: switch.kasa_infrarood_slaapkamer
 - alias: System - Let's Encrypt Renewal
   id: system_lets_encrypt
   description: Restart the lets encrypt addon, this should renew the certificate
@@ -754,36 +739,6 @@
         - action: URI
           title: Open Hass
           uri: /lovelace/0
-- alias: Windows - Alert when window is open and temperature is low
-  id: window_bedroom_open_cold
-  description: This helps in informing that a window needs to be closed
-  trigger:
-  - below: '15'
-    entity_id: sensor.climate_sensor_masterbedroom_temperature
-    platform: numeric_state
-  condition:
-    condition: or
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.window_masterbed_1_openclose_sensor
-      state: 'on'
-      for: 00:30
-    - condition: state
-      entity_id: binary_sensor.window_masterbed_2_openclose_sensor
-      state: 'on'
-      for: 00:30
-  action:
-  - service: notify.mobile_app_iphone_rob
-    data:
-      message: 🏠 Het raam in de slaapkamer staat open en het begint nu wel een beetje
-        fris te worden.
-      data:
-        persistent: true
-        tag: persistent
-        actions:
-        - action: URI
-          title: Open bedroom
-          uri: /lovelace/boven
 - id: energy_tariff_switch
   alias: Energy - Change energy tariff
   description: Calculate energy consumption for low and high tarifs
@@ -850,7 +805,7 @@
   action:
   - service: script.googlehome_say
     data_template:
-      volume: 0.6
+      volume: 0.5
       volume_restore: 0.4
       googlehome_entity: media_player.keuken_display
       delay: 00:00:03
@@ -859,7 +814,7 @@
   - delay: '2'
   - service: script.googlehome_say
     data_template:
-      volume: 0.6
+      volume: 0.5
       volume_restore: 0.4
       googlehome_entity: media_player.office_googlehome
       delay: 00:00:03
@@ -1021,7 +976,7 @@
     entity_id: input_boolean.dark_mode
   action:
   - service: frontend.set_theme
-    data:
+    data_template:
       name: custom-dark
       mode: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else\
         \ %}\n  light\n{% endif %}\n"
@@ -1124,6 +1079,8 @@
       type: is_armed_night
   action:
   - service: alarm_control_panel.alarm_disarm
+    data:
+      code: automation
     target:
       entity_id: alarm_control_panel.alarmo
   - service: input_boolean.turn_off
@@ -1540,12 +1497,12 @@
   - platform: event
     event_type: deconz_event
     event_data:
-      id: switch_1
+      id: switch_alarm
       event: 1002
   - platform: event
     event_type: deconz_event
     event_data:
-      id: switch_1
+      id: switch_alarm
       event: 2002
   condition:
   - condition: not
@@ -1560,7 +1517,7 @@
     domain: alarm_control_panel
     entity_id: alarm_control_panel.alarmo
     type: disarm
-    code: ''
+    code: automation
   - delay:
       hours: 0
       minutes: 55
@@ -1619,6 +1576,10 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.sheddoor_openclose_sensor
+    from: 'off'
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.sheddoor_back_openclose_sensor
     from: 'off'
     to: 'on'
   condition:
@@ -1766,7 +1727,7 @@
     domain: alarm_control_panel
     entity_id: alarm_control_panel.alarmo
     type: disarm
-    code: ''
+    code: automation
   - service: notify.all_phones
     data:
       message: Guest modus aangezet en alarm uit voor Maartje
@@ -2095,6 +2056,8 @@
   condition: []
   action:
   - service: alarm_control_panel.alarm_disarm
+    data:
+      code: automation
     target:
       entity_id: alarm_control_panel.alarmo
   mode: single
@@ -2144,7 +2107,7 @@
     target:
       entity_id: switch.shelly_plug_kachel_slaapkamer
   mode: single
-- id: '1642349871460'
+- id: '1642502040367'
   alias: Heating - Control heating Eva
   description: This turns on the infra red heating panel in Eva's room
   use_blueprint:
@@ -2153,5 +2116,264 @@
       heating: switch.infraroodpanel_eva
       temp_sensor: sensor.climate_sensor_eva_temperature
       min_temp: 17
+      set_temp: 18
       time_after: 09:00:00
       time_before: '18:00:00'
+      run_on_monday: true
+      run_on_tuesday: true
+      run_on_wednesday: true
+      run_on_thursday: true
+      run_on_friday: true
+      run_on_saturday: true
+      run_on_sunday: true
+      window_sensor: binary_sensor.window_evaroom_openclose_sensor
+- id: '1642502861762'
+  alias: Heating - Control heating guestroom
+  description: Enable the heating when Steffi works and few extra days
+  use_blueprint:
+    path: robsonke/heating.yaml
+    input:
+      heating: switch.kasa_infrarood_slaapkamer
+      temp_sensor: sensor.climate_sensor_guestroom_temperature
+      min_temp: 18
+      set_temp: 18
+      time_after: 07:00:00
+      time_before: '17:30:00'
+      run_on_monday: true
+      run_on_tuesday: true
+      run_on_wednesday: false
+      run_on_thursday: true
+      run_on_friday: false
+      run_on_saturday: true
+      run_on_sunday: false
+      window_sensor: binary_sensor.window_guestroom_openclose_sensor
+- id: '1642624564993'
+  alias: Lights - Turn on lights when toilet door opens
+  description: Check for an opening door or motion in toilet
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.toiletdoordownstairs_openclose
+    from: 'off'
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.motion_sensor_toiletdownstairs_presence
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: device
+    type: is_off
+    device_id: 53ec925ec7a298678226212147f4562a
+    entity_id: light.toilet_downstairs
+    domain: light
+  - condition: state
+    entity_id: input_boolean.toilet_downstairs_occupied
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      device_id: 53ec925ec7a298678226212147f4562a
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.toilet_downstairs_occupied
+  mode: single
+- id: '1642625248443'
+  alias: Lights - Turn off lights when toilet visit is over
+  description: 'When there''s no more movement or '
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_sensor_toiletdownstairs_presence
+    from: 'on'
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+  - platform: state
+    entity_id: binary_sensor.toiletdoordownstairs_openclose
+    from: 'on'
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.toilet_downstairs
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+  action:
+  - type: turn_off
+    device_id: 53ec925ec7a298678226212147f4562a
+    entity_id: light.toilet_downstairs
+    domain: light
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.toilet_downstairs_occupied
+  mode: restart
+- id: '1642757425557'
+  alias: Cast - Cast to Google Hub
+  description: ''
+  use_blueprint:
+    path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
+    input:
+      dashboard: lovelace
+      player: media_player.keuken_display
+      view: test
+- id: '1643267142475'
+  alias: Presence - Send message if cooker is still enabled and we left the house
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.template_home_at_least_one_of_us
+    to: 'off'
+    from: 'on'
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 4618f0919518ce4010cd4e0fa89fb474
+    entity_id: switch.kookplaat_power
+    domain: switch
+  action:
+  - service: notify.all_phones
+    data:
+      message: 👨‍🍳 We zijn allebei weg maar de kookplaat staat nog aan!
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1644162797655'
+  alias: Heating - Control heating bedroom
+  description: Turn on between 10h and 19h only when the temperature is too low and
+    the windows are closed
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time_pattern
+    minutes: /10
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: time
+        after: '10:00'
+        before: '19:00'
+      - condition: numeric_state
+        entity_id: sensor.climate_sensor_masterbedroom_temperature
+        below: '17'
+      - condition: device
+        type: is_not_open
+        device_id: 677bddd1751e4fdd75dfc09b64617966
+        entity_id: binary_sensor.window_masterbed_1_openclose_sensor
+        domain: binary_sensor
+      - condition: device
+        type: is_not_open
+        device_id: c043b0fe396f47c68466603865a114cc
+        entity_id: binary_sensor.window_masterbed_2_openclose_sensor
+        domain: binary_sensor
+      sequence:
+      - device_id: 63bfcece97a8578bf632cddbc75ee61d
+        domain: select
+        entity_id: select.eurom_alutherm_capacity
+        type: select_option
+        option: Auto
+      - service: climate.set_temperature
+        data:
+          hvac_mode: heat
+          temperature: 19
+        target:
+          entity_id: climate.eurom_alutherm_baseboard_heater
+    default:
+    - device_id: 63bfcece97a8578bf632cddbc75ee61d
+      domain: select
+      entity_id: select.eurom_alutherm_capacity
+      type: select_option
+      option: 'Off'
+  mode: single
+- id: '1644692915726'
+  alias: Garden - Turn off garden lights - evening
+  description: Turn off lights in the garden in the evening but keep a few on on low
+    brightness
+  trigger:
+  - platform: time
+    at: '23:00'
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_automatic_garden_lights
+    state: 'on'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.dimmer_cabinroof_level
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      brightness_pct: 20
+    target:
+      entity_id:
+      - light.garden_lantern_light1
+      - light.garden_lantern_light2
+      - light.garden_lantern_light3
+      - light.garden_light
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  mode: single
+- id: '1645647196286'
+  alias: Windows - Masterbedroom1 open and low temperature
+  description: ''
+  use_blueprint:
+    path: robsonke/window-open-temperature.yaml
+    input:
+      temp_sensor: sensor.climate_sensor_masterbedroom_temperature
+      window_sensor: binary_sensor.window_masterbed_1_openclose_sensor
+      min_temp: 15
+      actions:
+      - service: notify.all_phones
+        data:
+          message: 🏠 Het raam in de slaapkamer staat open en het begint nu wel een
+            beetje fris te worden.
+          data:
+            persistent: true
+            tag: persistent
+- id: '1645648583598'
+  alias: Windows - Masterbedroom2 open and low temperature
+  description: ''
+  use_blueprint:
+    path: robsonke/window-open-temperature.yaml
+    input:
+      temp_sensor: sensor.climate_sensor_masterbedroom_temperature
+      window_sensor: binary_sensor.window_masterbed_2_openclose_sensor
+      min_temp: 15
+      actions:
+      - service: notify.all_phones
+        data:
+          message: 🏠 Het raam in de slaapkamer staat open en het begint nu wel een
+            beetje fris te worden.
+          data:
+            persistent: true
+            tag: persistent
+- id: '1645648632551'
+  alias: Windows - Eva open and low temperature
+  description: ''
+  use_blueprint:
+    path: robsonke/window-open-temperature.yaml
+    input:
+      temp_sensor: sensor.climate_sensor_eva_temperature
+      window_sensor: binary_sensor.window_evaroom_openclose_sensor
+      min_temp: 15
+      actions:
+      - service: notify.all_phones
+        data:
+          message: 🏠 Het raam bij Eva staat open en het begint nu wel een beetje fris
+            te worden.
+          data:
+            persistent: true
+            tag: persistent

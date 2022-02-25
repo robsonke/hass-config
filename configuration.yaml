@@ -17,6 +17,7 @@ homeassistant:
   unit_system: metric
   time_zone: !secret time_zone
   external_url: !secret external_url
+  internal_url: !secret external_url
   allowlist_external_dirs:
     - '/config/'
   auth_providers:
@@ -24,8 +25,12 @@ homeassistant:
     - type: trusted_networks
       trusted_networks:
         - !secret kitchen_display_ip
+        - !secret kitchen_ipad_ip
       trusted_users:
-        192.168.0.0/24: 63bf7bab0d174dc6abc880085d3c4b5e
+        192.168.0.76/32:
+          - 63bf7bab0d174dc6abc880085d3c4b5e
+        192.168.0.60/32:
+          - 4e66c82d531047cfbece83e7ed882e8f
       allow_bypass_login: true
 
 system_log:
@@ -37,7 +42,8 @@ default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 127.0.0.1
+    - 192.168.0.0/24
     - 172.16.0.0/12
-    - 172.30.0.0/24
+    - 172.30.0.0/16
     - ::1
+    - 127.0.0.0/8

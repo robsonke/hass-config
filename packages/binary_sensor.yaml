@@ -27,19 +27,3 @@ binary_sensor:
     name: workday_rob
     country: NL
     workdays: [mon, tue, wed, thu, fri]
-
-  - platform: template
-    sensors:
-      sonos_master_living_room:
-        value_template: >-
-          {{ is_state('input_select.sonos_master', 'media_player.living_room') }}
-      sonos_master_office:
-        value_template: >-
-          {{ is_state('input_select.sonos_master', 'media_player.office') }}
-      sonos_master_eetkamer:
-        value_template: >-
-          {{ is_state('input_select.sonos_master', 'media_player.eetkamer') }}
-      sonos_master_zithoek:
-        value_template: >-
-          {{ is_state('input_select.sonos_master', 'media_player.zithoek') }}
-              

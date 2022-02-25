@@ -432,6 +432,13 @@
                                             "secondary_info": "brightness"
                                         },
                                         {
+                                            "entity": "light.toilet_downstairs",
+                                            "type": "custom:slider-entity-row",
+                                            "name": "Toilet",
+                                            "toggle": true,
+                                            "secondary_info": "brightness"
+                                        },
+                                        {
                                             "type": "divider"
                                         },
                                         {
@@ -460,11 +467,7 @@
                                             "type": "custom:slider-entity-row",
                                             "toggle": true,
                                             "secondary_info": "brightness"
-                                        },
-                                        {
-                                            "entity": "switch.light_garden_front"
-                                        },
-                                        "switch.light_garden_fenceback"
+                                        }
                                     ]
                                 }
                             ]
@@ -1408,6 +1411,10 @@
                                     "state_color": true
                                 }
                             ]
+                        },
+                        {
+                            "type": "media-control",
+                            "entity": "media_player.samsung_qn95aa_55_tv"
                         }
                     ]
                 },
@@ -2833,13 +2840,13 @@
                                     "unit": "kW",
                                     "entity": "sensor.power_consumption",
                                     "min": 0,
-                                    "max": 15,
                                     "needle": true,
                                     "severity": {
                                         "green": 0,
                                         "yellow": 3,
                                         "red": 8
-                                    }
+                                    },
+                                    "max": 20
                                 },
                                 {
                                     "type": "entities",
@@ -2954,7 +2961,7 @@
                             "series": [
                                 {
                                     "entity": "sensor.altherma_power_usage",
-                                    "type": "line",
+                                    "type": "area",
                                     "group_by": {
                                         "duration": "5min",
                                         "func": "max"
@@ -2962,7 +2969,7 @@
                                 },
                                 {
                                     "entity": "sensor.template_altherma_power_usage_secundary",
-                                    "type": "line",
+                                    "type": "area",
                                     "group_by": {
                                         "duration": "5min",
                                         "func": "max"
@@ -2976,7 +2983,7 @@
                             "series": [
                                 {
                                     "entity": "sensor.altherma_voltage_n_phase",
-                                    "type": "line",
+                                    "type": "area",
                                     "group_by": {
                                         "duration": "5min",
                                         "func": "max"
@@ -3002,7 +3009,7 @@
                             "series": [
                                 {
                                     "entity": "sensor.altherma_cop",
-                                    "type": "line",
+                                    "type": "area",
                                     "group_by": {
                                         "duration": "2min",
                                         "func": "max"
@@ -3016,7 +3023,8 @@
                             "series": [
                                 {
                                     "entity": "sensor.shelly_plug_badkamer_verwarming_relay_power",
-                                    "type": "line",
+                                    "type": "area",
+                                    "name": "Badkamer verwarming",
                                     "group_by": {
                                         "duration": "5min",
                                         "func": "max"
@@ -3024,7 +3032,8 @@
                                 },
                                 {
                                     "entity": "sensor.shelly_plug_douche_verwarming_relay_power",
-                                    "type": "line",
+                                    "type": "area",
+                                    "name": "Douche verwarming",
                                     "group_by": {
                                         "duration": "5min",
                                         "func": "max"
@@ -3042,9 +3051,9 @@
                             "series": [
                                 {
                                     "entity": "sensor.water_meter_current_usage",
-                                    "type": "line",
+                                    "type": "area",
                                     "group_by": {
-                                        "duration": "5min",
+                                        "duration": "1min",
                                         "func": "max"
                                     }
                                 }
@@ -3064,16 +3073,21 @@
                             },
                             "series": [
                                 {
-                                    "entity": "sensor.water_meter_current_usage",
+                                    "entity": "sensor.water_hourly",
                                     "type": "column",
+                                    "name": "Vandaag",
                                     "group_by": {
                                         "duration": "60min",
                                         "func": "sum"
                                     }
                                 },
                                 {
-                                    "entity": "sensor.water_meter_current_usage",
+                                    "entity": "sensor.water_hourly",
                                     "type": "column",
+                                    "name": "Gisteren",
+                                    "show": {
+                                        "offset_in_name": false
+                                    },
                                     "group_by": {
                                         "duration": "60min",
                                         "func": "sum"
@@ -3081,6 +3095,9 @@
                                     "offset": "-1d"
                                 }
                             ]
+                        },
+                        {
+                            "type": "energy-date-selection"
                         }
                     ]
                 },
@@ -3091,14 +3108,6 @@
                     "type": "custom:grid-layout",
                     "badges": [],
                     "cards": [
-                        {
-                            "type": "custom:mini-media-player",
-                            "entity": "media_player.office"
-                        },
-                        {
-                            "type": "custom:mini-media-player",
-                            "entity": "media_player.zithoek"
-                        },
                         {
                             "type": "custom:sonos-card",
                             "name": "Musica!",

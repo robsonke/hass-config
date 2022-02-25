@@ -2,35 +2,89 @@ action: fire-dom-event
 browser_mod:
   command: popup
   title: Woonkamer klimaat
+  style:
+    .: |
+      :host .content {
+        width: 60em;
+        height: 100%;
+      }
+      @media (max-width: 800px) {
+        :host .content {
+          width: 100%;
+        }
+      }
   card:
     type: custom:layout-card
-    layout_type: custom:masonry-layout
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 1fr 1fr
+      grid-template-rows: auto
+      grid-template-areas: |
+        "climate thermostat"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "thermostat"
+            "climate"
     cards:
-      - type: custom:mini-graph-card
-        name: Temperatuur
-        entities:
-          - sensor.climate_sensor_living_temperature
-        line_color: '#e74c3c'
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Luchtvochtigheid
-        entities:
-          - sensor.climate_sensor_living_humidity
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Luchtdruk
-        entities:
-          - sensor.climate_sensor_living_pressure
-        line_color: blue
-        line_width: 8
-        font_size_header: 10
-      - type: custom:mini-graph-card
-        name: Lichtsterkte
-        entities:
-          - sensor.lightlevel_living
-        line_color: '#F7BF10'
-        line_width: 8
-        font_size_header: 10
+      - type: vertical-stack
+        view_layout:
+          grid-area: thermostat
+        cards:
+          - type: history-graph
+            hours_to_show: 12
+            refresh_interval: 30
+            entities:
+              - sensor.altherma_operation_mode
+          - type: 'custom:simple-thermostat'
+            entity: climate.warmtepomp
+            version: 3
+            layout:
+              step: row
+            header: false
+            style: |
+              div.mode-title {
+                display: none;
+              }
+              .modes.heading {
+                grid-template-columns: auto !important;
+              }
+      - type: vertical-stack
+        view_layout:
+          grid-area: climate
+        cards:
+          - type: custom:apexcharts-card
+            config_templates: climate_chart
+            series:
+              - entity: sensor.climate_sensor_living_temperature
+                name: Temperatuur
+                color: '#e74c3c'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+          - type: custom:apexcharts-card
+            config_templates: climate_chart
+            series:
+              - entity: sensor.climate_sensor_living_humidity
+                name: Luchtvochtigheid
+                color: 'blue'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h
+          - type: custom:apexcharts-card
+            config_templates: climate_chart
+            series:
+              - entity: sensor.lightlevel_living
+                name: Lichtsterkte
+                color: '#F7BF10'
+                type: area
+                fill_raw: last
+                group_by:
+                  func: avg
+                  duration: 1h

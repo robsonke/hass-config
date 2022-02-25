@@ -17,7 +17,7 @@ homeassistant:
       entity_picture: "/local/images/rob_icon-mirror.png"
     person.steffi:
       entity_picture: "/local/images/steffi_icon.png"
-    person.ha_catt_cast:
+    person.ha_cast:
       entity_picture: "/local/images/huis_langeweide_icon.png"
     zone.home:
       entity_picture: "/local/images/huis_langeweide_icon.png"
@@ -56,6 +56,9 @@ homeassistant:
     binary_sensor.sheddoor_openclose_sensor:
       friendly_name: Schuurdeur
       device_class: door
+    binary_sensor.sheddoor_back_openclose_sensor:
+      friendly_name: Schuurdeur achter
+      device_class: door
     binary_sensor.windowdoor_ground_1_openclose_sensor:
       friendly_name: Kanteldeur beneden 1
       device_class: door
@@ -76,6 +79,9 @@ homeassistant:
       device_class: door
     binary_sensor.hallwaydoor_openclose_sensor:
       friendly_name: Deur gang
+      device_class: door
+    binary_sensor.toiletdoordownstairs_openclose:
+      friendly_name: Deur wc beneden
       device_class: door
     binary_sensor.window_atticroom_openclose_sensor:
       friendly_name: Raam zolderkamer
@@ -124,13 +130,11 @@ homeassistant:
 
     sensor.altherma_energy_usage:
       device_class: energy
-      state_class: measurement
-      last_reset: '1970-01-01T00:00:00+00:00'
+      state_class: total_increasing
       unit_of_measurement: kWh
     sensor.altherma_energy_usage_secundary:
       device_class: energy
-      state_class: measurement
-      last_reset: '1970-01-01T00:00:00+00:00'
+      state_class: total_increasing
       unit_of_measurement: kWh
     sensor.shelly_plug_office_energy_usage:
       last_reset: '1970-01-01T00:00:00+00:00'

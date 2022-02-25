@@ -226,6 +226,11 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
+      - entity: light.toilet_downstairs
+        name: Toilet
+        secondary_info: brightness
+        toggle: true
+        type: custom:slider-entity-row
       - type: divider
       - entity: light.office_lights
         secondary_info: brightness
@@ -243,8 +248,6 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: switch.light_garden_front
-      - switch.light_garden_fenceback
       title: Buiten
       type: entities
     type: custom:vertical-stack-in-card
@@ -828,6 +831,8 @@ views:
     show_header_toggle: true
     title: Screens
     type: entities
+  - entity: media_player.samsung_qn95aa_55_tv
+    type: media-control
   icon: mdi:sofa-outline
   show_empty: true
   title: Begane grond
@@ -1717,7 +1722,7 @@ views:
         show_state: true
       type: custom:mini-graph-card
     - entity: sensor.power_consumption
-      max: 15
+      max: 20
       min: 0
       name: Power usage
       needle: true
@@ -1794,12 +1799,12 @@ views:
       group_by:
         duration: 5min
         func: max
-      type: line
+      type: area
     - entity: sensor.template_altherma_power_usage_secundary
       group_by:
         duration: 5min
         func: max
-      type: line
+      type: area
     type: custom:apexcharts-card
   - config_templates: energy_chart
     series:
@@ -1807,7 +1812,7 @@ views:
       group_by:
         duration: 5min
         func: max
-      type: line
+      type: area
     type: custom:apexcharts-card
   - type: energy-usage-graph
   - entities:
@@ -1822,7 +1827,7 @@ views:
       group_by:
         duration: 2min
         func: max
-      type: line
+      type: area
     type: custom:apexcharts-card
   - config_templates: energy_chart
     series:
@@ -1830,12 +1835,14 @@ views:
       group_by:
         duration: 5min
         func: max
-      type: line
+      name: Badkamer verwarming
+      type: area
     - entity: sensor.shelly_plug_douche_verwarming_relay_power
       group_by:
         duration: 5min
         func: max
-      type: line
+      name: Douche verwarming
+      type: area
     type: custom:apexcharts-card
   - link_dashboard: true
     type: energy-distribution
@@ -1843,9 +1850,9 @@ views:
     series:
     - entity: sensor.water_meter_current_usage
       group_by:
-        duration: 5min
+        duration: 1min
         func: max
-      type: line
+      type: area
     type: custom:apexcharts-card
   - graph_span: 24h
     header:
@@ -1854,30 +1861,31 @@ views:
       show_states: true
       title: Waterverbruik vandaag
     series:
-    - entity: sensor.water_meter_current_usage
+    - entity: sensor.water_hourly
       group_by:
         duration: 60min
         func: sum
+      name: Vandaag
       type: column
-    - entity: sensor.water_meter_current_usage
+    - entity: sensor.water_hourly
       group_by:
         duration: 60min
         func: sum
+      name: Gisteren
       offset: -1d
+      show:
+        offset_in_name: false
       type: column
     span:
       start: day
     type: custom:apexcharts-card
+  - type: energy-date-selection
   icon: mdi:lightning-bolt-circle
   path: energy
   title: Energy
   type: custom:masonry-layout
 - badges: []
   cards:
-  - entity: media_player.office
-    type: custom:mini-media-player
-  - entity: media_player.zithoek
-    type: custom:mini-media-player
   - background: cover
     entities:
     - media_player.office

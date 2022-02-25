@@ -31,13 +31,36 @@ group:
     entities:
       - binary_sensor.backdoor_openclose_sensor
       - binary_sensor.frontdoor_openclose_sensor
-      - sensor.sheddoor_openclose
+      - sensor.sheddoor_openclose_sensor
       - binary_sensor.windowdoor_ground_1_openclose_sensor
       - binary_sensor.windowdoor_ground_2_openclose_sensor
       - binary_sensor.windowdoor_ground_3_openclose_sensor
       - binary_sensor.windowdoor_ground_4_openclose_sensor
       - binary_sensor.window_office_openclose_sensor
       - binary_sensor.door_hallcloset_openclose_sensor
+      - binary_sensor.window_atticroom_openclose_sensor
+      - binary_sensor.window_evaroom_openclose_sensor
+      - binary_sensor.window_masterbed_1_openclose_sensor
+      - binary_sensor.window_masterbed_2_openclose_sensor
+      - binary_sensor.window_guestroom_openclose_sensor
+
+  doors_and_windows_downstairs:
+    name: All doors and windows downstairs
+    icon: mdi:door
+    entities:
+      - binary_sensor.backdoor_openclose_sensor
+      - binary_sensor.frontdoor_openclose_sensor
+      - sensor.sheddoor_openclose_sensor
+      - binary_sensor.windowdoor_ground_1_openclose_sensor
+      - binary_sensor.windowdoor_ground_2_openclose_sensor
+      - binary_sensor.windowdoor_ground_3_openclose_sensor
+      - binary_sensor.windowdoor_ground_4_openclose_sensor
+      - binary_sensor.window_office_openclose_sensor
+      
+  doors_and_windows_upstairs:
+    name: All doors and windows upstairs
+    icon: mdi:window-closed-variant
+    entities:
       - binary_sensor.window_atticroom_openclose_sensor
       - binary_sensor.window_evaroom_openclose_sensor
       - binary_sensor.window_masterbed_1_openclose_sensor
@@ -58,6 +81,7 @@ group:
       - sensor.light_sensor_garden
       - binary_sensor.hallwaydoor_openclose_sensor
       - binary_sensor.window_evaroom_openclose_sensor
+      - sensor.climate_sensor_eva_temperature
 
   ignored_entities:
     entities:
@@ -106,3 +130,32 @@ group:
       - light.overloop
       - light.zolder
       - light.slaapkamer_eva
+  lights_garden:
+    name: Tuin
+    icon: mdi:lightbulb-group
+    entities:
+      - light.garden_light
+      - light.dimmer_cabinroof_level
+  
+  music_downstairs:
+    name: Muziek
+    icon: mdi:speaker-multiple
+    entities:
+      - media_player.living_room
+      - media_player.office
+      - media_player.eetkamer
+      - media_player.zithoek
+  
+  thermostats_upstairs:
+    name: Bovenverdieping thermostaten
+    icon: mdi:thermometer
+    entities:
+      - switch.kasa_infrarood_slaapkamer
+      - switch.infraroodpanel_eva
+      - climate.eurom_alutherm_baseboard_heater
+
+  thermostats_downstairs:
+    name: Benedenverdieping thermostaten
+    icon: mdi:thermometer
+    entities:
+      - climate.warmtepomp

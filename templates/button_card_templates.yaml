@@ -57,17 +57,29 @@ base:
               'rgb(0, 0, 0)' :
               'rgba(255, 255, 255, 0.3)';
           ]]]
+      - --custom-circle-text-color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - --custom-circle-stroke-color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
       - color: >
           [[[
             return variables.consider_on ?
-              'rgba(0, 0, 0, 0.6)' :
-              'rgba(255, 255, 255, 0.3)';
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
           ]]]
       - background-color: >
           [[[
             return variables.consider_on ?
               'rgba(255, 255, 255, 0.8)' :
-              'rgba(115, 115, 115, 0.2)';
+              'rgba(115, 115, 115, 0.4)';
           ]]]
   extra_styles: |
     #name, #state, #label {
@@ -75,12 +87,14 @@ base:
       letter-spacing: 0.05vw;
     }
     /* portrait */
+    /*
     @media screen and (max-width: 1200px) {
       #name, #state, #label {
         font-size: 2vw;
         letter-spacing: 0.05vw;
       }
     }
+    */
     /* phone */
     @media screen and (max-width: 800px) {
       #name, #state, #label {
@@ -88,6 +102,21 @@ base:
         letter-spacing: 0.12vw;
       }
     }
+
+#################################################
+#                                               #
+#                     SIMPLE                    #
+#                                               #
+#################################################
+
+simple:
+  template:
+    - base
+  hold_action:
+    action: none
+  custom_fields:
+    icon: >
+      [[[ return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`; ]]]
 
 #################################################
 #                                               #
@@ -110,6 +139,12 @@ sidebar_template:
         return attributes;
       }
     ]]]
+  styles:
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - color: var(--sidebar-font-color)
   extra_styles: |
     ha-icon.trash {
       --mdc-icon-size: 16px;
@@ -124,7 +159,7 @@ sidebar_template:
     }
 
     #name {
-      padding: 1.8vw 2.5vw 0 17px;
+      padding: 0 2.5vw 0 17px;
       white-space: normal;
       text-align: left;
     }
@@ -143,16 +178,23 @@ sidebar_template:
       color: rgba(255, 255, 255, 0.8);
     }
 
+    div.trash-list {
+      display: block;
+    }
+    div.trash-compact {
+      display: none;
+    }
+
     /* portrait */
     @media screen and (max-width: 1200px) {
       .time {
-        font-size: calc(var(--sidebar-time-font-size) * 1.4 );
-        line-height: calc(var(--sidebar-time-line-height) * 1.4 );
+        font-size: calc(var(--sidebar-time-font-size) * 1.2 );
+        line-height: calc(var(--sidebar-time-line-height) * 1.2 );
       }
 
       p {
-        font-size: calc(var(--sidebar-font-size) * 1.4 );
-        line-height: calc(var(--sidebar-line-height) * 1.4 );
+        font-size: calc(var(--sidebar-font-size) * 0.8);
+        line-height: calc(var(--sidebar-line-height) * 0.8);
       }
     }
 
@@ -171,6 +213,13 @@ sidebar_template:
       #name {
         padding: 0 0 0 1vw;
       }
+
+      div.trash-list {
+        display: none;
+      }
+      div.trash-compact {
+        display: block;
+      }
     }
 
 #################################################
@@ -183,29 +232,27 @@ circle:
   custom_fields:
     circle: >
       [[[
-        //if (variables.state === 'on') {
-        if (variables.circle_input) {
-          const input = variables.circle_input;
-          const radius = 20.5;
-          const circumference = radius * 2 * Math.PI;
-          return `
-            <svg viewBox="0 0 50 50">
-              <style>
-                circle {
-                  transform: rotate(-90deg);
-                  transform-origin: 50% 50%;
-                  stroke-dasharray: ${circumference};
-                  stroke-dashoffset: ${circumference - input / 100 * circumference};
-                }
-                tspan {
-                  font-size: 10px;
-                }
-              </style>
-              <circle cx="25" cy="25" r="${radius}" stroke="#b2b2b2" stroke-width="1.5" fill="none" />
-              <text x="50%" y="54%" fill="#8d8e90" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}<tspan font-size="10">${variables.unit}</tspan></text>
-            </svg>
-          `;
-        }
+        const input = variables.circle_input || 0;
+        const text = variables.circle_text || input;
+        const radius = 20.5;
+        const circumference = radius * 2 * Math.PI;
+        return `
+          <svg viewBox="0 0 50 50">
+            <style>
+              circle {
+                transform: rotate(-90deg);
+                transform-origin: 50% 50%;
+                stroke-dasharray: ${circumference};
+                stroke-dashoffset: ${circumference - input / 100 * circumference};
+              }
+              tspan {
+                font-size: 10px;
+              }
+            </style>
+            <circle cx="25" cy="25" r="${radius}" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="none" />
+            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${text}<tspan font-size="10">${variables.unit}</tspan></text>
+          </svg>
+        `;
       ]]]
   styles:
     custom_fields:
@@ -297,12 +344,10 @@ light:
 #                     LIGHT_GROUP               #
 #                                               #
 #################################################
-# {{ expand('group.lights_living') | selectattr('state', 'in', ['on']) | list | length }}
-# {{ state_attr('group.lights_living', 'entity_id') | selectattr('state', 'equalto', 'off') | list | length  }}
 
 light_group:
   template:
-    - base
+    - simple
     - circle
   variables:
     circle_input: >
@@ -313,24 +358,6 @@ light_group:
       ]]]
   hold_action:
     action: none
-  custom_fields:
-    icon: >
-      [[[ return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`; ]]]
-
-#################################################
-#                                               #
-#                     SIMPLE                    #
-#                                               #
-#################################################
-
-simple:
-  template:
-    - base
-  hold_action:
-    action: none
-  custom_fields:
-    icon: >
-      [[[ return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`; ]]]
 
 #################################################
 #                                               #
@@ -346,13 +373,13 @@ climate:
     circle: >
       [[[ {
       const temperature = Math.round(entity.state * 10) / 10;
-      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="#313638" stroke-width="1.5" fill="#FFFFFF08" style="
+      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="
       transform: rotate(-90deg); transform-origin: 50% 50%;" />
-      <text x="50%" y="54%" fill="#8d8e90" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°</text></svg>`; } ]]]
+      <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°</text></svg>`; } ]]]
     graph:
       card:
         type: custom:apexcharts-card
-        config_templates: climate_chart
+        config_templates: climate_button_chart
   styles:
     custom_fields:
       graph:
@@ -381,10 +408,16 @@ climate:
 cats:
   template:
     - simple
+    - circle
   variables:
+    unit: 'x'
     circle_input: >
       [[[
-        return states['sensor.cat_door_today'].state;
+        return 100;
+      ]]]
+    circle_text: >
+      [[[
+        return Math.round(parseInt(states['sensor.cat_door_today'].state)/2);
       ]]]
   state_display: >
     [[[
@@ -396,48 +429,80 @@ cats:
           .datetime="${entity.last_updated}"
         ></ha-relative-time>`
     ]]]
-  custom_fields:
-    circle: >
+
+#################################################
+#                                               #
+#                     SONOS                     #
+#                                               #
+#################################################
+
+sonos:
+  template:
+    - simple
+    - circle
+  variables:
+    unit: ''
+    state: >
+      [[[ return entity === undefined || entity.attributes.entity_id.map(e => states[e]).filter(state => state.state === 'playing').length > 0 ? 'Playing' : 'Pause'; ]]]
+    consider_on: >
       [[[
-        const input = variables.circle_input == null ? ' ' : `${Math.round(parseInt(variables.circle_input)/2)}<tspan font-size="12">x</tspan>`;
-        return `
-          <svg viewBox="0 0 50 50">
-            <circle cx="25" cy="25" r="20.5" stroke="#313638" stroke-width="1.5" fill="#FFFFFF08" />
-            <text x="50%" y="54%" fill="#8d8e90" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}</text>
-          </svg>
-        `;
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing').length;
+        return playing > 0;
       ]]]
+    circle_input: >
+      [[[
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing').length;
+        const allPlayers = entity.attributes.entity_id.length;
+        return Math.round(playing / allPlayers * 100);
+      ]]]
+    circle_text: >
+      [[[
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing').length;
+        const allPlayers = entity.attributes.entity_id.length;
+        return `${playing}/${allPlayers}`;
+      ]]]
+  state_display: >
+    [[[ return variables.state; ]]]
   styles:
     custom_fields:
-      circle:
-        - display: initial
-        - width: 90%
-        - letter-spacing: 0.03vw
-        - margin: -6% -6% 0 0
-        - justify-self: end
-        - opacity: 1
-
-#################################################
-#                                               #
-#                     MUSIC                     #
-#                                               #
-#################################################
-
-music:
-  template:
-    - base
+      icon:
+        - clip-path: circle()
+        - width: 55px
+        - height: 55px
+        - pointer-events: none
+        - display: grid
+  custom_fields:
+    icon: >
+      [[[
+        // find first media player playing and get its entity picture
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing');
+        const defaultIcon = `<ha-icon icon="${entity.attributes.icon}" style="width: 100%; height: 100%;"></ha-icon>`;
+        if (playing.length > 0) {
+          const entity_picture = playing[0] === undefined || playing[0].attributes.entity_picture;
+          return entity_picture === null ? defaultIcon :
+            `<div style='background-image: url("${hass.hassUrl(entity_picture)}"); background-position: center center; background-repeat: no-repeat; background-size: cover'></div>`;
+        }
+        return defaultIcon;
+      ]]]
   tap_action:
     action: fire-dom-event
     browser_mod:
       command: popup
-      title:  Muziek
       style:
         .: |
+          :host {
+            --dialog-content-padding: 0;
+          }
           :host .content {
             width: 60em;
             height: 100%;
-            padding: 2.1em 1.9em 1.9em 2.7em;
           }
+          @media (max-width: 800px) {
+            :host .content {
+              width: 100%;
+            }
+          }
+      title:  Sonos - Muziek
       card:
         type: "custom:sonos-card"
         name: "Sonos"
@@ -450,7 +515,6 @@ music:
         card_mod:
           style: |
             ha-card.type-custom-sonos-card {
-              --sns-button-size-width: 150px;
               --sns-button-icon-color: var(--primary-color);
               --sns-player-background: transparant;
               --sns-card-primary-text-color: #fff;
@@ -458,45 +522,101 @@ music:
 
 #################################################
 #                                               #
-#                     SONOS                     #
+#                     MUSIC                     #
 #                                               #
 #################################################
 
-sonos_input_button_thick_name:
-  color_type: card
-  show_icon: false
-  state:
-    - value: 'on'
-      styles:
-        name:
-          - color: var(--secondary-background-color)
-  styles:
-    card:
-      - transform: scale(0.95)
-      - border-style: solid
-      - border-width: 2px
-      - border-color: var(--primary-color)
-      - height: 60px
-    name:
-      - color: white
-      - font-size: 20px
-      - font-variant: small-caps
-        
-sonos_switch_button_thick_name:
-  color: auto
-  template: sonos_input_button_thick_name
+music:
+  template:
+    - simple
+    - circle
+  tap_action:
+    action: more-info
+  variables:
+    circle_input: >
+      [[[
+        return Math.round(entity.attributes['volume_level'] * 100);
+      ]]]
 
-sonos_header:
-  color: none
-  color_type: label-card
-  styles:
-    card:
-      - height: 10px
-    name:
-      - font-size: 24px
-      - justify-self: start
-      - padding: 0px 30px
-      - font-variant: small-caps
+#################################################
+#                                               #
+#          DOOR_WINDOW_GROUP_BASE               #
+#                                               #
+#################################################
+
+door_window_group_base:
+  template:
+    - simple
+    - circle
+  variables:
+    circle_input: >
+      [[[
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";
+        const doorsOpen = states[countSensor].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return Math.round(doorsOpen / allDoors * 100);
+      ]]]
+    unit: ''
+    state: >
+      [[[ 
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";
+        return states[countSensor].state > 0 ? 'Open' : 'Gesloten';
+      ]]]
+    consider_on: >
+      [[[
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";  
+        return states[countSensor].state > 0;
+      ]]]
+    circle_text: >
+      [[[
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";
+        const doorsOpen = states[countSensor].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return `${doorsOpen}/${allDoors}`;
+      ]]]
+  hold_action:
+    action: none
+  state_display: >
+    [[[ return variables.state; ]]]
+
+#################################################
+#                                               #
+#          DOOR_WINDOW_GROUP_DOWNSTAIRS         #
+#                                               #
+#################################################
+
+door_window_group_downstairs:
+  template:
+    - door_window_group_base
+  tap_action:
+    !include ../dashboards/popups/doors_downstairs.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
+          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]
+
+#################################################
+#                                               #
+#            DOOR_WINDOW_GROUP_UPSTAIRS         #
+#                                               #
+#################################################
+
+door_window_group_upstairs:
+  template:
+    - door_window_group_base
+  tap_action:
+    !include ../dashboards/popups/doors_upstairs.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
+          return `<ha-icon icon="mdi:window-open-variant"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]
+
 
 #################################################
 #                                               #
@@ -504,18 +624,45 @@ sonos_header:
 #                                               #
 #################################################
 
-base_cover:
+cover:
   template:
     - base
+    - circle
   variables:
-    state: >
-      [[[ return entity === undefined || entity.state; ]]]
     timeout: >
       [[[ return entity === undefined || Date.now() - Date.parse(entity.last_changed); ]]]
-  aspect_ratio: 1/1
-  show_state: false
-  show_icon: false
-  show_label: true
+    consider_on: >
+      [[[
+        var state = entity === undefined || entity.state;
+        return state !== 'open';
+      ]]]
+  custom_fields:
+    icon: >
+      [[[
+        const fill_color = (entity.attributes.current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : '#00a86b';
+        let common = `<svg viewBox="0 0 50 50">
+            <g transform="matrix(0.00733309,0,0,-0.00934536,-0.00876259,42.68667)" fill="${fill_color}" stroke="none">
+            <path d="M 95,4556 C 54,4538 12,4487 5,4447 2,4429 0,4290 2,4138 c 3,-314 3,-312 88,-355 41,-21 58,-23 207,-23 H 460 V 2311 862 L 281,858 C 118,855 99,853 74,834 23,796 5,763 5,705 5,647 23,614 74,576 l 27,-21 h 2459 2459 l 27,21 c 51,38 69,71 69,129 0,58 -18,91 -69,129 -25,19 -44,21 -207,24 l -179,4 v 1449 1449 h 163 c 149,0 166,2 207,23 87,44 85,37 85,382 0,291 -1,305 -21,331 -11,15 -33,37 -48,48 l -27,21 -2447,2 C 553,4569 120,4567 95,4556 Z M 4350,2310 V 860 H 2560 770 v 1450 1450 h 1790 1790 z" />`,
+            path75 = `<path d="m 1152,3300 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`,
+            path50 = `<path d="m 1164,2741 c -111,-51 -114,-214 -4,-272 33,-18 90,-19 1400,-19 1310,0 1367,1 1400,19 110,58 107,221 -4,272 -39,18 -96,19 -1396,19 -1300,0 -1357,-1 -1396,-19 z" />`,
+            path25 = `<path d="m 1160,2152 c -104,-52 -109,-206 -8,-267 33,-20 51,-20 1408,-20 1357,0 1375,0 1408,20 101,61 96,215 -8,267 -33,17 -120,18 -1400,18 -1280,0 -1367,-1 -1400,-18 z" />`,
+            path0  = `<path d="m 1152,1580 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`;
+        if (entity.attributes.current_position <= variables.close_position) {
+          return `${common}${path75}${path50}${path25}${path0}</g></svg>`;
+        } 
+        if (entity.attributes.current_position <= variables.quarter1_position) {
+          return `${common}${path75}${path50}${path25}</g></svg>`;
+        }
+        if (entity.attributes.current_position <= variables.middle_position) {
+          return `${common}${path75}${path50}</g></svg>`;
+        }
+        if (entity.attributes.current_position <= variables.quarter3_position) {
+          return `${common}${path75}</g></svg>`;
+        }
+        if (entity.attributes.current_position <= 100) {
+          return `${common}</g></svg>`;
+        }
+      ]]]
   label: |
     [[[
       if (entity.attributes.current_position <= variables.close_position)
@@ -544,87 +691,7 @@ base_cover:
         ]]]
   tap_action:
     action: more-info
-  styles:
-    grid:
-      - grid-template-areas: |
-          "icon  circle"
-          "n     n"
-          "l     l"
-      - grid-template-columns: repeat(2, 1fr)
-      - grid-template-rows: auto repeat(2, min-content)
-      - gap: 2%
-      - align-items: start
-    label:
-      - justify-self: start
-      - line-height: 115%
-    card:
-      - --mdc-ripple-color: >
-          [[[
-            return (variables.state === 'open') ?
-              'rgb(0, 0, 0)' :
-              'rgba(255, 255, 255, 0.3)';
-          ]]]
-      - color: rgba(255, 255, 255, 0.3)
-      - background-color: rgba(115, 115, 115, 0.2)
 
-cover_circle:
-  custom_fields:
-    circle: >
-      [[[
-        const input = variables.circle_input == null ? ' ' : `${parseInt(variables.circle_input)}<tspan font-size="12">%</tspan>`;
-        const stroke_color = (variables.state === 'open') ? 'none' : '#313638';
-        const fill_color = (variables.state === 'closed') ? 'none' : '#FFFFFF08';
-        return `
-          <svg viewBox="0 0 50 50">
-            <circle cx="25" cy="25" r="20.5" stroke="${stroke_color}" stroke-width="1.5" fill="${fill_color}" />
-            <text x="50%" y="54%" fill="#8d8e90" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}</text>
-          </svg>
-        `;
-      ]]]
-  styles:
-    custom_fields:
-      circle:
-        - display: initial
-        - width: 90%
-        - letter-spacing: 0.03vw
-        - margin: -6% -6% 0 0
-        - justify-self: end
-        - opacity: 1
-
-icon_cover:
-  styles:
-    custom_fields:
-      icon:
-        - width: 95%
-        - margin-left: 3%
-        - margin-top: 5%
-  custom_fields:
-    icon: |
-      [[[
-        const fill_color = (entity.attributes.current_position > variables.close_position) ? '#72757c' : '#00a86b';
-        let common = `<svg viewBox="0 0 50 50">
-            <g transform="matrix(0.00733309,0,0,-0.00934536,-0.00876259,42.68667)" fill="${fill_color}" stroke="none">
-            <path d="M 95,4556 C 54,4538 12,4487 5,4447 2,4429 0,4290 2,4138 c 3,-314 3,-312 88,-355 41,-21 58,-23 207,-23 H 460 V 2311 862 L 281,858 C 118,855 99,853 74,834 23,796 5,763 5,705 5,647 23,614 74,576 l 27,-21 h 2459 2459 l 27,21 c 51,38 69,71 69,129 0,58 -18,91 -69,129 -25,19 -44,21 -207,24 l -179,4 v 1449 1449 h 163 c 149,0 166,2 207,23 87,44 85,37 85,382 0,291 -1,305 -21,331 -11,15 -33,37 -48,48 l -27,21 -2447,2 C 553,4569 120,4567 95,4556 Z M 4350,2310 V 860 H 2560 770 v 1450 1450 h 1790 1790 z" />`,
-            path75 = `<path d="m 1152,3300 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`,
-            path50 = `<path d="m 1164,2741 c -111,-51 -114,-214 -4,-272 33,-18 90,-19 1400,-19 1310,0 1367,1 1400,19 110,58 107,221 -4,272 -39,18 -96,19 -1396,19 -1300,0 -1357,-1 -1396,-19 z" />`,
-            path25 = `<path d="m 1160,2152 c -104,-52 -109,-206 -8,-267 33,-20 51,-20 1408,-20 1357,0 1375,0 1408,20 101,61 96,215 -8,267 -33,17 -120,18 -1400,18 -1280,0 -1367,-1 -1400,-18 z" />`,
-            path0  = `<path d="m 1152,1580 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`;
-        if (entity.attributes.current_position <= variables.close_position) {
-          return `${common}${path75}${path50}${path25}${path0}</g></svg>`;
-        } 
-        if (entity.attributes.current_position <= variables.quarter1_position) {
-          return `${common}${path75}${path50}${path25}</g></svg>`;
-        }
-        if (entity.attributes.current_position <= variables.middle_position) {
-          return `${common}${path75}${path50}</g></svg>`;
-        }
-        if (entity.attributes.current_position <= variables.quarter3_position) {
-          return `${common}${path75}</g></svg>`;
-        }
-        if (entity.attributes.current_position <= 100) {
-          return `${common}</g></svg>`;
-        }
-      ]]]
 
 #################################################
 #                                               #
@@ -639,7 +706,7 @@ base_sidebar:
       - font-family: Sf Display
       - border-radius: var(--custom-button-card-border-radius)
       - -webkit-tap-highlight-color: rgba(0,0,0,0)
-      - color: rgba(255, 255, 255, 0.3)
+      - color: var(--sidebar-font-color)
     name:
       - justify-self: start
       - align-self: left
@@ -693,7 +760,7 @@ person:
 
 #################################################
 #                                               #
-#               SIDEBAR_BUTTON                  #
+#               SIDEBAR                         #
 #                                               #
 #################################################
 
@@ -709,83 +776,49 @@ sidebar_button:
           "i n s"
       - grid-template-columns: 20% 3fr 1fr
       - grid-template-rows: 30px
+    state:
+      - place-self: end
+      - margin-right: 10px
+      - margin-bottom: 4px
 
-
-#################################################
-#                                               #
-#                  BASE MEDIA                   #
-#                                               #
-#################################################
-
-base_media:
+sidebar_alarm:
+  template:
+    - sidebar_button
   tap_action:
-    action: >
-      [[[
-        return !(variables.state === 'off' || variables.state === 'idle' || variables.state === 'standby') ? 'call-service' : 'none';
-      ]]]
-    service: media_player.media_play_pause
-    service_data:
-      entity_id: >
-        [[[ return entity === undefined || entity.entity_id; ]]]
-  double_tap_action:
-    action: call-service
-    service: >
-      [[[ return variables.state === 'off' || variables.state === 'idle' || variables.state === 'standby' ? 'media_player.turn_on' : 'media_player.turn_off'; ]]]
-    service_data:
-      entity_id: >
-        [[[ return entity === undefined || entity.entity_id; ]]]
-  # styles:
-  #   card:
-  #     - color: >
-  #         [[[
-  #           var entity_picture = entity === undefined || entity.attributes.entity_picture;
-  #           if (variables.state === 'off' || variables.state === 'idle' || variables.state === 'standby' ||
-  #             variables.state === 'unknown' || variables.state === 'unavailable' || entity === undefined) {
-  #             return 'rgba(255, 255, 255, 0.3)';
-  #           }
-  #           return (variables.state != 'off' && variables.state != 'idle' && variables.state != 'standby') && (entity_picture == null) ? 'rgba(0, 0, 0, 0.6)' : '#efefef';
-  #         ]]]
-  #     - text-shadow: >
-  #         [[[
-  #           const entity_picture = entity === undefined ? null : entity.attributes.entity_picture;
-  #           return entity_picture == null ? 'none' : '1px 1px 5px rgba(18, 22, 23, 0.9)';
-  #         ]]]
+    !include ../dashboards/popups/alarm.yaml
+  styles:
+    grid:
+      - grid-template-areas: >
+          "i n s"
+      - grid-template-columns: 20% 2fr 3fr
+      - grid-template-rows: 30px
+    icon:
+      - color: >
+          [[[
+            if (entity.state === 'disarmed') return 'green';
+            if (entity.state === 'arming') return 'yellow';
+            if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'orange';
+            if (entity.state === 'triggered') return '#e74c3c';
+            return 'green'
+          ]]]
+      - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
 
-# #################################################
-# #                                               #
-# #                     MEDIA                     #
-# #                                               #
-# #################################################
-
-# media:
-#   template:
-#     - base
-#     - base_media
-#   styles:
-#     custom_fields:
-#       icon:
-#         - width: 70%
-#         - fill: '#9da0a2'
-#         - opacity: >
-#             [[[
-#               const entity_picture = entity === undefined ? null : entity.attributes.entity_picture;
-#               return entity_picture == null ? 1 : 0;
-#             ]]]
-#     card:
-#       - background-color: none
-#       - background-size: cover
-#       - background-image: >
-#           [[[
-#             const entity_picture = entity === undefined || entity.attributes.entity_picture;
-#             if (variables.state === 'off' || variables.state === 'idle' || variables.state === 'standby' ||
-#               variables.state === 'unknown' || variables.state === 'unavailable' || entity === undefined) {
-#               return 'linear-gradient(0deg, rgba(115, 115, 115, 0.2) 0%, rgba(115, 115, 115, 0.2) 100%)';
-#             }
-#             return (variables.state != 'off' && variables.state != 'idle' && variables.state != 'standby') && (entity_picture == null) ? 
-#               'linear-gradient(0deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%)' : 
-#               'linear-gradient(0deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,0) 100%), url(' + entity_picture + ')';
-#           ]]]
-
+sidebar_stookalert:
+  template:
+    - base_sidebar
+  show_entity_picture: false
+  show_icon: true
+  show_state: true
+  styles:
+    grid:
+      - grid-template-areas: >
+          "i s"
+      - grid-template-columns: 20% 3fr
+      - grid-template-rows: 30px
+    state:
+      - place-self: begin
+      - margin-right: 10px
+      - margin-bottom: 4px
 
 #################################################
 #                                               #
@@ -796,9 +829,25 @@ base_media:
 icon_temp:
   custom_fields:
     icon: >
-      <svg viewBox="0 0 50 50">
-        <path d="M32.8 28.2V8.4A8.28 8.28 0 0 0 24.5.1a8.28 8.28 0 0 0-8.3 8.3v19.7c-2.5 2.3-4.1 5.6-4.1 9.3 0 6.9 5.6 12.4 12.4 12.4s12.4-5.6 12.4-12.4c0-3.7-1.6-7-4.1-9.2zm-8.3 17.5a8.28 8.28 0 0 1-8.3-8.3 8.2 8.2 0 0 1 2.8-6.2l1.4-1.2V8.4c0-2.3 1.9-4.1 4.1-4.1s4.1 1.9 4.1 4.1V30l1.4 1.2c1.7 1.6 2.8 3.8 2.8 6.2a8.28 8.28 0 0 1-8.3 8.3zm-2.1-29h4.1v24.8h-4.1V16.7zm2.1 14.5c3.4 0 6.2 2.8 6.2 6.2s-2.8 6.2-6.2 6.2-6.2-2.8-6.2-6.2 2.8-6.2 6.2-6.2z"/>
-      </svg>
+      [[[
+        let color = 'currentcolor';
+        if (variables.group_entity) {
+          // is the entity a group?
+          if (states[variables.group_entity].attributes.entity_id) {
+            const count = states[variables.group_entity].attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'on' || state.attributes['hvac_action'] === 'heating').length;
+            if (count > 0)
+              color = '#e74c3c';
+          }
+          // or is it a simple entity?
+          else if (states[variables.group_entity].state === 'on' || states[variables.group_entity].attributes['hvac_action'])
+            color = '#e74c3c';
+        }
+        return `
+          <svg viewBox="0 0 50 50">
+            <path fill="${color}" d="M32.8 28.2V8.4A8.28 8.28 0 0 0 24.5.1a8.28 8.28 0 0 0-8.3 8.3v19.7c-2.5 2.3-4.1 5.6-4.1 9.3 0 6.9 5.6 12.4 12.4 12.4s12.4-5.6 12.4-12.4c0-3.7-1.6-7-4.1-9.2zm-8.3 17.5a8.28 8.28 0 0 1-8.3-8.3 8.2 8.2 0 0 1 2.8-6.2l1.4-1.2V8.4c0-2.3 1.9-4.1 4.1-4.1s4.1 1.9 4.1 4.1V30l1.4 1.2c1.7 1.6 2.8 3.8 2.8 6.2a8.28 8.28 0 0 1-8.3 8.3zm-2.1-29h4.1v24.8h-4.1V16.7zm2.1 14.5c3.4 0 6.2 2.8 6.2 6.2s-2.8 6.2-6.2 6.2-6.2-2.8-6.2-6.2 2.8-6.2 6.2-6.2z"/>
+          </svg>
+        `
+      ]]]
 
 icon_name:
   size: 1.4em
@@ -819,85 +868,6 @@ icon_name:
       - font-weight: 500
       - letter-spacing: 0.015em
       - background: '#FFFFFF10'
-
-# icon_only:
-#   show_name: false
-#   color: '#9da0a2'
-#   styles:
-#     card:
-#       - color: '#9da0a2'
-#       - border-radius: 0.6em
-#       - width: 4em
-#       - height: 3.7em
-#       - background: '#FFFFFF10'
-
-# color_light:
-#   styles:
-#     card:
-#       - border-radius: 50%
-#       - height: 4em
-#       - width: 4em
-#       - margin: 4px
-
-
-
-# #################################################
-# #                                               #
-# #                    FOOTER                     #
-# #                                               #
-# #################################################
-
-# coronavirus:
-#   show_state: true
-#   show_name: false
-#   show_icon: false
-#   tap_action:
-#     action: none
-#   state_display: >
-#     [[[
-#       if (entity && entity.attributes.embedCode != undefined) {
-#         let data = entity.attributes.embedCode;
-#         let total = data.match(/Totalt[^,]*?(\d+)[^,]*?(\d+)[^,]*?(\d+)/);
-#         let spacer = '‍ ‍ ‍ ‍ ‍ ‍<font color="#2f3436">|</font> ‍ ‍ ‍ ‍ ';
-#         return `
-#           <ha-icon icon="mdi:virus"></ha-icon> <b>Coronavirus</b>${spacer}
-#           <ha-icon icon="mdi:chart-bar"></ha-icon> <b>${((parseFloat(total[1]) / 10327589) * 100).toFixed(2)}%</b> av Sverige${spacer}
-#           <ha-icon icon="mdi:emoticon-sad"></ha-icon> <b>${total[1]}</b> fall${spacer}
-#           <ha-icon icon="mdi:grave-stone"></ha-icon> <b>${total[3]}</b> avlidna${spacer}
-#           <ha-icon icon="mdi:map-marker-radius"></ha-icon> <b>${data.match(/Skåne[^,]*?(\d+)/)[1]}</b> fall i Skåne
-#         `;
-#       }
-#     ]]]
-#   styles:
-#     state:
-#       - place-self: start
-#       - font-weight: 400
-#       - font-size: 1.26vw
-#       - letter-spacing: 0.05vw
-#       - white-space: nowrap
-#       - opacity: 0.6
-#     card:
-#       - background: none
-#       - padding: 0
-#       - margin-top: -1vw
-#       - overflow: hidden
-#   extra_styles: |
-#     ha-icon {
-#       vertical-align: 5%;
-#       opacity: 0.4;
-#       width: 1.2vw;
-#     }
-
-#     .ellipsis {
-#       color: #6a7377;
-#     }
-
-#     /* phone */
-#     @media screen and (max-width: 800px) {
-#       #state {
-#         display: none;
-#       }
-#     }
 
 #################################################
 #                                               #

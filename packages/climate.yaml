@@ -1,0 +1,25 @@
+#   ____ _ _                 _
+#  / ___| (_)_ __ ___   __ _| |_ ___
+# | |   | | | '_ ` _ \ / _` | __/ _ \
+# | |___| | | | | | | | (_| | ||  __/
+#  \____|_|_|_| |_| |_|\__,_|\__\___|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+climate:
+  - platform: generic_thermostat
+    name: Warmtepomp
+    unique_id: daikin_climate_control
+    target_sensor: sensor.indoor_temperature
+    min_temp: 18
+    max_temp: 26
+    heater: switch.climate_control
+    target_temp: 21
+    cold_tolerance: 0.3
+    hot_tolerance: 0.3
+    ac_mode: false
+    initial_hvac_mode: "heat"
+    min_cycle_duration:
+      seconds: 5

@@ -24,11 +24,16 @@ class HAChargerStatuses(str, Enum):
     """Charger status conditions to report in home assistant."""
 
     status = "Status"
+    status_connector = "Status.Connector"
     heartbeat = "Heartbeat"
+    latency_ping = "Latency.Ping"
+    latency_pong = "Latency.Pong"
     error_code = "Error.Code"
+    error_code_connector = "Error.Code.Connector"
     stop_reason = "Stop.Reason"
     firmware_status = "Status.Firmware"
     reconnects = "Reconnects"
+    id_tag = "Id.Tag"
 
 
 class HAChargerDetails(str, Enum):
@@ -42,6 +47,7 @@ class HAChargerDetails(str, Enum):
     features = "Features"
     connectors = "Connectors"
     data_response = "Timestamp.Data.Response"
+    data_transfer = "Timestamp.Data.Transfer"
     config_response = "Timestamp.Config.Response"
 
 

@@ -1,26 +1,20 @@
 action: fire-dom-event
 browser_mod:
   command: popup
-  # large: true
   title: Woonkamer verlichting
   card:
     type: grid
     columns: 3
-    # type: custom:layout-card
-    # layout_type: custom:masonry-layout
-    #layout:
-      #width: 150
-      #max_width: 200
-      #max_cols: 5
-      #min_height: 150
     cards:
       - type: custom:decluttering-card
         template: light_button
         variables: 
+          - title: Achter
           - entity: light.livingback_light
       - type: custom:decluttering-card
         template: light_button
-        variables: 
+        variables:
+          - title: Voor
           - entity: light.livingfront_light
       - type: custom:decluttering-card
         template: light_button
@@ -34,3 +28,8 @@ browser_mod:
         template: light_button
         variables: 
           - entity: light.ledstrip_tv
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - title: Toilet
+          - entity: light.toilet_downstairs

@@ -1,0 +1,26 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Tuin verlichting
+  card:
+    type: grid
+    columns: 3
+    cards:
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.garden_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.dimmer_cabinroof_level
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.garden_lantern_light1
+
+      - type: custom:button-card
+        entity: switch.pool_fountain
+        name: Fontein
+        template:
+          - simple

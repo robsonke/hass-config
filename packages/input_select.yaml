@@ -10,22 +10,3 @@
 #
 
 input_select:
-
-  sonos_master:
-    name: Sonos Master Speaker
-    options:
-      - media_player.living_room
-      - media_player.office
-      - media_player.eetkamer
-      - media_player.zithoek
-    initial: media_player.living_room
-
-  # These input select options MUST match the names of your sources. 
-  # The Sonos Playlist Card buttons select the input and execute a script based on this input
-  sonos_playlist:
-    name: Sonos Playlist
-    options:
-      - None
-      - Techno
-      - NPO Radio 2
-      - Ouwe shizzles
