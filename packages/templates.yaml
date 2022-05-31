@@ -15,6 +15,54 @@ template:
       {{ device_attr(device_id('sensor.hacs'), 'sw_version') }}
     attributes:
       friendly_name: HACS Version
+  - unique_id: hacs_updates
+    unit_of_measurement: "Update(s)"
+    state: >
+      {{ expand(integration_entities('hacs')) | selectattr('state', 'in', ['on']) | list | count }}
+    attributes:
+      friendly_name: HACS Updates
+      updates: >
+        <ha-icon icon="hacs:hacs"></ha-icon> <span class="title">Community Store {{ states('sensor.template_hacs_version') }}</span><br>
+        {%- if (states('sensor.template_hacs_updates') | int(default=0)) == 0 %}
+          <p class="subtitle">Geen updates</p>
+        {%- elif (states('sensor.template_hacs_updates') | int(default=0)) == 1 %}
+          <p class="subtitle">1 update beschikbaar &#127881;</p>
+        {%- else %}
+          <p class="subtitle">{{ states('sensor.template_hacs_updates') }} updates beschikbaar &#127881;</p>
+        {%- endif %}
+        {%- if (states('sensor.template_hacs_updates') | int(default=0)) > 0 %}
+        <ul>
+          {%- for entity in integration_entities('hacs') %}
+            {%- if entity.startswith('update') and is_state(entity, 'on') %}
+              <li><b><a href="#" onclick="window.open('{{ state_attr(entity, 'release_url') }}');">{{ state_attr(entity, 'friendly_name') }}</a></b> 
+                {{ state_attr(entity, 'installed_version') }} &#10142; {{ state_attr(entity, 'latest_version') }}
+                <ha-icon-button onclick="cardTools.moreInfo('{{ entity }}', true)"><ha-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-icon></ha-icon-button>
+              </li>
+            {%- endif %}
+          {%- endfor %}
+        </ul>
+        {%- endif %}
+  - unique_id: supervisor_updates
+    unit_of_measurement: "Update(s)"
+    state: >
+      {% set count = namespace(value=0) %}
+      {%- for entity in integration_entities('Supervisor') %}
+        {%- if entity.startswith('update') and is_state(entity, 'on') %}
+          {% set count.value = count.value + 1 %}
+        {%- endif %}
+      {%- endfor %}
+      {{ count.value }}
+    attributes:
+      friendly_name: Addon And Supervisor Updates
+      updates: >
+        {%- for entity in integration_entities('Supervisor') %}
+          {%- if entity.startswith('update') and is_state(entity, 'on') %}
+            <li><b><a href="#" onclick="window.open('{{ state_attr(entity, 'release_url') }}');">{{ state_attr(entity, 'friendly_name') }}</a></b> 
+              {{ state_attr(entity, 'installed_version') }} &#10142; {{ state_attr(entity, 'latest_version') }}
+              <ha-icon-button onclick="cardTools.moreInfo('{{ entity }}', true)"><ha-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-icon></ha-icon-button>
+            </li>
+          {%- endif %}
+        {%- endfor %}
 
 - sensor:
   - unique_id: paper_days_until_collection
@@ -65,9 +113,9 @@ template:
     state: template
     attributes:
       trash: >
-        <div class="trash-compact" style="font-size: 1.2rem; padding-left: 20px;">
+        <div class="trash-compact" style="font-size: 1.2rem">
           {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
-          {% for item in [ (states['sensor.template_rest_days_until_collection']), (states['sensor.template_gft_days_until_collection']), (states['sensor.template_paper_days_until_collection']) ] -%}
+          {% for item in [ (states['sensor.template_rest_days_until_collection']), (states['sensor.template_gft_days_until_collection']), (states['sensor.template_paper_days_until_collection']) ] | sort(attribute='attributes.intstate') -%}
             {% set stateInt = item.state | int %}
             <span>
               <ha-icon style="color: {{ item.attributes['color'] }}; --mdc-icon-size: 24px" icon="mdi:trash-can-outline" class="trash"></ha-icon>
@@ -78,7 +126,7 @@ template:
       trash2: >
         <div class="trash-list">
           {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
-          {% for item in [ (states['sensor.template_rest_days_until_collection']), (states['sensor.template_gft_days_until_collection']), (states['sensor.template_paper_days_until_collection']) ] -%}
+          {% for item in [ (states['sensor.template_rest_days_until_collection']), (states['sensor.template_gft_days_until_collection']), (states['sensor.template_paper_days_until_collection']) ] | sort(attribute='attributes.intstate') -%}
             {% set stateInt = item.state | int %}
             <p style="font-size: 1.2rem">
               <ha-icon style="color: {{ item.attributes['color'] }}; --mdc-icon-size: 24px" icon="mdi:trash-can-outline" class="trash"></ha-icon>
@@ -241,34 +289,16 @@ template:
     attributes:
       friendly_name: People home and awake
     state: >
-      {{ ( is_state('person.rob', 'home')
-            or is_state('person.steffi', 'home')
-            or is_state('input_boolean.guest_mode', 'on')
-          )
+      {{ ( states('zone.home') | int(default=0) > 0 or is_state('input_boolean.guest_mode', 'on') )
           and is_state('alarm_control_panel.alarmo', 'disarmed') }}
-  - unique_id: home_at_least_one_of_us
-    attributes:
-      friendly_name: Home at least one of us
-    state: >
-      {{ is_state('person.rob', 'home') or is_state('person.steffi', 'home') }}
-  - unique_id: home_only_one_of_us
-    attributes:
-      friendly_name: Home only one of us
-    state: >
-      {{ (is_state('person.rob', 'home') and not is_state('person.steffi', 'home')) or (not is_state('person.rob', 'home') and is_state('person.steffi', 'home')) }}
-  - unique_id: home_both_of_us
-    attributes:
-      friendly_name: Home both of us
-    state: >
-      {{ is_state('person.rob', 'home') and is_state('person.steffi', 'home') }}
-  
+
 - sensor:
   # same sensor but with other unit of measurement
   - unique_id: power_consumption_watt
     attributes:
       friendly_name: Power Consumption Watt
     unit_of_measurement: 'W'
-    state: "{{ states('sensor.power_consumption') | float * 1000 | round(0) }}"
+    state: "{{ states('sensor.power_consumption') | float(default=0) * 1000 | round(0) }}"
   # convert the uptime one to a real value
   - unique_id: ha_uptime
     attributes:
@@ -293,11 +323,11 @@ template:
         {% if states('sensor.hass_version_latest') != states('sensor.hass_version_installed') %}
           {% set count.value = count.value + 1 %}
         {% endif %}
-        {% if state_attr('sensor.supervisor_updates', 'update_available') %}
-          {% set count.value = count.value + 1 %}
+        {% if states('sensor.template_supervisor_updates') not in ['unavailable', 'none', 'unknown'] %}
+          {% set count.value = count.value + (states('sensor.template_supervisor_updates') | int(default=0)) %}
         {% endif %}
-        {% if states('sensor.hacs') not in ['unavailable', 'none', 'unknown'] %}
-          {% set count.value = count.value + (state_attr('sensor.hacs', 'repositories') | length) %}
+        {% if states('sensor.template_hacs_updates') not in ['unavailable', 'none', 'unknown'] %}
+          {% set count.value = count.value + (states('sensor.template_hacs_updates') | int(default=0)) %}
         {% endif %}
       {% endif %}
       {% if is_state('binary_sensor.home_assistant_operating_system_update_available', 'on') %}

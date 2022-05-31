@@ -32,7 +32,7 @@ ios-light-mode-dark-green-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -74,6 +74,20 @@ ios-light-mode-dark-green-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - dark-green
@@ -107,7 +121,7 @@ ios-light-mode-dark-green:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -149,6 +163,20 @@ ios-light-mode-dark-green:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - dark-green
@@ -182,7 +210,7 @@ ios-dark-mode-dark-green-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -224,6 +252,20 @@ ios-dark-mode-dark-green-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - dark-green
@@ -257,7 +299,7 @@ ios-dark-mode-dark-green:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -299,6 +341,20 @@ ios-dark-mode-dark-green:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - light-blue
@@ -332,7 +388,7 @@ ios-light-mode-light-blue-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -374,6 +430,20 @@ ios-light-mode-light-blue-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - light-blue
@@ -407,7 +477,7 @@ ios-light-mode-light-blue:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -449,6 +519,20 @@ ios-light-mode-light-blue:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - light-blue
@@ -482,7 +566,7 @@ ios-dark-mode-light-blue-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -524,6 +608,20 @@ ios-dark-mode-light-blue-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - light-blue
@@ -557,7 +655,7 @@ ios-dark-mode-light-blue:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -599,6 +697,20 @@ ios-dark-mode-light-blue:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - light-green
@@ -632,7 +744,7 @@ ios-light-mode-light-green-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -674,6 +786,20 @@ ios-light-mode-light-green-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - light-green
@@ -707,7 +833,7 @@ ios-light-mode-light-green:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -749,6 +875,20 @@ ios-light-mode-light-green:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - light-green
@@ -782,7 +922,7 @@ ios-dark-mode-light-green-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -824,6 +964,20 @@ ios-dark-mode-light-green-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - light-green
@@ -857,7 +1011,7 @@ ios-dark-mode-light-green:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -899,6 +1053,20 @@ ios-dark-mode-light-green:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - orange
@@ -932,7 +1100,7 @@ ios-light-mode-orange-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -974,6 +1142,20 @@ ios-light-mode-orange-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - orange
@@ -1007,7 +1189,7 @@ ios-light-mode-orange:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1049,6 +1231,20 @@ ios-light-mode-orange:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - orange
@@ -1082,7 +1278,7 @@ ios-dark-mode-orange-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -1124,6 +1320,20 @@ ios-dark-mode-orange-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - orange
@@ -1157,7 +1367,7 @@ ios-dark-mode-orange:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -1199,6 +1409,20 @@ ios-dark-mode-orange:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - blue-red
@@ -1232,7 +1456,7 @@ ios-light-mode-blue-red-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1274,6 +1498,20 @@ ios-light-mode-blue-red-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - blue-red
@@ -1307,7 +1545,7 @@ ios-light-mode-blue-red:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1349,6 +1587,20 @@ ios-light-mode-blue-red:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - blue-red
@@ -1382,7 +1634,7 @@ ios-dark-mode-blue-red-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -1424,6 +1676,20 @@ ios-dark-mode-blue-red-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - blue-red
@@ -1457,7 +1723,7 @@ ios-dark-mode-blue-red:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -1499,6 +1765,20 @@ ios-dark-mode-blue-red:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - red
@@ -1532,7 +1812,7 @@ ios-light-mode-red-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1574,6 +1854,20 @@ ios-light-mode-red-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - red
@@ -1607,7 +1901,7 @@ ios-light-mode-red:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1649,6 +1943,20 @@ ios-light-mode-red:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - red
@@ -1682,7 +1990,7 @@ ios-dark-mode-red-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -1724,6 +2032,20 @@ ios-dark-mode-red-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - red
@@ -1757,7 +2079,7 @@ ios-dark-mode-red:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -1799,6 +2121,20 @@ ios-dark-mode-red:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - dark-blue
@@ -1832,7 +2168,7 @@ ios-light-mode-dark-blue-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1874,6 +2210,20 @@ ios-light-mode-dark-blue-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Light Mode Theme - dark-blue
@@ -1907,7 +2257,7 @@ ios-light-mode-dark-blue:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#007aff"  # from Apple systemBlue light mode
@@ -1949,6 +2299,20 @@ ios-light-mode-dark-blue:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - dark-blue
@@ -1982,7 +2346,7 @@ ios-dark-mode-dark-blue-alternative:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#FFF"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -2024,6 +2388,20 @@ ios-dark-mode-dark-blue-alternative:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)
 
 #
 # iOS Dark Mode Theme - dark-blue
@@ -2057,7 +2435,7 @@ ios-dark-mode-dark-blue:
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#FFF"
+  paper-slider-knob-color: "#FFFFFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
   paper-slider-active-color: "#0984ff"  # from Apple systemBlue dark mode
@@ -2099,3 +2477,17 @@ ios-dark-mode-dark-blue:
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
   mini-media-player-icon-color: white
+  # Added for https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  # TODO: add description for lines below. Suggested in https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/72
+  input-ink-color: var(--primary-text-color)
+  input-fill-color: transparent
+  input-disabled-fill-color: transparent
+  input-label-ink-color: var(--primary-text-color)
+  input-disabled-ink-color: var(--disabled-text-color)
+  input-dropdown-icon-color: var(--primary-text-color)
+  input-idle-line-color: var(--secondary-text-color)
+  input-hover-line-color: var(--secondary-text-color)
+  codemirror-property: var(--accent-color)
+  mdc-select-fill-color: transparent
+  # TODO: does the line below do anything?
+  input-disabled-label-ink-color: var(--disabled-text-color)

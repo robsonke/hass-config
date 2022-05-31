@@ -82,19 +82,6 @@ base:
               'rgba(115, 115, 115, 0.4)';
           ]]]
   extra_styles: |
-    #name, #state, #label {
-      font-size: 1.34vw;
-      letter-spacing: 0.05vw;
-    }
-    /* portrait */
-    /*
-    @media screen and (max-width: 1200px) {
-      #name, #state, #label {
-        font-size: 2vw;
-        letter-spacing: 0.05vw;
-      }
-    }
-    */
     /* phone */
     @media screen and (max-width: 800px) {
       #name, #state, #label {
@@ -341,7 +328,7 @@ light:
 
 #################################################
 #                                               #
-#                     LIGHT_GROUP               #
+#                 LIGHT_GROUP                   #
 #                                               #
 #################################################
 
@@ -356,6 +343,18 @@ light_group:
         const allLights = entity.attributes.entity_id.length;
         return Math.round(lightsOn / allLights * 100);
       ]]]
+  hold_action:
+    action: none
+
+#################################################
+#                                               #
+#                  IRRIGATION                   #
+#                                               #
+#################################################
+
+irrigation:
+  template:
+    - simple
   hold_action:
     action: none
 
@@ -467,8 +466,8 @@ sonos:
     custom_fields:
       icon:
         - clip-path: circle()
-        - width: 55px
-        - height: 55px
+        - width: 100%
+        - height: 100%
         - pointer-events: none
         - display: grid
   custom_fields:
@@ -511,6 +510,7 @@ sonos:
           - media_player.office
           - media_player.eetkamer
           - media_player.zithoek
+
         background: cover
         card_mod:
           style: |
@@ -813,12 +813,26 @@ sidebar_stookalert:
     grid:
       - grid-template-areas: >
           "i s"
-      - grid-template-columns: 20% 3fr
+      - grid-template-columns: 40px 1fr
       - grid-template-rows: 30px
     state:
-      - place-self: begin
       - margin-right: 10px
       - margin-bottom: 4px
+      - justify-self: start
+    icon:
+      - padding-left: 14px
+      - width: var(--mdc-icon-size, 24px)
+      - height: var(--mdc-icon-size, 24px)
+  extra_styles: |
+    #container {
+      border: none;
+      padding: 5px;
+    }
+    @media screen and (min-width: 800px) {
+      #container {
+        margin-top: 50px
+      }
+    }
 
 #################################################
 #                                               #
@@ -831,16 +845,8 @@ icon_temp:
     icon: >
       [[[
         let color = 'currentcolor';
-        if (variables.group_entity) {
-          // is the entity a group?
-          if (states[variables.group_entity].attributes.entity_id) {
-            const count = states[variables.group_entity].attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'on' || state.attributes['hvac_action'] === 'heating').length;
-            if (count > 0)
-              color = '#e74c3c';
-          }
-          // or is it a simple entity?
-          else if (states[variables.group_entity].state === 'on' || states[variables.group_entity].attributes['hvac_action'])
-            color = '#e74c3c';
+        if (variables.heating) {
+          color = '#e74c3c';
         }
         return `
           <svg viewBox="0 0 50 50">

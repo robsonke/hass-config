@@ -8,32 +8,32 @@
 # https://github.com/robsonke/hass-config
 #
 camera:
-  - platform: generic
-    name: Weer
-    still_image_url: "https://api.buienradar.nl/image/1.0/RadarMapNL?w=480&h=480"
-    content_type: "image/gif"
+  # - platform: generic
+  #   name: Weer
+  #   still_image_url: "https://api.buienradar.nl/image/1.0/RadarMapNL?w=480&h=480"
+  #   content_type: "image/gif"
 
-  - platform: generic
-    stream_source: !secret doorbell_cam_rtsp_path
-    name: Doorbell Camera WebRTC
-    still_image_url: !secret doorbell_cam_still_image_path
-  - platform: generic
-    stream_source: !secret eva_cam_rtsp_path
-    name: Eva Camera WebRTC
-    still_image_url: !secret eva_cam_still_image_path
-  - platform: generic
-    stream_source: !secret bijkeuken_cam_rtsp_path
-    name: Bijkeuken Camera WebRTC
-    still_image_url: !secret bijkeuken_cam_still_image_path
-  - platform: generic
-    stream_source: !secret reocam1_rtsp_path
-    name: ReoAchterdeur Camera WebRTC
-    still_image_url: !secret reocam1_still_image_path
-  - platform: generic
-    stream_source: !secret reocam2_rtsp_path
-    name: ReoAchtertuin Camera WebRTC
-    still_image_url: !secret reocam2_still_image_path
-  - platform: generic
-    stream_source: !secret veranda_rtsp_path
-    name: ReoVeranda Camera WebRTC
-    still_image_url: !secret veranda_still_image_path
+  # - platform: generic
+  #   stream_source: !secret doorbell_cam_rtsp_path
+  #   name: Doorbell Camera WebRTC
+  #   still_image_url: !secret doorbell_cam_still_image_path
+  # - platform: generic
+  #   stream_source: !secret eva_cam_rtsp_path
+  #   name: Eva Camera WebRTC
+  #   still_image_url: !secret eva_cam_still_image_path
+  # - platform: generic
+  #   stream_source: !secret bijkeuken_cam_rtsp_path
+  #   name: Bijkeuken Camera WebRTC
+  #   still_image_url: !secret bijkeuken_cam_still_image_path
+  # - platform: generic
+  #   stream_source: !secret reocam1_rtsp_path
+  #   name: ReoAchterdeur Camera WebRTC
+  #   still_image_url: !secret reocam1_still_image_path
+  # - platform: generic
+  #   stream_source: !secret reocam2_rtsp_path
+  #   name: ReoAchtertuin Camera WebRTC
+  #   still_image_url: !secret reocam2_still_image_path
+  # - platform: generic
+  #   stream_source: !secret veranda_rtsp_path
+  #   name: ReoVeranda Camera WebRTC
+  #   still_image_url: !secret veranda_still_image_path

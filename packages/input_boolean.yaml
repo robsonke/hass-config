@@ -18,10 +18,6 @@ input_boolean:
   guest_mode:
     name: Guest Mode
     icon: mdi:account-group
-  toilet_downstairs_occupied:
-    name: Track if toilet is in use by somebody
-    icon: mdi:paper-roll
-    initial: false
   dark_mode:
     name: Dark Mode
     icon: mdi:theme-light-dark

@@ -14,5 +14,4 @@ counter:
   watermeter_consumption_counter:
     name: Watermeter Consumption Counter
     icon: mdi:water-pump
-    initial: 101499
     step: 1

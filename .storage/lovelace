@@ -244,7 +244,7 @@
                                             "type": "custom:button-card",
                                             "entity": "binary_sensor.frontdoor_openclose_sensor",
                                             "show_name": true,
-                                            "label": "[[[\n  var state = states['lock.voordeur_slot'].state;\n  return (state == 'unlocked' ? 'ontgrendeld' : 'vergrendeld');\n]]]\n",
+                                            "label": "[[[\n  var state = states['lock.nuki_voordeur_slot_lock'].state;\n  return (state == 'unlocked' ? 'ontgrendeld' : 'vergrendeld');\n]]]\n",
                                             "styles": {
                                                 "label": [
                                                     {
@@ -568,54 +568,64 @@
                             "title": "Camera's",
                             "cards": [
                                 {
-                                    "type": "custom:vertical-stack-in-card",
-                                    "cards": [
+                                    "type": "entities",
+                                    "show_header_toggle": false,
+                                    "entities": [
                                         {
-                                            "type": "entities",
-                                            "show_header_toggle": false,
-                                            "entities": [
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_doorbell",
-                                                    "name": "Doorbell ding",
-                                                    "secondary_info": "last-changed"
-                                                },
-                                                "binary_sensor.frontdoor_openclose_sensor",
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_motion",
-                                                    "name": "Last motion",
-                                                    "secondary_info": "last-changed"
-                                                }
-                                            ]
+                                            "entity": "binary_sensor.doorbell_lw_doorbell",
+                                            "name": "Doorbell ding",
+                                            "secondary_info": "last-changed"
+                                        },
+                                        "binary_sensor.frontdoor_openclose_sensor",
+                                        {
+                                            "entity": "binary_sensor.doorbell_lw_motion",
+                                            "name": "Last motion",
+                                            "secondary_info": "last-changed"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "custom:frigate-card",
+                                    "dimensions": {
+                                        "aspect_ratio_mode": "unconstrained"
+                                    },
+                                    "entities": [
+                                        {
+                                            "entity": "binary_sensor.doorbell_lw_doorbell"
                                         },
                                         {
-                                            "type": "custom:frigate-card",
-                                            "controls": {
-                                                "nextprev": "chevrons"
-                                            },
+                                            "entity": "binary_sensor.doorbell_lw_motion"
+                                        }
+                                    ],
+                                    "camera_image": "camera.doorbell",
+                                    "view": {
+                                        "default": "live"
+                                    },
+                                    "live": {
+                                        "webrtc_card": {}
+                                    },
+                                    "event_viewer": {
+                                        "controls": {
+                                            "next_previous": {
+                                                "style": "chevrons"
+                                            }
+                                        }
+                                    },
+                                    "menu": {
+                                        "mode": "overlay-top",
+                                        "buttons": {
+                                            "frigate": false,
+                                            "frigate_ui": false
+                                        }
+                                    },
+                                    "cameras": [
+                                        {
                                             "camera_entity": "camera.doorbell",
-                                            "menu_mode": "overlay-top",
-                                            "dimensions": {
-                                                "aspect_ratio_mode": "unconstrained"
-                                            },
-                                            "entities": [
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_doorbell"
-                                                },
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_motion"
-                                                }
-                                            ],
-                                            "frigate_camera_name": "Voordeur",
-                                            "webrtc": {
+                                            "camera_name": "Voordeur",
+                                            "live_provider": "webrtc-card",
+                                            "webrtc_card": {
                                                 "entity": "camera.doorbell_camera_webrtc"
-                                            },
-                                            "live_provider": "webrtc",
-                                            "view_default": "live",
-                                            "menu_buttons": {
-                                                "frigate": false,
-                                                "frigate_ui": false
-                                            },
-                                            "camera_image": "camera.doorbell"
+                                            }
                                         }
                                     ]
                                 },
@@ -1201,56 +1211,66 @@
                         },
                         {
                             "type": "vertical-stack",
-                            "title": "Voordeur",
+                            "title": "Camera's",
                             "cards": [
                                 {
-                                    "type": "custom:vertical-stack-in-card",
-                                    "cards": [
+                                    "type": "entities",
+                                    "show_header_toggle": false,
+                                    "entities": [
                                         {
-                                            "type": "entities",
-                                            "title": "Doorbell",
-                                            "show_header_toggle": false,
-                                            "entities": [
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_doorbell",
-                                                    "name": "Doorbell ding",
-                                                    "secondary_info": "last-changed"
-                                                },
-                                                "binary_sensor.frontdoor_openclose_sensor",
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_motion",
-                                                    "name": "Last motion",
-                                                    "secondary_info": "last-changed"
-                                                }
-                                            ]
+                                            "entity": "binary_sensor.doorbell_lw_doorbell",
+                                            "name": "Doorbell ding",
+                                            "secondary_info": "last-changed"
+                                        },
+                                        "binary_sensor.frontdoor_openclose_sensor",
+                                        {
+                                            "entity": "binary_sensor.doorbell_lw_motion",
+                                            "name": "Last motion",
+                                            "secondary_info": "last-changed"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "custom:frigate-card",
+                                    "dimensions": {
+                                        "aspect_ratio_mode": "unconstrained"
+                                    },
+                                    "entities": [
+                                        {
+                                            "entity": "binary_sensor.doorbell_lw_doorbell"
                                         },
                                         {
-                                            "type": "custom:frigate-card",
-                                            "controls": {
-                                                "nextprev": "chevrons"
-                                            },
+                                            "entity": "binary_sensor.doorbell_lw_motion"
+                                        }
+                                    ],
+                                    "camera_image": "camera.doorbell",
+                                    "view": {
+                                        "default": "live"
+                                    },
+                                    "live": {
+                                        "webrtc_card": {}
+                                    },
+                                    "event_viewer": {
+                                        "controls": {
+                                            "next_previous": {
+                                                "style": "chevrons"
+                                            }
+                                        }
+                                    },
+                                    "menu": {
+                                        "mode": "overlay-top",
+                                        "buttons": {
+                                            "frigate": false,
+                                            "frigate_ui": false
+                                        }
+                                    },
+                                    "cameras": [
+                                        {
                                             "camera_entity": "camera.doorbell",
-                                            "menu_mode": "overlay-top",
-                                            "dimensions": {
-                                                "aspect_ratio_mode": "unconstrained"
-                                            },
-                                            "entities": [
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_doorbell"
-                                                },
-                                                {
-                                                    "entity": "binary_sensor.doorbell_lw_motion"
-                                                }
-                                            ],
-                                            "frigate_camera_name": "Voordeur",
-                                            "webrtc": {
+                                            "camera_name": "Voordeur",
+                                            "live_provider": "webrtc-card",
+                                            "webrtc_card": {
                                                 "entity": "camera.doorbell_camera_webrtc"
-                                            },
-                                            "live_provider": "webrtc",
-                                            "view_default": "live",
-                                            "menu_buttons": {
-                                                "frigate": false,
-                                                "frigate_ui": false
                                             }
                                         }
                                     ]
@@ -1415,243 +1435,6 @@
                         {
                             "type": "media-control",
                             "entity": "media_player.samsung_qn95aa_55_tv"
-                        }
-                    ]
-                },
-                {
-                    "icon": "mdi:car",
-                    "type": "custom:masonry-layout",
-                    "path": "car",
-                    "badges": [],
-                    "cards": [
-                        {
-                            "type": "picture-elements",
-                            "image": "/local/images/bmwix3_icon.png",
-                            "elements": [
-                                {
-                                    "type": "state-icon",
-                                    "entity": "binary_sensor.ix3_door_lock_state",
-                                    "tap_action": "more-info",
-                                    "hold_action": {
-                                        "action": "call-service",
-                                        "service": "lock.lock",
-                                        "target": {
-                                            "entity_id": "lock.ix3_lock"
-                                        }
-                                    },
-                                    "style": {
-                                        "top": "88.5%",
-                                        "left": "10%",
-                                        "--paper-item-icon-color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-label",
-                                    "entity": "binary_sensor.ix3_door_lock_state",
-                                    "style": {
-                                        "top": "95.5%",
-                                        "left": "10%",
-                                        "font-size": "0.8em",
-                                        "color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "binary_sensor.ix3_windows",
-                                    "tap_action": "more-info",
-                                    "style": {
-                                        "top": "88.5%",
-                                        "left": "20%",
-                                        "--paper-item-icon-color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-label",
-                                    "entity": "binary_sensor.ix3_windows",
-                                    "style": {
-                                        "top": "95.5%",
-                                        "left": "20%",
-                                        "font-size": "0.8em",
-                                        "color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "binary_sensor.ix3_lids",
-                                    "tap_action": "more-info",
-                                    "style": {
-                                        "top": "88.5%",
-                                        "left": "30%",
-                                        "--paper-item-icon-color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-label",
-                                    "entity": "binary_sensor.ix3_lids",
-                                    "style": {
-                                        "top": "95.5%",
-                                        "left": "30%",
-                                        "font-size": "0.8em",
-                                        "color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "sensor.ix3_mileage",
-                                    "tap_action": "more-info",
-                                    "style": {
-                                        "top": "88.5%",
-                                        "left": "40%",
-                                        "--paper-item-icon-color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-label",
-                                    "entity": "sensor.ix3_mileage",
-                                    "style": {
-                                        "top": "95.5%",
-                                        "left": "40%",
-                                        "font-size": "0.8em",
-                                        "color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "binary_sensor.ix3_condition_based_services",
-                                    "tap_action": "more-info",
-                                    "style": {
-                                        "top": "88.5%",
-                                        "left": "50%",
-                                        "--paper-item-icon-color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "state-label",
-                                    "entity": "binary_sensor.ix3_condition_based_services",
-                                    "style": {
-                                        "top": "95.5%",
-                                        "left": "50%",
-                                        "font-size": "0.8em",
-                                        "color": "white"
-                                    }
-                                },
-                                {
-                                    "type": "conditional",
-                                    "conditions": [
-                                        {
-                                            "entity": "binary_sensor.ix3_connection_status",
-                                            "state": "on"
-                                        }
-                                    ],
-                                    "elements": [
-                                        {
-                                            "type": "state-icon",
-                                            "entity": "binary_sensor.ix3_connection_status",
-                                            "tap_action": "more-info",
-                                            "icon": "mdi:ev-plug-type2",
-                                            "style": {
-                                                "top": "88.5%",
-                                                "left": "60%",
-                                                "--paper-item-icon-color": "white"
-                                            }
-                                        },
-                                        {
-                                            "type": "custom:text-element",
-                                            "text": "Plugged",
-                                            "style": {
-                                                "top": "95.5%",
-                                                "left": "60%",
-                                                "font-size": "0.8em",
-                                                "color": "white"
-                                            }
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "conditional",
-                                    "conditions": [
-                                        {
-                                            "entity": "binary_sensor.ix3_charging_status",
-                                            "state": "on"
-                                        }
-                                    ],
-                                    "elements": [
-                                        {
-                                            "type": "state-label",
-                                            "entity": "sensor.ix3_charging_end_time",
-                                            "prefix": "",
-                                            "style": {
-                                                "top": "93.5%",
-                                                "right": "-15%",
-                                                "font-size": "0.8em",
-                                                "color": "white"
-                                            }
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "custom:circle-sensor-card",
-                                    "entity": "sensor.ix3_charging_level_hv",
-                                    "max": 100,
-                                    "min": 0,
-                                    "stroke_width": 15,
-                                    "gradient": true,
-                                    "fill": "rgba(54, 65, 78, 0.6)",
-                                    "name": "Level",
-                                    "units": "%",
-                                    "font_style": {
-                                        "font-size": "0.9em",
-                                        "color": "white"
-                                    },
-                                    "color_stops": {
-                                        "5": "#09C7E8",
-                                        "63": "#09A50C"
-                                    },
-                                    "style": {
-                                        "top": "6%",
-                                        "left": "5%",
-                                        "width": "4em",
-                                        "height": "4em",
-                                        "transform": "none"
-                                    }
-                                },
-                                {
-                                    "type": "custom:circle-sensor-card",
-                                    "entity": "sensor.ix3_remaining_range_electric",
-                                    "max": 370,
-                                    "min": 0,
-                                    "stroke_width": 15,
-                                    "gradient": true,
-                                    "fill": "rgba(54, 65, 78, 0.6)",
-                                    "name": "Bereik",
-                                    "units": "km",
-                                    "font_style": {
-                                        "font-size": "0.9em",
-                                        "color": "white"
-                                    },
-                                    "color_stops": {
-                                        "100": "#09C7E8",
-                                        "300": "#09A50C"
-                                    },
-                                    "style": {
-                                        "top": "6%",
-                                        "right": "5%",
-                                        "width": "4em",
-                                        "height": "4em",
-                                        "transform": "none"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "map",
-                            "title": "Auto",
-                            "default_zoom": 13,
-                            "dark_mode": true,
-                            "hours_to_show": 24,
-                            "entities": [
-                                "person.bmw_ix3"
-                            ]
                         }
                     ]
                 },
@@ -1840,21 +1623,14 @@
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.evabed",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate": {
-                                "camera_name": "Eva"
                             },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.eva_camera_webrtc"
-                                }
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -1873,7 +1649,17 @@
                                     "frigate_ui": false,
                                     "fullscreen": true
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.evabed",
+                                    "camera_name": "Eva",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.eva_camera_webrtc"
+                                    }
+                                }
+                            ]
                         },
                         {
                             "type": "grid",
@@ -2013,21 +1799,14 @@
                     "cards": [
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.evabed",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate": {
-                                "camera_name": "Eva"
                             },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.eva_camera_webrtc"
-                                }
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -2047,25 +1826,28 @@
                                     "frigate_ui": false,
                                     "fullscreen": true
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.evabed",
+                                    "camera_name": "Eva",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.eva_camera_webrtc"
+                                    }
+                                }
+                            ]
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.bijkeuken",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate": {
-                                "camera_name": "Bijkeuken"
                             },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.bijkeuken_camera_webrtc"
-                                }
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -2081,25 +1863,28 @@
                                     "fullscreen": true,
                                     "frigate": false
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.bijkeuken",
+                                    "camera_name": "Bijkeuken",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.bijkeuken_camera_webrtc"
+                                    }
+                                }
+                            ]
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.terras",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate": {
-                                "camera_name": "Achtertuin"
                             },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.reoachtertuin_camera_webrtc"
-                                }
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -2114,25 +1899,28 @@
                                     "frigate": false,
                                     "frigate_ui": false
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.terras",
+                                    "camera_name": "Achtertuin",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.reoachtertuin_camera_webrtc"
+                                    }
+                                }
+                            ]
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.achterdeur",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate": {
-                                "camera_name": "Achterdeur"
                             },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.reoachterdeur_camera_webrtc"
-                                }
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -2150,11 +1938,20 @@
                                     "frigate": false,
                                     "frigate_ui": true
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.achterdeur",
+                                    "camera_name": "Achterdeur",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.reoachterdeur_camera_webrtc"
+                                    }
+                                }
+                            ]
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.doorbell",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
                             },
@@ -2174,23 +1971,17 @@
                                 },
                                 "mode": "overlay-top"
                             },
-                            "frigate": {
-                                "camera_name": "Voordeur"
-                            },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.doorbell_camera_webrtc"
-                                },
                                 "controls": {
                                     "thumbnails": {
                                         "mode": "below",
                                         "media": "snapshots"
                                     }
-                                }
+                                },
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -2198,7 +1989,17 @@
                                         "style": "chevrons"
                                     }
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.doorbell",
+                                    "camera_name": "Voordeur",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.doorbell_camera_webrtc"
+                                    }
+                                }
+                            ]
                         },
                         {
                             "type": "entities",
@@ -2228,21 +2029,14 @@
                         },
                         {
                             "type": "custom:frigate-card",
-                            "camera_entity": "camera.veranda",
                             "dimensions": {
                                 "aspect_ratio_mode": "unconstrained"
-                            },
-                            "frigate": {
-                                "camera_name": "Veranda"
                             },
                             "view": {
                                 "default": "live"
                             },
                             "live": {
-                                "provider": "webrtc",
-                                "webrtc": {
-                                    "entity": "camera.reoveranda_camera_webrtc"
-                                }
+                                "webrtc_card": {}
                             },
                             "event_viewer": {
                                 "controls": {
@@ -2260,7 +2054,17 @@
                                     "frigate": false,
                                     "frigate_ui": true
                                 }
-                            }
+                            },
+                            "cameras": [
+                                {
+                                    "camera_entity": "camera.veranda",
+                                    "camera_name": "Veranda",
+                                    "live_provider": "webrtc-card",
+                                    "webrtc_card": {
+                                        "entity": "camera.reoveranda_camera_webrtc"
+                                    }
+                                }
+                            ]
                         }
                     ]
                 },

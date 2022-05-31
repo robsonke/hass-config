@@ -1,0 +1,725 @@
+# Based on https://community.home-assistant.io/t/esphome-diy-irrigation-controller-with-internal-scheduler/171844/31
+# 1: terras_midden
+# 2: terras_zijkant
+# 3: achter_rechts
+# 4: achter_links
+
+substitutions:
+  device_name: sonoff-4ch-pro-irrigation
+  friendly_name: Sonoff 4ch pro Irrigation
+  time_timezone: "Europe/Amsterdam"
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ip: !secret sonoff4chpro_garden_ip
+  project: Garden irrigation
+
+esphome:
+  name: ${device_name}
+  on_boot:
+    priority: -100.0
+    then:
+      # Set light to half brightness when first ready.
+      - light.turn_on:
+          id: status_led
+          brightness: 50%
+
+      # Wait to check for a Home Assistant API connection.
+      - delay: 15s
+      - if:
+          condition:
+            api.connected:
+          then:
+            # If connected, then flash the LED, and leave it at full brightness.
+            - logger.log: "$project is connected to the Home Assistant API!"
+            - light.turn_on:
+                id: status_led
+                brightness: 100%
+            - delay: 0.5s
+            - light.turn_off: status_led
+            - delay: 0.5s
+            - light.turn_on:
+                id: status_led
+                brightness: 100%
+            - delay: 0.5s
+            - light.turn_off: status_led
+            - delay: 0.5s
+            - light.turn_on:
+                id: status_led
+                brightness: 100%
+            - delay: 0.5s
+            - light.turn_off: status_led
+            - delay: 0.5s
+            - light.turn_on:
+                id: status_led
+                brightness: 100%
+  # Turn off the LED when the device is shutting down (like for a firmware update).
+  on_shutdown:
+    then:
+      - light.turn_off: status_led
+  platformio_options:
+    build_flags: 
+      - -DCONFIG_ARDUINO_LOOP_STACK_SIZE=16384
+  includes:
+    - irrigation.h
+
+esp8266:
+  board: esp01_1m
+  # TODO still needed?
+  # framework:
+  #   version: 2.7.4
+
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "8789ff569642774d2e2ad47f88ffa234"
+
+# WiFi Settings
+wifi:
+  ssid: ${ssid}
+  password: ${password}
+  manual_ip:
+    static_ip: ${ip}
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+  reboot_timeout: 0s
+  power_save_mode: none
+
+captive_portal:
+
+web_server:
+  port: 80
+  
+globals:
+  # ============================================================================= #
+  # Irrigation time remaining
+  - id: remaining_time_terras_midden
+    type: int
+    restore_value: no
+    initial_value: "300"
+  - id: remaining_time_terras_zijkant
+    type: int
+    restore_value: no
+    initial_value: "300"
+  - id: remaining_time_achter_rechts
+    type: int
+    restore_value: no
+    initial_value: "300"
+  - id: remaining_time_achter_links
+    type: int
+    restore_value: no
+    initial_value: "300"
+
+  # ============================================================================= #
+  # Store previous values to verify change.
+  - id: remaining_time_terras_midden_previous
+    type: int
+    restore_value: no
+    initial_value: "0"
+  - id: remaining_time_terras_zijkant_previous
+    type: int
+    restore_value: no
+    initial_value: "0"
+  - id: remaining_time_achter_rechts_previous
+    type: int
+    restore_value: no
+    initial_value: "0"
+  - id: remaining_time_achter_links_previous
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+# let the buttons toggle the zones
+binary_sensor:
+  - platform: gpio
+    id: button1
+    pin:
+      number: GPIO0
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: "Sonoff 4CH Irrigation Button 1"
+    on_press:
+      then:
+        - switch.toggle: irrigation_zone_terras_midden
+  - platform: gpio
+    id: button2
+    pin:
+      number: GPIO9
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: "Sonoff 4CH Irrigation Button 2"
+    on_press:
+      then:
+        - switch.toggle: irrigation_zone_terras_zijkant
+  - platform: gpio
+    id: button3
+    pin:
+      number: GPIO10
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: "Sonoff 4CH Irrigation Button 3"
+    on_press:
+      then:
+        - switch.toggle: irrigation_zone_achter_rechts
+  - platform: gpio
+    id: button4
+    pin:
+      number: GPIO14
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: "Sonoff 4CH Irrigation Button 4"
+    on_press:
+      then:
+        - switch.toggle: irrigation_zone_achter_links
+  - platform: status
+    name: "Sonoff 4CH Status"
+
+switch:
+  - platform: template
+    name: Irrigation Zone Terras Midden
+    id: irrigation_zone_terras_midden
+    icon: mdi:sprinkler-variant
+    lambda: return id(relay_1).state;
+    optimistic: true
+    turn_on_action:
+      # Turn on if not disabled.
+      if:
+        condition:
+          lambda: return id(irrigation_zone_terras_midden_duration) > 0;
+        then:
+          - switch.turn_on: relay_1
+    turn_off_action:
+      - switch.turn_off: relay_1
+  - platform: template
+    name: Irrigation Zone Terras Zijkant
+    id: irrigation_zone_terras_zijkant
+    icon: mdi:sprinkler-variant
+    lambda: return id(relay_2).state;
+    optimistic: true
+    turn_on_action:
+      # Turn on if not disabled.
+      if:
+        condition:
+          lambda: return id(irrigation_zone_terras_zijkant_duration) > 0;
+        then:
+          - switch.turn_on: relay_2
+    turn_off_action:
+      - switch.turn_off: relay_2
+  - platform: template
+    name: Irrigation Zone Achter Rechts
+    id: irrigation_zone_achter_rechts
+    icon: mdi:sprinkler-variant
+    lambda: return id(relay_3).state;
+    optimistic: true
+    turn_on_action:
+      # Turn on if not disabled.
+      if:
+        condition:
+          lambda: return id(irrigation_zone_achter_rechts_duration) > 0;
+        then:
+          - switch.turn_on: relay_3
+    turn_off_action:
+      - switch.turn_off: relay_3
+  - platform: template
+    name: Irrigation Zone Achter Links
+    id: irrigation_zone_achter_links
+    icon: mdi:sprinkler-variant
+    lambda: return id(relay_4).state;
+    optimistic: true
+    turn_on_action:
+      # Turn on if not disabled.
+      if:
+        condition:
+          lambda: return id(irrigation_zone_achter_links_duration) > 0;
+        then:
+          - switch.turn_on: relay_4
+    turn_off_action:
+      - switch.turn_off: relay_4
+
+  # a restart entity
+  - platform: restart
+    name: "Sonoff 4CH Irrigation Restart"
+
+  # the actual solenoid switches
+  - platform: gpio
+    name: "Terras midden"
+    pin: GPIO12
+    id: relay_1
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      then:
+        # Start the countdown timer.
+        - globals.set:
+            id: remaining_time_terras_midden
+            value: !lambda return id(irrigation_zone_terras_midden_duration).state * 60;
+        # Show the remaining time.
+        - sensor.template.publish:
+            id: irrigation_zone_terras_midden_remaining
+            state: !lambda return id(irrigation_zone_terras_midden_duration).state;
+        # Show the "Next Time" as "now".
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_midden_next
+            state: "nu"
+            # state NOW on original code, change to your preferred language
+    on_turn_off:
+      then:
+        - sensor.template.publish:
+            id: irrigation_zone_terras_midden_remaining
+            state: "0"
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_midden_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_terras_midden_times).state);
+  - platform: gpio
+    name: "Terras zijkant"
+    pin: GPIO5
+    id: relay_2
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      then:
+        # Start the countdown timer.
+        - globals.set:
+            id: remaining_time_terras_zijkant
+            value: !lambda return id(irrigation_zone_terras_zijkant_duration).state * 60;
+        # Show the remaining time.
+        - sensor.template.publish:
+            id: irrigation_zone_terras_zijkant_remaining
+            state: !lambda return id(irrigation_zone_terras_zijkant_duration).state;
+        # Show the "Next Time" as "now".
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_zijkant_next
+            state: "nu"
+            # state NOW on original code, change to your preferred language
+    on_turn_off:
+      then:
+        - sensor.template.publish:
+            id: irrigation_zone_terras_zijkant_remaining
+            state: "0"
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_zijkant_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_terras_zijkant_times).state);
+  - platform: gpio
+    name: "Achter rechts"
+    pin: GPIO4
+    id: relay_3
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      then:
+        # Start the countdown timer.
+        - globals.set:
+            id: remaining_time_achter_rechts
+            value: !lambda return id(irrigation_zone_achter_rechts_duration).state * 60;
+        # Show the remaining time.
+        - sensor.template.publish:
+            id: irrigation_zone_achter_rechts_remaining
+            state: !lambda return id(irrigation_zone_achter_rechts_duration).state;
+        # Show the "Next Time" as "now".
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_rechts_next
+            state: "nu"
+            # state NOW on original code, change to your preferred language
+    on_turn_off:
+      then:
+        - sensor.template.publish:
+            id: irrigation_zone_achter_rechts_remaining
+            state: "0"
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_rechts_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_achter_rechts_times).state);
+  - platform: gpio
+    name: "Achter links"
+    pin: GPIO15
+    id: relay_4
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      then:
+        # Start the countdown timer.
+        - globals.set:
+            id: remaining_time_achter_links
+            value: !lambda return id(irrigation_zone_achter_links_duration).state * 60;
+        # Show the remaining time.
+        - sensor.template.publish:
+            id: irrigation_zone_achter_links_remaining
+            state: !lambda return id(irrigation_zone_achter_links_duration).state;
+        # Show the "Next Time" as "now".
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_links_next
+            state: "nu"
+            # state NOW on original code, change to your preferred language
+    on_turn_off:
+      then:
+        - sensor.template.publish:
+            id: irrigation_zone_achter_links_remaining
+            state: "0"
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_links_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_achter_links_times).state);
+
+sensor:  
+  - platform: uptime
+    name: Sonoff 4CH Irrigation Uptime
+    unit_of_measurement: h
+    filters:
+      - lambda: return int((x + 1800.0) / 3600.0);
+  - platform: wifi_signal
+    name: Sonoff 4CH Irrigation WiFi Signal
+    update_interval: 30s
+    
+  # ============================================================================= #
+  # Retrieve durations settings from the Home Assistant UI.
+  - platform: homeassistant
+    id: ui_zone_terras_midden_duration
+    entity_id: input_number.irrigation_zone_terras_midden_duration
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: irrigation_zone_terras_midden_duration
+            state: !lambda return id(ui_zone_terras_midden_duration).state;
+
+  - platform: homeassistant
+    id: ui_zone_terras_zijkant_duration
+    entity_id: input_number.irrigation_zone_terras_zijkant_duration
+    on_value:
+      then:
+      - sensor.template.publish:
+          id: irrigation_zone_terras_zijkant_duration
+          state: !lambda return id(ui_zone_terras_zijkant_duration).state;
+
+  - platform: homeassistant
+    id: ui_zone_achter_rechts_duration
+    entity_id: input_number.irrigation_zone_achter_rechts_duration
+    on_value:
+      then:
+      - sensor.template.publish:
+          id: irrigation_zone_achter_rechts_duration
+          state: !lambda return id(ui_zone_achter_rechts_duration).state;
+
+  - platform: homeassistant
+    id: ui_zone_achter_links_duration
+    entity_id: input_number.irrigation_zone_achter_links_duration
+    on_value:
+      then:
+      - sensor.template.publish:
+          id: irrigation_zone_achter_links_duration
+          state: !lambda return id(ui_zone_achter_links_duration).state;
+
+  # ============================================================================= #
+  # Store durations.
+  - platform: template
+    name: Sproeiduur Zone terras midden
+    id: irrigation_zone_terras_midden_duration
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:camera-timer
+
+  - platform: template
+    name: Sproeiduur Zone terras zijkant
+    id: irrigation_zone_terras_zijkant_duration
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:camera-timer
+
+  - platform: template
+    name: Sproeiduur Zone achter rechts
+    id: irrigation_zone_achter_rechts_duration
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:camera-timer
+
+  - platform: template
+    name: Sproeiduur Zone achter links
+    id: irrigation_zone_achter_links_duration
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:camera-timer
+
+  # ============================================================================= #
+  # Countdown sensors.
+  - platform: template
+    name: Zone terras midden resterende tijd
+    id: irrigation_zone_terras_midden_remaining
+    lambda: "return 0;"
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:timer
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: return id(remaining_time_terras_midden) == 0;
+            then:
+              - switch.turn_off: relay_1
+
+  - platform: template
+    name: Zone terras zijkant resterende tijd
+    id: irrigation_zone_terras_zijkant_remaining
+    lambda: "return 0;"
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:timer
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: return id(remaining_time_terras_zijkant) == 0;
+            then:
+              - switch.turn_off: relay_2
+
+  - platform: template
+    name: Zone achter rechts resterende tijd
+    id: irrigation_zone_achter_rechts_remaining
+    lambda: "return 0;"
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:timer
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: return id(remaining_time_achter_rechts) == 0;
+            then:
+              - switch.turn_off: relay_3
+
+  - platform: template
+    name: Zone achter links resterende tijd
+    id: irrigation_zone_achter_links_remaining
+    lambda: "return 0;"
+    accuracy_decimals: 0
+    unit_of_measurement: minutes
+    icon: mdi:timer
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: return id(remaining_time_achter_links) == 0;
+            then:
+              - switch.turn_off: relay_4
+
+text_sensor:
+  # ============================================================================= #
+  # Retrieve list of times from the Home Assistant UI.
+  - platform: homeassistant
+    id: ui_zone_terras_midden_times
+    entity_id: input_text.irrigation_zone_terras_midden_times
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_midden_times
+            state: !lambda return id(ui_zone_terras_midden_times).state;
+
+  - platform: homeassistant
+    id: ui_zone_terras_zijkant_times
+    entity_id: input_text.irrigation_zone_terras_zijkant_times
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_zijkant_times
+            state: !lambda return id(ui_zone_terras_zijkant_times).state;
+
+  - platform: homeassistant
+    id: ui_zone_achter_rechts_times
+    entity_id: input_text.irrigation_zone_achter_rechts_times
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_rechts_times
+            state: !lambda return id(ui_zone_achter_rechts_times).state;
+
+  - platform: homeassistant
+    id: ui_zone_achter_links_times
+    entity_id: input_text.irrigation_zone_achter_links_times
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_links_times
+            state: !lambda return id(ui_zone_achter_links_times).state;
+  # ============================================================================= #
+  # Store time lists.
+  - platform: template
+    name: Zone Terras Midden Schema's
+    id: irrigation_zone_terras_midden_times
+    on_value:
+      then:
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_midden_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_terras_midden_times).state);
+  - platform: template
+    name: Zone Terras Zijkant Schema's
+    id: irrigation_zone_terras_zijkant_times
+    on_value:
+      then:
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_terras_zijkant_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_terras_zijkant_times).state);
+
+  - platform: template
+    name: Zone Achter Rechts Schema's
+    id: irrigation_zone_achter_rechts_times
+    on_value:
+      then:
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_rechts_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_achter_rechts_times).state);
+
+  - platform: template
+    name: Zone Achter Links Schema's
+    id: irrigation_zone_achter_links_times
+    on_value:
+      then:
+        # Update the next scheduled run time.
+        - text_sensor.template.publish:
+            id: irrigation_zone_achter_links_next
+            state: !lambda |-
+              return update_next_runtime(id(irrigation_zone_achter_links_times).state);
+
+  # ============================================================================= #
+  # Set the next scheduled time.
+  - platform: template
+    name: Zone Terras Midden Volgende Sproeimoment
+    id: irrigation_zone_terras_midden_next
+    icon: mdi:calendar-clock
+
+  - platform: template
+    name: Zone Terras Zijkant Volgende Sproeimoment
+    id: irrigation_zone_terras_zijkant_next
+    icon: mdi:calendar-clock
+
+  - platform: template
+    name: Zone Achter Rechts Volgende Sproeimoment
+    id: irrigation_zone_achter_rechts_next
+    icon: mdi:calendar-clock
+
+  - platform: template
+    name: Zone Achter Links Volgende Sproeimoment
+    id: irrigation_zone_achter_links_next
+    icon: mdi:calendar-clock
+
+# Update the countdown timers every 5 seconds.
+interval:
+  - interval: 5s
+    then:
+      - lambda: |-
+          if (id(remaining_time_terras_midden) > 0) {
+            // Store the previous time.
+            id(remaining_time_terras_midden_previous) = id(remaining_time_terras_midden);
+            // When the relay is on.
+            if (id(relay_1).state) {
+              // Decrement the timer.
+              id(remaining_time_terras_midden) -= 5;
+              // Turn off the relay when the time reaches zero... or the remaining time fails a sanity check!
+              //if (id(remaining_time_terras_midden) <= 0 || id(irrigation_zone_terras_midden_remaining).state > id(irrigation_zone_terras_midden_duration).state){
+              if (id(remaining_time_terras_midden) <= 0) {
+                id(relay_1).turn_off();
+                id(remaining_time_terras_midden) = 0;
+              }
+            }
+            // Update the remaining time display.
+            if (id(remaining_time_terras_midden_previous) != id(remaining_time_terras_midden)) {
+              id(irrigation_zone_terras_midden_remaining).publish_state( (id(remaining_time_terras_midden)/60) + 1 );
+            }
+          }
+
+          if (id(remaining_time_terras_zijkant) > 0) {
+            id(remaining_time_terras_zijkant_previous) = id(remaining_time_terras_zijkant);
+            if (id(relay_2).state) {
+              id(remaining_time_terras_zijkant) -= 5;
+              if (id(remaining_time_terras_zijkant) <= 0) {
+                id(relay_2).turn_off();
+                id(remaining_time_terras_zijkant) = 0;
+              }
+            }
+            if (id(remaining_time_terras_zijkant_previous) != id(remaining_time_terras_zijkant)) {
+              id(irrigation_zone_terras_zijkant_remaining).publish_state( (id(remaining_time_terras_zijkant)/60) + 1 );
+            }
+          }
+
+          if (id(remaining_time_achter_rechts) > 0) {
+            id(remaining_time_achter_rechts_previous) = id(remaining_time_achter_rechts);
+            if (id(relay_3).state) {
+              id(remaining_time_achter_rechts) -= 5;
+              if (id(remaining_time_achter_rechts) <= 0) {
+                id(relay_3).turn_off();
+                id(remaining_time_achter_rechts) = 0;
+              }
+            }
+            if (id(remaining_time_achter_rechts_previous) != id(remaining_time_achter_rechts)) {
+              id(irrigation_zone_achter_rechts_remaining).publish_state( (id(remaining_time_achter_rechts)/60) + 1 );
+            }
+          }
+
+          if (id(remaining_time_achter_links) > 0) {
+            id(remaining_time_achter_links_previous) = id(remaining_time_achter_links);
+            if (id(relay_4).state) {
+              id(remaining_time_achter_links) -= 5;
+              if (id(remaining_time_achter_links) <= 0) {
+                id(relay_4).turn_off();
+                id(remaining_time_achter_links) = 0;
+              }
+            }
+            if (id(remaining_time_achter_links_previous) != id(remaining_time_achter_links)) {
+              id(irrigation_zone_achter_links_remaining).publish_state( (id(remaining_time_achter_links)/60) + 1 );
+            }
+          }
+
+
+# Time based automations.
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: "Europe/Amsterdam"
+    on_time:
+      - seconds: 0
+        minutes: /1
+        then:
+          - lambda: |-
+              if (scheduled_runtime(id(irrigation_zone_terras_midden_next).state.c_str())) {
+                id(irrigation_zone_terras_midden).turn_on();
+              }
+              if (scheduled_runtime(id(irrigation_zone_terras_zijkant_next).state.c_str())) {
+                id(irrigation_zone_terras_zijkant).turn_on();
+              }
+              if (scheduled_runtime(id(irrigation_zone_achter_rechts_next).state.c_str())) {
+                id(irrigation_zone_achter_rechts).turn_on();
+              }
+              if (scheduled_runtime(id(irrigation_zone_achter_links_next).state.c_str())) {
+                id(irrigation_zone_achter_links).turn_on();
+              }
+
+output:
+  # Register the blue LED as a dimmable output
+  - platform: esp8266_pwm
+    id: blue_led
+    pin: GPIO13
+    inverted: true
+
+light:
+  # ... and then make a light out of it.
+  - platform: monochromatic
+    name: "Sonoff 4CH Irrigation Blue LED"
+    id: status_led
+    output: blue_led

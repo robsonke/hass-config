@@ -1,0 +1,23 @@
+{
+  "title": "Casambi",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Casambi",
+        "description": "Hilfe bei der Einrichtung findest du hier: https://github.com/hellqvio86/home_assistant_casambi",
+        "data": {
+          "email": "Email",
+          "user_password": "Benutzer Password",
+          "network_password": "Netzwerk Passwort",
+          "api_key": "API-Schl\u00fcssel",
+          "network_timeout": "Netzwerk Zeit\u00fcberschreitung",
+          "scan_interval": "Scan Intervall"
+        }
+      }
+    },
+    "error": {
+      "auth_user_password":"Ung\u00fcltiges Benutzer Passwort",
+      "auth_network_password":"Ung\u00fcltiges Netzwerk Passwort"
+    }
+  }
+}

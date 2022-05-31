@@ -41,7 +41,7 @@ homekit:
         - camera.doorbell
         - camera.bijkeuken
         - camera.veranda
-        - binary_sensor.people_home_and_awake
+        - binary_sensor.template_people_home_and_awake
     entity_config:
       camera.babycam:
         support_audio: true

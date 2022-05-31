@@ -31,9 +31,7 @@ browser_mod:
         entity: sensor.hass_version_installed
         triggers_update:
           - sensor.hass_version_latest
-          - sensor.hass_release_notes_rc
           - sensor.hass_release_notes
-          - binary_sensor.home_assistant_operating_system_update_available
         state_display: |
           [[[
             if (entity && variables) {
@@ -77,153 +75,36 @@ browser_mod:
         tap_action:
           action: fire-dom-event
           browser_mod:
-            command: popup
-            title: Supervisor and Addons
-            style: >
-              :host .content {
-                width: 75em;
-              }
-            card:
-              type: iframe
-              url: /config/dashboard
-              aspect_ratio: 65%
-              style: |
-                ha-card {
-                  border-radius: 0 0 1em 1em;
-                }
+            command: commands
+            commands:
+              - command: close_popup
+              - command: navigate
+                navigation_path: /config/dashboard
         template: icon_name
 
       ### supervisor
       - type: custom:button-card
-        entity: sensor.supervisor_updates
+        entity: sensor.template_supervisor_updates
         state_display: |
           [[[
-            if (entity && entity != "None") {
-              let count = entity.state | 0;
-              // check if there's a supervisor update
-              if (entity.attributes.update_available) {
-                count++;
-              }
-              // possible hassos update
-              if (states['binary_sensor.home_assistant_operating_system_update_available'].state === 'on') {
-                count++;
-              }
+            let count = entity.state | 0;
+            let output = states['sensor.template_supervisor_updates'].attributes.updates;
 
-              let subtitle = count == 0
-                  ? `Geen updates`
+            let subtitle = count == 0 ? `Geen updates`
                   : `${count} ${count == 1 ? "update beschikbaar" : "updates beschikbaar"} 
                     ${String.fromCodePoint("0x1f389")}`;
 
-              let output = '';
-              // supervisor info
-              if (entity.attributes.update_available) {
-                output += `<li><b>Supervisor</b> ${entity.attributes.current_version} \u279e ${entity.attributes.newest_version}</li>`
-              }
-              // hass os info
-              if (states['binary_sensor.home_assistant_operating_system_update_available'].state === 'on') {
-                const newVersion = states['sensor.home_assistant_operating_system_newest_version'].state;
-                const currentVersion = states['sensor.home_assistant_operating_system_version'].state;
-                output += `<li><b>Home Assistant Operating System</b> ${currentVersion} \u279e ${newVersion}</li>`
-              }
-
-              // addon info
-              var arr = entity.attributes.addons;
-              for (var i = 0; i < arr.length; i++) {
-                output += `<li><b>${arr[i].name}</b> ${arr[i].version} \u279e ${arr[i].version_latest}</li>`
-              }
-
-              return `
-                <ha-icon icon="mdi:home-assistant"></ha-icon> <span class="title">Supervisor (${entity.attributes['current_version']}) and Addons</span><br>
+            return `
+                <ha-icon icon="mdi:home-assistant"></ha-icon> <span class="title">Supervisor (${states['update.home_assistant_supervisor_update'].attributes['installed_version']}) and Addons</span><br>
                 <p class="subtitle">${subtitle}</p>
                 <ul>${output}</ul>
               `;
-            }
           ]]]
         template: updater
-      - type: custom:button-card
-        entity: sensor.supervisor_updates
-        triggers_update:
-          - sensor.supervisor_updates
-        name: Update Supervisor of Addons
-        icon: mdi:update
-        styles:
-          card:
-            - width: max-content
-            - display: >
-                [[[
-                  return entity.state === '0' ? 'none' : 'block';
-                ]]]
-        tap_action:
-          action: fire-dom-event
-          browser_mod:
-            command: popup
-            title: Supervisor and Addons
-            style: >
-              :host .content {
-                width: 75em;
-              }
-            card:
-              type: iframe
-              url: /config/dashboard
-              aspect_ratio: 65%
-              style: |
-                ha-card {
-                  border-radius: 0 0 1em 1em;
-                }
-        template: icon_name
 
       ### hacs
       - type: custom:button-card
-        entity: sensor.hacs
-        state_display: |
-          [[[
-            if (entity) {
-              let output = '';
-              var arr = entity.attributes.repositories;
-              for (var i = 0; i < arr.length; i++) {
-                output += `<li><b><a href="#" onclick="window.open('https://github.com/${arr[i].name}/releases');">
-                  ${arr[i].display_name}</a></b> ${arr[i].installed_version} \u279e ${arr[i].available_version}</li>`
-              }
-              let count = arr.length;
-              let subtitle = count == 0
-                  ? `Geen updates`
-                  : `${count} ${count == 1 ? "update beschikbaar" : "updates beschikbaar"} 
-                    ${String.fromCodePoint("0x1f389")}`;
-              return `
-                <ha-icon icon="hacs:hacs"></ha-icon> <span class="title">Community Store ${states['sensor.template_hacs_version'].state}</span><br>
-                <p class="subtitle">${subtitle}</p>
-                <ul>${output}</ul>
-              `;
-            }
-          ]]]
+        entity: sensor.template_hacs_updates
+        state_display: >
+          [[[ return entity.attributes.updates; ]]]
         template: updater
-
-      - type: custom:button-card
-        entity: sensor.hacs
-        name: Open HACS
-        icon: mdi:open-in-new
-        styles:
-          card:
-            - width: max-content
-            - display: >
-                [[[
-                  return entity.state === '0' ? 'none' : 'block';
-                ]]]
-        tap_action:
-          action: fire-dom-event
-          browser_mod:
-            command: popup
-            title: Home Assistant Community Store
-            style: >
-              :host .content {
-                width: 75em;
-              }
-            card:
-              type: iframe
-              url: /hacs
-              aspect_ratio: 65%
-              style: |
-                ha-card {
-                  border-radius: 0 0 1em 1em;
-                }
-        template: icon_name

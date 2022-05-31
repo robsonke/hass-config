@@ -14,6 +14,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import Throttle
 from pyaltherma.comm import DaikinWSConnection
 from pyaltherma.controllers import AlthermaController
+import os
+import json
 
 from .const import DOMAIN, MIN_TIME_BETWEEN_UPDATES_SECONDS, UPDATE_INTERVAL_SECONDS, ASYNC_UPDATE_TIMEOUT_SECONDS, \
     MAX_UPDATE_FAILED
@@ -28,6 +30,18 @@ async def setup_api_instance(hass, host):
     conn = DaikinWSConnection(session, host)
     device = AlthermaController(conn)
     await device.discover_units()
+
+    unit_profiles = device.profiles
+
+    # Uncomment this if you want to store profile info in json files.
+    #try:
+    #    for profile in unit_profiles:
+    #        filepath: str = os.path.join(hass.config.config_dir, f'daikin_altherma_{profile["idx"]}.json')
+    #        with open(filepath, 'w') as f:
+    #            f.write(json.dumps(profile['profile']))
+    #except Exception as e:
+    #    _LOGGER.warning(f'Failed to save profile state to file {filepath}. It does not affect the operation of the integration.', exc_info=True)
+
     api = AlthermaAPI(device)
     await api.api_init()
     return api
@@ -144,12 +158,12 @@ class AlthermaAPI:
                     state = state | dhw_states['InstallerState']
             else:
                 state = False
-                
+
             if 'function/SpaceHeating' in self.status:
                 sh_states = self.status['function/SpaceHeating']['states']
                 if 'InstallerState' in sh_states:
                     state = state | sh_states['InstallerState']
-            
+
             return state
         return None
 
@@ -170,7 +184,7 @@ class AlthermaAPI:
                 # and it should update the profile after installer state
                 _LOGGER.warning(
                     'Unit left installer state. If there are heavy changes it is probably better to reload integration. Currently it may not fully incorporate new settings.')
-                
+
                 await self.refresh_unit()
 
             await self.device.ws_connection.close()
@@ -214,7 +228,7 @@ class AlthermaAPI:
             hwt = self.device.hot_water_tank
             if hwt is None:
                 return None
-            
+
             self._hwt_device_info = DeviceInfo(
                 **{
                     "identifiers": {(DOMAIN, f"{self._info['serial_number']} Hot Water Tank")},
@@ -232,7 +246,7 @@ class AlthermaAPI:
             space_heating = self.device.climate_control
             if space_heating is None:
                 return None
-            
+
             self._space_heating_device_info = DeviceInfo(
                 **{
                     "identifiers": {(DOMAIN, f"{self._info['serial_number']} Space Heating")},

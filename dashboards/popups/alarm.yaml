@@ -30,7 +30,7 @@ browser_mod:
               type: entities
             filter:
               include:
-                - entity_id: lock.voordeur_slot
+                - entity_id: lock.nuki_voordeur_slot_lock
           - type: custom:auto-entities
             card:
               type: entities

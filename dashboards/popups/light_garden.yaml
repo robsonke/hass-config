@@ -10,6 +10,7 @@ browser_mod:
         template: light_button
         variables: 
           - entity: light.garden_light
+          - title: Wandlampen
       - type: custom:decluttering-card
         template: light_button
         variables: 
@@ -18,6 +19,34 @@ browser_mod:
         template: light_button
         variables: 
           - entity: light.garden_lantern_light1
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.garden_lantern_light2
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.garden_lantern_light3
+      - type: custom:decluttering-card
+        template: light_button
+        variables:
+          - entity: light.hue_lily_light_fence_1
+          - title: Hek 1
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.hue_lily_light_fence_2
+          - title: Hek 2
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.hue_lily_light_fence_3
+          - title: Hek 3
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.hue_lily_light_tree_1
+          - title: Boom 1
 
       - type: custom:button-card
         entity: switch.pool_fountain

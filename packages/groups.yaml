@@ -50,7 +50,7 @@ group:
     entities:
       - binary_sensor.backdoor_openclose_sensor
       - binary_sensor.frontdoor_openclose_sensor
-      - sensor.sheddoor_openclose_sensor
+      - binary_sensor.sheddoor_openclose_sensor
       - binary_sensor.windowdoor_ground_1_openclose_sensor
       - binary_sensor.windowdoor_ground_2_openclose_sensor
       - binary_sensor.windowdoor_ground_3_openclose_sensor
@@ -82,6 +82,11 @@ group:
       - binary_sensor.hallwaydoor_openclose_sensor
       - binary_sensor.window_evaroom_openclose_sensor
       - sensor.climate_sensor_eva_temperature
+      - sensor.climate_sensor_guestroom_temperature
+      - sensor.climate_sensor_masterbedroom_temperature
+      - binary_sensor.motion_sensor_toiletdownstairs_presence
+      - sensor.energy_consumed_tariff_1
+      - sensor.energy_consumed_tariff_2
 
   ignored_entities:
     entities:
@@ -137,6 +142,15 @@ group:
       - light.garden_light
       - light.dimmer_cabinroof_level
   
+  hue_lights_garden:
+    name: Tuin Hue
+    icon: mdi:lightbulb-group
+    entities:
+      - light.hue_lily_light_fence_1
+      - light.hue_lily_light_fence_2
+      - light.hue_lily_light_fence_3
+      - light.hue_lily_light_tree_1
+  
   music_downstairs:
     name: Muziek
     icon: mdi:speaker-multiple
@@ -145,17 +159,12 @@ group:
       - media_player.office
       - media_player.eetkamer
       - media_player.zithoek
-  
-  thermostats_upstairs:
-    name: Bovenverdieping thermostaten
-    icon: mdi:thermometer
-    entities:
-      - switch.kasa_infrarood_slaapkamer
-      - switch.infraroodpanel_eva
-      - climate.eurom_alutherm_baseboard_heater
 
-  thermostats_downstairs:
-    name: Benedenverdieping thermostaten
-    icon: mdi:thermometer
+  irrigation_switches:
+    name: Irrigatie zones
+    icon: mdi:sprinkler-variant
     entities:
-      - climate.warmtepomp
+      - switch.irrigation_zone_achter_links
+      - switch.irrigation_zone_achter_rechts
+      - switch.irrigation_zone_terras_midden
+      - switch.irrigation_zone_terras_zijkant

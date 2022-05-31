@@ -28,25 +28,6 @@ utility_meter:
     source: sensor.energy_consumed_tariff_2
     cycle: yearly
 
-  # daily_energy:
-  #   source: sensor.energy
-  #   cycle: daily
-  #   tariffs:
-  #     - peak
-  #     - offpeak
-  # monthly_energy:
-  #   source: sensor.energy
-  #   cycle: monthly
-  #   tariffs:
-  #     - peak
-  #     - offpeak
-  # yearly_energy:
-  #   source: sensor.energy
-  #   cycle: yearly
-  #   tariffs:
-  #     - peak
-  #     - offpeak
-
   water_quarterly:
     source: sensor.template_water_meter_total_m3
     cycle: quarter-hourly

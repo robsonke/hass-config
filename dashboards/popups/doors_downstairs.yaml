@@ -24,26 +24,31 @@ browser_mod:
         "doors"
     cards:
       - type: custom:frigate-card
-        view_layout:
-          grid-area: frontdoor
-        controls:
-          nextprev: chevrons
-        camera_entity: camera.doorbell
-        menu_mode: overlay-top
         dimensions:
           aspect_ratio_mode: unconstrained
-        entities:
-          - entity: binary_sensor.doorbell_lw_doorbell
-          - entity: binary_sensor.doorbell_lw_motion
-        frigate_camera_name: Voordeur
-        webrtc:
-          entity: camera.doorbell_camera_webrtc
-        live_provider: webrtc
-        view_default: live
-        menu_buttons:
-          frigate: false
-          frigate_ui: false
-        camera_image: camera.doorbell
+        view:
+          default: live
+        live:
+          webrtc: {}
+        event_viewer:
+          controls:
+            thumbnails:
+              mode: below
+            next_previous:
+              style: chevrons
+        menu:
+          mode: overlay-top
+          buttons:
+            snapshots: true
+            frigate: false
+            frigate_ui: false
+            fullscreen: true
+        cameras:
+          - camera_entity: camera.doorbell
+            camera_name: Voordeur
+            webrtc:
+              entity: camera.doorbell_camera_webrtc
+            live_provider: webrtc-card
       - type: custom:vertical-stack-in-card
         view_layout:
           grid-area: doors

@@ -37,70 +37,60 @@ browser_mod:
                 style:
                   top: 88.5%
                   left: 10%
-                  # '--paper-item-icon-color': white
               - type: state-label
                 entity: binary_sensor.ix3_door_lock_state
                 style:
                   top: 95.5%
                   left: 10%
                   font-size: 0.8em
-                  # color: white
               - type: state-icon
                 entity: binary_sensor.ix3_windows
                 tap_action: more-info
                 style:
                   top: 88.5%
                   left: 20%
-                  # '--paper-item-icon-color': white
               - type: state-label
                 entity: binary_sensor.ix3_windows
                 style:
                   top: 95.5%
                   left: 20%
                   font-size: 0.8em
-                  # color: white
               - type: state-icon
                 entity: binary_sensor.ix3_lids
                 tap_action: more-info
                 style:
                   top: 88.5%
                   left: 30%
-                  # '--paper-item-icon-color': white
               - type: state-label
                 entity: binary_sensor.ix3_lids
                 style:
                   top: 95.5%
                   left: 30%
                   font-size: 0.8em
-                  # color: white
               - type: state-icon
                 entity: sensor.ix3_mileage
                 tap_action: more-info
                 style:
                   top: 88.5%
                   left: 40%
-                  # '--paper-item-icon-color': white
               - type: state-label
                 entity: sensor.ix3_mileage
                 style:
                   top: 95.5%
                   left: 40%
                   font-size: 0.8em
-                  # color: white
               - type: state-icon
                 entity: binary_sensor.ix3_condition_based_services
                 tap_action: more-info
                 style:
                   top: 88.5%
                   left: 50%
-                  # '--paper-item-icon-color': white
               - type: state-label
                 entity: binary_sensor.ix3_condition_based_services
                 style:
                   top: 95.5%
                   left: 50%
                   font-size: 0.8em
-                  # color: white
               - type: conditional
                 conditions:
                   - entity: binary_sensor.ix3_connection_status
@@ -113,14 +103,6 @@ browser_mod:
                     style:
                       top: 88.5%
                       left: 60%
-                      # '--paper-item-icon-color': white
-                  - type: custom:text-element
-                    text: Plugged
-                    style:
-                      top: 95.5%
-                      left: 60%
-                      font-size: 0.8em
-                      # color: white
               - type: conditional
                 conditions:
                   - entity: binary_sensor.ix3_charging_status
@@ -133,9 +115,8 @@ browser_mod:
                       top: 93.5%
                       right: '-5%'
                       font-size: 0.8em
-                      # color: white
               - type: custom:circle-sensor-card
-                entity: sensor.ix3_charging_level_hv
+                entity: sensor.ix3_remaining_battery_percent
                 max: 100
                 min: 0
                 stroke_width: 15
@@ -193,6 +174,6 @@ browser_mod:
         dark_mode: true
         hours_to_show: 24
         entities:
-          - person.bmw_ix3
+          - device_tracker.ix3
         view_layout:
           grid-area: map

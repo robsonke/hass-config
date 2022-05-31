@@ -19,18 +19,3 @@ person:
     user_id: 71e44d7d313b4695a8bf51705f7adfc3
     device_trackers:
       - device_tracker.steffi_presence
-  - name: BMW iX3
-    id: bmwix3
-    device_trackers:
-      - device_tracker.ix3
-  - name: HA Cast
-    id: ha-cast
-    user_id: 63bf7bab0d174dc6abc880085d3c4b5e
-    device_trackers:
-      - device_tracker.udm_router
-  - name: iPad Kitchen
-    id: ipad-kitchen
-    user_id: 4e66c82d531047cfbece83e7ed882e8f
-    device_trackers:
-      - device_tracker.ipad_wall
-

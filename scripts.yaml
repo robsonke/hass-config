@@ -145,15 +145,13 @@ lights_on_away:
       seconds: 10
       milliseconds: 0
   - service: light.turn_on
-    data:
-      brightness_pct: 30
+    data: {}
     target:
       entity_id:
       - light.dining_light
       - light.livingback_light
   - service: light.turn_on
-    data:
-      brightness_pct: 60
+    data: {}
     target:
       entity_id:
       - light.boekenkast
@@ -170,15 +168,13 @@ lights_on_home:
       - light.keuken
   - delay: '1'
   - service: light.turn_on
-    data:
+    data: {}
+    target:
       entity_id:
       - light.ledstrip_office
-      - light.dining_light
-      - light.woonkamer
-      brightness_pct: 40
+      - light.livingfront_light
   - service: light.turn_on
-    data:
-      brightness_pct: 35
+    data: {}
     target:
       entity_id: light.kitchendesk_light
   - service: light.turn_on
@@ -230,8 +226,9 @@ lights_off_upstairs:
   alias: Lights off - upstairs
   sequence:
   - service: light.turn_off
+    data: {}
     target:
-      entity_id: light.bovenverdieping
+      entity_id: group.lights_upstairs
   mode: single
   icon: mdi:lamps-outline
 play_sonos_playlist:
@@ -249,7 +246,6 @@ play_sonos_playlist:
     data_template:
       entity_id: '{{ states.input_select.sonos_master.state }}'
       source: '{{ states.input_select.sonos_playlist.state }}'
-
 googlehome_play_sound:
   alias: Google Home Play MP3
   mode: single
@@ -286,7 +282,6 @@ googlehome_play_sound:
     data_template:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false
-
 googlehome_say:
   alias: Google Home TTS script
   mode: single

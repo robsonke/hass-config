@@ -16,6 +16,10 @@ browser_mod:
         }
       $hui-map-card:
         $: |
+          #root {
+            height: 100%;
+            padding-bottom: 0 !important;
+          }
           mwc-icon-button {
             color: var(--primary-color);
           }
@@ -105,7 +109,8 @@ browser_mod:
       - type: map
         default_zoom: 16
         dark_mode: true
+        hours_to_show: 4
         entities:
           - device_tracker.rob_presence
         view_layout:
-            grid-area: map
+          grid-area: map

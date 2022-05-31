@@ -13,21 +13,29 @@ from homeassistant.util import Throttle
 
 
 class AfvalInfoTomorrowSensor(Entity):
-    def __init__(self, data, sensor_type, sensor_friendly_name, entities, id_name):
+    def __init__(
+        self, data, sensor_type, sensor_friendly_name, entities, id_name, no_trash_text
+    ):
         self.data = data
         self.type = sensor_type
         self.friendly_name = sensor_friendly_name
         self._last_update = None
-        self._name = (
-            SENSOR_PREFIX
-            + (id_name + " " if len(id_name) > 0 else "")
-            + SENSOR_TYPES[sensor_type][0]
+        self._name = sensor_friendly_name
+        self.entity_id = "sensor." + (
+            (
+                SENSOR_PREFIX
+                + (id_name + " " if len(id_name) > 0 else "")
+                + sensor_friendly_name
+            )
+            .lower()
+            .replace(" ", "_")
         )
         self._attr_unique_id = (
             SENSOR_PREFIX
             + (id_name + " " if len(id_name) > 0 else "")
-            + SENSOR_TYPES[sensor_type][0]
+            + sensor_friendly_name
         )
+        self._no_trash_text = no_trash_text
         self._state = None
         self._icon = SENSOR_TYPES[sensor_type][1]
         self._entities = entities
@@ -53,7 +61,7 @@ class AfvalInfoTomorrowSensor(Entity):
         self.data.update()
         self._last_update = datetime.today().strftime("%d-%m-%Y %H:%M")
         # use a tempState to change the real state only on a change...
-        tempState = "none"
+        tempState = self._no_trash_text
         numberOfMatches = 0
         tomorrow = str((date.today() + timedelta(days=1)).strftime("%Y-%m-%d"))
         for entity in self._entities:

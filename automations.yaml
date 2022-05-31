@@ -16,14 +16,13 @@
   alias: Alarm - Auto arm since we're away and all is closed
   description: We didn't enable the Guest mode and we both left, arm the house
   trigger:
-  - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
+  - platform: numeric_state
+    entity_id: zone.home
     for:
       hours: 0
-      minutes: 1
+      minutes: 3
       seconds: 0
-      milliseconds: 0
-    to: 'off'
+    below: '1'
   condition:
   - condition: and
     conditions:
@@ -43,6 +42,7 @@
   - service: alarm_control_panel.alarm_arm_away
     target:
       entity_id: alarm_control_panel.alarmo
+    data: {}
   mode: single
 - id: alarm_auto_disarm_when_arriving
   alias: Alarm - Ready to auto disarm since one of us comes home
@@ -282,8 +282,8 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: binary_sensor.template_home_at_least_one_of_us
-      state: 'off'
+      entity_id: zone.home
+      state: '0'
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -295,6 +295,7 @@
         persistent: true
         tag: persistent
   - service: script.lights_on_away
+    data: {}
   - delay:
       hours: 0
       minutes: 0
@@ -385,21 +386,6 @@
       data:
         persistent: true
         tag: persistent
-- alias: Cast - Cast HA to Nest display
-  id: cast_hass_to_nest
-  description: Push a stream every 10 minutes to the Google Nest Display in the kitchen
-  trigger:
-  - minutes: /10
-    platform: time_pattern
-  condition:
-  - after: 06:00
-    before: '23:30'
-    condition: time
-  action:
-  - data:
-      addon: a0d7b954_ssh
-      input: bash /config/cast.sh
-    service: hassio.addon_stdin
 - id: doorbell_ring_notification
   alias: Doorbell - Notification Doorbell Ring
   description: Say ding dong through the speakers when doorbell rings
@@ -451,7 +437,7 @@
   trigger:
   - platform: numeric_state
     entity_id: sensor.light_sensor_garden
-    below: '15'
+    below: '10'
   - platform: time
     at: 07:00
   - platform: numeric_state
@@ -494,6 +480,13 @@
           entity_id: sun.sun
           attribute: elevation
           below: '-4'
+  - condition: state
+    entity_id: light.garden_lantern_light1
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
   action:
   - service: light.turn_on
     data:
@@ -503,6 +496,16 @@
   - type: turn_on
     device_id: f071d7823a14ba363466cf1b864c0c30
     entity_id: light.garden_lantern_light1
+    domain: light
+    brightness_pct: 50
+  - type: turn_on
+    device_id: 2eb4f429548fe4a768355b724db6b462
+    entity_id: light.garden_lantern_light2
+    domain: light
+    brightness_pct: 50
+  - type: turn_on
+    device_id: 7e571321798b4d568473f3e13916d01b
+    entity_id: light.garden_lantern_light3
     domain: light
     brightness_pct: 50
   - delay:
@@ -515,6 +518,10 @@
       brightness_pct: 15
     target:
       entity_id: light.dimmer_cabinroof_level
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: group.hue_lights_garden
   mode: single
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights - morning
@@ -536,6 +543,7 @@
     target:
       entity_id:
       - light.dimmer_cabinroof_level
+      - group.hue_lights_garden
   - delay:
       hours: 0
       minutes: 0
@@ -544,6 +552,14 @@
   - type: turn_off
     device_id: f071d7823a14ba363466cf1b864c0c30
     entity_id: light.garden_lantern_light1
+    domain: light
+  - type: turn_off
+    device_id: 2eb4f429548fe4a768355b724db6b462
+    entity_id: light.garden_lantern_light2
+    domain: light
+  - type: turn_off
+    device_id: 7e571321798b4d568473f3e13916d01b
+    entity_id: light.garden_lantern_light3
     domain: light
   - delay:
       hours: 0
@@ -596,8 +612,8 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: binary_sensor.template_home_at_least_one_of_us
-      state: 'off'
+      entity_id: zone.home
+      state: '0'
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -609,6 +625,7 @@
         persistent: true
         tag: persistent
   - service: script.sleep_well
+    data: {}
   mode: single
 - id: closet_light_turn_on
   alias: Lights - Turn on lights when closet door opens
@@ -659,9 +676,9 @@
     - conditions:
       - condition: time
         after: 06:00
-      - condition: state
-        entity_id: binary_sensor.template_home_at_least_one_of_us
-        state: 'on'
+      - condition: numeric_state
+        entity_id: zone.home
+        above: '0'
       sequence:
       - service: media_player.media_play
         target:
@@ -980,23 +997,24 @@
       name: custom-dark
       mode: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else\
         \ %}\n  light\n{% endif %}\n"
-- alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
-  id: lovelace_convert_json_yaml
+- id: lovelace_convert_json_yaml
+  alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
   trigger:
-    platform: state
-    entity_id: sensor.lovelace
+  - platform: state
+    entity_id: sensor.lovelace_size
   action:
   - service: shell_command.convert_lovelace
-- alias: Vacuum - Sjorsje Bin Full
-  id: sjorsje_bin_full
+    data: {}
+- id: sjorsje_bin_full
+  alias: Vacuum - Sjorsje Bin Full
   trigger:
   - entity_id: binary_sensor.sjorsje_bin_full
     platform: state
     to: 'on'
   action:
-    service: notify.all_phones
+  - service: notify.all_phones
     data:
-      message: 🧹 Sjorsje's opvangbak zit bol
+      message: 🧹 Sjorsje's opvangbak zit vol
       data:
         persistent: true
         tag: persistent
@@ -1093,9 +1111,13 @@
     they are not
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    to: 'off'
-    for: 0:05:00
+    entity_id:
+    - zone.home
+    to: '0'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   condition:
   - condition: and
     conditions:
@@ -1103,28 +1125,33 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
     - condition: state
-      entity_id: lock.voordeur_slot
+      entity_id: lock.nuki_voordeur_slot_lock
       state: unlocked
   action:
   - service: lock.lock
     target:
-      entity_id: lock.voordeur_slot
+      entity_id: lock.nuki_voordeur_slot_lock
+    data: {}
   mode: single
 - id: '1621189950296'
   alias: Presence - Enable detection because one of us left or in night mode
   description: Activate Frigate object detection
   trigger:
   - platform: state
-    for: 0:00:15
-    entity_id: binary_sensor.template_home_only_one_of_us
-    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+    entity_id:
+    - zone.home
+    to: '1'
   - platform: state
     entity_id: input_boolean.night_mode
     from: 'off'
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.template_home_both_of_us
-    to: 'off'
+  - platform: numeric_state
+    entity_id: zone.home
+    below: '2'
   condition: []
   action:
   - service: switch.turn_on
@@ -1135,6 +1162,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+    data: {}
   mode: single
 - id: '1621190465429'
   alias: Presence - Disable detection because day starts
@@ -1201,17 +1229,18 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: lock.voordeur_slot
-    attribute: battery_critical
-    from: 'false'
-    to: 'true'
-    for: '120'
+    entity_id: binary_sensor.nuki_voordeur_slot_battery_critical
+    to: 'on'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+    from: 'off'
   condition: []
   action:
   - service: notify.all_phones
     data_template:
-      message: Let op, batterij status van {{ state_attr(trigger.entity_id, 'friendly_name')
-        }} is kritiek!
+      message: Let op, batterij status van het voordeur slot is kritiek!
       data:
         persistent: true
         tag: persistent
@@ -1239,12 +1268,12 @@
     conditions:
     - condition: numeric_state
       entity_id: sensor.openweathermap_forecast_temperature
-      above: '20'
+      above: '18'
     - condition: numeric_state
       entity_id: sensor.openweathermap_forecast_cloud_coverage
-      below: '50'
+      below: '40'
     - condition: device
-      device_id: 2391e89a5da9c2be534b1090df029f98
+      device_id: eb69e1ad4596ef0df19b685a4e84e026
       domain: cover
       entity_id: cover.voorraam
       type: is_open
@@ -1255,15 +1284,14 @@
       data:
         persistent: true
         tag: persistent
-  - device_id: 2391e89a5da9c2be534b1090df029f98
-    domain: cover
-    entity_id: cover.voorraam
-    type: set_position
-    position: 0
-  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
-    domain: cover
-    entity_id: cover.zijraam
-    type: set_position
+  - service: cover.close_cover
+    data: {}
+    target:
+      entity_id: cover.voorraam
+  - service: cover.close_cover
+    data: {}
+    target:
+      entity_id: cover.zijraam
   mode: single
 - id: '1623609934943'
   alias: Screens - Open screen voorraam end of day
@@ -1278,7 +1306,7 @@
   - condition: and
     conditions:
     - condition: device
-      device_id: 2391e89a5da9c2be534b1090df029f98
+      device_id: eb69e1ad4596ef0df19b685a4e84e026
       domain: cover
       entity_id: cover.voorraam
       type: is_closed
@@ -1289,31 +1317,28 @@
       data:
         persistent: true
         tag: persistent
-  - device_id: 2391e89a5da9c2be534b1090df029f98
-    domain: cover
-    entity_id: cover.voorraam
-    type: set_position
-    position: 100
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id: cover.voorraam
   - delay:
       hours: 0
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - device_id: 2391e89a5da9c2be534b1090df029f98
-    domain: cover
-    entity_id: cover.voorraam
-    type: set_position
-    position: 100
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id: cover.voorraam
   - delay:
       hours: 0
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - device_id: 2391e89a5da9c2be534b1090df029f98
-    domain: cover
-    entity_id: cover.voorraam
-    type: set_position
-    position: 100
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id: cover.voorraam
   mode: single
 - id: '1623610181205'
   alias: Screens - Open screen zijraam end of day
@@ -1330,7 +1355,7 @@
   - condition: and
     conditions:
     - condition: device
-      device_id: 6ec5ae7951ae28cba3ddcc78897851af
+      device_id: 7a674f956b15af8decebb36355772928
       domain: cover
       entity_id: cover.zijraam
       type: is_closed
@@ -1341,31 +1366,28 @@
       data:
         persistent: true
         tag: persistent
-  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
-    domain: cover
-    entity_id: cover.zijraam
-    type: set_position
-    position: 100
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id: cover.zijraam
   - delay:
       hours: 0
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
-    domain: cover
-    entity_id: cover.zijraam
-    type: set_position
-    position: 100
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id: cover.zijraam
   - delay:
       hours: 0
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - device_id: 6ec5ae7951ae28cba3ddcc78897851af
-    domain: cover
-    entity_id: cover.zijraam
-    type: set_position
-    position: 100
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id: cover.zijraam
   mode: single
 - id: '1623656513564'
   alias: Sleep - Switch to night mode automatically when home
@@ -1395,26 +1417,18 @@
     target:
       entity_id: alarm_control_panel.alarmo
   mode: single
-- id: '1624175096159'
-  alias: Lock - Update Nuki integration with callback
-  description: ''
-  use_blueprint:
-    path: kongo09/add-local-push-capability-to-nuki-lock-integration.yaml
-    input:
-      webhook_id: '0'
-      lock_entities:
-        entity_id:
-        - lock.voordeur_slot
-        - binary_sensor.voordeur_slot
 - id: '1624807756444'
   alias: Car - Alert when fully charged
   description: ''
   trigger:
   - platform: state
-    entity_id: sensor.ix3_charging_level_hv
+    entity_id: sensor.ix3_remaining_battery_percent
     to: '100'
     for: 00:00:30
-  condition: []
+  condition:
+  - condition: state
+    entity_id: binary_sensor.ix3_connection_status
+    state: 'on'
   action:
   - service: notify.all_phones
     data:
@@ -1455,7 +1469,7 @@
   description: Time to remove the cable
   trigger:
   - platform: state
-    entity_id: sensor.ix3_charging_level_hv
+    entity_id: sensor.ix3_remaining_battery_percent
     to: '100'
     for: 01:00:00
   condition:
@@ -1584,8 +1598,8 @@
     to: 'on'
   condition:
   - condition: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    state: 'off'
+    entity_id: zone.home
+    state: '0'
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
@@ -1708,8 +1722,9 @@
   - platform: time
     at: '14:00'
   - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    to: 'off'
+    entity_id:
+    - zone.home
+    to: '0'
   condition:
   - condition: time
     weekday:
@@ -1717,12 +1732,13 @@
     before: '18:30'
     after: '13:50'
   - condition: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    state: 'off'
+    entity_id: zone.home
+    state: '0'
   action:
   - service: input_boolean.turn_on
     target:
       entity_id: input_boolean.guest_mode
+    data: {}
   - device_id: 29fa064f108236608f9f0d8f063dbc17
     domain: alarm_control_panel
     entity_id: alarm_control_panel.alarmo
@@ -1742,6 +1758,7 @@
   - service: input_boolean.turn_off
     target:
       entity_id: input_boolean.guest_mode
+    data: {}
   mode: single
 - id: '1635279877594'
   alias: Lights - Turn on lights when dark - arriving
@@ -1760,8 +1777,8 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: binary_sensor.template_home_at_least_one_of_us
-      state: 'off'
+      entity_id: zone.home
+      state: '0'
     - condition: state
       entity_id: light.livingfront_light
       state: 'off'
@@ -1770,15 +1787,20 @@
       below: '50'
   action:
   - service: script.lights_on_home
+    data: {}
   mode: single
 - id: '1635280472840'
   alias: Lights - Turn off lights when dark - leaving
   description: We leave the house in when dark, turn off a few lights
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    to: 'off'
-    for: 0:01:00
+    entity_id:
+    - zone.home
+    to: '0'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   condition:
   - condition: and
     conditions:
@@ -1804,6 +1826,7 @@
       - light.diningtable_light
       - light.livingfront_light
       - light.office_lights
+    data: {}
   - service: light.turn_on
     target:
       entity_id:
@@ -1846,9 +1869,9 @@
   description: We didn't enable the Guest mode and we both left, stop the music
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    to: 'off'
-    for: 0:01:00
+    entity_id:
+    - zone.home
+    to: '0'
   condition:
   - condition: and
     conditions:
@@ -1865,6 +1888,7 @@
       - media_player.eetkamer
       - media_player.office
       - media_player.living_room
+    data: {}
   mode: single
 - id: '1636140145870'
   alias: Fire - Stookalert active
@@ -2011,17 +2035,19 @@
   description: When we move away, all upstairs can be turned off
   trigger:
   - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    to: 'off'
+    entity_id:
+    - zone.home
+    to: '0'
   condition:
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
   - condition: state
-    entity_id: light.bovenverdieping
+    entity_id: group.lights_upstairs
     state: 'on'
   action:
   - service: script.lights_off_upstairs
+    data: {}
   mode: single
 - id: '1639680674230'
   alias: iOS - Good night
@@ -2165,17 +2191,11 @@
     device_id: 53ec925ec7a298678226212147f4562a
     entity_id: light.toilet_downstairs
     domain: light
-  - condition: state
-    entity_id: input_boolean.toilet_downstairs_occupied
-    state: 'off'
   action:
   - service: light.turn_on
     data: {}
     target:
       device_id: 53ec925ec7a298678226212147f4562a
-  - service: input_boolean.turn_on
-    target:
-      entity_id: input_boolean.toilet_downstairs_occupied
   mode: single
 - id: '1642625248443'
   alias: Lights - Turn off lights when toilet visit is over
@@ -2200,33 +2220,29 @@
     for:
       hours: 0
       minutes: 0
-      seconds: 5
+      seconds: 15
   action:
   - type: turn_off
     device_id: 53ec925ec7a298678226212147f4562a
     entity_id: light.toilet_downstairs
     domain: light
-  - service: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.toilet_downstairs_occupied
   mode: restart
 - id: '1642757425557'
   alias: Cast - Cast to Google Hub
-  description: ''
+  description: Doesn't work well right now, also button-cards are an issue
   use_blueprint:
     path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
     input:
-      dashboard: lovelace
+      dashboard: main-dashboard
       player: media_player.keuken_display
-      view: test
+      view: '0'
 - id: '1643267142475'
   alias: Presence - Send message if cooker is still enabled and we left the house
   description: ''
   trigger:
-  - platform: state
-    entity_id: binary_sensor.template_home_at_least_one_of_us
-    to: 'off'
-    from: 'on'
+  - platform: numeric_state
+    entity_id: zone.home
+    above: '0'
   condition:
   - condition: device
     type: is_on
@@ -2325,6 +2341,10 @@
       minutes: 0
       seconds: 10
       milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: group.hue_lights_garden
   mode: single
 - id: '1645647196286'
   alias: Windows - Masterbedroom1 open and low temperature
@@ -2377,3 +2397,106 @@
           data:
             persistent: true
             tag: persistent
+- id: '1653419188796'
+  alias: Irrigation - Always turn off after one hour
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - switch.irrigation_zone_achter_links
+    - switch.irrigation_zone_achter_rechts
+    - switch.irrigation_zone_terras_zijkant
+    - switch.irrigation_zone_terras_midden
+    to: 'on'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+    from: 'off'
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id: '{{ trigger.entity_id }}
+
+        '
+  mode: single
+- id: '1653726752674'
+  alias: Irrigation - Reset duration inputs once done
+  description: Lets make sure the irrigation will not continue in 24 hours again.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.zone_achter_rechts_resterende_tijd
+    to: '0'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: achter-rechts
+  - platform: state
+    entity_id:
+    - sensor.zone_achter_links_resterende_tijd
+    to: '0'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: achter-links
+  - platform: state
+    entity_id:
+    - sensor.zone_terras_midden_resterende_tijd
+    to: '0'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: terras-midden
+  - platform: state
+    entity_id:
+    - sensor.zone_terras_zijkant_resterende_tijd
+    to: '0'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: terras-zijkant
+  condition: []
+  action:
+  - if:
+    - condition: trigger
+      id: achter-rechts
+    then:
+    - service: input_number.set_value
+      data:
+        value: 0
+      target:
+        entity_id: input_number.irrigation_zone_achter_rechts_duration
+  - if:
+    - condition: trigger
+      id: achter-links
+    then:
+    - service: input_number.set_value
+      data:
+        value: 0
+      target:
+        entity_id: input_number.irrigation_zone_achter_links_duration
+  - if:
+    - condition: trigger
+      id: terras-midden
+    then:
+    - service: input_number.set_value
+      data:
+        value: 0
+      target:
+        entity_id: input_number.irrigation_zone_terras_midden_duration
+  - if:
+    - condition: trigger
+      id: terras-zijkant
+    then:
+    - service: input_number.set_value
+      data:
+        value: 0
+      target:
+        entity_id: input_number.irrigation_zone_terras_zijkant_duration
+  mode: single

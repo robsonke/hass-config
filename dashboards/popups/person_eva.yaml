@@ -1,0 +1,31 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  large: true
+  title: Eva
+  card:
+    type: custom:frigate-card
+    dimensions:
+      aspect_ratio_mode: unconstrained
+    view:
+      default: live
+    event_viewer:
+      controls:
+        thumbnails:
+          mode: below
+        next_previous:
+          style: chevrons
+    menu:
+      mode: overlay-top
+      buttons:
+        snapshots: true
+        frigate: false
+        frigate_ui: false
+        fullscreen: true
+    cameras:
+      - camera_entity: camera.evabed
+        camera_name: Eva
+        live_provider: webrtc-card
+        webrtc_card:
+          entity: camera.eva_camera_webrtc
+  

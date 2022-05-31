@@ -62,7 +62,7 @@ custom-dark:
       primary-text-color: "#464a47"
       secondary-text-color: "#000000"
       text-primary-color: "#FFF"
-      disabled-text-color: "#555"  # XXX: https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/2
+      disabled-text-color: "#555"
       text-dark-color: "#FFF"
 
       primary-background-color: "#e5e5ea"
@@ -79,20 +79,6 @@ custom-dark:
       background-image: "center / cover no-repeat fixed url('/local/bg-light-blue.jpg')"
       lovelace-background: var(--background-image)
       
-      # state-icon-color: '#9da0a2'
-      # state-icon-active-color: '#3182b7'
-      # switch-checked-color: '#3182b7'
-      # switch-unchecked-button-color: '#3b4041'
-      # switch-unchecked-track-color: '#0c0d0d'
-      # paper-slider-knob-color: '#a4abb1'
-      # paper-slider-knob-start-color: '#a4abb1'
-      # paper-slider-pin-color: '#626a6f'
-      # paper-slider-active-color: '#626a6f'
-      # paper-slider-container-color: '#202020'
-      # mdc-dialog-scrim-color: rgba(0, 0, 0, 0.5)
-      # paper-toast-color: var(--primary-text-color)
-      # paper-toast-background-color: '#1b1b1bf2'
-      # paper-item-icon-active-color: '#fdd835'
       paper-dialog-background-color: rgba(55, 55, 55, 0.8)  # e.g., background of more-info
       paper-item-icon-color: "#333333"
       more-info-header-background: rgba(25, 25, 25, 0.5)

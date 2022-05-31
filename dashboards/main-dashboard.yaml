@@ -11,7 +11,7 @@ views:
     path: 0
     layout:
       grid-gap: var(--grid-card-gap)
-      grid-template-columns: 2fr repeat(3, 3fr) 0
+      grid-template-columns: 300px repeat(3, 3fr) 0
       grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
       grid-template-areas: |
         "sidebar  .        .          .        ."
@@ -102,6 +102,14 @@ views:
             hold_action:
               action: none
             template: person
+          - type: custom:button-card
+            entity: camera.evabed
+            name: Eva
+            tap_action:
+              !include popups/person_eva.yaml
+            hold_action:
+              action: none
+            template: person
 
           - type: custom:button-card
             entity: alarm_control_panel.alarmo
@@ -111,27 +119,17 @@ views:
             entity: input_boolean.night_mode
             template: sidebar_button
             confirmation:
-              text: '[[[ return `Zeker weten?` ]]]'
+              text: '[[[ return `Nacht Mode - Zeker weten?` ]]]'
           - type: custom:button-card
             entity: input_boolean.guest_mode
             template: sidebar_button
             confirmation:
-              text: '[[[ return `Zeker weten?` ]]]'
+              text: '[[[ return `Guest Mode - Zeker weten?` ]]]'
 
           - type: custom:button-card
             entity: binary_sensor.stookalert_zeeland
             template: sidebar_stookalert
             show_name: false
-            extra_styles: |
-              #container {
-                border: none;
-                padding: 5px;
-              }
-            styles:
-              icon:
-                - padding-left: 14px
-                - width: var(--mdc-icon-size, 24px)
-                - height: var(--mdc-icon-size, 24px)
           - type: custom:button-card
             entity: sensor.template_sidebar_trash
             template: sidebar_template
@@ -216,6 +214,37 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
+            entity: group.lights_living
+            name: Verlichting
+            template:
+              - light_group
+            group_expand: true
+            tap_action:
+              !include popups/light_living.yaml
+            hold_action:
+              action: none
+          - type: custom:button-card
+            entity: sensor.climate_sensor_living_temperature
+            name: Klimaat
+            template:
+              - climate
+              - icon_temp
+            triggers_update: climate.warmtepomp
+            tap_action:
+              !include popups/climate_living.yaml
+            hold_action:
+              action: none
+            variables:
+              heating: >
+                [[[
+                  return states['sensor.altherma_operation_mode'].state === 'Heating'
+                ]]]
+            custom_fields:
+              graph:
+                card:
+                  series:
+                    - entity: sensor.climate_sensor_living_temperature
+          - type: custom:button-card
             entity: cover.voorraam
             name: Voorkant
             template: cover
@@ -247,34 +276,6 @@ views:
               quarter1_position: 50
               middle_position: 70
               quarter3_position: 85
-          - type: custom:button-card
-            entity: group.lights_living
-            name: Verlichting
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/light_living.yaml
-            hold_action:
-              action: none
-          - type: custom:button-card
-            entity: sensor.climate_sensor_living_temperature
-            name: Klimaat
-            template:
-              - climate
-              - icon_temp
-            triggers_update: climate.warmtepomp
-            tap_action:
-              !include popups/climate_living.yaml
-            hold_action:
-              action: none
-            variables:
-              group_entity: group.thermostats_downstairs
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.climate_sensor_living_temperature
 
       #################################################
       #                                               #
@@ -414,7 +415,7 @@ views:
                 - font-size: 11px
             show_label: true
           - type: custom:button-card
-            entity: person.bmw_ix3
+            entity: device_tracker.ix3
             template:
               - simple
               - circle
@@ -451,7 +452,7 @@ views:
                     - filter: grayscale(100%)
             variables:
               circle_input: >
-                [[[ return Math.round(states['sensor.ix3_charging_level_hv'].state); ]]]
+                [[[ return Math.round(states['sensor.ix3_remaining_battery_percent'].state); ]]]
               consider_on: >
                 [[[
                   return states['binary_sensor.ix3_charging_status'].state == 'on';
@@ -464,6 +465,16 @@ views:
             group_expand: true
             tap_action:
               !include popups/light_garden.yaml
+            hold_action:
+              action: none
+          - type: custom:button-card
+            entity: group.irrigation_switches
+            name: Beregening
+            template:
+              - irrigation
+            group_expand: true
+            tap_action:
+              !include popups/irrigation.yaml
             hold_action:
               action: none
 
@@ -482,22 +493,12 @@ views:
         cards:
           - type: custom:button-card
             entity: group.lights_kitchen
-            name: Keuken
+            name: Keuken / Eetkamer
             template:
               - light_group
             group_expand: true
             tap_action:
-              !include popups/light_kitchen.yaml
-            hold_action:
-              action: none
-          - type: custom:button-card
-            entity: group.lights_dining
-            name: Eetkamer
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/light_dining.yaml
+              !include popups/light_dining_kitchen.yaml
             hold_action:
               action: none
           - type: custom:button-card
@@ -539,14 +540,6 @@ views:
             hold_action:
               action: none
           - type: custom:button-card
-            entity: media_player.bedroom_googlehome
-            name: Muziek
-            icon: mdi:speaker
-            template:
-              - music
-            tap_action:
-              action: more-info
-          - type: custom:button-card
             entity: sensor.climate_sensor_masterbedroom_temperature
             name: Klimaat
             template:
@@ -562,7 +555,10 @@ views:
             hold_action:
               action: none
             variables:
-              group_entity: group.thermostats_upstairs
+              heating: >
+                [[[
+                  return states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off';
+                ]]]
             custom_fields:
               graph:
                 card:
@@ -574,3 +570,11 @@ views:
             template:
               - door_window_group_upstairs
             group_expand: true
+          - type: custom:button-card
+            entity: media_player.bedroom_googlehome
+            name: Muziek
+            icon: mdi:speaker
+            template:
+              - music
+            tap_action:
+              action: more-info

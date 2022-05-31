@@ -17,13 +17,8 @@ homeassistant:
       entity_picture: "/local/images/rob_icon-mirror.png"
     person.steffi:
       entity_picture: "/local/images/steffi_icon.png"
-    person.ha_cast:
-      entity_picture: "/local/images/huis_langeweide_icon.png"
     zone.home:
       entity_picture: "/local/images/huis_langeweide_icon.png"
-    person.bmw_ix3:
-      entity_picture: "/local/images/bmwix3_icon.png"
-
     device_tracker.rob_presence:
       friendly_name: Combined Presence Rob
     device_tracker.steffi_presence:

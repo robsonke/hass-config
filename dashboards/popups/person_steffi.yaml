@@ -16,6 +16,10 @@ browser_mod:
         }
       $hui-map-card:
         $: |
+          #root {
+            height: 100%;
+            padding-bottom: 0 !important;
+          }
           mwc-icon-button {
             color: var(--primary-color);
           }

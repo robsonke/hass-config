@@ -1,0 +1,32 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Keuken verlichting
+  card:
+    type: grid
+    columns: 3
+    cards:
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.kitchen_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.kitchencabin_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.kitchendesk_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.dining_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.diningtable_light
+      - type: custom:decluttering-card
+        template: light_button
+        variables: 
+          - entity: light.boekenkast

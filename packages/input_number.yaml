@@ -1,0 +1,40 @@
+#  ___                   _     _   _                 _
+# |_ _|_ __  _ __  _   _| |_  | \ | |_   _ _ __ ___ | |__   ___ _ __
+#  | || '_ \| '_ \| | | | __| |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+#  | || | | | |_) | |_| | |_  | |\  | |_| | | | | | | |_) |  __/ |
+# |___|_| |_| .__/ \__,_|\__| |_| \_|\__,_|_| |_| |_|_.__/ \___|_|
+#           |_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+input_number:
+  # schema
+  irrigation_zone_terras_midden_duration:
+    name: Tijdsduur zone terras midden
+    icon: mdi:timer
+    min: 0
+    max: 60
+    step: 5
+    unit_of_measurement: "minutes"
+  irrigation_zone_terras_zijkant_duration:
+    name: Tijdsduur zone terras zijkant
+    icon: mdi:timer
+    min: 0
+    max: 60
+    step: 5
+    unit_of_measurement: "minutes"
+  irrigation_zone_achter_rechts_duration:
+    name: Tijdsduur zone achter rechts
+    icon: mdi:timer
+    min: 0
+    max: 60
+    step: 5
+    unit_of_measurement: "minutes"
+  irrigation_zone_achter_links_duration:
+    name: Tijdsduur zone achter links
+    icon: mdi:timer
+    min: 0
+    max: 60
+    step: 5
+    unit_of_measurement: "minutes"

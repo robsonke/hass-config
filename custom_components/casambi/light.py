@@ -109,6 +109,12 @@ async def async_setup_entry(
     hass.data[DOMAIN][CONF_CONTROLLER] = CasambiController(hass)
     casambi_controller = hass.data[DOMAIN][CONF_CONTROLLER]
 
+    if user_password == "":
+        user_password = None
+
+    if network_password == "":
+        network_password = None
+
     controller = aiocasambi.Controller(
         email=email,
         user_password=user_password,
@@ -125,8 +131,7 @@ async def async_setup_entry(
 
     try:
         with async_timeout.timeout(10):
-            await controller.create_user_session()
-            await controller.create_network_session()
+            await controller.create_session()
             await controller.start_websocket()
 
     except aiocasambi.LoginRequired:
@@ -218,6 +223,12 @@ async def async_setup_platform(
     hass.data[DOMAIN][CONF_CONTROLLER] = CasambiController(hass)
     casambi_controller = hass.data[DOMAIN][CONF_CONTROLLER]
 
+    if user_password == "":
+        user_password = None
+
+    if network_password == "":
+        network_password = None
+
     controller = aiocasambi.Controller(
         email=email,
         user_password=user_password,
@@ -234,8 +245,7 @@ async def async_setup_platform(
 
     try:
         with async_timeout.timeout(10):
-            await controller.create_user_session()
-            await controller.create_network_session()
+            await controller.create_session()
             await controller.start_websocket()
 
     except aiocasambi.LoginRequired:
