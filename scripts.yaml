@@ -34,7 +34,7 @@ sonos_say:
     data_template:
       entity_id: '{{ sonos_entity }}'
       with_group: true
-  - service: sonos.unjoin
+  - service: media_player.unjoin
     data_template:
       entity_id: '{{ sonos_entity }}'
   - service: media_player.volume_set
@@ -57,7 +57,7 @@ sonos_play_sound:
   - service: sonos.snapshot
     data_template:
       entity_id: '{{ sonos_entity }}'
-  - service: sonos.unjoin
+  - service: media_player.unjoin
     data_template:
       entity_id: '{{ sonos_entity }}'
   - service: media_player.volume_mute

@@ -2,9 +2,18 @@ button_card_templates: !include ../templates/button_card_templates.yaml
 apexcharts_card_templates: !include ../templates/apexcharts_card_templates.yaml
 decluttering_templates: !include ../templates/decluttering_templates.yaml
 
-kiosk_mode:
-  hide_header: true
-  hide_menubutton: true
+wallpanel_screensaver:
+  enabled: true
+  idle_time: 3600
+  hide_toolbar: true
+  image_url: ''
+  night_mode:
+    start_time: '22:00'
+    end_time: '06:30'
+    idle_time: 15
+    black_screen_after_time: 300
+    display_tint: 75
+    image_url: ''
 
 views:
   - type: custom:grid-layout
@@ -335,7 +344,7 @@ views:
                   }
                 card:
                   type: iframe
-                  url: /lovelace/energy
+                  url: /old-dashboard/energy
                   aspect_ratio: 65%
                   style: |
                     ha-card {

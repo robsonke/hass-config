@@ -36,13 +36,13 @@ sensor:
   unit_prefix: k
   round: 2
 - platform: integration
-  source: sensor.shelly_plug_douche_verwarming_relay_power
+  source: sensor.shelly_plug_douche_verwarming_power
   name: Shelly Plug Douche Verwarming Energy Usage
   method: trapezoidal
   unit_prefix: k
   round: 2
 - platform: integration
-  source: sensor.shelly_plug_badkamer_verwarming_relay_power
+  source: sensor.shelly_plug_badkamer_verwarming_power
   name: Shelly Plug Badkamer Verwarming Energy Usage
   method: trapezoidal
   unit_prefix: k
