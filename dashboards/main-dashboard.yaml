@@ -4,11 +4,10 @@ decluttering_templates: !include ../templates/decluttering_templates.yaml
 
 wallpanel_screensaver:
   enabled: true
-  idle_time: 3600
+  idle_time: 7200
   hide_toolbar: true
-  image_url: ''
   night_mode:
-    start_time: '22:00'
+    start_time: '23:00'
     end_time: '06:30'
     idle_time: 15
     black_screen_after_time: 300
@@ -118,7 +117,7 @@ views:
               !include popups/person_eva.yaml
             hold_action:
               action: none
-            template: person
+            template: person_eva
 
           - type: custom:button-card
             entity: alarm_control_panel.alarmo

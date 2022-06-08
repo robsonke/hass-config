@@ -758,6 +758,16 @@ person:
         return `<ha-icon icon="${icon}" style="width: 20px; height: 20px;"></ha-icon>`
       ]]]
 
+person_eva:
+  template:
+    - person
+  show_state: false
+  custom_fields:
+    icon: >
+      [[[
+        return ``
+      ]]]
+
 #################################################
 #                                               #
 #               SIDEBAR                         #

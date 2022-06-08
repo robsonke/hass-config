@@ -11,6 +11,7 @@ tts
 www/community
 www/snapshots
 www/fonts
+zigbee2mqtt
 
 # And some files
 secrets.yaml
