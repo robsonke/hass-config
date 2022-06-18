@@ -493,21 +493,21 @@
       brightness_pct: 50
     target:
       entity_id: light.garden_light
-  - type: turn_on
-    device_id: f071d7823a14ba363466cf1b864c0c30
-    entity_id: light.garden_lantern_light1
-    domain: light
-    brightness_pct: 50
-  - type: turn_on
-    device_id: 2eb4f429548fe4a768355b724db6b462
-    entity_id: light.garden_lantern_light2
-    domain: light
-    brightness_pct: 50
-  - type: turn_on
-    device_id: 7e571321798b4d568473f3e13916d01b
-    entity_id: light.garden_lantern_light3
-    domain: light
-    brightness_pct: 50
+  - service: light.turn_on
+    data:
+      brightness_pct: 50
+    target:
+      entity_id: light.garden_lantern_light1
+  - service: light.turn_on
+    data:
+      brightness_pct: 50
+    target:
+      entity_id: light.garden_lantern_light2
+  - service: light.turn_on
+    data:
+      brightness_pct: 50
+    target:
+      entity_id: light.garden_lantern_light3
   - delay:
       hours: 0
       minutes: 0
@@ -549,18 +549,13 @@
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - type: turn_off
-    device_id: f071d7823a14ba363466cf1b864c0c30
-    entity_id: light.garden_lantern_light1
-    domain: light
-  - type: turn_off
-    device_id: 2eb4f429548fe4a768355b724db6b462
-    entity_id: light.garden_lantern_light2
-    domain: light
-  - type: turn_off
-    device_id: 7e571321798b4d568473f3e13916d01b
-    entity_id: light.garden_lantern_light3
-    domain: light
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.garden_lantern_light1
+      - light.garden_lantern_light2
+      - light.garden_lantern_light3
   - delay:
       hours: 0
       minutes: 0
@@ -868,87 +863,6 @@
         tag: persistent
         image: http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
   mode: single
-- id: switch_office_light_turn_on
-  alias: Switch - Toggle office light from dimmer
-  trigger:
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_office
-      event: 1002
-  action:
-  - service: light.turn_on
-    data:
-      brightness_pct: 40
-    target:
-      entity_id: light.office_lights
-  - service: light.turn_on
-    entity_id: light.ledstrip_office
-  mode: single
-- id: switch_office_light_turn_off
-  alias: Switch - Turn off office light from dimmer
-  trigger:
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_office
-      event: 4002
-  action:
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.office_lights
-  - service: light.turn_off
-    entity_id: light.ledstrip_office
-  mode: single
-- id: switch_office_light_increase
-  alias: Switch - Increase brightness of office light from dimmer
-  trigger:
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_office
-      event: 2002
-  action:
-  - service: light.turn_on
-    data_template:
-      entity_id: light.office_lights
-      brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
-        | int %} {{ [bri+30, 249] | min }}
-
-        '
-  - service: light.turn_on
-    data_template:
-      entity_id: light.ledstrip_office
-      brightness: '{% set bri = state_attr(''light.ledstrip_office'', ''brightness'')
-        | int %} {{ [bri+30, 249] | min }}
-
-        '
-  mode: single
-- id: switch_office_light_decrease
-  alias: Switch - Decrease brightness of office light from dimmer
-  trigger:
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: dimmer_switch_office
-      event: 3002
-  action:
-  - service: light.turn_on
-    data_template:
-      entity_id: light.office_lights
-      brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
-        | int %} {{ [bri-30, 249] | min }}
-
-        '
-  - service: light.turn_on
-    data_template:
-      entity_id: light.ledstrip_office
-      brightness: '{% set bri = state_attr(''light.ledstrip_office'', ''brightness'')
-        | int %} {{ [bri-30, 249] | min }}
-
-        '
-  mode: single
 - alias: Theme - Switch to dark mode
   id: theme_switch_dark
   trigger:
@@ -1234,26 +1148,14 @@
   alias: Screens - Close screens on warm sunny days
   description: In case it's warm and sunny, close the screens in the morning
   trigger:
-  - platform: time
-    at: '10:00:00'
-  - platform: time
-    at: '11:00:00'
-  - platform: time
-    at: '12:00:00'
-  - platform: time
-    at: '13:00:00'
-  - platform: time
-    at: '14:00:00'
-  - platform: time
-    at: '15:00:00'
-  - platform: time
-    at: '16:00:00'
+  - platform: time_pattern
+    minutes: /15
   condition:
   - condition: and
     conditions:
     - condition: numeric_state
       entity_id: sensor.openweathermap_forecast_temperature
-      above: '18'
+      above: '16'
     - condition: numeric_state
       entity_id: sensor.openweathermap_forecast_cloud_coverage
       below: '40'
@@ -1262,6 +1164,9 @@
       domain: cover
       entity_id: cover.voorraam
       type: is_open
+  - condition: time
+    after: 09:00:00
+    before: '16:00:00'
   action:
   - service: notify.all_phones
     data:
@@ -1493,16 +1398,10 @@
   alias: Alarm - Disable alarm manually
   description: ''
   trigger:
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: switch_alarm
-      event: 1002
-  - platform: event
-    event_type: deconz_event
-    event_data:
-      id: switch_alarm
-      event: 2002
+  - platform: state
+    entity_id:
+    - sensor.switch_alarm_action
+    attribute: action
   condition:
   - condition: not
     conditions:
@@ -1581,6 +1480,11 @@
     entity_id: binary_sensor.sheddoor_back_openclose_sensor
     from: 'off'
     to: 'on'
+  - platform: state
+    entity_id:
+    - binary_sensor.cabindoor_openclose_contact
+    from: 'off'
+    to: 'on'
   condition:
   - condition: state
     entity_id: zone.home
@@ -1601,7 +1505,8 @@
   action:
   - service: notify.all_phones
     data:
-      message: '🚪 Deur: let op, de schuurdeur gaat open maar wij zijn niet thuis'
+      message: '🚪 Deur: let op, de schuur- of blokhutdeur gaat open maar wij zijn
+        niet thuis'
       data:
         persistent: true
         tag: persistent
@@ -1901,14 +1806,14 @@
   condition:
   - condition: device
     type: is_on
-    device_id: 7db37314f71225b6af4c4ad58bea13ad
+    device_id: 22419e692ce37ce9f67caf3e62da99e4
     entity_id: switch.pool_fountain
     domain: switch
   action:
-  - type: turn_off
-    device_id: 7db37314f71225b6af4c4ad58bea13ad
-    entity_id: switch.pool_fountain
-    domain: switch
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.pool_fountain
   mode: single
 - id: '1636140450532'
   alias: Garden - Turn on fountain
@@ -1919,14 +1824,14 @@
   condition:
   - condition: device
     type: is_off
-    device_id: 7db37314f71225b6af4c4ad58bea13ad
+    device_id: 22419e692ce37ce9f67caf3e62da99e4
     entity_id: switch.pool_fountain
     domain: switch
   action:
-  - type: turn_on
-    device_id: 7db37314f71225b6af4c4ad58bea13ad
-    entity_id: switch.pool_fountain
-    domain: switch
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.pool_fountain
   mode: single
 - id: '1636140714636'
   alias: Car - Alert when car windows open too long
@@ -2167,7 +2072,7 @@
   - service: light.turn_on
     data: {}
     target:
-      device_id: 53ec925ec7a298678226212147f4562a
+      device_id: 9518a5204c475eb1705f22684321c62c
   mode: single
 - id: '1642625248443'
   alias: Lights - Turn off lights when toilet visit is over
@@ -2248,14 +2153,14 @@
       - condition: numeric_state
         entity_id: sensor.climate_sensor_masterbedroom_temperature
         below: '17'
-      - condition: device
-        type: is_not_open
-        device_id: 677bddd1751e4fdd75dfc09b64617966
+      - type: is_not_open
+        condition: device
+        device_id: e495b09d382329f43540381dedb31f15
         entity_id: binary_sensor.window_masterbed_1_openclose_sensor
         domain: binary_sensor
-      - condition: device
-        type: is_not_open
-        device_id: c043b0fe396f47c68466603865a114cc
+      - type: is_not_open
+        condition: device
+        device_id: 83daade23505c1645165605bc56c49d1
         entity_id: binary_sensor.window_masterbed_2_openclose_sensor
         domain: binary_sensor
       sequence:
@@ -2472,3 +2377,62 @@
       target:
         entity_id: input_number.irrigation_zone_terras_zijkant_duration
   mode: single
+- id: '1655029746074'
+  alias: Switch - Control office light hue switch
+  description: ''
+  use_blueprint:
+    path: hugalafutro/Z2M_Hue_Dimmer_Switch_v2.yaml
+    input:
+      dimmer_action: zigbee2mqtt/dimmer_switch_office/action
+      action_on_press:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.office_lights
+      action_off_press:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.office_lights
+      action_up_press:
+      - service: light.turn_on
+        data_template:
+          entity_id: light.office_lights
+          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+            | int %} {{ [bri+30, 249] | min }}
+
+            '
+      action_down_press:
+      - service: light.turn_on
+        data_template:
+          entity_id: light.office_lights
+          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+            | int %} {{ [bri-30, 249] | min }}
+
+            '
+      action_on_hold:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.office_lights
+      action_off_hold:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.office_lights
+      action_up_hold:
+      - service: light.turn_on
+        data_template:
+          entity_id: light.office_lights
+          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+            | int %} {{ [bri+30, 249] | min }}
+
+            '
+      action_down_hold:
+      - service: light.turn_off
+        data_template:
+          entity_id: light.office_lights
+          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+            | int %} {{ [bri-30, 249] | min }}
+
+            '

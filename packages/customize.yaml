@@ -54,6 +54,9 @@ homeassistant:
     binary_sensor.sheddoor_back_openclose_sensor:
       friendly_name: Schuurdeur achter
       device_class: door
+    binary_sensor.cabindoor_openclose_contact:
+      friendly_name: Blokhutdeur
+      device_class: door
     binary_sensor.windowdoor_ground_1_openclose_sensor:
       friendly_name: Kanteldeur beneden 1
       device_class: door

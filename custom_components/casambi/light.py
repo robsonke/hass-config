@@ -8,6 +8,7 @@ import ssl
 import asyncio
 
 from datetime import timedelta
+from pprint import pformat
 from typing import Any, Dict, Optional
 
 import async_timeout
@@ -66,6 +67,7 @@ from .const import (
     DEFAULT_NETWORK_TIMEOUT,
     DEFAULT_POLLING_TIME,
     SERVICE_CASAMBI_LIGHT_TURN_ON,
+    MAX_START_UP_TIME,
     ATTR_SERV_BRIGHTNESS,
     ATTR_SERV_DISTRIBUTION,
     ATTR_SERV_ENTITY_ID,
@@ -128,25 +130,35 @@ async def async_setup_entry(
     casambi_controller.controller = controller
 
     try:
-        with async_timeout.timeout(10):
+        with async_timeout.timeout(MAX_START_UP_TIME):
             await controller.create_session()
             await controller.initialize()
             await controller.start_websockets()
 
     except aiocasambi.LoginRequired:
-        _LOGGER.error("Connected to casambi but couldn't log in")
+        _LOGGER.error("Integrations UI setup: Connected to casambi but couldn't log in")
         return False
 
     except aiocasambi.Unauthorized:
-        _LOGGER.error("Connected to casambi but not registered")
+        _LOGGER.error("Integrations UI setup: Connected to casambi but not registered")
         return False
 
-    except (asyncio.TimeoutError, aiocasambi.RequestError):
-        _LOGGER.error("Error connecting to the Casambi")
+    except aiocasambi.RequestError as err:
+        _LOGGER.error(
+            f"Integrations UI setup: Error connecting to the Casambi, caught aiocasambi.RequestError, error message: {str(err)}"
+        )
+        return False
+
+    except asyncio.TimeoutError:
+        _LOGGER.error(
+            "Integrations UI setup: Error connecting to the Casambi, caught asyncio.TimeoutError"
+        )
         return False
 
     except aiocasambi.AiocasambiException:
-        _LOGGER.error("Unknown Casambi communication error occurred")
+        _LOGGER.error(
+            "Integrations UI setup: Unknown Casambi communication error occurred!"
+        )
         return False
 
     units = controller.get_units()
@@ -240,25 +252,39 @@ async def async_setup_platform(
     casambi_controller.controller = controller
 
     try:
-        with async_timeout.timeout(10):
+        with async_timeout.timeout(MAX_START_UP_TIME):
             await controller.create_session()
             await controller.initialize()
             await controller.start_websockets()
 
     except aiocasambi.LoginRequired:
-        _LOGGER.error("Connected to casambi but couldn't log in")
+        _LOGGER.error(
+            "configuration.yaml setup: Connected to casambi but couldn't log in"
+        )
         return False
 
     except aiocasambi.Unauthorized:
-        _LOGGER.error("Connected to casambi but not registered")
+        _LOGGER.error(
+            "configuration.yaml setup: Connected to casambi but not registered"
+        )
         return False
 
-    except (asyncio.TimeoutError, aiocasambi.RequestError):
-        _LOGGER.error("Error connecting to the Casambi")
+    except aiocasambi.RequestError as err:
+        _LOGGER.error(
+            f"configuration.yaml setup: Error connecting to the Casambi, caught aiocasambi.RequestError, error message: {str(err)}"
+        )
+        return False
+
+    except asyncio.TimeoutError:
+        _LOGGER.error(
+            "configuration.yaml setup: Error connecting to the Casambi, caught asyncio.TimeoutError"
+        )
         return False
 
     except aiocasambi.AiocasambiException:
-        _LOGGER.error("Unknown Casambi communication error occurred")
+        _LOGGER.error(
+            "configuration.yaml setup: Unknown Casambi communication error occurred!"
+        )
         return False
 
     units = controller.get_units()
@@ -426,9 +452,10 @@ class CasambiController:
                 if unit:
                     self.units[key].process_update(value)
                 else:
-                    error_msg = "signalling_callback unit is null!"
-                    error_msg += f"signal: {signal} data: {data}"
-                    _LOGGER.error(error_msg)
+                    warn_msg = "signalling_callback: unit is None!"
+                    warn_msg += f"key: {key} signal: {signal} data: {data} "
+                    warn_msg += f"units: {pformat(self.units)}"
+                    _LOGGER.warning(warn_msg)
         elif signal == SIGNAL_CONNECTION_STATE and (data == STATE_STOPPED):
             _LOGGER.debug("signalling_callback websocket STATE_STOPPED")
 

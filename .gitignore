@@ -11,7 +11,9 @@ tts
 www/community
 www/snapshots
 www/fonts
-zigbee2mqtt
+zigbee2mqtt/log
+zigbee2mqtt/coordinator_backup.json
+zigbee2mqtt/state.json
 
 # And some files
 secrets.yaml

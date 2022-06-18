@@ -24,7 +24,6 @@ I used a lot of input from [Matt's config](https://github.com/matt8707/hass-conf
   - Check Home Assistant configuration
   - Frigate
   - Glances
-  - Portainer
   - Grafana
   - Home Assistant Google Drive Backup
   - InfluxDB
@@ -34,12 +33,12 @@ I used a lot of input from [Matt's config](https://github.com/matt8707/hass-conf
   - NGINX Home Assistant SSL proxy
   - Node-RED
   - Z-Wave JS to MQTT
+  - Zigbee2MQTT
   - SSH & Web Terminal
   - Studio Code Server
   - VSCode Remote
   - WireGuard
   - Samba Share
-  - deCONZ
   - phpMyAdmin
   - Amcrest2Mqtt
 
@@ -47,7 +46,7 @@ I used a lot of input from [Matt's config](https://github.com/matt8707/hass-conf
 What drives all:
 - Intel NUC10i3FNK with 16 GB memory
 - Aeotec Gen 5 Z-Wave Plus USB Stick
-- ConBee II Zigbee USB Stick
+- Sonoff Zigbee 3.0 Zigbee
 - Coral USB Accelerator
 - Synology DS918+
 

@@ -1,0 +1,120 @@
+blueprint:
+  name: Zigbee2Mqtt Hue Dimmer Switch control v2
+  description: ''
+  domain: automation
+  input:
+    dimmer_action:
+      name: Dimmer MQTT topic
+      description: type in your Dimmer MQTT topic (i.e. zigbee2mqtt/Dimmer/action)
+      selector:
+        text: {}
+    action_on_press:
+      name: on_press
+      description: select action to run when you press I
+      selector:
+        action: {}
+    action_off_press:
+      name: off_press
+      description: select action to run when you press O
+      selector:
+        action: {}
+    action_up_press:
+      name: up_press
+      description: select action to run when you press UP
+      selector:
+        action: {}
+    action_down_press:
+      name: down_press
+      description: select action to run when you press DOWN
+      selector:
+        action: {}
+    action_on_hold:
+      name: on_hold
+      description: select action to run when you hold I
+      selector:
+        action: {}
+    action_off_hold:
+      name: off_hold
+      description: select action to run when you hold O
+      selector:
+        action: {}
+    action_up_hold:
+      name: up_hold
+      description: select action to run when you hold UP
+      selector:
+        action: {}
+    action_down_hold:
+      name: down_hold
+      description: select action to run when you hold DOWN
+      selector:
+        action: {}
+  source_url: https://gist.github.com/hugalafutro/19a4dcec708d39ecbf5089a0ebc0a5b8
+trigger:
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  payload: on_press
+  id: dimmer_on
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  id: dimmer_off
+  payload: off_press
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  id: dimmer_up
+  payload: up_press
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  id: dimmer_down
+  payload: down_press
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  id: dimmer_on_hold
+  payload: on_hold
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  payload: off_hold
+  id: dimmer_off_hold
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  id: dimmer_up_hold
+  payload: up_hold
+- platform: mqtt
+  topic: !input 'dimmer_action'
+  payload: down_hold
+  id: dimmer_down_hold
+action:
+- choose:
+  - conditions:
+    - condition: trigger
+      id: dimmer_on
+    sequence: !input 'action_on_press'
+  - conditions:
+    - condition: trigger
+      id: dimmer_off
+    sequence: !input 'action_off_press'
+  - conditions:
+    - condition: trigger
+      id: dimmer_up
+    sequence: !input 'action_up_press'
+  - conditions:
+    - condition: trigger
+      id: dimmer_down
+    sequence: !input 'action_down_press'
+  - conditions:
+    - condition: trigger
+      id: dimmer_on_hold
+    sequence: !input 'action_on_hold'
+  - conditions:
+    - condition: trigger
+      id: dimmer_off_hold
+    sequence: !input 'action_off_hold'
+  - conditions:
+    - condition: trigger
+      id: dimmer_up_hold
+    sequence: !input 'action_up_hold'
+  - conditions:
+    - condition: trigger
+      id: dimmer_down_hold
+    sequence: !input 'action_down_hold'
+  default: []
+mode: restart

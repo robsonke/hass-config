@@ -88,6 +88,9 @@ browser_mod:
                 - entity_id: binary_sensor.sheddoor_back_openclose_sensor
                   options:
                     secondary_info: last-changed
+                - entity_id: binary_sensor.cabindoor_openclose_contact
+                  options:
+                    secondary_info: last-changed
                 - type: section
                   label: Kiep/kantel ramen
                 - entity_id: binary_sensor.windowdoor_ground_1_openclose_sensor

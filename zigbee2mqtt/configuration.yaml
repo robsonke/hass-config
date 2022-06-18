@@ -1,0 +1,147 @@
+homeassistant: true
+mqtt:
+  server: mqtt://192.168.0.40:1883
+  user: mqtt_ha
+  password: cFXeDaAe99pViUZPa16E
+serial:
+  port: >-
+    /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_7e834311c712ec11900b23c7bd930c07-if00-port0
+frontend:
+  port: 8099
+advanced:
+  homeassistant_legacy_entity_attributes: false
+  legacy_api: false
+  legacy_availability_payload: false
+device_options:
+  legacy: false
+devices:
+  '0x00158d00053e7146':
+    friendly_name: window_office_openclose
+  '0x0017880108b03b76':
+    friendly_name: hallcloset_light
+  '0x00158d00052da1fb':
+    friendly_name: door_hallcloset_openclose
+  '0xcc86ecfffee6540d':
+    friendly_name: office_light
+  '0x7cb03eaa0a006f53':
+    friendly_name: ledstrip_office
+  '0x04cf8cdf3c775d4c':
+    friendly_name: light_sensor_office
+  '0x00158d00053e0096':
+    friendly_name: climate_sensor_office
+  '0x00158d00053e9699':
+    friendly_name: hallwaydoor_openclose
+  '0x00158d000705c960':
+    friendly_name: toiletdoordownstairs_openclose
+  '0x00158d00058a83d1':
+    friendly_name: motion_sensor_toiletdownstairs
+  '0x0c4314fffe9fa221':
+    friendly_name: toilet_downstairs_light
+  '0x7cb03eaa00b02d1b':
+    friendly_name: ledstrip_tv
+  '0xcc86ecfffee97782':
+    friendly_name: kitchen_light
+  '0xb4e3f9fffe2b9fa1':
+    friendly_name: kitchendesk_light
+  '0xcc86ecfffee97987':
+    friendly_name: livingfront_light
+  '0xcc86ecfffee97774':
+    friendly_name: livingback_light
+  '0x00158d0004aaded4':
+    friendly_name: climate_sensor_kitchen
+  '0x04cf8cdf3c7b5c1c':
+    friendly_name: light_sensor_kitchen
+  '0x00158d0004aadf40':
+    friendly_name: climate_sensor_living
+  '0x04cf8cdf3c773066':
+    friendly_name: light_sensor_living
+  '0x00158d0004773528':
+    friendly_name: frontdoor_openclose
+  '0x00178801063715e8':
+    friendly_name: dimmer_switch_office
+  '0xcc86ecfffee65446':
+    friendly_name: kitchencabin_light
+  '0x00158d0004a97335':
+    friendly_name: windowdoor_ground_1_openclose
+  '0x00158d00052da0b1':
+    friendly_name: windowdoor_ground_2_openclose
+  '0x7cb03eaa0a0063d2':
+    friendly_name: ledstrip_book3
+  '0x7cb03eaa0a007cb8':
+    friendly_name: ledstrip_book2
+  '0x7cb03eaa0a007c56':
+    friendly_name: ledstrip_book1
+  '0xcc86ecfffee979c5':
+    friendly_name: dining_light
+  '0x00158d0004abcc80':
+    friendly_name: windowdoor_ground_3_openclose
+  '0x00158d00053e9a61':
+    friendly_name: windowdoor_ground_4_openclose
+  '0x842e14fffe779d3a':
+    friendly_name: range_extender_tradfri_dining
+  '0x00158d00070647b2':
+    friendly_name: backdoor_openclose
+  '0x00158d00058277d6':
+    friendly_name: motion_sensor_cats
+  '0x00158d0006ffdb3f':
+    friendly_name: sheddoor_openclose
+  '0x60a423fffe09143f':
+    friendly_name: switch_pool
+  '0x001788010b0791d3':
+    friendly_name: garden_lantern_light1
+  '0x00158d000171d5db':
+    friendly_name: switch_alarm
+    legacy: false
+  '0x54ef4410000c32d5':
+    friendly_name: light_sensor_garden
+  '0xcc86ecfffee977d3':
+    friendly_name: garden_light
+  '0x001788010b83a9b7':
+    friendly_name: garden_lantern_light2
+  '0x001788010b851045':
+    friendly_name: garden_lantern_light3
+  '0x0017880109c4a18c':
+    friendly_name: hue_lily_light_tree_1
+  '0x0017880109c0bdaa':
+    friendly_name: hue_lily_light_fence_1
+  '0x0017880109c46fca':
+    friendly_name: hue_lily_light_fence_2
+  '0x00158d00032352c8':
+    friendly_name: mailbox_vibration_sensor
+  '0x84fd27fffecdeae9':
+    friendly_name: range_extender_tradfri_guest
+  '0x00158d00053fdd80':
+    friendly_name: window_guestroom_openclose
+  '0x00158d0004aae0e3':
+    friendly_name: climate_sensor_guestroom
+  '0x00158d00053e0558':
+    friendly_name: window_atticroom_openclose
+  '0x00158d00053d6c24':
+    friendly_name: window_evaroom_openclose
+  '0x00158d000533c62a':
+    friendly_name: climate_sensor_eva
+  '0x00158d00053fdd47':
+    friendly_name: window_masterbed_2_openclose
+  '0x00158d00052d5574':
+    friendly_name: window_masterbed_1_openclose
+  '0x00158d00053e0059':
+    friendly_name: climate_sensor_masterbedroom
+  '0x04cf8cdf3c7b4d13':
+    friendly_name: light_sensor_masterbedroom
+  '0x00158d00049fb442':
+    friendly_name: sheddoor_back_openclose
+  '0xb4e3f9fffe2ba069':
+    friendly_name: diningtable_light
+  '0x0017880109c472f8':
+    friendly_name: hue_lily_light_fence_3
+  '0x0017880106eae95d':
+    friendly_name: dimmer_switch_kitchen
+  '0x0017880106eaddfe':
+    friendly_name: dimmer_switch_spare
+  '0x00158d0007103985':
+    friendly_name: cabindoor_openclose
+availability:
+  active:
+    timeout: 10
+  passive:
+    timeout: 1500

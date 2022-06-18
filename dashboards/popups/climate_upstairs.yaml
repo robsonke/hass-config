@@ -40,7 +40,7 @@ browser_mod:
                 name: Infraroodpanel logeerkamer
               - entity: switch.shelly_plug_kachel_slaapkamer
               - entity: switch.infraroodpanel_eva
-              - entity: sensor.lightlevel_masterbedroom
+              - entity: sensor.light_sensor_masterbedroom
                 name: Lichtsterkte slaapkamer
           - type: conditional
             conditions:
