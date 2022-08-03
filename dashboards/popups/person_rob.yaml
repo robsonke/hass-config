@@ -85,7 +85,7 @@ browser_mod:
             entities:
               - device_tracker.rob_presence
               - device_tracker.iphone_rob
-              - device_tracker.life360_rob_sonke
+              - device_tracker.rob_sonke_life360
               - device_tracker.iphonedetect_rob
           - type: glance
             show_state: false
@@ -97,7 +97,7 @@ browser_mod:
                   state-badge {
                     color: {{ '#3182b7' if is_state(config.entity, 'home') else '#3c3f3f' }};
                   }
-              - entity: device_tracker.life360_rob_sonke
+              - entity: device_tracker.rob_sonke_life360
                 name: Life360
                 icon: mdi:account
                 style: *state

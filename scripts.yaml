@@ -82,12 +82,6 @@ sonos_play_sound:
 sleep_well:
   alias: Sleep well
   sequence:
-  - service: media_player.media_pause
-    target:
-      entity_id:
-      - media_player.eetkamer
-      - media_player.office
-      - media_player.living_room
   - service: light.turn_off
     target:
       entity_id:
@@ -127,6 +121,14 @@ sleep_well:
   - service: light.turn_off
     target:
       entity_id: light.kitchendesk_light
+    data: {}
+  - service: media_player.media_pause
+    target:
+      entity_id:
+      - media_player.eetkamer
+      - media_player.office
+      - media_player.living_room
+    data: {}
   mode: parallel
   icon: mdi:sleep
   max: 10
@@ -294,7 +296,7 @@ googlehome_say:
   - service: media_player.volume_set
     data_template:
       entity_id: '{{ googlehome_entity }}'
-      volume_level: '{{ volume }}'
+      volume_level: '{{ volume | float }}'
   - service: media_player.volume_mute
     data_template:
       entity_id: '{{ googlehome_entity }}'
@@ -304,7 +306,7 @@ googlehome_say:
       entity_id: '{{ googlehome_entity }}'
       message: '{{ message }}'
   - delay:
-      seconds: '{{ delay }}'
+      seconds: '{{ delay | float }}'
   - service: media_player.volume_mute
     data_template:
       entity_id: '{{ googlehome_entity }}'
@@ -312,7 +314,7 @@ googlehome_say:
   - service: media_player.volume_set
     data_template:
       entity_id: '{{ googlehome_entity }}'
-      volume_level: '{{ volume_restore }}'
+      volume_level: '{{ volume_restore | float }}'
   - service: media_player.volume_mute
     data_template:
       entity_id: '{{ googlehome_entity }}'

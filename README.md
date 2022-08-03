@@ -41,6 +41,7 @@ I used a lot of input from [Matt's config](https://github.com/matt8707/hass-conf
   - Samba Share
   - phpMyAdmin
   - Amcrest2Mqtt
+  - Ecowitt2Mqtt
 
 ## Hardware
 What drives all:

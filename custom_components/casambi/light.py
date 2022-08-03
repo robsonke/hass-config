@@ -176,6 +176,9 @@ async def async_setup_entry(
     await coordinator.async_refresh()
 
     for unit in units:
+        if not unit.is_light():
+            continue
+
         casambi_light = CasambiLight(
             coordinator, unit.unique_id, unit, controller, hass
         )
@@ -302,6 +305,9 @@ async def async_setup_platform(
     await coordinator.async_refresh()
 
     for unit in units:
+        if not unit.is_light():
+            continue
+
         casambi_light = CasambiLight(
             coordinator, unit.unique_id, unit, controller, hass
         )

@@ -89,9 +89,6 @@ devices:
     friendly_name: switch_pool
   '0x001788010b0791d3':
     friendly_name: garden_lantern_light1
-  '0x00158d000171d5db':
-    friendly_name: switch_alarm
-    legacy: false
   '0x54ef4410000c32d5':
     friendly_name: light_sensor_garden
   '0xcc86ecfffee977d3':
@@ -140,6 +137,10 @@ devices:
     friendly_name: dimmer_switch_spare
   '0x00158d0007103985':
     friendly_name: cabindoor_openclose
+  '0x00158d0007ec9128':
+    friendly_name: door_terrace_openclose
+  '0x8cf681fffe109d41':
+    friendly_name: switch_alarm_activity
 availability:
   active:
     timeout: 10

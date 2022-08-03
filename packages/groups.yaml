@@ -50,7 +50,10 @@ group:
     entities:
       - binary_sensor.backdoor_openclose_sensor
       - binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.door_terrace_openclose_contact
       - binary_sensor.sheddoor_openclose_sensor
+      - binary_sensor.sheddoor_back_openclose_sensor
+      - binary_sensor.cabindoor_openclose_contact
       - binary_sensor.windowdoor_ground_1_openclose_sensor
       - binary_sensor.windowdoor_ground_2_openclose_sensor
       - binary_sensor.windowdoor_ground_3_openclose_sensor
@@ -74,6 +77,7 @@ group:
       - alarm_control_panel.alarmo
       - binary_sensor.backdoor_openclose_sensor
       - binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.door_terrace_openclose_contact
       - binary_sensor.windowdoor_ground_1_openclose_sensor
       - binary_sensor.windowdoor_ground_2_openclose_sensor
       - binary_sensor.windowdoor_ground_3_openclose_sensor
@@ -159,6 +163,7 @@ group:
       - media_player.office
       - media_player.eetkamer
       - media_player.zithoek
+      - media_player.sonos_roam
 
   irrigation_switches:
     name: Irrigatie zones

@@ -8,7 +8,8 @@
       actions:
       - service: notify.mobile_app_iphone_rob
         data:
-          message: 🔋 Low battery warning for {{sensors|replace("_"," ")}}
+          message: "\U0001F50B Low battery warning for {{sensors|replace(\"_\",\"
+            \")}}"
           data:
             persistent: true
             tag: persistent
@@ -120,7 +121,8 @@
   action:
   - service: notify.all_phones
     data:
-      message: 🚨🚨 ALARM! Het alarm gaat af en is te laat gedeactiveerd! 🚨🚨
+      message: "\U0001F6A8\U0001F6A8 ALARM! Het alarm gaat af en is te laat gedeactiveerd!
+        \U0001F6A8\U0001F6A8"
       data:
         persistent: true
         tag: persistent
@@ -290,7 +292,7 @@
   action:
   - service: notify.mobile_app_iphone_rob
     data:
-      message: 💡 Verlichting automatisch aan - niet thuis
+      message: "\U0001F4A1 Verlichting automatisch aan - niet thuis"
       data:
         persistent: true
         tag: persistent
@@ -348,7 +350,7 @@
   action:
   - service: notify.mobile_app_iphone_rob
     data:
-      title: 🚨🚨 Snapshots are Stale 🚨🚨
+      title: "\U0001F6A8\U0001F6A8 Snapshots are Stale \U0001F6A8\U0001F6A8"
       message: Please visit the Hass.io Google Drive Backup add-on status page for
         details.
       data:
@@ -382,7 +384,8 @@
   action:
   - service: notify.all_phones
     data_template:
-      message: 📅  Opletten {{ state_attr(trigger.entity_id, 'friendly_name') }}!
+      message: "\U0001F4C5  Opletten {{ state_attr(trigger.entity_id, 'friendly_name')
+        }}!"
       data:
         persistent: true
         tag: persistent
@@ -418,7 +421,7 @@
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
   - service: notify.all_phones
     data:
-      message: 🔔 Ding Dong!
+      message: "\U0001F514 Ding Dong!"
       data:
         persistent: true
         tag: persistent
@@ -615,7 +618,7 @@
   action:
   - service: notify.mobile_app_iphone_rob
     data:
-      message: 💡 Verlichting automatisch uit
+      message: "\U0001F4A1 Verlichting automatisch uit"
       data:
         persistent: true
         tag: persistent
@@ -676,9 +679,9 @@
         above: '0'
       sequence:
       - service: media_player.media_play
+        data: {}
         target:
           entity_id: media_player.eetkamer
-        data: {}
   - condition: numeric_state
     entity_id: sensor.lightlevel_living
     below: '60'
@@ -770,8 +773,8 @@
   action:
     service: notify.all_phones
     data_template:
-      message: 🏠 Status van {{ state_attr(trigger.entity_id, 'friendly_name') }} gewijzigd
-        naar {{ trigger.to_state.state }}
+      message: "\U0001F3E0 Status van {{ state_attr(trigger.entity_id, 'friendly_name')
+        }} gewijzigd naar {{ trigger.to_state.state }}"
       data:
         persistent: true
         tag: persistent
@@ -805,7 +808,7 @@
       volume: 0.5
       volume_restore: 0.4
       googlehome_entity: media_player.keuken_display
-      delay: 00:00:03
+      delay: 3
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
         komt er aan!
   - delay: '2'
@@ -814,7 +817,7 @@
       volume: 0.5
       volume_restore: 0.4
       googlehome_entity: media_player.office_googlehome
-      delay: 00:00:03
+      delay: 3
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
         komt er aan!
   - delay: '5'
@@ -894,8 +897,8 @@
   - service: frontend.set_theme
     data_template:
       name: custom-dark
-      mode: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else\
-        \ %}\n  light\n{% endif %}\n"
+      mode: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else
+        %}\n  light\n{% endif %}\n"
 - id: lovelace_convert_json_yaml
   alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
   trigger:
@@ -913,7 +916,7 @@
   action:
   - service: notify.all_phones
     data:
-      message: 🧹 Sjorsje's opvangbak zit vol
+      message: "\U0001F9F9 Sjorsje's opvangbak zit vol"
       data:
         persistent: true
         tag: persistent
@@ -926,7 +929,7 @@
   action:
     service: notify.all_phones
     data:
-      message: 🔋 Sjorsje's accu raakt leeg
+      message: "\U0001F50B Sjorsje's accu raakt leeg"
       data:
         persistent: true
         tag: persistent
@@ -1118,7 +1121,7 @@
   action:
   - service: notify.all_phones
     data:
-      message: '🚪 Deur: let op, de voordeur staat al 10 minuten open'
+      message: "\U0001F6AA Deur: let op, de voordeur staat al 10 minuten open"
       data:
         persistent: true
         tag: persistent
@@ -1158,12 +1161,19 @@
       above: '16'
     - condition: numeric_state
       entity_id: sensor.openweathermap_forecast_cloud_coverage
-      below: '40'
-    - condition: device
-      device_id: eb69e1ad4596ef0df19b685a4e84e026
-      domain: cover
-      entity_id: cover.voorraam
-      type: is_open
+      below: '80'
+    - condition: or
+      conditions:
+      - condition: device
+        device_id: eb69e1ad4596ef0df19b685a4e84e026
+        domain: cover
+        entity_id: cover.voorraam
+        type: is_open
+      - condition: device
+        device_id: 7a674f956b15af8decebb36355772928
+        domain: cover
+        entity_id: cover.zijraam
+        type: is_open
   - condition: time
     after: 09:00:00
     before: '16:00:00'
@@ -1184,14 +1194,19 @@
       entity_id: cover.zijraam
   mode: single
 - id: '1623609934943'
-  alias: Screens - Open screen voorraam end of day
-  description: Open the screen by the end of the day
+  alias: Screens - Open screen voorraam
+  description: Open the screen by the end of the day or when the sun is gone or when
+    it's too windy
   trigger:
   - platform: time
-    at: '17:00:00'
+    at: '18:00:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
     above: '60'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
   condition:
   - condition: and
     conditions:
@@ -1231,14 +1246,19 @@
       entity_id: cover.voorraam
   mode: single
 - id: '1623610181205'
-  alias: Screens - Open screen zijraam end of day
-  description: Open the screen by the end of the day
+  alias: Screens - Open screen zijraam
+  description: Open the screen by the end of the day or when the sun is gone or it's
+    too windy
   trigger:
   - platform: time
     at: '21:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
     above: '60'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
   - platform: sun
     event: sunset
   condition:
@@ -1322,7 +1342,7 @@
   action:
   - service: notify.all_phones
     data:
-      message: 🚗 De auto is weer volledig opgeladen
+      message: "\U0001F697 De auto is weer volledig opgeladen"
       data:
         persistent: true
         tag: persistent
@@ -1369,7 +1389,8 @@
   action:
   - service: notify.all_phones
     data:
-      message: 🚗 De auto is al een uurtje opgeladen maar de stekker zit er nog in
+      message: "\U0001F697 De auto is al een uurtje opgeladen maar de stekker zit
+        er nog in"
       data:
         persistent: true
         tag: persistent
@@ -1386,7 +1407,7 @@
   action:
   - service: notify.all_phones
     data:
-      message: 🚗 De auto is automatisch op slot gezet
+      message: "\U0001F697 De auto is automatisch op slot gezet"
       data:
         persistent: true
         tag: persistent
@@ -1400,8 +1421,8 @@
   trigger:
   - platform: state
     entity_id:
-    - sensor.switch_alarm_action
-    attribute: action
+    - sensor.switch_alarm_activity_action
+    to: 'on'
   condition:
   - condition: not
     conditions:
@@ -1417,7 +1438,7 @@
     type: disarm
     code: automation
   - delay:
-      hours: 0
+      hours: 1
       minutes: 55
       seconds: 0
       milliseconds: 0
@@ -1463,7 +1484,7 @@
   action:
   - service: notify.all_phones
     data:
-      message: '🚪 Deur: let op, de achterdeur staat al 10 minuten open'
+      message: "\U0001F6AA Deur: let op, de achterdeur staat al 10 minuten open"
       data:
         persistent: true
         tag: persistent
@@ -1505,8 +1526,8 @@
   action:
   - service: notify.all_phones
     data:
-      message: '🚪 Deur: let op, de schuur- of blokhutdeur gaat open maar wij zijn
-        niet thuis'
+      message: "\U0001F6AA Deur: let op, de schuur- of blokhutdeur gaat open maar
+        wij zijn niet thuis"
       data:
         persistent: true
         tag: persistent
@@ -1592,18 +1613,18 @@
   action:
   - service: notify.all_phones
     data:
-      message: "\U0001F6A8 Alarm kan niet geactiveerd worden omdat: {% for entity_id\
-        \ in trigger.event.data.sensors %}\n  - {{ state_attr(entity_id, 'friendly_name')\
-        \ }} is {{ states(entity_id) }}\n{% endfor %}\n"
+      message: "\U0001F6A8 Alarm kan niet geactiveerd worden omdat: {% for entity_id
+        in trigger.event.data.sensors %}\n  - {{ state_attr(entity_id, 'friendly_name')
+        }} is {{ states(entity_id) }}\n{% endfor %}\n"
       data:
         persistent: true
         tag: persistent
   - service: tts.google_translate_say
     entity_id: media_player.keuken_display
     data:
-      message: "Alarm kan niet geactiveerd worden omdat: {% for entity_id in trigger.event.data.sensors\
-        \ %}\n  - {{ state_attr(entity_id, 'friendly_name') }} staat {{ states(entity_id)\
-        \ }}\n{% endfor %}\n"
+      message: "Alarm kan niet geactiveerd worden omdat: {% for entity_id in trigger.event.data.sensors
+        %}\n  - {{ state_attr(entity_id, 'friendly_name') }} staat {{ states(entity_id)
+        }}\n{% endfor %}\n"
   mode: single
 - id: '1633552734408'
   alias: Alarm - Enable guest mode when nanny home
@@ -1849,7 +1870,7 @@
   action:
   - service: notify.all_phones
     data:
-      message: 🚗 De ramen van de auto staan al een uurtje open.
+      message: "\U0001F697 De ramen van de auto staan al een uurtje open."
       data:
         persistent: true
         tag: persistent
@@ -1868,7 +1889,8 @@
   action:
   - service: notify.mobile_app_iphone_rob
     data_template:
-      message: 💡 Er is een belangrijke entity offline {{ became_unavailable }}
+      message: "\U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable
+        }}"
       data:
         persistent: true
         tag: persistent
@@ -2129,7 +2151,8 @@
   action:
   - service: notify.all_phones
     data:
-      message: 👨‍🍳 We zijn allebei weg maar de kookplaat staat nog aan!
+      message: "\U0001F468‍\U0001F373 We zijn allebei weg maar de kookplaat staat
+        nog aan!"
       data:
         persistent: true
         tag: persistent
@@ -2235,8 +2258,8 @@
       actions:
       - service: notify.all_phones
         data:
-          message: 🏠 Het raam in de slaapkamer staat open en het begint nu wel een
-            beetje fris te worden.
+          message: "\U0001F3E0 Het raam in de slaapkamer staat open en het begint
+            nu wel een beetje fris te worden."
           data:
             persistent: true
             tag: persistent
@@ -2252,8 +2275,8 @@
       actions:
       - service: notify.all_phones
         data:
-          message: 🏠 Het raam in de slaapkamer staat open en het begint nu wel een
-            beetje fris te worden.
+          message: "\U0001F3E0 Het raam in de slaapkamer staat open en het begint
+            nu wel een beetje fris te worden."
           data:
             persistent: true
             tag: persistent
@@ -2269,8 +2292,8 @@
       actions:
       - service: notify.all_phones
         data:
-          message: 🏠 Het raam bij Eva staat open en het begint nu wel een beetje fris
-            te worden.
+          message: "\U0001F3E0 Het raam bij Eva staat open en het begint nu wel een
+            beetje fris te worden."
           data:
             persistent: true
             tag: persistent
@@ -2436,3 +2459,15 @@
             | int %} {{ [bri-30, 249] | min }}
 
             '
+- id: '1657445203959'
+  alias: System - Restart armcrest addon
+  description: ''
+  trigger:
+  - platform: time
+    at: 01:00:00
+  condition: []
+  action:
+  - service: hassio.addon_restart
+    data:
+      addon: c0d67ef2_amcrest2mqtt
+  mode: single

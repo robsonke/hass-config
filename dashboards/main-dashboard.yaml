@@ -4,7 +4,7 @@ decluttering_templates: !include ../templates/decluttering_templates.yaml
 
 wallpanel_screensaver:
   enabled: true
-  idle_time: 7200
+  idle_time: 0
   hide_toolbar: true
   night_mode:
     start_time: '23:00'
@@ -24,7 +24,7 @@ views:
       grid-template-areas: |
         "sidebar  .        .          .        ."
         "sidebar  home     living     kitchen  ."
-        "sidebar  rest     office     upstairs ."
+        "sidebar  rest     upstairs   office   ."
         "sidebar  .        .          .        ."
       mediaquery:
         '(max-width: 800px)':
@@ -320,9 +320,9 @@ views:
             entity: group.music_downstairs
             name: Muziek
             triggers_update:
-              - media_player.living_room
-              - media_player.office
               - media_player.eetkamer
+              - media_player.office
+              - media_player.living_room
               - media_player.zithoek
             template:
               - sonos
@@ -367,37 +367,37 @@ views:
       #                                               #
       #################################################
 
-      - type: grid
-        title: Kantoor
-        view_layout:
-          grid-area: office
-        columns: 2
-        cards:
-          - type: custom:button-card
-            entity: group.lights_office
-            name: Verlichting
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/light_office.yaml
-            hold_action:
-              action: none
-          - type: custom:button-card
-            entity: sensor.climate_sensor_office_temperature
-            name: Klimaat
-            template:
-              - climate
-              - icon_temp
-            tap_action:
-              !include popups/climate_office.yaml
-            hold_action:
-              action: none
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.climate_sensor_office_temperature
+      # - type: grid
+      #   title: Kantoor
+      #   view_layout:
+      #     grid-area: office
+      #   columns: 2
+      #   cards:
+      #     - type: custom:button-card
+      #       entity: group.lights_office
+      #       name: Verlichting
+      #       template:
+      #         - light_group
+      #       group_expand: true
+      #       tap_action:
+      #         !include popups/light_office.yaml
+      #       hold_action:
+      #         action: none
+      #     - type: custom:button-card
+      #       entity: sensor.climate_sensor_office_temperature
+      #       name: Klimaat
+      #       template:
+      #         - climate
+      #         - icon_temp
+      #       tap_action:
+      #         !include popups/climate_office.yaml
+      #       hold_action:
+      #         action: none
+      #       custom_fields:
+      #         graph:
+      #           card:
+      #             series:
+      #               - entity: sensor.climate_sensor_office_temperature
 
       #################################################
       #                                               #
@@ -413,9 +413,7 @@ views:
         cards:
           - type: custom:button-card
             entity: binary_sensor.motion_sensor_cats_presence
-            template:
-              - cats
-            icon: mdi:cat
+            template: cats
             name: Boris&Puk
             styles:
               label:
@@ -494,7 +492,7 @@ views:
       #################################################
 
       - type: grid
-        title: Keuken / Eet
+        title: Kook/Eet/Werk
         view_layout:
           grid-area: kitchen
         columns: 2
@@ -524,6 +522,31 @@ views:
                 card:
                   series:
                     - entity: sensor.climate_sensor_kitchen_temperature
+          - type: custom:button-card
+            entity: group.lights_office
+            name: Verlichting
+            template:
+              - light_group
+            group_expand: true
+            tap_action:
+              !include popups/light_office.yaml
+            hold_action:
+              action: none
+          - type: custom:button-card
+            entity: sensor.climate_sensor_office_temperature
+            name: Klimaat
+            template:
+              - climate
+              - icon_temp
+            tap_action:
+              !include popups/climate_office.yaml
+            hold_action:
+              action: none
+            custom_fields:
+              graph:
+                card:
+                  series:
+                    - entity: sensor.climate_sensor_office_temperature
 
       #################################################
       #                                               #

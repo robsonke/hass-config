@@ -82,6 +82,9 @@ browser_mod:
                 - entity_id: binary_sensor.frontdoor_openclose_sensor
                   options:
                     secondary_info: last-changed
+                - entity_id: binary_sensor.door_terrace_openclose_contact
+                  options:
+                    secondary_info: last-changed
                 - entity_id: binary_sensor.sheddoor_openclose_sensor
                   options:
                     secondary_info: last-changed
