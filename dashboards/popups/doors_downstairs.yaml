@@ -70,7 +70,7 @@ browser_mod:
                 secondary_info: last-changed
           - type: custom:auto-entities
             card:
-              show_icon: false
+              show_icon: true
               type: entities
             filter:
               include:

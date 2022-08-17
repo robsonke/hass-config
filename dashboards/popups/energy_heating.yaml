@@ -1,0 +1,35 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Energie verbruik en kosten
+  large: true
+  card:
+    type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 500px auto
+      grid-template-rows: auto
+      grid-template-areas: |
+        "details details2"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "details"
+            "details2"
+    cards:
+      - type: vertical-stack
+        view_layout:
+          grid-area: details
+        cards:
+          - type: entities
+            entities:
+              - entity: switch.climate_control
+              - entity: select.operation_mode
+              - entity: number.temperature_control
+          - type: entities
+            entities:
+              - entity: sensor.indoor_temperature
+              - entity: sensor.leaving_water_temperature
+              - entity: sensor.outdoor_temperature

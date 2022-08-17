@@ -378,6 +378,30 @@ template:
       {{ states('sensor.open_windows_and_doors_upstairs') | int(default=0) + states('sensor.open_windows_and_doors_downstairs') | int(default=0) }}
 
 - sensor:
+  - name: "Energy Price Level"
+    unique_id: energy_price_level
+    attributes:
+      percentage: >
+        {{ states('sensor.electricity_price_langeweide_28') | float / state_attr('sensor.electricity_price_langeweide_28','avg_price') | float * 100 }}
+    state: >
+      {% set percentage = states('sensor.electricity_price_langeweide_28') | float / state_attr('sensor.electricity_price_langeweide_28','avg_price') | float * 100 %}
+      {% if percentage <= 60 %}
+        {{ "very_cheap" }}
+      {% elif percentage <= 90 and percentage > 60 %}
+        {{ "cheap" }}
+      {% elif percentage <= 115 and percentage > 90 %}
+        {{ "normal" }}
+      {% elif percentage <= 140 and percentage > 115 %}
+        {{ "expensive" }}
+      {% elif percentage > 140 %}
+        {{ "very_expensive" }}
+      {% else %}
+        {{ "normal" }}
+      {% endif %}
+    
+
+
+- sensor:
   - unique_id: count_automations
     attributes:
       friendly_name: Automations count

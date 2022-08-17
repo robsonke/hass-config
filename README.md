@@ -12,11 +12,9 @@ Welcome to my repository representing all Home Assistant configuration. I'm shar
 Keeping this up to date is a continuous process, I discover daily new possibilities and face situations that ask for automation.
 
 # Screenshots
-Theme used in below screenshots is [iOS Dark Mode Theme](https://github.com/basnijholt/lovelace-ios-dark-mode-theme/)
+Theme used in below screenshots is a custom Dark and Light Theme based on [Matthias' work](https://github.com/matt8707/hass-config). I've also used many of his ideas but with again a lot of customisations.
 > TODO more
 ![Main Dashboard](https://github.com/robsonke/hass-config/blob/master/www/screenshots/main-dashboard.jpg)
-
-I used a lot of input from [Matt's config](https://github.com/matt8707/hass-config)
 
 ## Software
 - Hassio with quite some add-ons
@@ -94,8 +92,11 @@ Cameras
 Doorbell
 - Amcrest AD410
 
-Locks:
+Locks
 - Nuki Smart Lock 2.0
+
+Weatherstation
+- Ecowitt Wittboy
 
 # Presence Detection
 > TODO

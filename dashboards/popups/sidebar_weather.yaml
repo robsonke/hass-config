@@ -26,15 +26,40 @@ browser_mod:
             "forecast rain"
             "map      .   "
     cards:
-      - type: custom:weather-card
-        entity: weather.kloetinge
-        current: true
-        details: true
-        forecast: true
-        hourly_forecast: false
-        number_of_forecasts: '5'
+      - type: vertical-stack
         view_layout:
           grid-area: forecast
+        cards:
+          - type: custom:ha-card-weather-conditions
+            name: "Kloetinge"
+            language: nl
+            animation: true
+            weather:
+              icons_model: climacell
+              current:
+                sun: sun.sun
+                current_conditions: weather.home
+                temperature: sensor.temp
+                feels_like: sensor.feelslike
+                humidity: sensor.humidity
+                visibility: sensor.openweathermap_visibility
+                wind_bearing: sensor.winddir
+                wind_speed: sensor.beaufortscale
+            # uv:
+            #   uv_index: sensor.uv
+            #   set_skin_type_1: sensor.safe_exposure_time_skin_type_1
+            #   set_skin_type_2: sensor.safe_exposure_time_skin_type_2
+            #   set_skin_type_3: sensor.safe_exposure_time_skin_type_3
+            #   set_skin_type_4: sensor.safe_exposure_time_skin_type_4
+            #   set_skin_type_5: sensor.safe_exposure_time_skin_type_5
+            #   set_skin_type_6: sensor.safe_exposure_time_skin_type_6
+          - type: custom:weather-card
+            entity: weather.kloetinge
+            current: false
+            details: false
+            forecast: true
+            hourly_forecast: false
+            number_of_forecasts: '5'
       - type: 'custom:buien-rain-forecast'
         long: !secret longitude_coordinate
         lat: !secret latitude_coordinate
@@ -53,3 +78,4 @@ browser_mod:
         camera_image: camera.buienradar
         view_layout:
           grid-area: map
+      

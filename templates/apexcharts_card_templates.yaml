@@ -14,13 +14,13 @@ energy_chart:
     stroke_width: 1
     opacity: 0.5
     type: area
-    color: '#3182b7'
+    #color: '#3182b7'
   apex_config:
     chart:
       offsetY: 0
       parentHeightOffset: 0
-    grid:
-      show: false
+    # grid:
+    #   show: false
     stroke:
       width: 3
     xaxis:

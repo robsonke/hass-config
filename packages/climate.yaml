@@ -9,18 +9,21 @@
 #
 
 climate:
-  # - platform: generic_thermostat
+  # - platform: dualmode_generic
   #   name: Warmtepomp
   #   unique_id: daikin_climate_control
   #   target_sensor: sensor.indoor_temperature
-  #   min_temp: 18
-  #   max_temp: 26
+  #   min_temp: 19
+  #   max_temp: 23
   #   heater: switch.climate_control
+  #   cooler: switch.climate_control
   #   target_temp: 21
+  #   target_temp_high: 23
+  #   target_temp_low: 19
   #   cold_tolerance: 0.3
   #   hot_tolerance: 0.3
-  #   ac_mode: false
-  #   initial_hvac_mode: "off"
-    
+  #   precision: 0.5
+  #   initial_hvac_mode: "cool"
+  #   reverse_cycle: cooler, heater
   #   min_cycle_duration:
-  #     seconds: 5
+  #     minutes: 5

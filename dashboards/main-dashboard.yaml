@@ -24,7 +24,7 @@ views:
       grid-template-areas: |
         "sidebar  .        .          .        ."
         "sidebar  home     living     kitchen  ."
-        "sidebar  rest     upstairs   office   ."
+        "sidebar  rest     upstairs   energy   ."
         "sidebar  .        .          .        ."
       mediaquery:
         '(max-width: 800px)':
@@ -39,7 +39,7 @@ views:
             ".  kitchen    ."
             ".  upstairs   ."
             ".  rest       ."
-            ".  office     ."
+            ".  energy     ."
             ".  .          ."
         '(max-width: 1200px)':
           grid-gap: var(--grid-card-gap)
@@ -48,7 +48,7 @@ views:
           grid-template-areas: |
             "sidebar  .        .          .        ."
             "sidebar  home     living     kitchen  ."
-            "sidebar  rest     office     upstairs ."
+            "sidebar  rest     upstairs   energy   ."
             "sidebar  .        .          .        ."
 
     cards:
@@ -78,7 +78,7 @@ views:
               service: script.reload_frontend
             template: sidebar_template
           - type: weather-forecast
-            entity: weather.home
+            entity: weather.weather_langeweide_ecowitt
             show_forecast: false
             style: |
               div.name-state {
@@ -133,6 +133,25 @@ views:
             template: sidebar_button
             confirmation:
               text: '[[[ return `Guest Mode - Zeker weten?` ]]]'
+          - type: custom:button-card
+            entity: vacuum.sjorsje
+            template: sidebar_button
+            tap_action:
+              action: more-info
+            styles:
+              grid:
+                - grid-template-areas: >
+                    "i n s"
+                - grid-template-columns: 20% 2fr 3fr
+                - grid-template-rows: 30px
+              icon:
+                - color: >
+                    [[[
+                      if (entity.attributes['bin_full'] || (entity.attributes['battery_level'] < 30 && entity.attributes['status'] !== 'Charging'))
+                        return 'red';
+                      return 'green'
+                    ]]]
+                - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
 
           - type: custom:button-card
             entity: binary_sensor.stookalert_zeeland
@@ -247,6 +266,10 @@ views:
                 [[[
                   return states['sensor.altherma_operation_mode'].state === 'Heating'
                 ]]]
+              cooling: >
+                [[[
+                  return states['sensor.altherma_operation_mode'].state === 'Cooling'
+                ]]]
             custom_fields:
               graph:
                 card:
@@ -327,99 +350,11 @@ views:
             template:
               - sonos
           - type: custom:button-card
-            entity: sensor.power_consumed
-            name: Energie
-            template:
-              - simple
-              - circle
-            tap_action:
-              action: fire-dom-event
-              browser_mod:
-                command: popup
-                title: Energie
-                style: >
-                  :host .content {
-                    width: 75em;
-                  }
-                card:
-                  type: iframe
-                  url: /old-dashboard/energy
-                  aspect_ratio: 65%
-                  style: |
-                    ha-card {
-                      border-radius: 0 0 1em 1em;
-                    }
-            variables:
-              unit: kWh
-              circle_input: >
-                [[[ return Math.round(states['sensor.daily_consumption_energy'].state); ]]]
-          - type: custom:button-card
             entity: group.doors_and_windows_downstairs
             name: Deuren
             template:
               - door_window_group_downstairs
             group_expand: true
-
-
-      #################################################
-      #                                               #
-      #                  Office                       #
-      #                                               #
-      #################################################
-
-      # - type: grid
-      #   title: Kantoor
-      #   view_layout:
-      #     grid-area: office
-      #   columns: 2
-      #   cards:
-      #     - type: custom:button-card
-      #       entity: group.lights_office
-      #       name: Verlichting
-      #       template:
-      #         - light_group
-      #       group_expand: true
-      #       tap_action:
-      #         !include popups/light_office.yaml
-      #       hold_action:
-      #         action: none
-      #     - type: custom:button-card
-      #       entity: sensor.climate_sensor_office_temperature
-      #       name: Klimaat
-      #       template:
-      #         - climate
-      #         - icon_temp
-      #       tap_action:
-      #         !include popups/climate_office.yaml
-      #       hold_action:
-      #         action: none
-      #       custom_fields:
-      #         graph:
-      #           card:
-      #             series:
-      #               - entity: sensor.climate_sensor_office_temperature
-
-      #################################################
-      #                                               #
-      #                  Rest                         #
-      #                                               #
-      #################################################
-
-      - type: grid
-        title: Overig
-        view_layout:
-          grid-area: rest
-        columns: 2
-        cards:
-          - type: custom:button-card
-            entity: binary_sensor.motion_sensor_cats_presence
-            template: cats
-            name: Boris&Puk
-            styles:
-              label:
-                - color: gray
-                - font-size: 11px
-            show_label: true
           - type: custom:button-card
             entity: device_tracker.ix3
             template:
@@ -463,6 +398,28 @@ views:
                 [[[
                   return states['binary_sensor.ix3_charging_status'].state == 'on';
                 ]]]
+
+      #################################################
+      #                                               #
+      #                  Rest                         #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Overig
+        view_layout:
+          grid-area: rest
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: binary_sensor.motion_sensor_cats_presence
+            template: cats
+            name: Boris&Puk
+            styles:
+              label:
+                - color: gray
+                - font-size: 11px
+            show_label: true
           - type: custom:button-card
             entity: group.lights_garden
             name: Tuin
@@ -609,3 +566,101 @@ views:
               - music
             tap_action:
               action: more-info
+
+      #################################################
+      #                                               #
+      #                  Energy                       #
+      #                                               #
+      #################################################
+
+      # tibber
+      # dhw
+      # pump
+      
+
+      - type: grid
+        title: Energie
+        view_layout:
+          grid-area: energy
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: sensor.climate_sensor_living_temperature
+            name: Warmtepomp
+            template:
+              - climate
+              - icon_temp
+            triggers_update: climate.warmtepomp
+            tap_action:
+              !include popups/energy_heating.yaml
+            hold_action:
+              action: none
+            variables:
+              heating: >
+                [[[
+                  return states['sensor.altherma_operation_mode'].state === 'Heating'
+                ]]]
+              cooling: >
+                [[[
+                  return states['sensor.altherma_operation_mode'].state === 'Cooling'
+                ]]]
+            custom_fields:
+              graph:
+                card:
+                  series:
+                    - entity: sensor.climate_sensor_living_temperature
+          - type: custom:button-card
+            entity: water_heater.domestic_hot_water_tank
+            name: Warm water
+            template:
+              - icon_temp
+              - dhw
+            triggers_update: water_heater.domestic_hot_water_tank
+            tap_action:
+              !include popups/energy_dhw.yaml
+            hold_action:
+              action: none
+            variables:
+              heating: >
+                [[[
+                  return states['water_heater.domestic_hot_water_tank'].attributes['operation_mode'] === 'on'
+                ]]] 
+            custom_fields:
+              graph:
+                card:
+                  series:
+                    - entity: water_heater.domestic_hot_water_tank
+                      attribute: 
+                        current_temperature
+                      color: '#e74c3c'
+                      group_by:
+                        func: avg
+                        duration: 10m
+          - type: custom:button-card
+            entity: sensor.power_consumed
+            name: Energie verbruik
+            template:
+              - energy
+            tap_action:
+              !include popups/energy_usage.yaml
+
+          - type: custom:button-card
+            entity: sensor.water_meter_current_usage
+            name: Water
+            template:
+              - simple
+              - circle
+            tap_action:
+              !include popups/energy_water.yaml
+            variables:
+              unit: m3
+              circle_input: >
+                [[[ return Math.round(states['sensor.water_daily'].state*100)/100; ]]]
+            styles:
+              custom_fields:
+                icon:
+                  - color: >
+                      [[[
+                        if (entity.state > 0)
+                          return '#03a9f4';
+                      ]]]

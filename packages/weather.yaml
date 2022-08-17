@@ -1,0 +1,26 @@
+# __        __         _   _
+# \ \      / /__  __ _| |_| |__   ___ _ __
+#  \ \ /\ / / _ \/ _` | __| '_ \ / _ \ '__|
+#   \ V  V /  __/ (_| | |_| | | |  __/ |
+#    \_/\_/ \___|\__,_|\__|_| |_|\___|_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+weather:
+  - platform: template
+    name: "Weather Langeweide Ecowitt"
+    unique_id: "langeweide_ecowitt"
+    attribution_template: "Local Ecowitt Weatherstation on our roof"
+    condition_template: "{{ states('weather.home') }}"
+    temperature_template: "{{ states('sensor.temp') | float }}"
+    wind_bearing_template: "{{ states('sensor.winddir') | float }}"
+    wind_speed_template: "{{ states('sensor.windspeed') | float }}"
+    humidity_template: "{{ states('sensor.humidity') | float }}"
+    forecast_template: "{{ state_attr('weather.home', 'forecast') }}"
+    pressure_template: "{{ state_attr('weather.home', 'pressure') }}"
+    temperature_unit: "°C"
+    visibility_unit: "km"
+    wind_speed_unit: "km/h"
+    pressure_unit: "hPa"

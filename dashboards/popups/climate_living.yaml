@@ -51,6 +51,13 @@ browser_mod:
               .modes.heading {
                 grid-template-columns: auto !important;
               }
+          - type: entities
+            entities:
+              - entity: switch.climate_control
+              - entity: select.operation_mode
+              - entity: sensor.indoor_temperature
+              - entity: sensor.leaving_water_temperature
+              - entity: sensor.outdoor_temperature
       - type: vertical-stack
         view_layout:
           grid-area: climate

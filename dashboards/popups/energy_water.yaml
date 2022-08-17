@@ -1,0 +1,35 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Waterverbruik
+  large: true
+  card:
+    type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: auto auto
+      grid-template-rows: auto
+      grid-template-areas: |
+        "details details2"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "details"
+            "details2"
+    cards:
+      - type: vertical-stack
+        view_layout:
+          grid-area: details
+        cards:
+          - chart_type: bar
+            period: hour
+            days_to_show: 1
+            type: statistics-graph
+            title: Water usage
+            stat_types:
+              - state
+            entities:
+              - entity: sensor.water_hourly
+                name: Hourly water usage

@@ -13,12 +13,14 @@ sensor:
 - platform: integration
   source: sensor.altherma_power_usage
   name: Altherma Energy Usage
+  unique_id: altherma_energy_usage
   method: trapezoidal
   unit_prefix: k
   round: 2
 - platform: integration
-  source: sensor.template_altherma_power_usage_secundary
+  source: sensor.altherma_power_usage_secundary
   name: Altherma Energy Usage Secundary
+  unique_id: altherma_energy_usage_secundary
   method: trapezoidal
   unit_prefix: k
   round: 2
@@ -26,34 +28,59 @@ sensor:
 - platform: integration
   source: sensor.shelly_plug_office_power
   name: Shelly Plug Office Energy Usage
+  unique_id: shelly_plug_office_energy_usage
   method: trapezoidal
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_droger_power
   name: Shelly Plug Droger Energy Usage
+  unique_id: shelly_plug_droger_energy_usage
   method: trapezoidal
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_douche_verwarming_power
   name: Shelly Plug Douche Verwarming Energy Usage
+  unique_id: shelly_plug_douche_verwarming_energy_usage
   method: trapezoidal
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_badkamer_verwarming_power
   name: Shelly Plug Badkamer Verwarming Energy Usage
+  unique_id: shelly_plug_badkamer_verwarming_energy_usage
   method: trapezoidal
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_kachel_slaapkamer_power
   name: Shelly Plug Slaapkamer Verwarming Energy Usage
+  unique_id: shelly_plug_slaapkamer_verwarming_energy_usage
   method: trapezoidal
   unit_prefix: k
   round: 2
-
+- platform: integration
+  source: sensor.shelly_plug_s_6_meterkast1_power
+  name: Shelly Plug Meterkast1 Energy Usage
+  unique_id: shelly_plug_meterkast1_energy_usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+- platform: integration
+  source: sensor.shelly_plug_s_7_meterkast2_power
+  name: Shelly Plug Meterkast2 Energy Usage
+  unique_id: shelly_plug_meterkast2_energy_usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+- platform: integration
+  source: sensor.shelly_plug_s_8_fridge1_power
+  name: Shelly Plug Vriezer Schuur Energy Usage
+  unique_id: shelly_plug_vriezer_schuur_energy_usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
 
 - platform: history_stats
   name: Cat door today

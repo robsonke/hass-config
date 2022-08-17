@@ -1148,39 +1148,40 @@
         tag: persistent
   mode: single
 - id: '1623609811213'
-  alias: Screens - Close screens on warm sunny days
-  description: In case it's warm and sunny, close the screens in the morning
+  alias: Screens - Close screens voorraam on warm sunny days
+  description: In case it's warm and sunny, close the screens in the morning but the
+    one on the side a bit later
   trigger:
   - platform: time_pattern
     minutes: /15
   condition:
   - condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.openweathermap_forecast_temperature
-      above: '16'
-    - condition: numeric_state
-      entity_id: sensor.openweathermap_forecast_cloud_coverage
-      below: '80'
     - condition: or
       conditions:
-      - condition: device
-        device_id: eb69e1ad4596ef0df19b685a4e84e026
-        domain: cover
-        entity_id: cover.voorraam
-        type: is_open
-      - condition: device
-        device_id: 7a674f956b15af8decebb36355772928
-        domain: cover
-        entity_id: cover.zijraam
-        type: is_open
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_forecast_temperature
+          above: '16'
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_forecast_cloud_coverage
+          below: '80'
+      - condition: numeric_state
+        entity_id: sensor.openweathermap_forecast_temperature
+        above: '24'
+    - condition: device
+      device_id: eb69e1ad4596ef0df19b685a4e84e026
+      domain: cover
+      entity_id: cover.voorraam
+      type: is_open
   - condition: time
     after: 09:00:00
-    before: '16:00:00'
+    before: '17:00:00'
   action:
   - service: notify.all_phones
     data:
-      message: ☀️ De screens gaan dicht
+      message: ☀️ De screens aan de voorkant gaan dicht
       data:
         persistent: true
         tag: persistent
@@ -1188,10 +1189,8 @@
     data: {}
     target:
       entity_id: cover.voorraam
-  - service: cover.close_cover
-    data: {}
-    target:
-      entity_id: cover.zijraam
+  trace:
+    stored_traces: 20
   mode: single
 - id: '1623609934943'
   alias: Screens - Open screen voorraam
@@ -1447,7 +1446,7 @@
       sonos_entity: media_player.living_room
       volume: 0.3
       message: Let op, het alarm wordt over 5 minuten weer geactiveerd.
-      delay: 00:00:03
+      delay: 00:00:10
   - delay:
       hours: 0
       minutes: 5
@@ -1459,7 +1458,7 @@
     type: arm_away
   - service: notify.all_phones
     data:
-      message: ⏰ Het uur is om, het alarm wordt weer geactiveerd.
+      message: De tijd is om, het alarm wordt weer geactiveerd.
       data:
         persistent: true
         tag: persistent
@@ -1469,7 +1468,7 @@
       volume: 0.3
       message: Let op, het alarm is weer geactiveerd. Druk op de knop om het weer
         uit te zetten.
-      delay: 00:00:03
+      delay: 00:00:06
   mode: single
 - id: '1625814711652'
   alias: Doors - Alert when backdoor is open too long
@@ -1645,6 +1644,9 @@
   - condition: state
     entity_id: zone.home
     state: '0'
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
   - service: input_boolean.turn_on
     target:
@@ -2208,15 +2210,37 @@
 - id: '1644692915726'
   alias: Garden - Turn off garden lights - evening
   description: Turn off lights in the garden in the evening but keep a few on on low
-    brightness
+    brightness. Turn off when we go to bed, guest mode is off or otherwise at 23:00.
   trigger:
   - platform: time
     at: '23:00'
+  - platform: state
+    entity_id:
+    - alarm_control_panel.alarmo
+    to: armed_night
   condition:
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
+  - condition: time
+    after: '22:59:00'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: armed_night
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: armed_away
   action:
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
   - service: light.turn_off
     data: {}
     target:
@@ -2470,4 +2494,175 @@
   - service: hassio.addon_restart
     data:
       addon: c0d67ef2_amcrest2mqtt
+  mode: single
+- id: '1659861088978'
+  alias: Screens - Close screens zijraam on warm sunny days
+  description: In case it's warm and sunny, close the screens in the morning but the
+    one on the side a bit later
+  trigger:
+  - platform: time_pattern
+    minutes: /15
+  condition:
+  - condition: and
+    conditions:
+    - condition: or
+      conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_forecast_temperature
+          above: '16'
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_forecast_cloud_coverage
+          below: '80'
+      - condition: numeric_state
+        entity_id: sensor.openweathermap_forecast_temperature
+        above: '24'
+    - condition: device
+      device_id: 7a674f956b15af8decebb36355772928
+      domain: cover
+      entity_id: cover.zijraam
+      type: is_open
+  - condition: time
+    after: '11:00:00'
+    before: '19:00:00'
+  action:
+  - service: notify.all_phones
+    data:
+      message: ☀️ De screens aan de zijkant gaan dicht
+      data:
+        persistent: true
+        tag: persistent
+  - service: cover.close_cover
+    data: {}
+    target:
+      entity_id: cover.zijraam
+  mode: single
+- id: '1659880318627'
+  alias: DHW - Enable warm water heating
+  description: Enable the heatpump based on need and energy pricing
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.energy_price_level
+    attribute: percentage
+    below: '91'
+  - platform: numeric_state
+    entity_id: water_heater.domestic_hot_water_tank
+    attribute: current_temperature
+    below: '35'
+  - platform: time_pattern
+    minutes: /15
+  condition:
+  - condition: or
+    conditions:
+    - condition: and
+      conditions:
+      - condition: numeric_state
+        entity_id: sensor.energy_price_level
+        attribute: percentage
+        below: '91'
+      - condition: numeric_state
+        entity_id: water_heater.domestic_hot_water_tank
+        attribute: current_temperature
+        below: '40'
+        above: '0'
+    - condition: numeric_state
+      entity_id: water_heater.domestic_hot_water_tank
+      attribute: current_temperature
+      below: '32'
+      above: '0'
+  - condition: state
+    entity_id: water_heater.domestic_hot_water_tank
+    attribute: operation_mode
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  action:
+  - service: water_heater.set_temperature
+    data:
+      temperature: 45
+    target:
+      entity_id: water_heater.domestic_hot_water_tank
+  - service: water_heater.set_operation_mode
+    data:
+      operation_mode: 'on'
+    target:
+      entity_id: water_heater.domestic_hot_water_tank
+  mode: single
+- id: '1659881596095'
+  alias: DHW - Disable warm water heating
+  description: Disable the heatpump based on need and energy pricing. Also lower the
+    expected temperature to avoid the pump itself decides to turn on.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.energy_price_level
+    attribute: percentage
+    above: '115'
+  - platform: state
+    entity_id:
+    - water_heater.domestic_hot_water_tank
+    attribute: current_temperature
+  - platform: state
+    entity_id:
+    - water_heater.domestic_hot_water_tank
+    attribute: temperature
+  - platform: time_pattern
+    minutes: /15
+  condition:
+  - condition: or
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.energy_price_level
+      attribute: percentage
+      above: '115'
+    - condition: template
+      value_template: '{{ state_attr(''water_heater.domestic_hot_water_tank'',''current_temperature'')
+        | float >= state_attr(''water_heater.domestic_hot_water_tank'',''temperature'')
+        | float }}'
+  - condition: numeric_state
+    entity_id: water_heater.domestic_hot_water_tank
+    attribute: current_temperature
+    above: '40'
+  - condition: state
+    entity_id: water_heater.domestic_hot_water_tank
+    attribute: operation_mode
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  action:
+  - service: water_heater.set_temperature
+    data:
+      temperature: 30
+    target:
+      entity_id: water_heater.domestic_hot_water_tank
+  - service: water_heater.set_operation_mode
+    data:
+      operation_mode: 'off'
+    target:
+      entity_id: water_heater.domestic_hot_water_tank
+  mode: single
+- id: '1660594059134'
+  alias: Fridge - Alert when fridge is off too long
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - switch.shelly_plug_office
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.all_phones
+    data:
+      message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur uit!"
+      data:
+        persistent: true
+        tag: persistent
   mode: single
