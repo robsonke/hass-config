@@ -13,6 +13,12 @@ custom-dark:
   vertical-stack-card-margin: 0
   card-content-padding: 1.8em 2.2em 1.8em 2em
 
+  blue: '#3182b7'
+  green: 'green'
+  red: '#e74c3c'
+  orange: '#ff9409'
+  yellow: '#fdd835'
+
   modes:
     dark:
       # default dark mode

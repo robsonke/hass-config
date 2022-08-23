@@ -69,7 +69,7 @@ template:
     attributes:
       friendly_name: papier bak
       short_name: papier
-      color: '#3182b7'
+      color: 'var(--blue)'
       intstate: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
     state: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
     icon: mdi:trash-can
@@ -77,7 +77,7 @@ template:
     attributes:
       friendly_name: GFT bak
       short_name: gft
-      color: green
+      color: 'var(--green)'
       intstate: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
     state: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
     icon: mdi:trash-can
@@ -359,6 +359,16 @@ template:
     device_class: energy
     state_class: measurement
     state: "{{ states('sensor.yearly_energy_offpeak')|float + states('sensor.yearly_energy_peak')|float }}"
+
+- sensor:
+  - unique_id: net_power_consumption
+    attributes:
+      friendly_name: "Net Power Consumption"
+      icon: "mdi:home-lightning-bolt-outline"
+    unit_of_measurement: kW
+    device_class: power
+    state_class: measurement
+    state: "{{ states('sensor.solaredge_modbus')|float / 1000 - states('sensor.power_produced')|float + states('sensor.power_consumed')|float }}"
 
 - sensor:
   - unique_id: open_windows_and_doors_upstairs

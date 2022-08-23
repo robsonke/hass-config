@@ -33,3 +33,17 @@ browser_mod:
               - entity: sensor.indoor_temperature
               - entity: sensor.leaving_water_temperature
               - entity: sensor.outdoor_temperature
+      - type: vertical-stack
+        view_layout:
+          grid-area: details2
+        cards:
+          - type: history-graph
+            hours_to_show: 6
+            refresh_interval: 30
+            entities:
+              - sensor.altherma_operation_mode
+          - type: logbook
+            title: Activiteit
+            entities:
+              - switch.climate_control
+              - select.operation_mode

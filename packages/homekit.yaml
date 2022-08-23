@@ -36,8 +36,4 @@ homekit:
         - media_player.tv_room
         - alarm_control_panel.alarmo
         - binary_sensor.template_people_home_and_awake
-    entity_config:
-      camera.babycam:
-        support_audio: true
-      camera.gardencam:
-        support_audio: true
+        - cover.front_door

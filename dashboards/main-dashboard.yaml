@@ -148,8 +148,8 @@ views:
                 - color: >
                     [[[
                       if (entity.attributes['bin_full'] || (entity.attributes['battery_level'] < 30 && entity.attributes['status'] !== 'Charging'))
-                        return 'red';
-                      return 'green'
+                        return 'var(--red)';
+                      return 'var(--green)'
                     ]]]
                 - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
 
@@ -178,7 +178,7 @@ views:
                   style: |
                     {% if not is_state('sensor.all_updates', '0') and not is_state('sensor.all_updates', 'Unknown') %}
                     :host ha-state-icon {
-                      color: green;
+                      color: var(--green);
                       --mdc-icon-size: 3rem;
                     }
                     :host {
@@ -264,11 +264,11 @@ views:
             variables:
               heating: >
                 [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Heating'
+                  return states['sensor.altherma_operation_mode'].state === 'Heating' && states['switch.climate_control'].state === 'on'
                 ]]]
               cooling: >
                 [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Cooling'
+                  return states['sensor.altherma_operation_mode'].state === 'Cooling' && states['switch.climate_control'].state === 'on'
                 ]]]
             custom_fields:
               graph:
@@ -332,11 +332,11 @@ views:
                 icon:
                   - color: >
                       [[[
-                        if (entity.state === 'disarmed') return 'green';
-                        if (entity.state === 'arming') return 'yellow';
-                        if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'orange';
-                        if (entity.state === 'triggered') return '#e74c3c';
-                        return 'green'
+                        if (entity.state === 'disarmed') return 'var(--green)';
+                        if (entity.state === 'arming') return 'var(--yellow)';
+                        if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'var(--orange)';
+                        if (entity.state === 'triggered') return 'var(--red)';
+                        return 'var(--green)'
                       ]]]
                   - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
           - type: custom:button-card
@@ -598,11 +598,11 @@ views:
             variables:
               heating: >
                 [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Heating'
+                  return states['sensor.altherma_operation_mode'].state === 'Heating' && states['switch.climate_control'].state === 'on'
                 ]]]
               cooling: >
                 [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Cooling'
+                  return states['sensor.altherma_operation_mode'].state === 'Cooling' && states['switch.climate_control'].state === 'on'
                 ]]]
             custom_fields:
               graph:
@@ -632,12 +632,16 @@ views:
                     - entity: water_heater.domestic_hot_water_tank
                       attribute: 
                         current_temperature
-                      color: '#e74c3c'
+                      color: 'var(--red)'
                       group_by:
                         func: avg
                         duration: 10m
           - type: custom:button-card
-            entity: sensor.power_consumed
+            entity: sensor.net_power_consumption
+            triggers_update:
+              - sensor.daily_consumption_energy
+              - sensor.energy_price_level
+              - sensor.solaredge_modbus
             name: Energie verbruik
             template:
               - energy
@@ -646,6 +650,7 @@ views:
 
           - type: custom:button-card
             entity: sensor.water_meter_current_usage
+            triggers_update: sensor.water_daily
             name: Water
             template:
               - simple
@@ -662,5 +667,5 @@ views:
                   - color: >
                       [[[
                         if (entity.state > 0)
-                          return '#03a9f4';
+                          return 'var(--blue)';
                       ]]]

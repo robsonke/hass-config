@@ -372,8 +372,7 @@ climate:
     circle: >
       [[[ {
       const temperature = Math.round(entity.state * 10) / 10;
-      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="
-      transform: rotate(-90deg); transform-origin: 50% 50%;" />
+      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
       <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°</text></svg>`; } ]]]
     graph:
       card:
@@ -414,7 +413,11 @@ dhw:
       - grid-template-areas: |
           "icon  circle"
           "info  info"
-      - grid-template-rows: auto min-content
+          "n     n"
+      - grid-template-rows: auto min-content 
+      #- grid-template-rows: auto repeat(2, min-content)
+    name:
+      - display: none
     custom_fields:
       info:
         - justify-self: start
@@ -449,7 +452,7 @@ dhw:
       ]]]
     info: >
       [[[
-        return "Warm water - " + entity.attributes['temperature'] + "°";
+        return "Warm water (" + entity.attributes['temperature'] + "°)";
       ]]]
 
 #################################################
@@ -461,16 +464,11 @@ dhw:
 energy:
   template:
     - simple
-    - circle
-  variables:
-    unit: 'kWh'
-    circle_input: >
+  custom_fields:
+    circle: >
       [[[
-        return 100;
-      ]]]
-    circle_text: >
-      [[[
-        return Math.round(states['sensor.daily_consumption_energy'].state);
+        let today = Math.round(states['sensor.daily_consumption_energy'].state);
+        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 20px; height: 20px;"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:thermometer" style="width: 20px; height: 20px;"></ha-icon> ${today} °C</span>`;
       ]]]
   styles:
     custom_fields:
@@ -478,16 +476,20 @@ energy:
         - color: >
             [[[
               let level = states['sensor.energy_price_level'].state;
-              if (level === 'very_cheap') return '#03a9f4';
-              if (level === 'cheap') return 'green';
-              if (level === 'normal') return 'yellow';
-              if (level === 'expensive') return 'orange';
-              if (level === 'very_expensive') return '#e74c3c';
-              return 'green'
+              if (level === 'very_cheap') return 'var(--blue)';
+              if (level === 'cheap') return 'var(--green)';
+              if (level === 'normal') return 'var(--yellow)';
+              if (level === 'expensive') return 'var(--orange)';
+              if (level === 'very_expensive') return 'var(--red)';
+              return 'var(--green)'
             ]]]
   state_display: >
     [[[
-      return entity.state + " / " + states['sensor.power_produced'].state;
+      let color = 'var(--red)';
+      if (states['sensor.solaredge_modbus'].state > entity.state)
+        color = 'var(--green)';
+
+      return `<span style="color: ${color}">${entity.state} / ${states['sensor.solaredge_modbus'].state} kW</span>`;
     ]]]
 
 #################################################
@@ -717,8 +719,7 @@ door_window_group_upstairs:
 
 cover:
   template:
-    - base
-    - circle
+    - simple
   variables:
     timeout: >
       [[[ return entity === undefined || Date.now() - Date.parse(entity.last_changed); ]]]
@@ -727,10 +728,22 @@ cover:
         var state = entity === undefined || entity.state;
         return state !== 'open';
       ]]]
+  styles:
+    custom_fields:
+      circle:
+        - font-family: Sf Display
+        - text-align: right
+        - font-size: 16px
   custom_fields:
+    circle: >
+      [[[
+        let coverage = states['sensor.openweathermap_cloud_coverage'].state;
+        let temp = Math.round(states['sensor.openweathermap_forecast_temperature'].state*10)/10;
+        return `<span><ha-icon icon="mdi:cloud-outline" style="width: 20px; height: 20px;"></ha-icon> ${coverage}%<br/><ha-icon icon="mdi:thermometer" style="width: 20px; height: 20px;"></ha-icon> ${temp} °C</span>`;
+      ]]]
     icon: >
       [[[
-        const fill_color = (entity.attributes.current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : '#00a86b';
+        const fill_color = (entity.attributes.current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : 'var(--green)';
         let common = `<svg viewBox="0 0 50 50">
             <g transform="matrix(0.00733309,0,0,-0.00934536,-0.00876259,42.68667)" fill="${fill_color}" stroke="none">
             <path d="M 95,4556 C 54,4538 12,4487 5,4447 2,4429 0,4290 2,4138 c 3,-314 3,-312 88,-355 41,-21 58,-23 207,-23 H 460 V 2311 862 L 281,858 C 118,855 99,853 74,834 23,796 5,763 5,705 5,647 23,614 74,576 l 27,-21 h 2459 2459 l 27,21 c 51,38 69,71 69,129 0,58 -18,91 -69,129 -25,19 -44,21 -207,24 l -179,4 v 1449 1449 h 163 c 149,0 166,2 207,23 87,44 85,37 85,382 0,291 -1,305 -21,331 -11,15 -33,37 -48,48 l -27,21 -2447,2 C 553,4569 120,4567 95,4556 Z M 4350,2310 V 860 H 2560 770 v 1450 1450 h 1790 1790 z" />`,
@@ -896,11 +909,11 @@ sidebar_alarm:
     icon:
       - color: >
           [[[
-            if (entity.state === 'disarmed') return 'green';
-            if (entity.state === 'arming') return 'yellow';
-            if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'orange';
-            if (entity.state === 'triggered') return '#e74c3c';
-            return 'green'
+            if (entity.state === 'disarmed') return 'var(--green)';
+            if (entity.state === 'arming') return 'var(--yellow)';
+            if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'var(--orange)';
+            if (entity.state === 'triggered') return 'var(--red)';
+            return 'var(--green)'
           ]]]
       - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
 
@@ -947,10 +960,10 @@ icon_temp:
       [[[
         let color = 'currentcolor';
         if (variables.heating) {
-          color = '#e74c3c';
+          color = 'var(--red)';
         }
         if (variables.cooling) {
-          color = '#03a9f4';
+          color = 'var(--blue)';
         }
         return `
           <svg viewBox="0 0 50 50">

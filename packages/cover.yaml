@@ -1,0 +1,26 @@
+#   ____
+#  / ___|_____   _____ _ __ ___
+# | |   / _ \ \ / / _ \ '__/ __|
+# | |__| (_) \ V /  __/ |  \__ \
+#  \____\___/ \_/ \___|_|  |___/
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+cover:
+  # A fake garage door to fool Homekit for carplay support
+  - platform: template
+    covers:
+      front_door:
+        device_class: garage
+        friendly_name: "Voordeur"
+        value_template: "{{ is_state('binary_sensor.frontdoor_openclose_sensor', 'on') }}"
+        open_cover:
+          - service: lock.open
+            target:
+              entity_id: lock.nuki_voordeur_slot_lock
+        close_cover:
+          - service: lock.lock
+            target:
+              entity_id: lock.nuki_voordeur_slot_lock

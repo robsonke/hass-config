@@ -63,7 +63,7 @@ browser_mod:
                 title: Activiteit
                 entities:
                   - water_heater.domestic_hot_water_tank
-                hours_to_show: 6
+                hours_to_show: 12
               # - type: horizontal-stack
               #   cards:
               #     - type: button
@@ -91,7 +91,7 @@ browser_mod:
           grid-area: details2
         cards:
           - type: history-graph
-            hours_to_show: 6
+            hours_to_show: 12
             refresh_interval: 30
             entities:
               - sensor.altherma_operation_mode

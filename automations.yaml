@@ -653,6 +653,7 @@
   condition:
   - condition: time
     after: 04:00
+    before: '11:00:00'
   - condition: state
     entity_id: input_boolean.night_mode
     state: 'on'
@@ -1178,6 +1179,9 @@
   - condition: time
     after: 09:00:00
     before: '17:00:00'
+  - condition: state
+    entity_id: sensor.rate_rain_piezo
+    state: '0.0'
   action:
   - service: notify.all_phones
     data:
@@ -1206,6 +1210,14 @@
       hours: 0
       minutes: 10
       seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.rate_rain_piezo
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+    above: '0'
+    below: '1000'
   condition:
   - condition: and
     conditions:
@@ -1260,6 +1272,14 @@
       seconds: 0
   - platform: sun
     event: sunset
+  - platform: numeric_state
+    entity_id: sensor.rate_rain_piezo
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+    above: '0'
+    below: '1000'
   condition:
   - condition: and
     conditions:
@@ -2526,6 +2546,9 @@
   - condition: time
     after: '11:00:00'
     before: '19:00:00'
+  - condition: state
+    entity_id: sensor.rate_rain_piezo
+    state: '0.0'
   action:
   - service: notify.all_phones
     data:
@@ -2644,6 +2667,8 @@
       operation_mode: 'off'
     target:
       entity_id: water_heater.domestic_hot_water_tank
+  trace:
+    stored_traces: 10
   mode: single
 - id: '1660594059134'
   alias: Fridge - Alert when fridge is off too long

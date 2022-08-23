@@ -60,19 +60,46 @@ browser_mod:
             forecast: true
             hourly_forecast: false
             number_of_forecasts: '5'
-      - type: 'custom:buien-rain-forecast'
-        long: !secret longitude_coordinate
-        lat: !secret latitude_coordinate
-        lineColor: 'rgba(89, 160, 238, 1)'
-        fillColor: 'rgba(89, 160, 238, 0.2)'
-        update_interval: 10
-        icon: 'mdi:weather-rainy'
-        style: |
-          .chartjs-render-monitor {
-            height: 200px;
-          }
+      - type: vertical-stack
         view_layout:
           grid-area: rain
+        cards:
+          - type: custom:apexcharts-card
+            experimental:
+              color_threshold: true
+            graph_span: 2d
+            header:
+              show: true
+              show_states: true
+              colorize_states: true
+            series:
+              - entity: sensor.rate_rain_piezo
+                type: column
+                header_actions:
+                  tap_action:
+                    action: more-info
+                float_precision: 2
+                color_threshold:
+                  - value: 0
+                    color: blue
+                  - value: 3
+                    color: darkorange
+                  - value: 8
+                    color: darkred
+            yaxis:
+              - min: 0
+                decimals: 0
+          - type: 'custom:buien-rain-forecast'
+            long: !secret longitude_coordinate
+            lat: !secret latitude_coordinate
+            lineColor: 'rgba(89, 160, 238, 1)'
+            fillColor: 'rgba(89, 160, 238, 0.2)'
+            update_interval: 10
+            icon: 'mdi:weather-rainy'
+            style: |
+              .chartjs-render-monitor {
+                height: 200px;
+              }
       - type: picture-glance
         entities: []
         camera_image: camera.buienradar

@@ -29,9 +29,8 @@ browser_mod:
                 link_dashboard: true
                 view_layout:
                   position: sidebar
-
               - type: gauge
-                name: Power usage
+                name: Energie verbruik
                 unit: kW
                 entity: sensor.power_consumed
                 min: 0
@@ -41,11 +40,21 @@ browser_mod:
                   yellow: 3
                   red: 8
                 max: 20
+              - type: gauge
+                name: Energie productie
+                unit: kW
+                entity: sensor.power_produced
+                min: 0
+                needle: true
+                severity:
+                  green: 0
+                  yellow: 3
+                  red: 6
+                max: 10
           - type: energy-usage-graph
 
           - type: custom:apexcharts-card
             config_templates: energy_chart
-            #stacked: true
             all_series_config:
               type: line
               group_by:
@@ -83,8 +92,7 @@ browser_mod:
               - entity: sensor.infraroodpanel_eva_current_consumption
                 name: Verwarming Eva
 
-
-
+          - type: energy-devices-graph
           - type: entities
             entities:
               - entity: sensor.power_consumed
@@ -102,7 +110,7 @@ browser_mod:
               - entity: sensor.solaredge_energy_this_year
                 name: Power Production this Year
             state_color: false
-            title: Energie
+            title: Energie totalen
 
       - type: vertical-stack
         view_layout:
@@ -184,3 +192,4 @@ browser_mod:
             yaxis:
               - min: 0
                 decimals: 2
+          - type: energy-sources-table

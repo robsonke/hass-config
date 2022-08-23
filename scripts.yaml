@@ -176,10 +176,6 @@ lights_on_home:
       - light.ledstrip_office
       - light.livingfront_light
   - service: light.turn_on
-    data: {}
-    target:
-      entity_id: light.kitchendesk_light
-  - service: light.turn_on
     data:
       entity_id:
       - light.boekenkast
