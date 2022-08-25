@@ -81,14 +81,13 @@ base:
               'rgba(255, 255, 255, 0.8)' :
               'rgba(115, 115, 115, 0.4)';
           ]]]
-  # extra_styles: |
-  #   /* phone */
-  #   @media screen and (max-width: 800px) {
-  #     #name, #state, #label {
-  #       font-size: 3.1vw;
-  #       letter-spacing: 0.12vw;
-  #     }
-  #   }
+  extra_styles: |
+    /* phone */
+    @media screen and (max-width: 1200px) {
+      #circle, #name, #state, #label, #info {
+        font-size: 1rem;
+      }
+    }
 
 #################################################
 #                                               #
@@ -468,7 +467,8 @@ energy:
     circle: >
       [[[
         let today = Math.round(states['sensor.daily_consumption_energy'].state);
-        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 20px; height: 20px;"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:thermometer" style="width: 20px; height: 20px;"></ha-icon> ${today} °C</span>`;
+        let price = Math.round(states['sensor.electricity_price_langeweide_28'].state * 100) / 100;
+        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 20px; height: 20px;"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:currency-eur" style="width: 20px; height: 20px;"></ha-icon> ${price}</span>`;
       ]]]
   styles:
     custom_fields:
@@ -489,7 +489,7 @@ energy:
       if (states['sensor.solaredge_modbus'].state > entity.state)
         color = 'var(--green)';
 
-      return `<span style="color: ${color}">${entity.state} / ${states['sensor.solaredge_modbus'].state} kW</span>`;
+      return `<span style="color: ${color}">-${Math.round(entity.state*1000)/1000} / +${states['sensor.solaredge_modbus'].state} kW</span>`;
     ]]]
 
 #################################################
@@ -731,9 +731,7 @@ cover:
   styles:
     custom_fields:
       circle:
-        - font-family: Sf Display
         - text-align: right
-        - font-size: 16px
   custom_fields:
     circle: >
       [[[

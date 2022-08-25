@@ -25,14 +25,10 @@ browser_mod:
         cards:
           - type: horizontal-stack
             cards:
-              - type: energy-distribution
-                link_dashboard: true
-                view_layout:
-                  position: sidebar
               - type: gauge
                 name: Energie verbruik
                 unit: kW
-                entity: sensor.power_consumed
+                entity: sensor.net_power_consumption
                 min: 0
                 needle: true
                 severity:
@@ -43,7 +39,7 @@ browser_mod:
               - type: gauge
                 name: Energie productie
                 unit: kW
-                entity: sensor.power_produced
+                entity: sensor.solaredge_modbus
                 min: 0
                 needle: true
                 severity:
@@ -51,8 +47,6 @@ browser_mod:
                   yellow: 3
                   red: 6
                 max: 10
-          - type: energy-usage-graph
-
           - type: custom:apexcharts-card
             config_templates: energy_chart
             all_series_config:
@@ -91,7 +85,12 @@ browser_mod:
                 name: Verwarming Logeerkamer
               - entity: sensor.infraroodpanel_eva_current_consumption
                 name: Verwarming Eva
-
+          - type: energy-date-selection
+          - type: energy-distribution
+            link_dashboard: true
+            view_layout:
+              position: sidebar
+          - type: energy-usage-graph
           - type: energy-devices-graph
           - type: entities
             entities:

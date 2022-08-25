@@ -46,7 +46,7 @@
     data: {}
   mode: single
 - id: alarm_auto_disarm_when_arriving
-  alias: Alarm - Ready to auto disarm since one of us comes home
+  alias: Alarm - Disarm automatically when one of us comes home
   description: Automatically disarm when we come home
   trigger:
   - platform: state
@@ -76,6 +76,9 @@
       - condition: state
         entity_id: alarm_control_panel.alarmo
         state: triggered
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: arming
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -1205,7 +1208,7 @@
     at: '18:00:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
-    above: '60'
+    above: '80'
     for:
       hours: 0
       minutes: 10
@@ -1265,7 +1268,7 @@
     at: '21:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
-    above: '60'
+    above: '80'
     for:
       hours: 0
       minutes: 10
@@ -1988,7 +1991,7 @@
       entity_id: alarm_control_panel.alarmo
   mode: single
 - id: '1639684695002'
-  alias: Alarm - Silence alarm
+  alias: Alarm - Silence alarm by notification
   description: Silence alarm when beeping through push notification action when
   trigger:
   - platform: event

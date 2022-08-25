@@ -34,9 +34,10 @@ class NukiInterface:
 
     async def async_json(self, cb):
         response = await self.hass.async_add_executor_job(lambda: cb(requests))
-        if response.status_code >= 300:
-            raise ConnectionError(f"Http response: {response.status_code}")
+        if not response.ok:
+            raise ConnectionError(f"Http response for {response.request.url}: {response.status_code} {response.reason}")
         if response.status_code > 200:
+            _LOGGER.debug(f"async_json: http status: {response.status_code} - {response.text}")
             return dict()
         json_resp = response.json()
         return json_resp
@@ -66,7 +67,11 @@ class NukiInterface:
         return f"{url}{path}?token={self.token}{extra_str}"
 
     async def bridge_list(self):
-        return await self.async_json(lambda r: r.get(self.bridge_url("/list")))
+        data = await self.async_json(lambda r: r.get(self.bridge_url("/list")))
+        result = dict()
+        for item in data:
+            result[item.get("nukiId")] = item
+        return result
 
     async def bridge_info(self):
         return await self.async_json(lambda r: r.get(self.bridge_url("/info")))
@@ -241,41 +246,52 @@ class NukiInterface:
         resp = await self.web_async_json(
             lambda r, h: r.get(self.web_url(f"/smartlock"), headers=h)
         )
-        result = []
+        result = dict()
         for item in resp:
             if item.get("type") not in (0, 2, 4):
                 continue
             state = item.get("state", {})
-            result.append(
-                {
-                    "deviceType": item.get("type"),
-                    "nukiId": item.get("smartlockId"),
-                    "name": item.get("name"),
-                    "firmwareVersion": str(item.get("firmwareVersion")),
-                    "lastKnownState": {
-                        "mode": state.get("mode"),
-                        "state": state.get("state"),
-                        "stateName": device_state_map.get(item.get("type"), {}).get(
-                            state.get("state")
-                        ),
-                        "batteryCritical": state.get("batteryCritical"),
-                        "batteryCharging": state.get("batteryCharging"),
-                        "batteryChargeState": state.get("batteryCharge"),
-                        "keypadBatteryCritical": state.get("keypadBatteryCritical"),
-                        "doorsensorState": state.get("doorState"),
-                        "doorsensorStateName": door_state_map.get(
-                            state.get("doorState")
-                        ),
-                        "timestamp": item.get("updateDate"),
-                    },
-                }
-            )
+            result[item.get("smartlockId")] = {
+                "deviceType": item.get("type"),
+                "nukiId": item.get("smartlockId"),
+                "name": item.get("name"),
+                "firmwareVersion": str(item.get("firmwareVersion")),
+                "config": item.get("config"),
+                "advancedConfig": item.get("advancedConfig"),
+                "openerAdvancedConfig": item.get("openerAdvancedConfig"),
+                "lastKnownState": {
+                    "mode": state.get("mode"),
+                    "state": state.get("state"),
+                    "stateName": device_state_map.get(item.get("type"), {}).get(
+                        state.get("state")
+                    ),
+                    "batteryCritical": state.get("batteryCritical"),
+                    "batteryCharging": state.get("batteryCharging"),
+                    "batteryChargeState": state.get("batteryCharge"),
+                    "keypadBatteryCritical": state.get("keypadBatteryCritical"),
+                    "doorsensorState": state.get("doorState"),
+                    "doorsensorStateName": door_state_map.get(
+                        state.get("doorState")
+                    ),
+                    "timestamp": item.get("updateDate"),
+                },
+            }
         return result
 
     async def web_update_auth(self, dev_id: str, auth_id: str, changes: dict):
         await self.web_async_json(
             lambda r, h: r.post(
                 self.web_url(f"/smartlock/{dev_id}/auth/{auth_id}"),
+                headers=h,
+                json=changes,
+            )
+        )
+
+    async def web_update_config(self, dev_id: str, name: str, changes: dict):
+        mapping = {"config": "/config", "advancedConfig": "/advanced/config", "openerAdvancedConfig": "/advanced/openerconfig"}
+        await self.web_async_json(
+            lambda r, h: r.post(
+                self.web_url(f"/smartlock/{dev_id}" + mapping[name]),
                 headers=h,
                 json=changes,
             )
@@ -334,6 +350,7 @@ class NukiCoordinator(DataUpdateCoordinator):
             bridge_info = None
             info_mapping = dict()
             device_list = None
+            web_list = None
             if self.api.can_bridge():
                 try:
                     callbacks_list = await self.api.bridge_check_callback(
@@ -346,16 +363,22 @@ class NukiCoordinator(DataUpdateCoordinator):
                     info_mapping[item.get("nukiId")] = item
                 bridge_info["callbacks_list"] = callbacks_list
                 device_list = await self.api.bridge_list()
-            if self.api.can_web() and not device_list:
-                device_list = await self.api.web_list()
+            if self.api.can_web():
+                web_list = await self.api.web_list()
+                if not device_list:
+                    device_list = web_list
             result = dict(devices={}, bridge_info=bridge_info)
-            for item in device_list:
+            for key, item in device_list.items():
                 dev_id = item["nukiId"]
                 if self.api.can_web():
                     try:
                         item["web_auth"] = await self.api.web_list_all_auths(dev_id)
                     except ConnectionError:
                         _LOGGER.exception("Error while fetching auth:")
+                if web_list:
+                    item["config"] = web_list.get(dev_id, {}).get("config")
+                    item["advancedConfig"] = web_list.get(dev_id, {}).get("advancedConfig")
+                    item["openerAdvancedConfig"] = web_list.get(dev_id, {}).get("openerAdvancedConfig")
                 result["devices"][dev_id] = item
                 result["devices"][dev_id]["bridge_info"] = info_mapping.get(dev_id)
             _LOGGER.debug(f"_update: {json.dumps(result)}")
@@ -431,6 +454,14 @@ class NukiCoordinator(DataUpdateCoordinator):
     def device_supports(self, dev_id: str, feature: str) -> bool:
         return self.device_data(dev_id).get("lastKnownState", {}).get(feature) != None
 
+    def info_field(self, dev_id: str, default, *args):
+        data = self.device_data(dev_id)
+        for field in args:
+            data = data.get(field)
+            if data == None:
+                return default
+        return default if data == None else data
+
     async def update_web_auth(self, dev_id: str, auth: dict, changes: dict):
         if "id" not in auth:
             raise UpdateFailed("Invalid auth entry")
@@ -440,4 +471,13 @@ class NukiCoordinator(DataUpdateCoordinator):
             data.get(dev_id, {}).get("web_auth", {}).get(auth["id"], {})[key] = changes[
                 key
             ]
+        self.async_set_updated_data(data)
+    
+    async def update_config(self, dev_id: str, name: str, changes: dict):
+        data = self.data
+        obj = data["devices"].get(dev_id, {}).get(name)
+        for key in changes:
+            obj[key] = changes[key]
+        _LOGGER.debug(f"Updating config: {name}: {changes} = {obj}")
+        await self.api.web_update_config(dev_id, name, obj)
         self.async_set_updated_data(data)

@@ -31,7 +31,6 @@ light:
     name: Keuken
     entities:
       - light.kitchen_light
-      - light.kitchendesk_light
       - light.kitchencabin_light
   - platform: group
     name: Boekenkast
