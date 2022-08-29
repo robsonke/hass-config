@@ -20,7 +20,8 @@ base:
           state === 'cool' ||
           state === 'fan_only' ||
           state === 'playing' ||
-          state === 'open'
+          state === 'open' ||
+          state > 0
         );
       ]]]
     unit: '%'
@@ -29,6 +30,9 @@ base:
   show_icon: false
   state_display: >
     [[[ if (variables.state === true) return 'Onbekend'; ]]]
+  custom_fields:
+    icon: >
+      [[[ return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`; ]]]
   styles:
     grid:
       - grid-template-areas: |
@@ -98,11 +102,21 @@ base:
 simple:
   template:
     - base
+  styles:
+    grid:
+      - grid-template-areas: |
+          "icon  info"
+          "n     n"
+          "s     s"
+      - grid-template-rows: auto repeat(2, min-content)
+      - grid-template-columns: repeat(2, 1fr)
+      - gap: 2%
+      - align-items: start
+    custom_fields:
+      info:
+        - text-align: right
   hold_action:
     action: none
-  custom_fields:
-    icon: >
-      [[[ return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`; ]]]
 
 #################################################
 #                                               #
@@ -333,7 +347,7 @@ light:
 
 light_group:
   template:
-    - simple
+    - base
     - circle
   variables:
     circle_input: >
@@ -365,32 +379,28 @@ irrigation:
 
 climate:
   template:
-    - base
+    - simple
   show_state: true
+  variables:
+    consider_on: >
+      [[[ return false; ]]]
   custom_fields:
-    circle: >
+    info: >
       [[[ {
       const temperature = Math.round(entity.state * 10) / 10;
       return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
-      <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°</text></svg>`; } ]]]
+      <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
     graph:
       card:
         type: custom:apexcharts-card
-        config_templates: climate_button_chart
+        config_templates: dashboard_button_chart
   styles:
     custom_fields:
       graph:
-        - bottom: 0%
+        - bottom: 5%
         - left: 0%
         - width: 100%
         - position: absolute
-      circle:
-        - display: initial
-        - width: 90%
-        - letter-spacing: 0.03vw
-        - margin: -6% -6% 0 0
-        - justify-self: end
-        - opacity: 1
       icon:
         - fill: "#9da0a2"
     state:
@@ -405,24 +415,19 @@ climate:
 dhw:
   template:
     - climate
-  show_state: false
-  show_name: false
+  show_state: true
+  show_name: true
   styles:
-    grid:
-      - grid-template-areas: |
-          "icon  circle"
-          "info  info"
-          "n     n"
-      - grid-template-rows: auto min-content 
-      #- grid-template-rows: auto repeat(2, min-content)
-    name:
-      - display: none
     custom_fields:
-      info:
-        - justify-self: start
-        - line-height: 115%
+      icon:
+      - color: >
+          [[[
+            if (variables.heating)
+              return 'var(--red)';
+            return "#9da0a2";
+          ]]]
   custom_fields:
-    circle: >
+    info: >
       [[[
         const currentTemperature = entity.attributes['current_temperature'];
         const temperature = entity.attributes['temperature'];
@@ -445,14 +450,14 @@ dhw:
               }
             </style>
             <circle cx="25" cy="25" r="${radius}" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="none" />
-            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${currentTemperature}°</tspan></text>
+            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${currentTemperature} °C</tspan></text>
           </svg>
         `;
       ]]]
-    info: >
-      [[[
-        return "Warm water (" + entity.attributes['temperature'] + "°)";
-      ]]]
+  state_display: >
+    [[[
+      return "Warm water (" + entity.attributes['temperature'] + "°)";
+    ]]]
 
 #################################################
 #                                               #
@@ -463,33 +468,37 @@ dhw:
 energy:
   template:
     - simple
+  variables:
+    consider_on: >
+      [[[ return false; ]]]
   custom_fields:
-    circle: >
+    info: >
       [[[
         let today = Math.round(states['sensor.daily_consumption_energy'].state);
         let price = Math.round(states['sensor.electricity_price_langeweide_28'].state * 100) / 100;
-        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 20px; height: 20px;"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:currency-eur" style="width: 20px; height: 20px;"></ha-icon> ${price}</span>`;
+        let level = states['sensor.energy_price_level'].state;
+        let color = 'var(--green)';
+        if (level === 'very_cheap') color = 'var(--blue)';
+        if (level === 'cheap') color = 'var(--green)';
+        if (level === 'normal') color = 'var(--yellow)';
+        if (level === 'expensive') color = 'var(--orange)';
+        if (level === 'very_expensive') color = 'var(--red)';
+        
+        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-icon> <span style="color: ${color}">${price}</span></span>`;
       ]]]
   styles:
     custom_fields:
       icon:
         - color: >
             [[[
-              let level = states['sensor.energy_price_level'].state;
-              if (level === 'very_cheap') return 'var(--blue)';
-              if (level === 'cheap') return 'var(--green)';
-              if (level === 'normal') return 'var(--yellow)';
-              if (level === 'expensive') return 'var(--orange)';
-              if (level === 'very_expensive') return 'var(--red)';
-              return 'var(--green)'
+              let color = 'var(--red)';
+              if (states['sensor.solaredge_modbus'].state/1000 > entity.state)
+                color = 'var(--green)';
+              return color;
             ]]]
   state_display: >
     [[[
-      let color = 'var(--red)';
-      if (states['sensor.solaredge_modbus'].state > entity.state)
-        color = 'var(--green)';
-
-      return `<span style="color: ${color}">-${Math.round(entity.state*1000)/1000} / +${states['sensor.solaredge_modbus'].state} kW</span>`;
+      return `<span>-${Math.round(entity.state*1000)/1000} / +${states['sensor.solaredge_modbus'].state/1000} kW</span>`;
     ]]]
 
 #################################################
@@ -500,7 +509,7 @@ energy:
 
 cats:
   template:
-    - simple
+    - base
     - circle
   variables:
     unit: 'x'
@@ -531,7 +540,7 @@ cats:
 
 sonos:
   template:
-    - simple
+    - base
     - circle
   variables:
     unit: ''
@@ -621,7 +630,7 @@ sonos:
 
 music:
   template:
-    - simple
+    - base
     - circle
   tap_action:
     action: more-info
@@ -639,7 +648,7 @@ music:
 
 door_window_group_base:
   template:
-    - simple
+    - base
     - circle
   variables:
     circle_input: >
@@ -728,16 +737,27 @@ cover:
         var state = entity === undefined || entity.state;
         return state !== 'open';
       ]]]
+    circle_input: >
+      [[[
+        if (entity) {
+          let real_position = entity.attributes.current_position*100/(100-25)-35;
+          return (real_position < 3) ? 0 : (real_position > 97) ? 100 : real_position;
+        }
+      ]]]
+    close_position: 25
+    quarter1_position: 50
+    middle_position: 70
+    quarter3_position: 85
   styles:
     custom_fields:
-      circle:
+      info:
         - text-align: right
   custom_fields:
-    circle: >
+    info: >
       [[[
         let coverage = states['sensor.openweathermap_cloud_coverage'].state;
         let temp = Math.round(states['sensor.openweathermap_forecast_temperature'].state*10)/10;
-        return `<span><ha-icon icon="mdi:cloud-outline" style="width: 20px; height: 20px;"></ha-icon> ${coverage}%<br/><ha-icon icon="mdi:thermometer" style="width: 20px; height: 20px;"></ha-icon> ${temp} °C</span>`;
+        return `<span><ha-icon icon="mdi:cloud-outline" style="width: 1rem;"></ha-icon> ${coverage}%<br/><ha-icon icon="mdi:thermometer" style="width: 1rem;"></ha-icon> ${temp} °C</span>`;
       ]]]
     icon: >
       [[[
@@ -857,7 +877,7 @@ person:
     icon: >
       [[[
         let icon = entity.state === "home" ? `mdi:home` : `mdi:exit-to-app`;
-        return `<ha-icon icon="${icon}" style="width: 20px; height: 20px;"></ha-icon>`
+        return `<ha-icon icon="${icon}" style="width: 1rem;"></ha-icon>`
       ]]]
 
 person_eva:

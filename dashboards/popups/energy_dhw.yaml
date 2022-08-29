@@ -64,28 +64,6 @@ browser_mod:
                 entities:
                   - water_heater.domestic_hot_water_tank
                 hours_to_show: 12
-              # - type: horizontal-stack
-              #   cards:
-              #     - type: button
-              #       icon: mdi:hvac
-              #       icon_height: 20px
-              #       name: "On"
-              #       tap_action:
-              #         action: call-service
-              #         service: water_heater.set_operation_mode
-              #         service_data:
-              #           entity_id: water_heater.domestic_hot_water_tank
-              #           operation_mode: "on"
-              #     - type: button
-              #       icon: mdi:hvac-off
-              #       icon_height: 20px
-              #       name: "Off"
-              #       tap_action:
-              #         action: call-service
-              #         service: water_heater.set_operation_mode
-              #         service_data:
-              #           entity_id: water_heater.domestic_hot_water_tank
-              #           operation_mode: "off"
       - type: vertical-stack
         view_layout:
           grid-area: details2

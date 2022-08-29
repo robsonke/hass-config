@@ -2146,10 +2146,11 @@
       minutes: 0
       seconds: 15
   action:
-  - type: turn_off
-    device_id: 53ec925ec7a298678226212147f4562a
-    entity_id: light.toilet_downstairs
-    domain: light
+  - service: light.turn_off
+    data:
+      transition: 10
+    target:
+      entity_id: light.toilet_downstairs
   mode: restart
 - id: '1642757425557'
   alias: Cast - Cast to Google Hub

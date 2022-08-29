@@ -109,8 +109,6 @@ devices:
     friendly_name: range_extender_tradfri_guest
   '0x00158d00053fdd80':
     friendly_name: window_guestroom_openclose
-  '0x00158d0004aae0e3':
-    friendly_name: climate_sensor_guestroom
   '0x00158d00053e0558':
     friendly_name: window_atticroom_openclose
   '0x00158d00053d6c24':
@@ -141,6 +139,8 @@ devices:
     friendly_name: door_terrace_openclose
   '0x8cf681fffe109d41':
     friendly_name: switch_alarm_activity
+  '0x00158d0007e66b1b':
+    friendly_name: climate_sensor_guestroom
 availability:
   active:
     timeout: 10

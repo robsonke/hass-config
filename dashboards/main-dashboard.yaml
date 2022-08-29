@@ -24,7 +24,7 @@ views:
       grid-template-areas: |
         "sidebar  .        .          .        ."
         "sidebar  home     living     kitchen  ."
-        "sidebar  rest     upstairs   energy   ."
+        "sidebar  garden   upstairs   energy   ."
         "sidebar  .        .          .        ."
       mediaquery:
         '(max-width: 800px)':
@@ -38,7 +38,7 @@ views:
             ".  living     ."
             ".  kitchen    ."
             ".  upstairs   ."
-            ".  rest       ."
+            ".  garden     ."
             ".  energy     ."
             ".  .          ."
         '(max-width: 1200px)':
@@ -48,7 +48,7 @@ views:
           grid-template-areas: |
             "sidebar  .        .          .        ."
             "sidebar  home     living     kitchen  ."
-            "sidebar  rest     upstairs   energy   ."
+            "sidebar  garden   upstairs   energy   ."
             "sidebar  .        .          .        ."
 
     cards:
@@ -235,7 +235,7 @@ views:
       #################################################
 
       - type: grid
-        title: Woonkamer
+        title: Beneden
         view_layout:
           grid-area: living
         columns: 2
@@ -275,38 +275,25 @@ views:
                 card:
                   series:
                     - entity: sensor.climate_sensor_living_temperature
+                      color: 'var(--red)'
+
           - type: custom:button-card
-            entity: cover.voorraam
-            name: Voorkant
-            template: cover
-            variables:
-              circle_input: >
-                [[[
-                  if (entity) {
-                    let real_position = entity.attributes.current_position*100/(100-25)-35;
-                    return (real_position < 3) ? 0 : (real_position > 97) ? 100 : real_position;
-                  }
-                ]]]
-              close_position: 25
-              quarter1_position: 50
-              middle_position: 70
-              quarter3_position: 85
+            entity: group.music_downstairs
+            name: Muziek
+            triggers_update:
+              - media_player.eetkamer
+              - media_player.office
+              - media_player.living_room
+              - media_player.zithoek
+            template:
+              - sonos
           - type: custom:button-card
-            entity: cover.zijraam
-            name: Zijkant
-            template: cover
-            variables:
-              circle_input: >
-                [[[
-                  if (entity) {
-                    let real_position = entity.attributes.current_position*100/(100-25)-35;
-                    return (real_position < 3) ? 0 : (real_position > 97) ? 100 : real_position;
-                  }
-                ]]]
-              close_position: 25
-              quarter1_position: 50
-              middle_position: 70
-              quarter3_position: 85
+            entity: group.doors_and_windows_downstairs
+            name: Deuren
+            template:
+              - door_window_group_downstairs
+            group_expand: true
+          
 
       #################################################
       #                                               #
@@ -340,25 +327,9 @@ views:
                       ]]]
                   - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
           - type: custom:button-card
-            entity: group.music_downstairs
-            name: Muziek
-            triggers_update:
-              - media_player.eetkamer
-              - media_player.office
-              - media_player.living_room
-              - media_player.zithoek
-            template:
-              - sonos
-          - type: custom:button-card
-            entity: group.doors_and_windows_downstairs
-            name: Deuren
-            template:
-              - door_window_group_downstairs
-            group_expand: true
-          - type: custom:button-card
             entity: device_tracker.ix3
             template:
-              - simple
+              - base
               - circle
             tap_action:
               !include popups/car_ix3.yaml
@@ -398,17 +369,27 @@ views:
                 [[[
                   return states['binary_sensor.ix3_charging_status'].state == 'on';
                 ]]]
+            state_display: >
+              [[[ return html`<span style="text-transform: capitalize">${entity.state} (${states['sensor.ix3_remaining_range_electric'].state} km)</span>`;  ]]]
+          - type: custom:button-card
+            entity: cover.voorraam
+            name: Voorkant
+            template: cover
+          - type: custom:button-card
+            entity: cover.zijraam
+            name: Zijkant
+            template: cover
 
       #################################################
       #                                               #
-      #                  Rest                         #
+      #                  Garden                       #
       #                                               #
       #################################################
 
       - type: grid
-        title: Overig
+        title: Tuin
         view_layout:
-          grid-area: rest
+          grid-area: garden
         columns: 2
         cards:
           - type: custom:button-card
@@ -479,6 +460,7 @@ views:
                 card:
                   series:
                     - entity: sensor.climate_sensor_kitchen_temperature
+                      color: 'var(--red)'
           - type: custom:button-card
             entity: group.lights_office
             name: Verlichting
@@ -504,6 +486,7 @@ views:
                 card:
                   series:
                     - entity: sensor.climate_sensor_office_temperature
+                      color: 'var(--red)'
 
       #################################################
       #                                               #
@@ -552,6 +535,7 @@ views:
                 card:
                   series:
                     - entity: sensor.climate_sensor_masterbedroom_temperature
+                      color: 'var(--red)'
           - type: custom:button-card
             entity: group.doors_and_windows_upstairs
             name: Ramen
@@ -572,11 +556,6 @@ views:
       #                  Energy                       #
       #                                               #
       #################################################
-
-      # tibber
-      # dhw
-      # pump
-      
 
       - type: grid
         title: Energie
@@ -609,6 +588,7 @@ views:
                 card:
                   series:
                     - entity: sensor.climate_sensor_living_temperature
+                      color: 'var(--red)'
           - type: custom:button-card
             entity: water_heater.domestic_hot_water_tank
             name: Warm water
@@ -633,9 +613,6 @@ views:
                       attribute: 
                         current_temperature
                       color: 'var(--red)'
-                      group_by:
-                        func: avg
-                        duration: 10m
           - type: custom:button-card
             entity: sensor.net_power_consumption
             triggers_update:
@@ -651,16 +628,26 @@ views:
           - type: custom:button-card
             entity: sensor.water_meter_current_usage
             triggers_update: sensor.water_daily
-            name: Water
+            name: Water verbruik
             template:
               - simple
-              - circle
             tap_action:
               !include popups/energy_water.yaml
-            variables:
-              unit: m3
-              circle_input: >
-                [[[ return Math.round(states['sensor.water_daily'].state*100)/100; ]]]
+            custom_fields:
+              info: >
+                [[[
+                  let water = Math.round(states['sensor.water_daily'].state*100)/100;
+                  return `<span>${water} ${states['sensor.water_daily'].attributes['unit_of_measurement']}<br/>${entity.state} ${entity.attributes['unit_of_measurement']}</span>`;
+                ]]]
+              graph:
+                card:
+                  type: custom:apexcharts-card
+                  config_templates: dashboard_button_chart
+                  series:
+                    - entity: sensor.water_meter_current_usage
+                      group_by:
+                        func: avg
+                        duration: 10m
             styles:
               custom_fields:
                 icon:
@@ -669,3 +656,10 @@ views:
                         if (entity.state > 0)
                           return 'var(--blue)';
                       ]]]
+                graph:
+                  - bottom: 0%
+                  - left: 0%
+                  - width: 100%
+                  - position: absolute
+              state:
+                - color: rgba(0, 0, 0, 0)

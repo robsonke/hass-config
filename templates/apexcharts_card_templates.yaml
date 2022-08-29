@@ -52,9 +52,6 @@ climate_chart:
     plotOptions:
       area:
         fillTo: end
-    # grid:
-    #   padding:
-    #     top: -15
     fill:
       type: gradient
       gradient:
@@ -72,9 +69,6 @@ climate_chart:
         fontSize: 14px
       x:
         format: dddd HH:mm
-    # chart:
-    #   height: 140px
-    #   offsetY: -20px
     xaxis:
       show: true
       showAlways: true
@@ -86,14 +80,14 @@ climate_chart:
       show: true
       showAlways: true
 
-climate_button_chart:
+dashboard_button_chart:
   layout: minimal
   locale: nl
-  graph_span: 8h
+  graph_span: 4h
   show:
     loading: false
   all_series_config:
-    color: '#3182b7'
+    color: 'var(--blue)'
   apex_config:
     plotOptions:
       area:
@@ -101,22 +95,12 @@ climate_button_chart:
     grid:
       padding:
         top: -15
-    fill:
-      type: gradient
-      gradient:
-        type: vertical
-        opacityFrom: 1.0
-        opacityTo: 0.8
-        stops:
-          - 0
-          - 99
-          - 100
     stroke:
       width: 3
     tooltip: 
       enabled: false
     chart:
-      height: 60px
+      height: 40px
     xaxis:
       crosshairs:
         show: false
