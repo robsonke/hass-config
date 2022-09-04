@@ -273,7 +273,7 @@
   trigger:
   - platform: numeric_state
     entity_id: sensor.lightlevel_living
-    below: '50'
+    below: '30'
   condition:
   - condition: and
     conditions:
@@ -314,7 +314,7 @@
   trigger:
   - platform: numeric_state
     entity_id: sensor.lightlevel_living
-    below: '50'
+    below: '30'
     for:
       hours: 0
       minutes: 5
@@ -339,6 +339,7 @@
     type: is_disarmed
   action:
   - service: script.lights_on_home
+    data: {}
   - delay: '1'
   mode: single
 - id: backup_snapshots_stale
@@ -1167,13 +1168,13 @@
         conditions:
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_temperature
-          above: '16'
+          above: '18'
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_cloud_coverage
           below: '80'
       - condition: numeric_state
         entity_id: sensor.openweathermap_forecast_temperature
-        above: '24'
+        above: '20'
     - condition: device
       device_id: eb69e1ad4596ef0df19b685a4e84e026
       domain: cover
@@ -1208,7 +1209,7 @@
     at: '18:00:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
-    above: '80'
+    above: '90'
     for:
       hours: 0
       minutes: 10
@@ -1216,9 +1217,9 @@
   - platform: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
-      hours: 0
-      minutes: 0
-      seconds: 10
+      hours: 1
+      minutes: 1
+      seconds: 0
     above: '0'
     below: '1000'
   condition:
@@ -1268,7 +1269,7 @@
     at: '21:00'
   - platform: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
-    above: '80'
+    above: '90'
     for:
       hours: 0
       minutes: 10
@@ -1720,7 +1721,7 @@
       state: 'off'
     - condition: numeric_state
       entity_id: sensor.lightlevel_living
-      below: '50'
+      below: '30'
   action:
   - service: script.lights_on_home
     data: {}
@@ -1794,11 +1795,17 @@
     - condition: state
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
-    - condition: state
-      entity_id: light.zwave_light_corner_level
-      state: 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: light.zwave_light_corner_level
+        state: 'on'
+      - condition: state
+        entity_id: light.kitchendesk_light
+        state: 'on'
   action:
   - service: script.lights_down_stairs_off
+    data: {}
   mode: single
 - id: '1635281191811'
   alias: Music - Turn off music when we left
@@ -2168,6 +2175,10 @@
   - platform: numeric_state
     entity_id: zone.home
     above: '0'
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
   condition:
   - condition: device
     type: is_on
@@ -2541,7 +2552,7 @@
           below: '80'
       - condition: numeric_state
         entity_id: sensor.openweathermap_forecast_temperature
-        above: '24'
+        above: '20'
     - condition: device
       device_id: 7a674f956b15af8decebb36355772928
       domain: cover
@@ -2606,6 +2617,10 @@
       hours: 0
       minutes: 0
       seconds: 0
+  - condition: numeric_state
+    entity_id: sensor.energy_price_level
+    attribute: percentage
+    below: '116'
   action:
   - service: water_heater.set_temperature
     data:
@@ -2694,4 +2709,106 @@
       data:
         persistent: true
         tag: persistent
+  mode: single
+- id: '1661801771945'
+  alias: System - Refresh wall tablet
+  description: After a restart or frontend changes, force a refresh
+  trigger:
+  - platform: event
+    event_type: lovelace_updated
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: browser_mod.window_reload
+    data:
+      deviceID: ipad-kitchen
+  mode: single
+- id: '1661977922126'
+  alias: Heating - Control HVAC mode downstairs
+  description: 'Set the HVAC mode (heat/cool/off) for the heat pump. By default off,
+    cooling when it is expected to be hot outside and also becoming hotter inside,
+    heating when the indoor temperature is low and outside also getting cooler.
+
+    This still doesn''t mean that the pump would start, it will still use its indoor
+    sensors. And even when it does turn on, other automations might stop that, based
+    on the heating and cooling input booleans.'
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.downstairs_temperature
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        below: '20'
+      - condition: numeric_state
+        entity_id: sensor.today_maximum_temperature
+        below: '15'
+      sequence:
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.warmtepomp
+        data:
+          hvac_mode: heat
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        above: '20'
+        below: '24'
+      sequence:
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.warmtepomp
+        data:
+          hvac_mode: 'off'
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        above: '23'
+      - condition: numeric_state
+        entity_id: sensor.today_maximum_temperature
+        above: '26'
+      sequence:
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.warmtepomp
+        data:
+          hvac_mode: cool
+    default:
+    - service: climate.set_hvac_mode
+      data:
+        hvac_mode: 'off'
+      target:
+        entity_id: climate.warmtepomp
+  mode: queued
+  max: 3
+- id: '1662038485202'
+  alias: System - Control the wallpanel screensave mode during the night
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.night_mode
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.night_mode
+        state: 'on'
+      sequence:
+      - service: input_text.set_value
+        data:
+          value: night
+        target:
+          entity_id: input_text.wallpanel_screensaver_profile
+    default:
+    - service: input_text.set_value
+      data:
+        value: standard
+      target:
+        entity_id: input_text.wallpanel_screensaver_profile
   mode: single

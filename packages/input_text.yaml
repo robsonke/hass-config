@@ -22,3 +22,8 @@ input_text:
   irrigation_zone_achter_links_times:
     name: Schema zone achter links
     icon: mdi:chart-timeline
+
+  wallpanel_screensaver_profile:
+    name: Wallpaper Screensaver Profile
+    icon: mdi:wall
+    initial: standard

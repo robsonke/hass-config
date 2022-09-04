@@ -17,3 +17,4 @@ logger:
     homeassistant.components.casambi: info
     custom_components.casambi: info
     aiocasambi: info
+    custom_components.powercalc: debug

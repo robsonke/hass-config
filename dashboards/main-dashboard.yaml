@@ -2,18 +2,19 @@ button_card_templates: !include ../templates/button_card_templates.yaml
 apexcharts_card_templates: !include ../templates/apexcharts_card_templates.yaml
 decluttering_templates: !include ../templates/decluttering_templates.yaml
 
-wallpanel_screensaver:
+wallpanel:
   enabled: true
   idle_time: 0
   hide_toolbar: true
-  night_mode:
-    start_time: '23:00'
-    end_time: '06:30'
-    idle_time: 15
-    black_screen_after_time: 300
-    display_tint: 75
-    image_url: ''
-
+  style:
+    wallpanel-screensaver-overlay:
+      background: '#000000bb'
+  profiles:
+    night:
+      idle_time: 15
+      info_animation_duration_x: 0
+      info_animation_duration_y: 0
+  screensaver_entity: input_text.wallpanel_screensaver_profile
 views:
   - type: custom:grid-layout
     path: 0
@@ -23,8 +24,8 @@ views:
       grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
       grid-template-areas: |
         "sidebar  .        .          .        ."
-        "sidebar  home     living     kitchen  ."
-        "sidebar  garden   upstairs   energy   ."
+        "sidebar  home     downstairs upstairs ."
+        "sidebar  garden   energy     .        ."
         "sidebar  .        .          .        ."
       mediaquery:
         '(max-width: 800px)':
@@ -35,8 +36,7 @@ views:
             ".  .          ."
             ".  sidebar    ."
             ".  home       ."
-            ".  living     ."
-            ".  kitchen    ."
+            ".  downstairs ."
             ".  upstairs   ."
             ".  garden     ."
             ".  energy     ."
@@ -47,8 +47,8 @@ views:
           grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
           grid-template-areas: |
             "sidebar  .        .          .        ."
-            "sidebar  home     living     kitchen  ."
-            "sidebar  garden   upstairs   energy   ."
+            "sidebar  home     downstairs upstairs ."
+            "sidebar  garden   energy     .        ."
             "sidebar  .        .          .        ."
 
     cards:
@@ -237,28 +237,28 @@ views:
       - type: grid
         title: Beneden
         view_layout:
-          grid-area: living
+          grid-area: downstairs
         columns: 2
         cards:
           - type: custom:button-card
-            entity: group.lights_living
+            entity: group.lights_downstairs
             name: Verlichting
             template:
               - light_group
             group_expand: true
             tap_action:
-              !include popups/light_living.yaml
+              !include popups/light_downstairs.yaml
             hold_action:
               action: none
           - type: custom:button-card
-            entity: sensor.climate_sensor_living_temperature
+            entity: sensor.downstairs_temperature
             name: Klimaat
             template:
               - climate
               - icon_temp
             triggers_update: climate.warmtepomp
             tap_action:
-              !include popups/climate_living.yaml
+              !include popups/climate_downstairs.yaml
             hold_action:
               action: none
             variables:
@@ -274,7 +274,7 @@ views:
               graph:
                 card:
                   series:
-                    - entity: sensor.climate_sensor_living_temperature
+                    - entity: sensor.downstairs_temperature
                       color: 'var(--red)'
 
           - type: custom:button-card
@@ -429,64 +429,64 @@ views:
       #                                               #
       #################################################
 
-      - type: grid
-        title: Kook/Eet/Werk
-        view_layout:
-          grid-area: kitchen
-        columns: 2
-        cards:
-          - type: custom:button-card
-            entity: group.lights_kitchen
-            name: Keuken / Eetkamer
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/light_dining_kitchen.yaml
-            hold_action:
-              action: none
-          - type: custom:button-card
-            entity: sensor.climate_sensor_kitchen_temperature
-            name: Klimaat
-            template:
-              - climate
-              - icon_temp
-            tap_action:
-              !include popups/climate_kitchen.yaml
-            hold_action:
-              action: none
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.climate_sensor_kitchen_temperature
-                      color: 'var(--red)'
-          - type: custom:button-card
-            entity: group.lights_office
-            name: Verlichting
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/light_office.yaml
-            hold_action:
-              action: none
-          - type: custom:button-card
-            entity: sensor.climate_sensor_office_temperature
-            name: Klimaat
-            template:
-              - climate
-              - icon_temp
-            tap_action:
-              !include popups/climate_office.yaml
-            hold_action:
-              action: none
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.climate_sensor_office_temperature
-                      color: 'var(--red)'
+      # - type: grid
+      #   title: Kook/Eet/Werk
+      #   view_layout:
+      #     grid-area: kitchen
+      #   columns: 2
+      #   cards:
+      #     - type: custom:button-card
+      #       entity: group.lights_kitchen
+      #       name: Keuken / Eetkamer
+      #       template:
+      #         - light_group
+      #       group_expand: true
+      #       tap_action:
+      #         !include popups/light_dining_kitchen.yaml
+      #       hold_action:
+      #         action: none
+      #     - type: custom:button-card
+      #       entity: sensor.climate_sensor_kitchen_temperature
+      #       name: Klimaat
+      #       template:
+      #         - climate
+      #         - icon_temp
+      #       tap_action:
+      #         !include popups/climate_kitchen.yaml
+      #       hold_action:
+      #         action: none
+      #       custom_fields:
+      #         graph:
+      #           card:
+      #             series:
+      #               - entity: sensor.climate_sensor_kitchen_temperature
+      #                 color: 'var(--red)'
+      #     - type: custom:button-card
+      #       entity: group.lights_office
+      #       name: Verlichting
+      #       template:
+      #         - light_group
+      #       group_expand: true
+      #       tap_action:
+      #         !include popups/light_office.yaml
+      #       hold_action:
+      #         action: none
+      #     - type: custom:button-card
+      #       entity: sensor.climate_sensor_office_temperature
+      #       name: Klimaat
+      #       template:
+      #         - climate
+      #         - icon_temp
+      #       tap_action:
+      #         !include popups/climate_office.yaml
+      #       hold_action:
+      #         action: none
+      #       custom_fields:
+      #         graph:
+      #           card:
+      #             series:
+      #               - entity: sensor.climate_sensor_office_temperature
+      #                 color: 'var(--red)'
 
       #################################################
       #                                               #
@@ -564,7 +564,7 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
-            entity: sensor.climate_sensor_living_temperature
+            entity: sensor.downstairs_temperature
             name: Warmtepomp
             template:
               - climate
@@ -575,6 +575,7 @@ views:
             hold_action:
               action: none
             variables:
+              icon: "mdi:radiator"
               heating: >
                 [[[
                   return states['sensor.altherma_operation_mode'].state === 'Heating' && states['switch.climate_control'].state === 'on'
@@ -587,7 +588,7 @@ views:
               graph:
                 card:
                   series:
-                    - entity: sensor.climate_sensor_living_temperature
+                    - entity: sensor.downstairs_temperature
                       color: 'var(--red)'
           - type: custom:button-card
             entity: water_heater.domestic_hot_water_tank

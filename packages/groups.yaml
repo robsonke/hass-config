@@ -97,7 +97,7 @@ group:
       - binary_sensor.updater
       - sensor.althermasensors
 
-  lights_living:
+  lights_downstairs:
     name: Woonkamer
     icon: mdi:lamps
     entities:
@@ -106,24 +106,12 @@ group:
       - light.zwave_light_couch_level
       - light.zwave_light_corner_level
       - light.ledstrip_tv
-  lights_dining:
-    name: Eetkamer
-    icon: mdi:lamps
-    entities:
       - light.dining_light
       - light.boekenkast
       - light.diningtable_light
-  lights_kitchen:
-    name: Keuken
-    icon: mdi:lamps
-    entities:
       - light.kitchen_light
       - light.kitchencabin_light
       - light.kitchendesk_light
-  lights_office:
-    name: Kantoor
-    icon: mdi:lamps
-    entities:
       - light.office_lights
       - light.ledstrip_office
   lights_upstairs:

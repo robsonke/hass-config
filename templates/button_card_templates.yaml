@@ -32,7 +32,12 @@ base:
     [[[ if (variables.state === true) return 'Onbekend'; ]]]
   custom_fields:
     icon: >
-      [[[ return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`; ]]]
+      [[[ 
+        let icon = entity.attributes.icon;
+        if (variables.icon)
+          icon = variables.icon;
+        return `<ha-icon icon="${icon}"></ha-icon>`;
+      ]]]
   styles:
     grid:
       - grid-template-areas: |
@@ -417,6 +422,9 @@ dhw:
     - climate
   show_state: true
   show_name: true
+  variables:
+    consider_on: >
+      [[[ return entity.attributes['operation_mode'] === 'on'; ]]]
   styles:
     custom_fields:
       icon:

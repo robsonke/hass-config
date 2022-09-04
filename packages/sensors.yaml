@@ -81,6 +81,13 @@ sensor:
   method: trapezoidal
   unit_prefix: k
   round: 2
+- platform: integration
+  source: sensor.shelly_plug_koelkast_power
+  name: Shelly Plug Koelkast Energy Usage
+  unique_id: shelly_plug_koelkast_energy_usage
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
 
 - platform: history_stats
   name: Cat door today
@@ -89,6 +96,17 @@ sensor:
   type: count
   start: "{{ now().replace(hour=0, minute=0, second=0) }}"
   end: "{{ now() }}"
+
+
+- platform: min_max
+  name: Downstairs Temperature
+  type: mean
+  round_digits: 1
+  entity_ids:
+    - sensor.climate_sensor_kitchen_temperature
+    - sensor.climate_sensor_office_temperature
+    - sensor.climate_sensor_living_temperature
+    - sensor.indoor_temperature
 
 - platform: rest
   name: hass_release_notes
@@ -154,3 +172,209 @@ sensor:
   dateformat: "%d-%m-%Y"
   locale: "nl"
   timespanindays: 365
+
+# Lots of power sensors based on powercalc for existing entities
+# TODO
+# - nest mini's
+# - chargers
+# - pump
+
+# moved car charging to a separate entity since it blows up the groups
+- platform: powercalc
+  entity_id: sensor.ix3_charging_status
+  name: iX3 Charging
+  fixed:
+    power: "{{ iif(is_state('binary_sensor.ix3_charging_status', 'on'), 10000, 0) }}"
+- platform: powercalc
+  create_group: All Powercalc Entities
+  entities:
+    - create_group: All Housekeeping Entities
+      entities:
+        - entity_id: vacuum.sjorsje
+          fixed:
+            states_power:
+              charging: 28
+              docked: >
+                {%- if is_state('vacuum.sjorsje', 'docked') and states('sensor.sjorsje_battery_level') | int(default=0) < 100 %} 28 {%- else %} 3.6 {%- endif %}
+              paused: 0
+              cleaning: 0
+        # Fake power entities
+        - name: Quooker
+          unique_id: quooker
+          daily_fixed_energy:
+            value: 10
+            unit_of_measurement: W
+        - name: Air Quality
+          unique_id: air_quality
+          daily_fixed_energy:
+            value: 20
+            unit_of_measurement: W
+    - create_group: All Media
+      entities:
+        # See https://support.sonos.com/s/article/256?language=en_US
+        - entity_id: media_player.living_room
+          name: Sonos Woonkamer
+          fixed:
+            states_power:
+              playing: 12
+              paused: 2.2
+              idle: 2.2
+        - entity_id: media_player.eetkamer
+          name: Sonos Eetkamer
+          fixed:
+            states_power:
+              playing: 12
+              paused: 2.2
+              idle: 2.2
+        - create_group: TV Woonkamer Group
+          entities:
+          - entity_id: media_player.tv_room
+            name: Sonos TV
+            fixed:
+              # Sonos Beam Gen 2 + 2X Sonos Play:1
+              # 6,3W + 3.4 + 3.4
+              power: 13.1
+              states_power:
+                # 9W + 4.5W + 4.5W
+                playing: 18
+          - entity_id: media_player.samsung_qn95aa_55_tv
+            standby_power: 0.5
+            ignore_unavailable_state: true
+            fixed:
+              states_power:
+                power: 103
+                idle: 103
+                paused: 103
+                playing: 103
+        - entity_id: media_player.samsung_7_series_43
+          standby_power: 0.5
+          ignore_unavailable_state: true
+          fixed:
+            states_power:
+              power: 115
+              idle: 115
+              paused: 115
+              playing: 115
+    # Most of the lights are auto discovered
+    - create_group: All Manual Lights
+      entities:
+        - entity_id: light.office_lights
+          linear:
+            min_power: 0.5
+            # 6 * 5.5W
+            max_power: 33
+        - entity_id: light.kitchencabin_light
+          linear:
+            # 2 * 5.5W
+            min_power: 0.5
+            max_power: 11
+        - entity_id: light.kitchen_light
+          linear:
+            # 5 * 5.5W
+            min_power: 0.5
+            max_power: 27.5
+        - entity_id: light.kitchendesk_light
+          linear:
+            # 5 * 8W
+            min_power: 0.5
+            max_power: 40
+            
+        - entity_id: light.dining_light
+          linear:
+            # 5 * 5.5W
+            min_power: 0.5
+            max_power: 27.5
+        - entity_id: light.diningtable_light
+          linear:
+            # 2 * 9W
+            min_power: 0.5
+            max_power: 18
+        # Living Room
+        - entity_id: light.livingback_light
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.livingfront_light
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.zwave_light_corner_level
+          linear:
+            # 3 * 3.8W
+            min_power: 0.5
+            max_power: 11.4
+        - entity_id: light.zwave_light_couch_level
+          linear:
+            # 3 * 5W
+            min_power: 0.5
+            max_power: 15
+        # Hall and upstairs
+        - entity_id: light.hal
+          linear:
+            # 5 * 5.5W
+            min_power: 0.5
+            max_power: 27.5
+        - entity_id: light.overloop
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.logeerkamer
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.zolder
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.slaapkamer_eva
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.badkamer
+          linear:
+            # 5 * 5.5W
+            min_power: 0.5
+            max_power: 27.5
+        - entity_id: light.hoofdslaapkamer
+          linear:
+            # 5 * 5.5W
+            min_power: 0.5
+            max_power: 27.5
+        - entity_id: light.inloopkast
+          linear:
+            # 4 * 5.5W
+            min_power: 0.5
+            max_power: 22
+        - entity_id: light.douche
+          linear:
+            # 2 * 5.5W
+            min_power: 0.5
+            max_power: 11
+        # Garden
+        - entity_id: light.garden_lantern_light1
+          linear:
+            # 1 * 7W
+            min_power: 0.5
+            max_power: 7
+        - entity_id: light.garden_lantern_light2
+          linear:
+            # 1 * 7W
+            min_power: 0.5
+            max_power: 7
+        - entity_id: light.garden_lantern_light3
+          linear:
+            # 1 * 7W
+            min_power: 0.5
+            max_power: 7
+        - entity_id: light.garden_light
+          linear:
+            # 4 * cubes (12W)
+            # 2 * wall (5W)
+            min_power: 0.5
+            max_power: 58

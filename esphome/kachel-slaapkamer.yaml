@@ -54,6 +54,9 @@ globals:
     restore_value: yes
     initial_value: "0.0"
 
+preferences:
+  flash_write_interval: 300s
+
 uart:
   rx_pin: GPIO13
   tx_pin: GPIO15
@@ -187,7 +190,6 @@ sensor:
     state_class: total_increasing
     unit_of_measurement: kWh
     accuracy_decimals: 3
-    min_save_interval: 300s
     force_update: true
     filters:
       # Multiplication factor from W to kW is 0.001.

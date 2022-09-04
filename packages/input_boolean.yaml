@@ -15,6 +15,7 @@ input_boolean:
   enable_automatic_garden_lights:
     name: Enable Garden Lights Automation
     icon: mdi:weather-sunset-down
+  
   guest_mode:
     name: Guest Mode
     icon: mdi:account-group
@@ -24,6 +25,14 @@ input_boolean:
   night_mode:
     name: Nacht Mode
     icon: mdi:weather-night
+  
   alarm_active:
     name: Alarm actief
     icon: mdi:alarm-light
+  
+  heating_downstairs:
+    name: Heating downstairs
+    icon: mdi:radiator
+  cooling_downstairs:
+    name: Cooling downstairs
+    icon: mdi:fan
