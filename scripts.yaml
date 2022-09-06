@@ -215,9 +215,11 @@ reload_frontend:
   alias: Reload frontend
   sequence:
   - service: template.reload
-  - service: browser_mod.lovelace_reload
+  - service: browser_mod.javascript
+    data:
+      code: "lovelace_reload();"
   - service: frontend.reload_themes
-  - service: browser_mod.window_reload
+  - service: browser_mod.refresh
   mode: single
   icon: mdi:restart
 lights_off_upstairs:

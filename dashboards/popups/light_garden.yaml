@@ -1,55 +1,60 @@
 action: fire-dom-event
 browser_mod:
-  command: popup
-  title: Tuin verlichting
-  card:
-    type: grid
-    columns: 3
-    cards:
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.garden_light
-          - title: Wandlampen
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.dimmer_cabinroof_level
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.garden_lantern_light1
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.garden_lantern_light2
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.garden_lantern_light3
-      - type: custom:decluttering-card
-        template: light_button
-        variables:
-          - entity: light.hue_lily_light_fence_1
-          - title: Hek 1
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.hue_lily_light_fence_2
-          - title: Hek 2
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.hue_lily_light_fence_3
-          - title: Hek 3
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.hue_lily_light_tree_1
-          - title: Boom 1
+  service: browser_mod.popup
+  data:
+    title: Tuin beregening
+    style: |-
+      --popup-padding-x: 24px;
+      --popup-padding-y: 20px;
+      --popup-border-radius: 1em;
+    content:
+      type: grid
+      columns: 3
+      cards:
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.garden_light
+            - title: Wandlampen
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.dimmer_cabinroof_level
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.garden_lantern_light1
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.garden_lantern_light2
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.garden_lantern_light3
+        - type: custom:decluttering-card
+          template: light_button
+          variables:
+            - entity: light.hue_lily_light_fence_1
+            - title: Hek 1
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.hue_lily_light_fence_2
+            - title: Hek 2
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.hue_lily_light_fence_3
+            - title: Hek 3
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.hue_lily_light_tree_1
+            - title: Boom 1
 
-      - type: custom:button-card
-        entity: switch.pool_fountain
-        name: Fontein
-        template:
-          - simple
+        - type: custom:button-card
+          entity: switch.pool_fountain
+          name: Fontein
+          template:
+            - simple

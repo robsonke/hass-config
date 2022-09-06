@@ -1,76 +1,81 @@
 action: fire-dom-event
 browser_mod:
-  command: popup
-  title: Woonkamer verlichting
-  card:
-    type: grid
-    columns: 3
-    cards:
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - title: Achter
-          - entity: light.livingback_light
-      - type: custom:decluttering-card
-        template: light_button
-        variables:
-          - title: Voor
-          - entity: light.livingfront_light
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.zwave_light_couch_level
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.zwave_light_corner_level
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.ledstrip_tv
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - title: Toilet
-          - entity: light.toilet_downstairs
+  service: browser_mod.popup
+  data:
+    title: Woonkamer verlichting
+    style: |-
+      --popup-padding-x: 24px;
+      --popup-padding-y: 20px;
+      --popup-border-radius: 1em;
+    content:
+      type: grid
+      columns: 3
+      cards:
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - title: Achter
+            - entity: light.livingback_light
+        - type: custom:decluttering-card
+          template: light_button
+          variables:
+            - title: Voor
+            - entity: light.livingfront_light
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.zwave_light_couch_level
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.zwave_light_corner_level
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.ledstrip_tv
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - title: Toilet
+            - entity: light.toilet_downstairs
 
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.kitchen_light
-          - title: Keuken
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.kitchencabin_light
-          - title: Keukenkast
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.kitchendesk_light
-          - title: Kookeiland
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.dining_light
-          - title: Eetkamer
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.diningtable_light
-          - title: Eettafel
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.boekenkast
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.kitchen_light
+            - title: Keuken
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.kitchencabin_light
+            - title: Keukenkast
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.kitchendesk_light
+            - title: Kookeiland
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.dining_light
+            - title: Eetkamer
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.diningtable_light
+            - title: Eettafel
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.boekenkast
 
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.office_lights
-          - title: Kantoor
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.ledstrip_office
-          - title: Led Bureau
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.office_lights
+            - title: Kantoor
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.ledstrip_office
+            - title: Led Bureau

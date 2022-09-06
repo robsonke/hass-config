@@ -1,47 +1,52 @@
 action: fire-dom-event
 browser_mod:
-  command: popup
-  title: Bovenverdieping verlichting
-  card:
-    type: grid
-    columns: 3
-    cards:
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.hoofdslaapkamer
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.inloopkast
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.douche
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - title: Eva
-          - entity: light.slaapkamer_eva
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.badkamer
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - title: Logeer
-          - entity: light.logeerkamer
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.zolder
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.overloop
-      - type: custom:decluttering-card
-        template: light_button
-        variables: 
-          - entity: light.hal
+  service: browser_mod.popup
+  data:
+    title: Bovenverdieping verlichting
+    style: |-
+      --popup-padding-x: 24px;
+      --popup-padding-y: 20px;
+      --popup-border-radius: 1em;
+    content:
+      type: grid
+      columns: 3
+      cards:
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.hoofdslaapkamer
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.inloopkast
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.douche
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - title: Eva
+            - entity: light.slaapkamer_eva
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.badkamer
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - title: Logeer
+            - entity: light.logeerkamer
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.zolder
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.overloop
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.hal
 

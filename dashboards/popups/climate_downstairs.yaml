@@ -1,140 +1,131 @@
 action: fire-dom-event
 browser_mod:
-  command: popup
-  title: Woonkamer klimaat
-  style:
-    .: |
-      :host .content {
-        width: 60em;
-        height: 100%;
-      }
-      @media (max-width: 800px) {
-        :host .content {
-          width: 100%;
-        }
-      }
-  card:
-    type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 1fr 1fr
-      grid-template-rows: auto
-      grid-gap: var(--grid-card-gap)
-      grid-template-areas: |
-        "climate thermostat"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "thermostat"
-            "climate"
-    cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: thermostat
-        cards:
-          - type: history-graph
-            hours_to_show: 12
-            refresh_interval: 30
-            entities:
-              - sensor.altherma_operation_mode
-          - type: 'custom:simple-thermostat'
-            entity: climate.warmtepomp
-            version: 3
-            layout:
-              step: row
-            header: false
-            sensors: false
-            style: |
-              div.mode-title {
-                display: none;
-              }
-              .modes.heading {
-                grid-template-columns: auto !important;
-              }
-          - type: entities
-            entities:
-              - entity: switch.climate_control
-              - entity: select.operation_mode
-              - entity: sensor.indoor_temperature
-              - entity: sensor.leaving_water_temperature
-              - entity: sensor.outdoor_temperature
-      - type: vertical-stack
-        view_layout:
-          grid-area: climate
-        cards:
-          - type: custom:apexcharts-card
-            config_templates: climate_chart
-            header:
-              title: Temperatuur
-            series:
-              - entity: sensor.climate_sensor_living_temperature
-                name: Temperatuur Woonkamer
-                color: '#e74c3c'
-                type: area
-                fill_raw: last
-                group_by:
-                  func: avg
-                  duration: 1h
-          - type: custom:apexcharts-card
-            view_layout:
-              grid-area: temp
-            config_templates: climate_chart
-            header:
-              title: Temperatuur Overig
-            series:
-              - entity: sensor.climate_sensor_office_temperature
-                name: Kantoor
-                color: '#e74c3c' 
-                type: area
-                fill_raw: last
-                group_by:
-                  func: avg
-                  duration: 1h
-              - entity: sensor.climate_sensor_kitchen_temperature
-                name: Keuken
-                color: '#e74c3c'
-                type: area
-                fill_raw: last
-                group_by:
-                  func: avg
-                  duration: 1h
-          - type: custom:apexcharts-card
-            config_templates: climate_chart
-            header:
-              title: Luchtvochtigheid
-            series:
-              - entity: sensor.climate_sensor_living_humidity
-                name: Woonkamer
-                color: 'blue'
-                type: area
-                fill_raw: last
-                group_by:
-                  func: avg
-                  duration: 1h
-              - entity: sensor.climate_sensor_office_humidity
-                name: Kantoor
-                color: 'blue'
-                type: area
-                fill_raw: last
-                group_by:
-                  func: avg
-                  duration: 1h
-              - entity: sensor.climate_sensor_kitchen_humidity
-                name: Keuken
-                color: 'blue'
-          - type: custom:apexcharts-card
-            config_templates: climate_chart
-            header:
-              title: Lichtsterkte
-            series:
-              - entity: sensor.lightlevel_living
-                name: Woonkamer
-                color: '#F7BF10'
-              - entity: sensor.lightlevel_office
-                name: Kantoor
-                color: '#F7BF10'
-              - entity: sensor.lightlevel_kitchen
-                name: Keuken
-                color: '#F7BF10'
+  service: browser_mod.popup
+  data:
+    title: Woonkamer klimaat
+    size: wide
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 1fr 1fr
+        grid-template-rows: auto
+        grid-gap: var(--grid-card-gap)
+        grid-template-areas: |
+          "climate thermostat"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "thermostat"
+              "climate"
+      cards:
+        - type: vertical-stack
+          view_layout:
+            grid-area: thermostat
+          cards:
+            - type: history-graph
+              hours_to_show: 12
+              refresh_interval: 30
+              entities:
+                - sensor.altherma_operation_mode
+            - type: 'custom:simple-thermostat'
+              entity: climate.warmtepomp
+              version: 3
+              layout:
+                step: row
+              header: false
+              sensors: false
+              style: |
+                div.mode-title {
+                  display: none;
+                }
+                .modes.heading {
+                  grid-template-columns: auto !important;
+                }
+            - type: entities
+              entities:
+                - entity: switch.climate_control
+                - entity: select.operation_mode
+                - entity: sensor.indoor_temperature
+                - entity: sensor.leaving_water_temperature
+                - entity: sensor.outdoor_temperature
+        - type: vertical-stack
+          view_layout:
+            grid-area: climate
+          cards:
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              header:
+                title: Temperatuur
+              series:
+                - entity: sensor.climate_sensor_living_temperature
+                  name: Temperatuur Woonkamer
+                  color: '#e74c3c'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+            - type: custom:apexcharts-card
+              view_layout:
+                grid-area: temp
+              config_templates: climate_chart
+              header:
+                title: Temperatuur Overig
+              series:
+                - entity: sensor.climate_sensor_office_temperature
+                  name: Kantoor
+                  color: '#e74c3c' 
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_kitchen_temperature
+                  name: Keuken
+                  color: '#e74c3c'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              header:
+                title: Luchtvochtigheid
+              series:
+                - entity: sensor.climate_sensor_living_humidity
+                  name: Woonkamer
+                  color: 'blue'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_office_humidity
+                  name: Kantoor
+                  color: 'blue'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_kitchen_humidity
+                  name: Keuken
+                  color: 'blue'
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              header:
+                title: Lichtsterkte
+              series:
+                - entity: sensor.lightlevel_living
+                  name: Woonkamer
+                  color: '#F7BF10'
+                - entity: sensor.lightlevel_office
+                  name: Kantoor
+                  color: '#F7BF10'
+                - entity: sensor.lightlevel_kitchen
+                  name: Keuken
+                  color: '#F7BF10'

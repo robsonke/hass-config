@@ -899,10 +899,10 @@
   - platform: state
     entity_id: input_boolean.dark_mode
   action:
-  - service: frontend.set_theme
+  - service: browser_mod.set_theme
     data_template:
-      name: custom-dark
-      mode: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else
+      theme: custom-dark
+      dark: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else
         %}\n  light\n{% endif %}\n"
 - id: lovelace_convert_json_yaml
   alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
@@ -2720,9 +2720,9 @@
     event: start
   condition: []
   action:
-  - service: browser_mod.window_reload
+  - service: browser_mod.refresh
     data:
-      deviceID: ipad-kitchen
+      browser_id: 65b403f4-fb734e3d
   mode: single
 - id: '1661977922126'
   alias: Heating - Control HVAC mode downstairs

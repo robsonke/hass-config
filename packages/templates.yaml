@@ -368,7 +368,7 @@ template:
     unit_of_measurement: kW
     device_class: power
     state_class: measurement
-    state: "{{ states('sensor.solaredge_modbus')|float / 1000 - states('sensor.power_produced')|float + states('sensor.power_consumed')|float }}"
+    state: "{{ states('sensor.solaredge_modbus')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
 
 - sensor:
   - unique_id: open_windows_and_doors_upstairs
@@ -414,7 +414,7 @@ template:
     icon: mdi:thermometer
     unique_id: today_maximum_temperature
     state: >
-      {{ states.weather.openweathermap.attributes.forecast[0].temperature }}
+      {{ states.weather.openweathermap.attributes.forecast[0].temperature | float(default=20) }}
 
 - sensor:
   - unique_id: count_automations

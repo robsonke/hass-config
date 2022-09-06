@@ -1,31 +1,32 @@
 action: fire-dom-event
 browser_mod:
-  command: popup
-  title: Deuren en ramen boven
-  card:
-    type: custom:auto-entities
-    card:
-      show_icon: false
-      type: entities
-    filter:
-      include:
-        - type: section
-          label: Master bedroom
-        - entity_id: binary_sensor.window_masterbed_1_openclose_sensor
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.window_masterbed_2_openclose_sensor
-          options:
-            secondary_info: last-changed
-        - type: section
-          label: Overig
-        - entity_id: binary_sensor.window_evaroom_openclose_sensor
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.window_atticroom_openclose_sensor
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.window_guestroom_openclose_sensor
-          options:
-            secondary_info: last-changed
+  service: browser_mod.popup
+  data:
+    title: Deuren en ramen boven
+    content:
+      type: custom:auto-entities
+      card:
+        show_icon: false
+        type: entities
+      filter:
+        include:
+          - type: section
+            label: Master bedroom
+          - entity_id: binary_sensor.window_masterbed_1_openclose_sensor
+            options:
+              secondary_info: last-changed
+          - entity_id: binary_sensor.window_masterbed_2_openclose_sensor
+            options:
+              secondary_info: last-changed
+          - type: section
+            label: Overig
+          - entity_id: binary_sensor.window_evaroom_openclose_sensor
+            options:
+              secondary_info: last-changed
+          - entity_id: binary_sensor.window_atticroom_openclose_sensor
+            options:
+              secondary_info: last-changed
+          - entity_id: binary_sensor.window_guestroom_openclose_sensor
+            options:
+              secondary_info: last-changed
 

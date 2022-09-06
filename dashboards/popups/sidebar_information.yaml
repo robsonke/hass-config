@@ -1,27 +1,28 @@
 action: fire-dom-event
 browser_mod:
-  command: popup
-  title: System Information
-  large: true
-  card:
-    type: vertical-stack
-    title: Home Assistant
-    cards:
-      - type: entities
-        view_layout:
-          grid-area: hass
-        title: Home Assistant
-        show_header_toggle: false
-        card_mod:
-          class: header
-          style: |
-            ha-card {
-              margin: 0px !important;
-            }
-        entities:
-          - entity: sensor.hass_version_installed
-          - entity: sensor.uptime
-      
+  service: browser_mod.popup
+  data:
+    title: System Information
+    size: wide
+    content:
+      type: vertical-stack
+      title: Home Assistant
+      cards:
+        - type: entities
+          view_layout:
+            grid-area: hass
+          title: Home Assistant
+          show_header_toggle: false
+          card_mod:
+            class: header
+            style: |
+              ha-card {
+                margin: 0px !important;
+              }
+          entities:
+            - entity: sensor.hass_version_installed
+            - entity: sensor.uptime
+        
 
 
 
