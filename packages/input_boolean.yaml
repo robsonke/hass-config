@@ -15,6 +15,12 @@ input_boolean:
   enable_automatic_garden_lights:
     name: Enable Garden Lights Automation
     icon: mdi:weather-sunset-down
+  enable_automatic_screens:
+    name: Enable Screens Automation
+    icon: mdi:projector-screen-variant-off-outline
+  enable_automatic_hvac:
+    name: Enable HVAC Automation
+    icon: mdi:hvac
   
   guest_mode:
     name: Guest Mode
@@ -29,7 +35,10 @@ input_boolean:
   alarm_active:
     name: Alarm actief
     icon: mdi:alarm-light
+  wallpanel_screensaver_enabled:
+    name: Wall Ipad Screensaver
   
+  # These are fake heatpump devices to fool the thermostat entity
   heating_downstairs:
     name: Heating downstairs
     icon: mdi:radiator

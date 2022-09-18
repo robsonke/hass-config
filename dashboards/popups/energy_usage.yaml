@@ -4,6 +4,7 @@ browser_mod:
   data:
     title: Energie verbruik en kosten
     size: wide
+    timeout: 120000
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout
@@ -92,6 +93,37 @@ browser_mod:
                 - entity: sensor.all_manual_lights_power
                 - entity: sensor.all_media_power
                 - entity: sensor.ix3_charging_power
+                - entity: sensor.shelly_plug_koelkast_power
+            - type: custom:auto-entities
+              title: Meest verbruikende apparaten
+              card:
+                type: entities
+              filter:
+                include:
+                  - domain: sensor
+                    attributes:
+                      device_class: power
+                exclude:
+                  - state: "off"
+                  - state: "unavailable"
+                  - integration: tibber
+                  - entity_id: sensor.all_powercalc_entities_power
+                  - entity_id: sensor.all_manual_lights_power
+                  - entity_id: sensor.tv_woonkamer_group_power
+                  - entity_id: sensor.sonos_tv_room_power
+                  - entity_id: sensor.garden_light_power
+                  - entity_id: sensor.air_quality_power
+                  - entity_id: sensor.quooker_power
+                  - entity_id: sensor.samsung_qn95aa_55_tv_power
+                  - entity_id: sensor.office_lights_power
+                  - entity_id: sensor.kitchen_light_power
+                  - entity_id: sensor.solaredge_current_power
+                  - entity_id: sensor.power_production_now
+              sort:
+                method: state
+                count: 10
+                numeric: true
+                reverse: true
             - type: energy-date-selection
             - type: energy-distribution
               link_dashboard: true
@@ -117,6 +149,117 @@ browser_mod:
                   name: Power Production this Year
               state_color: false
               title: Energie totalen
+            - type: custom:apexcharts-card
+              experimental:
+                color_threshold: true
+              apex_config:
+                chart:
+                  height: 500px
+              header:
+                show: true
+                title: Energy stats
+                show_states: true
+                colorize_states: true
+              now:
+                show: true
+                color: white
+                label: NOW
+              hours_12: false
+              graph_span: 36h
+              span:
+                start: day
+              yaxis:
+                - id: kWh
+                  decimals: 0
+                  opposite: true
+                  max: 500
+                  apex_config:
+                    tickAmount: 4
+                - id: EUR
+              series:
+                - entity: sensor.power_langeweide_28
+                  type: column
+                  show:
+                    extremas: true
+                  name: Usage
+                  stroke_width: 2
+                  color: '#64511c'
+                  opacity: 0.3
+                  yaxis_id: kWh
+                  group_by:
+                    func: avg
+                    duration: 15min
+                - entity: sensor.tibber_prices
+                  stroke_width: 2
+                  curve: smooth
+                  show:
+                    legend_value: false
+                    extremas: true
+                    in_header: false
+                  extend_to: now
+                  yaxis_id: EUR
+                  name: Price per kWh
+                  data_generator: |
+                    let today = entity.attributes.today.map((entry) => {
+                      return [new Date(entry.startsAt), entry.total];
+                    });
+                    return today.concat(entity.attributes.tomorrow.map((entry) => {
+                      return [new Date(entry.startsAt), entry.total];
+                    }));
+                  color_threshold:
+                    - value: 0
+                      color: blue
+                    - value: 0.3
+                      color: green
+                    - value: 0.6
+                      color: red
+                    - value: 0.7
+                      color: darkred
+                    - value: 0.8
+                      color: purple
+                - entity: sensor.electricity_price_langeweide_28
+                  stroke_width: 2
+                  show:
+                    legend_value: false
+                    extremas: true
+                  curve: smooth
+                  attribute: min_price
+                  name: MIN
+                  color: green
+                  yaxis_id: EUR
+                  type: line
+                  group_by:
+                    duration: 24hours
+                    func: min
+                - entity: sensor.electricity_price_langeweide_28
+                  stroke_width: 2
+                  yaxis_id: EUR
+                  name: AVG
+                  attribute: avg_price
+                  color: violet
+                  curve: smooth
+                  type: line
+                  show:
+                    legend_value: false
+                    extremas: true
+                  group_by:
+                    duration: 24hours
+                    func: avg
+                - entity: sensor.electricity_price_langeweide_28
+                  attribute: max_price
+                  stroke_width: 2
+                  curve: smooth
+                  show:
+                    legend_value: false
+                    extremas: true
+                  name: MAX
+                  color: red
+                  yaxis_id: EUR
+                  type: line
+                  group_by:
+                    duration: 24hours
+                    func: max
+
 
         - type: vertical-stack
           view_layout:
@@ -149,15 +292,15 @@ browser_mod:
                   color_threshold:
                     - value: 0
                       color: blue
-                    - value: 15
+                    - value: 0.15
                       color: green
-                    - value: 30
+                    - value: 0.30
                       color: darkorange
-                    - value: 40
+                    - value: 0.40
                       color: red
-                    - value: 50
+                    - value: 0.50
                       color: darkred
-                    - value: 60
+                    - value: 0.60
                       color: black
               now:
                 show: true
@@ -185,15 +328,15 @@ browser_mod:
                   color_threshold:
                     - value: 0
                       color: blue
-                    - value: 15
+                    - value: 0.15
                       color: green
-                    - value: 30
+                    - value: 0.30
                       color: darkorange
-                    - value: 40
+                    - value: 0.40
                       color: red
-                    - value: 50
+                    - value: 0.50
                       color: darkred
-                    - value: 60
+                    - value: 0.60
                       color: black
               yaxis:
                 - min: 0

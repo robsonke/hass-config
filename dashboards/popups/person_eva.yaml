@@ -3,6 +3,7 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Eva
+    timeout: 120000
     size: wide
     content:
       type: custom:frigate-card

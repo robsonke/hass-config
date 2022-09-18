@@ -17,6 +17,22 @@ blueprint:
         entity:
           domain: sensor
           device_class: temperature
+    price_level_sensor:
+      name: Energy Price Level Sensor
+      description: Energy Price Level Sensor to check.
+      selector:
+        entity:
+          domain: sensor
+    price_level_percentage:
+      name: Maximum Price Level Percentage
+      description: The price level sensor should have an attribute called percentage, what should be the max based on the overall average price today
+      default: 100
+      selector:
+        number:
+          min: 0
+          max: 150
+          step: 10
+          mode: slider
     min_temp:
       name: Minimum Temp
       description: If temperature is below this value it turns heating on.
@@ -82,6 +98,8 @@ blueprint:
   source_url: https://gist.github.com/robsonke/850ca17a2ca3417601ae0f73d523cc34
 variables:
   current_day: '{{ now().weekday() | int }}'
+  price_level_percentage: !input price_level_percentage
+  price_level_sensor: !input price_level_sensor
   run_on_monday: !input run_on_monday
   run_on_tuesday: !input run_on_tuesday
   run_on_wednesday: !input run_on_wednesday
@@ -105,6 +123,8 @@ trigger:
   event_type: automation_reloaded
 - platform: time_pattern
   minutes: /10
+- platform: state
+  entity_id: !input price_level_sensor
 condition:
 - condition: template
   value_template: "{{ \n  (current_day == 0 and run_on_monday) or \n  (current_day\
@@ -123,6 +143,10 @@ action:
       after: !input 'time_after'
     - condition: template
       value_template: "{{ window_sensor is not defined or states[window_sensor].state == 'off' }}"
+    - condition: numeric_state
+      entity_id: !input price_level_sensor
+      attribute: percentage
+      below: !input price_level_percentage
     sequence:
     - service: switch.turn_on
       data:
@@ -132,3 +156,4 @@ action:
     data:
       entity_id: !input 'heating'
 mode: single
+max_exceeded: silent

@@ -4,11 +4,12 @@ browser_mod:
   data:
     title: Slaapkamers klimaat
     size: wide
+    timeout: 60000
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout
       layout:
-        grid-template-columns: auto auto
+        grid-template-columns: 3fr 2fr
         grid-template-rows: auto
         grid-template-areas: |
           "climate thermostat"
@@ -29,10 +30,36 @@ browser_mod:
               entities:
                 - entity: switch.kasa_infrarood_slaapkamer
                   name: Infraroodpanel logeerkamer
-                - entity: switch.shelly_plug_kachel_slaapkamer
                 - entity: switch.infraroodpanel_eva
-                - entity: sensor.light_sensor_masterbedroom
-                  name: Lichtsterkte slaapkamer
+                - entity: switch.shelly_plug_badkamer_verwarming_relay
+            - type: conditional
+              conditions:
+                - entity: switch.shelly_plug_badkamer_verwarming_relay
+                  state_not: "off"
+              card:
+                type: entities
+                show_header_toggle: false
+                entities:
+                  - entity: sensor.shelly_plug_badkamer_verwarming_power
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: switch.shelly_plug_douche_verwarming_relay
+            - type: conditional
+              conditions:
+                - entity: switch.shelly_plug_douche_verwarming_relay
+                  state_not: "off"
+              card:
+                type: entities
+                show_header_toggle: false
+                entities:
+                  - entity: sensor.shelly_plug_douche_verwarming_power
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: switch.shelly_plug_kachel_slaapkamer
             - type: conditional
               conditions:
                 - entity: switch.shelly_plug_kachel_slaapkamer

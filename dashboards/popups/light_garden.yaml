@@ -2,15 +2,16 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
-    title: Tuin beregening
+    title: Tuin verlichting
+    timeout: 60000
     style: |-
       --popup-padding-x: 24px;
       --popup-padding-y: 20px;
       --popup-border-radius: 1em;
+      --popup-min-width: 600px;
     content:
-      type: grid
-      columns: 3
-      cards:
+      type: entities
+      entities:
         - type: custom:decluttering-card
           template: light_button
           variables: 
@@ -24,14 +25,17 @@ browser_mod:
           template: light_button
           variables: 
             - entity: light.garden_lantern_light1
+            - title: Lantaarn 1
         - type: custom:decluttering-card
           template: light_button
           variables: 
             - entity: light.garden_lantern_light2
+            - title: Lantaarn 2
         - type: custom:decluttering-card
           template: light_button
           variables: 
             - entity: light.garden_lantern_light3
+            - title: Lantaarn 3
         - type: custom:decluttering-card
           template: light_button
           variables:
@@ -53,8 +57,8 @@ browser_mod:
             - entity: light.hue_lily_light_tree_1
             - title: Boom 1
 
-        - type: custom:button-card
-          entity: switch.pool_fountain
-          name: Fontein
-          template:
-            - simple
+        - entity: switch.pool_fountain
+          name: Fontein vijver
+        - entity: sensor.light_sensor_garden
+          name: Lichtsterkte buiten
+

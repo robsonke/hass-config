@@ -18,6 +18,17 @@ custom-dark:
   orange: '#ff9409'
   yellow: '#fdd835'
 
+  footer-card-font-size: 1.22vw
+  footer-card-icon-size: 1.5vw
+  footer-card-padding-v: 0.7vw
+  footer-card-padding-h: 1.1vw
+  footer-card-border-radius: 0.65vw
+
+  footer-notify-font-size: 0.9vw
+  footer-notify-box-size: 1.8vw
+  footer-notify-top: -0.9vw
+  footer-notify-right: -1vw
+
   # browser_mod.popup
   dialog-backdrop-filter: blur(2em) brightness(0.75)
   popup-background-color: rgba(34,38,39,0.9)
@@ -27,6 +38,19 @@ custom-dark:
   tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
   tablet-popup-button-padding: 0.1em 2em 1.8em 2em
   tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)
+
+  # mushrooms
+  #ha-card-box-shadow: inset 0px 0px 0px 1px var(--border-color)
+  ha-card-border-radius: 6px
+  # Layout
+  mush-spacing: 8px
+  # Elements
+  mush-icon-border-radius: 6px
+  mush-control-border-radius: 6px
+  # Chips
+  mush-chip-border-radius: 6px
+  text-color: blue
+  
 
   modes:
     dark:
@@ -141,10 +165,14 @@ custom-dark:
     #################################################
     grid-layout$:
       hui-grid-card:
+        .: |
+            hui-grid-card {
+              padding-bottom: 1vw;
+            }
         $: |
           /* default */
           h1 {
-            font-size: 2.4vw !important;
+            font-size: 2.0vw !important;
             line-height: 0 !important;
             font-family: SF Text !important;
             font-weight: 500 !important;
@@ -166,21 +194,6 @@ custom-dark:
               margin: 2vw 0 0 0 !important;
             }
           }
-    ##################################################
-    ##                                               #
-    ##               SWIPE CARD MARGIN               #
-    ##                                               #
-    ##################################################
-    #    $swipe-card$:
-    #      .: |
-    #        div {
-    #          height: 100%;
-    #        }
-    #      hui-horizontal-stack-card$:
-    #        .: |
-    #          hui-conditional-card {
-    #            margin: 0 !important;
-    #          }
     #################################################
     #                                               #
     #            SIDEBAR VERTICAL-STACK             #
@@ -197,41 +210,38 @@ custom-dark:
       @media screen and (max-width: 800px) {
         #root {
           background-color: rgba(0,0,0,0);
-          border-right: none;
-          min-height: 100%;
+            border-right: none;
+            min-height: 100%;
+            margin-left: -0.8%;
+            margin-bottom: -6%;
         }
       }
     #################################################
     #                                               #
-    #             SIDEBAR BOTTOM ICONS              #
+    #                    FOOTER                     #
     #                                               #
     #################################################
-    "grid-layout$hui-vertical-stack-card$hui-grid-card":
-      .: |
-        hui-grid-card {
-          display: flex;
-          flex: auto;
-          align-items: flex-end;
-        }
-        /* phone */
-        /*
-        moves update icon to top, don't want that
-        @media screen and (max-width: 800px) {
-          hui-grid-card {
-            position: absolute;
-            right: 4vw;
-          }
-        }
-        */
+    grid-layout$hui-horizontal-stack-card:
       $: |
         #root {
-          width: 100%;
-          padding: 0 9% 9% 6%;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          overflow: visible;
+          #margin-top: -1.95vw !important;
+          padding-bottom: 2.5em;
+        }
+        @media screen and (min-width: 1200px) {
+          #root {
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            margin-top: -1.6vh;
+            padding-bottom: 0;
+          }
         }
         /* phone */
         @media screen and (max-width: 800px) {
           #root {
-            padding: 0 0 0 0;
+            padding-top: 4vw !important;
           }
         }
   card-mod-card: |

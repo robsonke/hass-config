@@ -1,0 +1,28 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Screens
+    timeout: 60000
+    content:
+      type: vertical-stack
+      cards:
+        - type: entities
+          show_header_toggle: false
+          title: Automatisch?
+          entities:
+            - entity: input_boolean.enable_automatic_screens
+              name: Screens automatisch aansturen vandaag?
+        - type: custom:more-info-card
+          entity: cover.voorraam
+          title: Voorkant
+        - type: custom:more-info-card
+          entity: cover.zijraam
+          title: Zijkant
+        - type: history-graph
+          hours_to_show: 12
+          entities:
+            - cover.voorraam
+            - cover.zijraam
+
+

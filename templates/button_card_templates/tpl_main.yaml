@@ -1,0 +1,876 @@
+# !toggle word-wrap
+
+#################################################
+#                                               #
+#                     BASE                      #
+#                                               #
+#################################################
+
+base:
+  variables:
+    state: >
+      [[[ return entity === undefined || entity.state; ]]]
+    timeout: >
+      [[[ return entity === undefined || Date.now() - Date.parse(entity.last_changed); ]]]
+    consider_on: >
+      [[[
+        var state = entity === undefined || entity.state;
+        return (
+          state === 'on' ||
+          state === 'cool' ||
+          state === 'fan_only' ||
+          state === 'playing' ||
+          state === 'open' ||
+          state > 0
+        );
+      ]]]
+    unit: '%'
+  aspect_ratio: 1/1
+  show_state: true
+  show_icon: false
+  state_display: >
+    [[[ if (variables.state === true) return 'Onbekend'; ]]]
+  custom_fields:
+    icon: >
+      [[[ 
+        let icon = entity.attributes.icon;
+        if (variables.icon)
+          icon = variables.icon;
+        return `<ha-icon icon="${icon}"></ha-icon>`;
+      ]]]
+  styles:
+    grid:
+      - grid-template-areas: |
+          "icon  circle"
+          "n     n"
+          "s     s"
+      - grid-template-columns: repeat(2, 1fr)
+      - grid-template-rows: auto repeat(2, min-content)
+      - gap: 2%
+      - align-items: start
+    name:
+      - justify-self: start
+      - line-height: 115%
+    state:
+      - justify-self: start
+      - line-height: 115%
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - transition: none
+      - padding: 10%
+      - --mdc-ripple-color: >
+          [[[
+            return variables.consider_on ?
+              'rgb(0, 0, 0)' :
+              'rgba(255, 255, 255, 0.3)';
+          ]]]
+      - --custom-circle-text-color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - --custom-circle-stroke-color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - background-color: >
+          [[[
+            return variables.consider_on ?
+              'rgba(255, 255, 255, 0.8)' :
+              'rgba(115, 115, 115, 0.4)';
+          ]]]
+  extra_styles: |
+    /* phone */
+    @media screen and (max-width: 1200px) {
+      #circle, #name, #state, #label, #info {
+        font-size: 1rem;
+      }
+    }
+
+#################################################
+#                                               #
+#                     SIMPLE                    #
+#                                               #
+#################################################
+
+simple:
+  template:
+    - base
+  styles:
+    grid:
+      - grid-template-areas: |
+          "icon  info"
+          "n     n"
+          "s     s"
+      - grid-template-rows: auto repeat(2, min-content)
+      - grid-template-columns: repeat(2, 1fr)
+      - gap: 2%
+      - align-items: start
+    custom_fields:
+      info:
+        - text-align: right
+  hold_action:
+    action: none
+
+#################################################
+#                                               #
+#                    SIDEBAR                    #
+#                                               #
+#################################################
+
+sidebar_template:
+  show_state: false
+  show_icon: false
+  tap_action:
+    action: none
+  name: |
+    [[[
+      if (entity) {
+        let attributes = '';
+        for (const [key, value] of Object.entries(entity.attributes)) {
+          value != false ? attributes += `<p>${value}</p>` : null;
+        }
+        return attributes;
+      }
+    ]]]
+  styles:
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - color: var(--sidebar-font-color)
+  extra_styles: |
+    ha-icon.trash {
+      --mdc-icon-size: 16px;
+    }
+
+    #card {
+      padding: 0;
+    }
+
+    #container {
+      display: flex !important;
+    }
+
+    #name {
+      padding: 0 2.5vw 0 17px;
+      white-space: normal;
+      text-align: left;
+    }
+
+    .time {
+      text-align: center;
+      font-size: 7em;
+    }
+
+    .time-colon {
+      position: relative;
+      top: -.07em;
+    }
+    
+    p > b {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* portrait */
+    @media screen and (max-width: 1200px) {
+      .time {
+        font-size: calc(var(--sidebar-time-font-size) * 1.2 );
+        line-height: calc(var(--sidebar-time-line-height) * 1.2 );
+      }
+
+      p {
+        font-size: calc(var(--sidebar-font-size) * 0.8);
+        line-height: calc(var(--sidebar-line-height) * 0.8);
+      }
+    }
+
+    /* phone */
+    @media screen and (max-width: 800px) {
+      .time {
+        font-size: calc(var(--sidebar-time-font-size) * 2.6 );
+      }
+
+      p {
+        font-size: calc(var(--sidebar-font-size) * 2.6 );
+        line-height: calc(var(--sidebar-line-height) * 2.6 );
+        letter-spacing: 0.16vw;
+      }
+
+      #name {
+        padding: 0 0 0 1vw;
+      }
+
+    }
+
+#################################################
+#                                               #
+#                    CIRCLE                     #
+#                                               #
+#################################################
+
+circle:
+  custom_fields:
+    circle: >
+      [[[
+        const input = variables.circle_input || 0;
+        const text = variables.circle_text || input;
+        const radius = 20.5;
+        const circumference = radius * 2 * Math.PI;
+        return `
+          <svg viewBox="0 0 50 50">
+            <style>
+              circle {
+                transform: rotate(-90deg);
+                transform-origin: 50% 50%;
+                stroke-dasharray: ${circumference};
+                stroke-dashoffset: ${circumference - input / 100 * circumference};
+              }
+              tspan {
+                font-size: 10px;
+              }
+            </style>
+            <circle cx="25" cy="25" r="${radius}" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="none" />
+            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${text}<tspan font-size="10">${variables.unit}</tspan></text>
+          </svg>
+        `;
+      ]]]
+  styles:
+    custom_fields:
+      circle:
+        - display: initial
+        - width: 90%
+        - letter-spacing: 0.03vw
+        - margin: -6% -6% 0 0
+        - justify-self: end
+        - opacity: 1
+
+
+#################################################
+#                                               #
+#                     LIGHT                     #
+#                                               #
+#################################################
+
+light:
+  template:
+    - base
+    - circle
+  variables:
+    circle_input: >
+      [[[ return entity === undefined || Math.round(entity.attributes.brightness / 2.54); ]]]
+
+#################################################
+#                                               #
+#                 LIGHT_GROUP                   #
+#                                               #
+#################################################
+
+light_group:
+  template:
+    - base
+    - circle
+  variables:
+    circle_input: >
+      [[[
+        const lightsOn = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'on').length;
+        const allLights = entity.attributes.entity_id.length;
+        return Math.round(lightsOn / allLights * 100);
+      ]]]
+  hold_action:
+    action: none
+
+#################################################
+#                                               #
+#                  IRRIGATION                   #
+#                                               #
+#################################################
+
+irrigation:
+  template:
+    - simple
+  hold_action:
+    action: none
+
+#################################################
+#                                               #
+#                     CLIMATE                   #
+#                                               #
+#################################################
+
+climate:
+  template:
+    - simple
+  show_state: true
+  variables:
+    consider_on: >
+      [[[ return false; ]]]
+  custom_fields:
+    info: >
+      [[[ {
+      const temperature = Math.round(entity.state * 10) / 10;
+      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
+      <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
+    graph:
+      card:
+        type: custom:apexcharts-card
+        config_templates: dashboard_button_chart
+  styles:
+    custom_fields:
+      graph:
+        - bottom: 5%
+        - left: 0%
+        - width: 100%
+        - position: absolute
+      icon:
+        - fill: "#9da0a2"
+    state:
+      - color: rgba(0, 0, 0, 0)
+
+#################################################
+#                                               #
+#                 DHW Warm Water                #
+#                                               #
+#################################################
+
+dhw:
+  template:
+    - climate
+  show_state: true
+  show_name: true
+  variables:
+    consider_on: >
+      [[[ return entity.attributes['operation_mode'] === 'on'; ]]]
+  styles:
+    custom_fields:
+      icon:
+      - color: >
+          [[[
+            if (variables.heating)
+              return 'var(--red)';
+            return "#9da0a2";
+          ]]]
+  custom_fields:
+    info: >
+      [[[
+        const currentTemperature = entity.attributes['current_temperature'];
+        const temperature = entity.attributes['temperature'];
+        const input = currentTemperature / temperature || 0;
+        if (input > 100)
+          input = 100;
+        const radius = 20.5;
+        const circumference = radius * 2 * Math.PI;
+        return `
+          <svg viewBox="0 0 50 50">
+            <style>
+              circle {
+                transform: rotate(-90deg);
+                transform-origin: 50% 50%;
+                stroke-dasharray: ${circumference};
+                stroke-dashoffset: ${circumference - input * circumference};
+              }
+              tspan {
+                font-size: 10px;
+              }
+            </style>
+            <circle cx="25" cy="25" r="${radius}" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="none" />
+            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${currentTemperature} °C</tspan></text>
+          </svg>
+        `;
+      ]]]
+  state_display: >
+    [[[
+      return "Warm water (" + entity.attributes['temperature'] + "°)";
+    ]]]
+
+#################################################
+#                                               #
+#                     ENERGY                    #
+#                                               #
+#################################################
+
+energy:
+  template:
+    - simple
+  variables:
+    consider_on: >
+      [[[ return false; ]]]
+  custom_fields:
+    info: >
+      [[[
+        let today = Math.round(states['sensor.daily_consumption_energy'].state);
+        let price = Math.round(states['sensor.electricity_price_langeweide_28'].state * 100) / 100;
+        let level = states['sensor.energy_price_level'].state;
+        let color = 'var(--green)';
+        if (level === 'very_cheap') color = 'var(--blue)';
+        if (level === 'cheap') color = 'var(--green)';
+        if (level === 'normal') color = 'var(--yellow)';
+        if (level === 'expensive') color = 'var(--orange)';
+        if (level === 'very_expensive') color = 'var(--red)';
+        
+        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-icon> <span style="color: ${color}">${price}</span></span>`;
+      ]]]
+  styles:
+    custom_fields:
+      icon:
+        - color: >
+            [[[
+              let color = 'var(--red)';
+              if (states['sensor.solaredge_modbus'].state/1000 > entity.state)
+                color = 'var(--green)';
+              return color;
+            ]]]
+  state_display: >
+    [[[
+      return `<span>-${Math.round(entity.state*1000)/1000} / +${states['sensor.solaredge_modbus'].state/1000} kW</span>`;
+    ]]]
+
+#################################################
+#                                               #
+#                     CATS                      #
+#                                               #
+#################################################
+
+cats:
+  template:
+    - base
+    - circle
+  variables:
+    unit: 'x'
+    circle_input: >
+      [[[
+        return 100;
+      ]]]
+    circle_text: >
+      [[[
+        return Math.round(parseInt(states['sensor.cat_door_today'].state)/2);
+      ]]]
+  state_display: >
+    [[[
+      return html`
+        <ha-relative-time
+          id="label"
+          class="ellipsis"
+          .hass="${hass}"
+          .datetime="${entity.last_updated}"
+        ></ha-relative-time>`
+    ]]]
+
+#################################################
+#                                               #
+#                     SONOS                     #
+#                                               #
+#################################################
+
+sonos:
+  template:
+    - base
+    - circle
+  variables:
+    unit: ''
+    state: >
+      [[[ return entity === undefined || entity.attributes.entity_id.map(e => states[e]).filter(state => state.state === 'playing').length > 0 ? 'Playing' : 'Pause'; ]]]
+    consider_on: >
+      [[[
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing').length;
+        return playing > 0;
+      ]]]
+    circle_input: >
+      [[[
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing').length;
+        const allPlayers = entity.attributes.entity_id.length;
+        return Math.round(playing / allPlayers * 100);
+      ]]]
+    circle_text: >
+      [[[
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing').length;
+        const allPlayers = entity.attributes.entity_id.length;
+        return `${playing}/${allPlayers}`;
+      ]]]
+  state_display: >
+    [[[ return variables.state; ]]]
+  styles:
+    custom_fields:
+      icon:
+        - clip-path: circle()
+        - width: 100%
+        - height: 100%
+        - pointer-events: none
+        - display: grid
+  custom_fields:
+    icon: >
+      [[[
+        // find first media player playing and get its entity picture
+        const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing');
+        const defaultIcon = `<ha-icon icon="${entity.attributes.icon}" style="width: 100%; height: 100%;"></ha-icon>`;
+        if (playing.length > 0) {
+          const entity_picture = playing[0] === undefined || playing[0].attributes.entity_picture;
+          return entity_picture === null ? defaultIcon :
+            `<div style='background-image: url("${hass.hassUrl(entity_picture)}"); background-position: center center; background-repeat: no-repeat; background-size: cover'></div>`;
+        }
+        return defaultIcon;
+      ]]]
+  tap_action:
+    action: fire-dom-event
+    browser_mod:
+      service: browser_mod.popup
+      data:
+        size: wide
+        timeout: 60000
+        title: Sonos - Muziek
+        content:
+          type: "custom:sonos-card"
+          name: "Sonos"
+          entities:
+            - media_player.eetkamer
+            - media_player.living_room
+            - media_player.office
+          background: cover
+          card_mod:
+            style: |
+              ha-card.type-custom-sonos-card {
+                --sns-button-icon-color: var(--primary-color);
+                --sns-player-background: transparant;
+                --sns-card-primary-text-color: #fff;
+              }
+
+#################################################
+#                                               #
+#                     MUSIC                     #
+#                                               #
+#################################################
+
+music:
+  template:
+    - base
+    - circle
+  tap_action:
+    action: more-info
+  variables:
+    circle_input: >
+      [[[
+        return Math.round(entity.attributes['volume_level'] * 100);
+      ]]]
+
+#################################################
+#                                               #
+#          DOOR_WINDOW_GROUP_BASE               #
+#                                               #
+#################################################
+
+door_window_group_base:
+  template:
+    - base
+    - circle
+  variables:
+    circle_input: >
+      [[[
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";
+        const doorsOpen = states[countSensor].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return Math.round(doorsOpen / allDoors * 100);
+      ]]]
+    unit: ''
+    state: >
+      [[[ 
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";
+        return states[countSensor].state > 0 ? 'Open' : 'Gesloten';
+      ]]]
+    consider_on: >
+      [[[
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";  
+        return states[countSensor].state > 0;
+      ]]]
+    circle_text: >
+      [[[
+        const countSensor = (entity.entity_id.includes("downstairs")) ? "sensor.open_windows_and_doors_downstairs" : "sensor.open_windows_and_doors_upstairs";
+        const doorsOpen = states[countSensor].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return `${doorsOpen}/${allDoors}`;
+      ]]]
+  hold_action:
+    action: none
+  state_display: >
+    [[[ return variables.state; ]]]
+
+#################################################
+#                                               #
+#          DOOR_WINDOW_GROUP_DOWNSTAIRS         #
+#                                               #
+#################################################
+
+door_window_group_downstairs:
+  template:
+    - door_window_group_base
+  tap_action:
+    !include ../../dashboards/popups/doors_downstairs.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
+          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]
+
+#################################################
+#                                               #
+#            DOOR_WINDOW_GROUP_UPSTAIRS         #
+#                                               #
+#################################################
+
+door_window_group_upstairs:
+  template:
+    - door_window_group_base
+  tap_action:
+    !include ../../dashboards/popups/doors_upstairs.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
+          return `<ha-icon icon="mdi:window-open-variant"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]
+
+#################################################
+#                                               #
+#                 BASE_SIDEBAR                  #
+#                                               #
+#################################################
+
+base_sidebar:
+  show_name: true
+  styles:
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - color: var(--sidebar-font-color)
+    name:
+      - justify-self: start
+      - align-self: left
+  triggers_update: sensor.time
+  extra_styles: |
+    #card {
+      padding: 1vw 1vw 0 1vw;
+    }
+    #container {
+      border: 1px solid;
+      border-radius: 8px;
+    }
+
+#################################################
+#                                               #
+#                    PERSON                     #
+#                                               #
+#################################################
+
+person:
+  template:
+    - base_sidebar
+  show_entity_picture: true
+  show_icon: false
+  show_state: true
+  styles:
+    grid:
+      - grid-template-areas: >
+          "i n s icon"
+      - grid-template-columns: 20% 2fr 2fr 1fr
+      - grid-template-rows: 30px
+    name:
+      - justify-self: start
+      - align-self: left
+    entity_picture:
+      - width: 50%
+      - border-radius: 100%
+      - opacity: 0.8
+  state:
+    - value: not_home
+      styles:
+        entity_picture:
+          - opacity: 0.4
+          - filter: grayscale(100%)
+  custom_fields:
+    icon: >
+      [[[
+        let icon = entity.state === "home" ? `mdi:home` : `mdi:exit-to-app`;
+        return `<ha-icon icon="${icon}" style="width: 1rem;"></ha-icon>`
+      ]]]
+
+person_eva:
+  template:
+    - person
+  show_state: false
+  custom_fields:
+    icon: >
+      [[[
+        return ``
+      ]]]
+
+#################################################
+#                                               #
+#               SIDEBAR                         #
+#                                               #
+#################################################
+
+sidebar_button:
+  template:
+    - base_sidebar
+  show_entity_picture: false
+  show_icon: true
+  show_state: true
+  styles:
+    grid:
+      - grid-template-areas: >
+          "i n s"
+      - grid-template-columns: 20% 3fr 1fr
+      - grid-template-rows: 30px
+    state:
+      - place-self: end
+      - margin-right: 10px
+      - margin-bottom: 4px
+
+sidebar_alarm:
+  template:
+    - sidebar_button
+  tap_action:
+    !include ../../dashboards/popups/alarm.yaml
+  styles:
+    grid:
+      - grid-template-areas: >
+          "i n s"
+      - grid-template-columns: 20% 2fr 3fr
+      - grid-template-rows: 30px
+    icon:
+      - color: >
+          [[[
+            if (entity.state === 'disarmed') return 'var(--green)';
+            if (entity.state === 'arming') return 'var(--yellow)';
+            if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'var(--orange)';
+            if (entity.state === 'triggered') return 'var(--red)';
+            return 'var(--green)'
+          ]]]
+      - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
+
+
+#################################################
+#                                               #
+#                 ICONS                         #
+#                                               #
+#################################################
+
+icon_temp:
+  custom_fields:
+    icon: >
+      [[[
+        let color = 'currentcolor';
+        if (variables.heating) {
+          color = 'var(--red)';
+        }
+        if (variables.cooling) {
+          color = 'var(--blue)';
+        }
+        return `
+          <svg viewBox="0 0 50 50">
+            <path fill="${color}" d="M32.8 28.2V8.4A8.28 8.28 0 0 0 24.5.1a8.28 8.28 0 0 0-8.3 8.3v19.7c-2.5 2.3-4.1 5.6-4.1 9.3 0 6.9 5.6 12.4 12.4 12.4s12.4-5.6 12.4-12.4c0-3.7-1.6-7-4.1-9.2zm-8.3 17.5a8.28 8.28 0 0 1-8.3-8.3 8.2 8.2 0 0 1 2.8-6.2l1.4-1.2V8.4c0-2.3 1.9-4.1 4.1-4.1s4.1 1.9 4.1 4.1V30l1.4 1.2c1.7 1.6 2.8 3.8 2.8 6.2a8.28 8.28 0 0 1-8.3 8.3zm-2.1-29h4.1v24.8h-4.1V16.7zm2.1 14.5c3.4 0 6.2 2.8 6.2 6.2s-2.8 6.2-6.2 6.2-6.2-2.8-6.2-6.2 2.8-6.2 6.2-6.2z"/>
+          </svg>
+        `
+      ]]]
+
+icon_name:
+  size: 1.4em
+  color: '#9da0a2'
+  styles:
+    grid:
+      - grid-template-areas: '"i n"'
+      - grid-column-gap: 0.3em
+    name:
+      - font-size: 1.06em
+      - letter-spacing: 0.015em
+    card:
+      - color: '#9da0a2'
+      - border-radius: 0.6em
+      - padding: 1em 1.4em 1em 1.2em
+      - width: max-content
+      - font-size: 1.06em
+      - font-weight: 500
+      - letter-spacing: 0.015em
+      - background: '#FFFFFF10'
+
+
+#################################################
+#                                               #
+#                 FOOTER                        #
+#                                               #
+#################################################
+
+footer:
+  template:
+    #- settings
+    #- tilt
+    - extra_styles
+  variables:
+    notify: >
+      [[[
+        return false;
+      ]]]
+  size: 2vw
+  show_icon: false
+  color: '#9da0a2'
+  custom_fields:
+    notify: >
+      [[[
+        if (Number.isInteger(variables.notify)) {
+            return variables.notify;
+        } else if (variables.notify) {
+            return `<span style="font-weight: 900;">!</span>`;
+        }
+      ]]]
+  styles:
+    card:
+      - color: '#97989c'
+      - width: fit-content
+      - border: 0.12vw solid rgba(115, 115, 115, 0.2)
+      - transition: none
+      - padding: 0 0 0.05vw 0
+      - overflow: visible
+      - --mdc-ripple-color: rgba(0, 0, 0, 0.8)
+    custom_fields:
+      notify:
+        - display: >
+            [[[
+              if (Number.isInteger(variables.notify)) {
+                  return variables.notify > 0
+                      ? 'initial'
+                      : 'none';
+              }
+              else if (variables.notify) {
+                  return variables.notify
+                      ? 'initial'
+                      : 'none';
+              }
+            ]]]
+        - position: absolute
+        - font-weight: 700
+        - color: '#d6d6d6'
+        - background: '#8b3333'
+        - border-radius: 50%
+        - text-align: center
+        - text-overflow: unset
+        - z-index: 1
+  tap_action:
+    haptic: medium
+  hold_action:
+    action: block
+  double_tap_action:
+    action: block

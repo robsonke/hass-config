@@ -4,6 +4,7 @@ browser_mod:
   data:
     title: Tuin beregening
     size: wide
+    timeout: 60000
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout

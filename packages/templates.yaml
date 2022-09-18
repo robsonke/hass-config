@@ -15,79 +15,55 @@ template:
       {{ device_attr(device_id('sensor.hacs'), 'sw_version') }}
     attributes:
       friendly_name: HACS Version
-  - unique_id: hacs_updates
-    unit_of_measurement: "Update(s)"
-    state: >
-      {{ expand(integration_entities('hacs')) | selectattr('state', 'in', ['on']) | list | count }}
-    attributes:
-      friendly_name: HACS Updates
-      updates: >
-        <ha-icon icon="hacs:hacs"></ha-icon> <span class="title">Community Store {{ states('sensor.template_hacs_version') }}</span><br>
-        {%- if (states('sensor.template_hacs_updates') | int(default=0)) == 0 %}
-          <p class="subtitle">Geen updates</p>
-        {%- elif (states('sensor.template_hacs_updates') | int(default=0)) == 1 %}
-          <p class="subtitle">1 update beschikbaar &#127881;</p>
-        {%- else %}
-          <p class="subtitle">{{ states('sensor.template_hacs_updates') }} updates beschikbaar &#127881;</p>
-        {%- endif %}
-        {%- if (states('sensor.template_hacs_updates') | int(default=0)) > 0 %}
-        <ul>
-          {%- for entity in integration_entities('hacs') %}
-            {%- if entity.startswith('update') and is_state(entity, 'on') %}
-              <li><b><a href="#" onclick="window.open('{{ state_attr(entity, 'release_url') }}');">{{ state_attr(entity, 'friendly_name') }}</a></b> 
-                {{ state_attr(entity, 'installed_version') }} &#10142; {{ state_attr(entity, 'latest_version') }}
-                <ha-icon-button onclick="cardTools.moreInfo('{{ entity }}', true)"><ha-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-icon></ha-icon-button>
-              </li>
-            {%- endif %}
-          {%- endfor %}
-        </ul>
-        {%- endif %}
-  - unique_id: supervisor_updates
-    unit_of_measurement: "Update(s)"
-    state: >
-      {% set count = namespace(value=0) %}
-      {%- for entity in integration_entities('Supervisor') %}
-        {%- if entity.startswith('update') and is_state(entity, 'on') %}
-          {% set count.value = count.value + 1 %}
-        {%- endif %}
-      {%- endfor %}
-      {{ count.value }}
-    attributes:
-      friendly_name: Addon And Supervisor Updates
-      updates: >
-        {%- for entity in integration_entities('Supervisor') %}
-          {%- if entity.startswith('update') and is_state(entity, 'on') %}
-            <li><b><a href="#" onclick="window.open('{{ state_attr(entity, 'release_url') }}');">{{ state_attr(entity, 'friendly_name') }}</a></b> 
-              {{ state_attr(entity, 'installed_version') }} &#10142; {{ state_attr(entity, 'latest_version') }}
-              <ha-icon-button onclick="cardTools.moreInfo('{{ entity }}', true)"><ha-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-icon></ha-icon-button>
-            </li>
-          {%- endif %}
-        {%- endfor %}
 
 - sensor:
   - unique_id: paper_days_until_collection
+    state: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
     attributes:
       friendly_name: papier bak
       short_name: papier
-      color: 'var(--blue)'
+      color: '#3182b7'
       intstate: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
-    state: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
+      text: |
+        {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+        {% set stateInt = state_attr('sensor.afvalinfo_paper', 'days_until_collection_date') | int(default=0) %}
+        {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
+      short_text: |
+        {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+        {% set stateInt = state_attr('sensor.afvalinfo_paper', 'days_until_collection_date') | int(default=0) %}
+        {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
     icon: mdi:trash-can
   - unique_id: gft_days_until_collection
+    state: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
     attributes:
       friendly_name: GFT bak
       short_name: gft
-      color: 'var(--green)'
+      color: 'green'
       intstate: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
-    state: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
+      text: |
+        {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+        {% set stateInt = state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) %}
+        {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
+      short_text: |
+        {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+        {% set stateInt = state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) %}
+        {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
     icon: mdi:trash-can
   - unique_id: rest_days_until_collection
+    state: "{{ state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) }}"
     attributes:
       friendly_name: grijze bak
       short_name: rest
       color: grey
       intstate: "{{ state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) }}"
-    state: "{{ state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) }}"
+      text: |
+        {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+        {% set stateInt = state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) %}
+        {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
+      short_text: |
+        {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+        {% set stateInt = state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) %}
+        {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
     icon: mdi:trash-can
 
 - sensor:
@@ -109,31 +85,6 @@ template:
           {{- days[now().weekday()] }}, {{ strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
         {%- endif -%}
         </b>
-  - unique_id: sidebar_trash
-    state: template
-    attributes:
-      trash: >
-        <div class="trash-compact" style="font-size: 1.2rem">
-          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
-          {% for item in [ (states['sensor.template_rest_days_until_collection']), (states['sensor.template_gft_days_until_collection']), (states['sensor.template_paper_days_until_collection']) ] | sort(attribute='attributes.intstate') -%}
-            {% set stateInt = item.state | int %}
-            <span>
-              <ha-icon style="color: {{ item.attributes['color'] }}; --mdc-icon-size: 24px" icon="mdi:trash-can-outline" class="trash"></ha-icon>
-              <span style="vertical-align: bottom">{{ names[stateInt] if stateInt < names | length else '%s d'%item.state }}</span>
-            </span>
-          {%- endfor %}
-        </div>
-      trash2: >
-        <div class="trash-list">
-          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
-          {% for item in [ (states['sensor.template_rest_days_until_collection']), (states['sensor.template_gft_days_until_collection']), (states['sensor.template_paper_days_until_collection']) ] | sort(attribute='attributes.intstate') -%}
-            {% set stateInt = item.state | int %}
-            <p style="font-size: 1.2rem">
-              <ha-icon style="color: {{ item.attributes['color'] }}; --mdc-icon-size: 24px" icon="mdi:trash-can-outline" class="trash"></ha-icon>
-              <span style="vertical-align: bottom">{{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%item.state }}</span>
-            </p>
-          {%- endfor %}
-        </div>
 
 - sensor:
   # altherma sensor values
@@ -315,27 +266,26 @@ template:
   - unique_id: ha_all_updates
     attributes:
       friendly_name: All Updates
+      updates: >
+        <ul>
+        {%- for entity in expand(states.update) %}
+          {%- if is_state(entity.entity_id, 'on') %}
+            <li>
+              {%- if state_attr(entity.entity_id, 'release_url') is not none %}
+              <b><a href="#" onclick="window.open('{{ state_attr(entity.entity_id, 'release_url') }}');">{{ state_attr(entity.entity_id, 'friendly_name') }}</a></b> 
+              {%- else %}
+              <b>{{ state_attr(entity.entity_id, 'friendly_name') }}</b> 
+              {%- endif %}
+              {{ state_attr(entity.entity_id, 'installed_version') }} &#10142; {{ state_attr(entity.entity_id, 'latest_version') }}
+              <ha-icon-button onclick="cardTools.hass.callService('browser_mod', 'close_popup', {}); cardTools.moreInfo('{{ entity.entity_id }}')"><ha-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-icon></ha-icon-button>
+            </li>
+          {%- endif %}
+        {%- endfor %}
+        </ul>
     icon: mdi:update
     state: >
-      {% set count = namespace(value=0) %}
-      {% if states('sensor.hass_version_latest') %}
-        {% set count.value = count.value + states('sensor.supervisor_updates') | int(default=0) %}
-        {% if states('sensor.hass_version_latest') != states('sensor.hass_version_installed') %}
-          {% set count.value = count.value + 1 %}
-        {% endif %}
-        {% if states('sensor.template_supervisor_updates') not in ['unavailable', 'none', 'unknown'] %}
-          {% set count.value = count.value + (states('sensor.template_supervisor_updates') | int(default=0)) %}
-        {% endif %}
-        {% if states('sensor.template_hacs_updates') not in ['unavailable', 'none', 'unknown'] %}
-          {% set count.value = count.value + (states('sensor.template_hacs_updates') | int(default=0)) %}
-        {% endif %}
-      {% endif %}
-      {% if is_state('binary_sensor.home_assistant_operating_system_update_available', 'on') %}
-        {% set count.value = count.value + 1 %}
-      {% endif %}
-      {{ count.value }}
+      {{ expand(states.update) | selectattr('state', 'in', ['on']) | list | count }}
     unit_of_measurement: "Update(s)"
-
 
 - sensor:
   - unique_id: daily_consumption_energy
@@ -395,7 +345,10 @@ template:
         {{ states('sensor.electricity_price_langeweide_28') | float / state_attr('sensor.electricity_price_langeweide_28','avg_price') | float * 100 }}
     state: >
       {% set percentage = states('sensor.electricity_price_langeweide_28') | float / state_attr('sensor.electricity_price_langeweide_28','avg_price') | float * 100 %}
-      {% if percentage <= 60 %}
+      {# In case it's less then 20 cents, we still consider it cheap #}
+      {% if states('sensor.electricity_price_langeweide_28') | float(default=0) < 0.2 %}
+        {{ "very_cheap" }}
+      {% elif percentage <= 60 %}
         {{ "very_cheap" }}
       {% elif percentage <= 90 and percentage > 60 %}
         {{ "cheap" }}
@@ -408,6 +361,28 @@ template:
       {% else %}
         {{ "normal" }}
       {% endif %}
+  
+- sensor:
+  - name: Cheapest 8 Hours 24h
+    unique_id: cheapest_8_hours_24h
+    attributes:
+      friendly_name: Cheapest 8 Hours 24h
+    state: >-
+      {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+      {%- set cheap_hours = namespace(number=8) %}
+      {% for i in range(0, 23) %} 
+        {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+      {%- endfor -%}
+      {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+      {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+      {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+        {% if sorted_hour_price_dict[i].0 == now().hour %}
+          {% set ns.cheapest_hour = true %}
+        {% else %}
+          {% set ns.cheapest_hour = false %}
+        {% endif %}
+      {%- endfor -%}
+      {{ ns.cheapest_hour }}
     
 - sensor:
   - name: "Today Maximum Temperature"

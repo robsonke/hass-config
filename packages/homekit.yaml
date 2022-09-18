@@ -12,7 +12,6 @@ homekit:
   - name: Home Assistant Bridge
     filter:
       include_entities:
-        - input_boolean.enable_automatic_lights
         - input_boolean.guest_mode
         - light.hal
         - light.keuken

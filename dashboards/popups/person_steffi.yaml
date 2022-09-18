@@ -3,6 +3,7 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Steffi
+    timeout: 60000
     size: wide
     style: |-
       --popup-padding-x: 24px;

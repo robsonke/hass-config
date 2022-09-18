@@ -245,15 +245,15 @@
       data:
         persistent: true
         tag: persistent
-- alias: Lights - Reset lights automation
+- id: reset_lights_automation
+  alias: Lights - Reset lights automation
   description: When we have disabled all automatic lighting, we reset this in the
     early morning to make sure we're back to normal the next day
-  id: reset_lights_automation
   trigger:
-    platform: time
+  - platform: time
     at: 05:00:00
   condition:
-    condition: or
+  - condition: or
     conditions:
     - condition: state
       entity_id: input_boolean.enable_automatic_lights
@@ -261,11 +261,16 @@
     - condition: state
       entity_id: input_boolean.enable_automatic_garden_lights
       state: 'off'
+    - condition: state
+      entity_id: input_boolean.enable_automatic_screens
+      state: 'off'
   action:
-  - service: homeassistant.turn_on
+  - service: input_boolean.turn_on
     entity_id: input_boolean.enable_automatic_lights
-  - service: homeassistant.turn_on
+  - service: input_boolean.turn_on
     entity_id: input_boolean.enable_automatic_garden_lights
+  - service: input_boolean.turn_on
+    data: {}
 - id: groundfloor_lights_on_when_dark_away
   alias: Lights - Turn on lights when dark - away
   description: Switch standard lights on when it's after 2 PM and light level too
@@ -1186,6 +1191,9 @@
   - condition: state
     entity_id: sensor.rate_rain_piezo
     state: '0.0'
+  - condition: state
+    entity_id: input_boolean.enable_automatic_screens
+    state: 'on'
   action:
   - service: notify.all_phones
     data:
@@ -1217,9 +1225,9 @@
   - platform: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
-      hours: 1
-      minutes: 1
-      seconds: 0
+      hours: 0
+      minutes: 0
+      seconds: 10
     above: '0'
     below: '1000'
   condition:
@@ -1230,6 +1238,9 @@
       domain: cover
       entity_id: cover.voorraam
       type: is_closed
+    - condition: state
+      entity_id: input_boolean.enable_automatic_screens
+      state: 'on'
   action:
   - service: notify.all_phones
     data:
@@ -1276,6 +1287,7 @@
       seconds: 0
   - platform: sun
     event: sunset
+    offset: -00:30:00
   - platform: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
@@ -1292,6 +1304,9 @@
       domain: cover
       entity_id: cover.zijraam
       type: is_closed
+  - condition: state
+    entity_id: input_boolean.enable_automatic_screens
+    state: 'on'
   action:
   - service: notify.all_phones
     data:
@@ -2084,6 +2099,8 @@
       run_on_saturday: true
       run_on_sunday: true
       window_sensor: binary_sensor.window_evaroom_openclose_sensor
+      price_level_sensor: sensor.energy_price_level
+      price_level_percentage: 90
 - id: '1642502861762'
   alias: Heating - Control heating guestroom
   description: Enable the heating when Steffi works and few extra days
@@ -2104,6 +2121,8 @@
       run_on_saturday: true
       run_on_sunday: false
       window_sensor: binary_sensor.window_guestroom_openclose_sensor
+      price_level_sensor: sensor.energy_price_level
+      price_level_percentage: 90
 - id: '1642624564993'
   alias: Lights - Turn on lights when toilet door opens
   description: Check for an opening door or motion in toilet
@@ -2203,6 +2222,13 @@
     event: start
   - platform: time_pattern
     minutes: /10
+  - platform: state
+    entity_id:
+    - sensor.energy_price_level
+  - platform: state
+    entity_id:
+    - binary_sensor.window_masterbed_1_openclose_sensor
+    - binary_sensor.window_masterbed_2_openclose_sensor
   condition: []
   action:
   - choose:
@@ -2223,6 +2249,11 @@
         device_id: 83daade23505c1645165605bc56c49d1
         entity_id: binary_sensor.window_masterbed_2_openclose_sensor
         domain: binary_sensor
+      - condition: numeric_state
+        entity_id: sensor.energy_price_level
+        attribute: percentage
+        below: 91
+        alias: The price should be low
       sequence:
       - device_id: 63bfcece97a8578bf632cddbc75ee61d
         domain: select
@@ -2564,6 +2595,9 @@
   - condition: state
     entity_id: sensor.rate_rain_piezo
     state: '0.0'
+  - condition: state
+    entity_id: input_boolean.enable_automatic_screens
+    state: 'on'
   action:
   - service: notify.all_phones
     data:
@@ -2689,27 +2723,6 @@
   trace:
     stored_traces: 10
   mode: single
-- id: '1660594059134'
-  alias: Fridge - Alert when fridge is off too long
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - switch.shelly_plug_office
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
-  condition: []
-  action:
-  - service: notify.all_phones
-    data:
-      message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur uit!"
-      data:
-        persistent: true
-        tag: persistent
-  mode: single
 - id: '1661801771945'
   alias: System - Refresh wall tablet
   description: After a restart or frontend changes, force a refresh
@@ -2725,7 +2738,7 @@
       browser_id: 65b403f4-fb734e3d
   mode: single
 - id: '1661977922126'
-  alias: Heating - Control HVAC mode downstairs
+  alias: HVAC - Control Operation Mode downstairs
   description: 'Set the HVAC mode (heat/cool/off) for the heat pump. By default off,
     cooling when it is expected to be hot outside and also becoming hotter inside,
     heating when the indoor temperature is low and outside also getting cooler.
@@ -2741,9 +2754,10 @@
   action:
   - choose:
     - conditions:
-      - condition: numeric_state
-        entity_id: sensor.downstairs_temperature
-        below: '20'
+      - alias: Confirm if the temperature is below the minimum allowed temperature
+        condition: template
+        value_template: '{{ states(''sensor.downstairs_temperature'') < states(''input_number.hvac_heating_limit'')
+          }}'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         below: '15'
@@ -2753,21 +2767,26 @@
           entity_id: climate.warmtepomp
         data:
           hvac_mode: heat
+        alias: Set HVAC to heating
     - conditions:
-      - condition: numeric_state
-        entity_id: sensor.downstairs_temperature
-        above: '20'
-        below: '24'
+      - alias: Confirm if the temperature is below the maximum and above the minimum
+          allowed temperature
+        condition: template
+        value_template: '{{ states(''sensor.downstairs_temperature'') < states(''input_number.hvac_cooling_limit'')
+          and states(''sensor.downstairs_temperature'') > states(''input_number.hvac_heating_limit'')
+          }}'
       sequence:
       - service: climate.set_hvac_mode
         target:
           entity_id: climate.warmtepomp
         data:
           hvac_mode: 'off'
+        alias: Turn HVAC off
     - conditions:
-      - condition: numeric_state
-        entity_id: sensor.downstairs_temperature
-        above: '23'
+      - alias: Confirm if the temperature is above the maximum allowed temperature
+        condition: template
+        value_template: '{{ states(''sensor.downstairs_temperature'') > states(''input_number.hvac_cooling_limit'')
+          }}'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         above: '26'
@@ -2777,16 +2796,20 @@
           entity_id: climate.warmtepomp
         data:
           hvac_mode: cool
+        alias: Set HVAC to cooling
     default:
     - service: climate.set_hvac_mode
       data:
         hvac_mode: 'off'
       target:
         entity_id: climate.warmtepomp
+      alias: Default to off
+  trace:
+    stored_traces: 20
   mode: queued
   max: 3
 - id: '1662038485202'
-  alias: System - Control the wallpanel screensave mode during the night
+  alias: System - Control the wallpanel screensaver mode during the night
   description: ''
   trigger:
   - platform: state
@@ -2800,15 +2823,296 @@
         entity_id: input_boolean.night_mode
         state: 'on'
       sequence:
-      - service: input_text.set_value
-        data:
-          value: night
+      - service: input_boolean.turn_on
+        data: {}
         target:
-          entity_id: input_text.wallpanel_screensaver_profile
+          entity_id: input_boolean.wallpanel_screensaver_enabled
     default:
-    - service: input_text.set_value
-      data:
-        value: standard
+    - service: input_boolean.turn_off
+      data: {}
       target:
-        entity_id: input_text.wallpanel_screensaver_profile
+        entity_id: input_boolean.wallpanel_screensaver_enabled
+  mode: single
+- id: '1662889733680'
+  alias: Screens - Disable the automatic control of the screens in case of a manual
+    action
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.voorraam
+    - cover.zijraam
+    alias: When the position of the screens change
+    attribute: current_position
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.context.parent_id == none }}'
+    - condition: template
+      value_template: '{{ trigger.to_state.context.user_id == none }}'
+      enabled: true
+    - condition: template
+      value_template: '{{ trigger.to_state.context.id != none }}'
+    alias: Only in case of a manual user interaction
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.enable_automatic_screens
+    alias: Disable the automatic screens control for today
+  mode: single
+- id: '1663352793600'
+  alias: System - Alert when the shed fridge is off too long
+  description: ''
+  use_blueprint:
+    path: robsonke/device-off-warning.yaml
+    input:
+      switch: switch.shelly_plug_s_8_fridge1_relay
+      max_time_off: 30
+      actions:
+      - service: notify.all_phones
+        data:
+          message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur
+            uit!"
+          data:
+            persistent: true
+            tag: persistent
+- id: '1663352887163'
+  alias: System - Alert when the kitchen cooling is off too long
+  description: ''
+  use_blueprint:
+    path: robsonke/device-off-warning.yaml
+    input:
+      switch: switch.shelly_plug_koelkast_relay
+      max_time_off: 30
+      actions:
+      - service: notify.all_phones
+        data:
+          message: "\U0001F9CA Let op, de koelkast staat al een half uur uit!"
+          data:
+            persistent: true
+            tag: persistent
+- id: '1663353341942'
+  alias: System - Alert in case of heavy water usage in one day
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.water_daily
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.water_daily
+    above: 5
+  action:
+  - service: notify.all_phones
+    data:
+      message: "\U0001F4A6 Let op, we hebben vandaag al meer dan 5 kuub water verbruikt!"
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1663403485592'
+  alias: HVAC - Set default temperature
+  description: This sets the temperature based on the heating or cooling mode plus
+    the hvac scheduler (lower effort in the night). Overall, heatpumps better have
+    some kind of default minimum, so we never go below 18 degrees
+  trigger:
+  - platform: state
+    entity_id:
+    - schedule.hvac_schedule
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: schedule.hvac_schedule
+        state: 'on'
+      - condition: state
+        entity_id: climate.warmtepomp
+        attribute: hvac_action
+        state: heating
+      sequence:
+      - service: climate.set_temperature
+        data_template:
+          temperature: '{{ states.input_number.hvac_winter_target_temperature | float
+            }}'
+        target:
+          entity_id: climate.warmtepomp
+        alias: Heat - Set temperature to 21 degrees during the day
+    - conditions:
+      - condition: state
+        entity_id: schedule.hvac_schedule
+        state: 'off'
+      - condition: state
+        entity_id: climate.warmtepomp
+        attribute: hvac_action
+        state: heating
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 18
+        target:
+          entity_id: climate.warmtepomp
+        alias: Heat - Set temperature to 18 degrees during the night
+    - conditions:
+      - condition: state
+        entity_id: schedule.hvac_schedule
+        state: 'on'
+      - condition: state
+        entity_id: climate.warmtepomp
+        attribute: hvac_action
+        state: cooling
+      sequence:
+      - service: climate.set_temperature
+        data_template:
+          temperature: '{{ states.input_number.hvac_summer_target_temperature | float
+            }}'
+        target:
+          entity_id: climate.warmtepomp
+        alias: Cool - Set temperature to 23 degrees during the day
+    - conditions:
+      - condition: state
+        entity_id: schedule.hvac_schedule
+        state: 'off'
+      - condition: state
+        entity_id: climate.warmtepomp
+        attribute: hvac_action
+        state: cooling
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 25
+        target:
+          entity_id: climate.warmtepomp
+        alias: Cool - Set temperature to 25 degrees during the night
+    alias: Set the right target temperature, depending on day/night and season
+  trace:
+    stored_traces: 20
+  mode: single
+- id: '1663405385606'
+  alias: HVAC - Control the heatpump
+  description: This controls whether the heatpump should be turned on or not. Based
+    on pricing or potential PV over capacity (later). So far, using the price works
+    oke, the higher the price, the more need there is for power, so the less we do.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.energy_price_level
+  - platform: state
+    entity_id:
+    - input_boolean.heating_downstairs
+    - input_boolean.cooling_downstairs
+  - platform: state
+    entity_id:
+    - climate.warmtepomp
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_automatic_hvac
+    state: 'on'
+    alias: Only dis/enable the heappump when the automation is active
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: sensor.cheapest_8_hours_24h
+          state: 'True'
+          alias: Is this one of the 8 cheapest hours of the day
+        - condition: numeric_state
+          entity_id: sensor.energy_price_level
+          attribute: percentage
+          below: 91
+          alias: Or in case the price is low, probably giving the same result
+        alias: Check if the price is oke
+      - condition: not
+        alias: Only when we are in heating or cooling mode
+        conditions:
+        - condition: state
+          entity_id: climate.warmtepomp
+          attribute: hvac_action
+          state: 'off'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.climate_control
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.climate_control
+    alias: Turn on when needed and the price is oke, otherwise default off
+  trace:
+    stored_traces: 20
+  mode: single
+  max_exceeded: silent
+- id: '1663492219970'
+  alias: Presence - Disable Guest Mode when one of us comes home
+  description: To avoid we forget to turn it off
+  trigger:
+  - platform: state
+    for:
+      seconds: 15
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+    to: just_arrived
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.rob
+      state: home
+    - condition: state
+      entity_id: person.steffi
+      state: home
+  - condition: state
+    state: 'on'
+    entity_id: input_boolean.guest_mode
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.guest_mode
+  - service: notify.all_phones
+    data:
+      message: ⏰ Een van ons komt thuis, gast modus gaat nu uit
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1663526481065'
+  alias: Heating - Control heaters bathrooms
+  description: Turn simply on/off the heaters in both bathrooms. These are stupid
+    devices with their own local thermostat, so we just turn them on to dry towells.
+  trigger:
+  - platform: time
+    at: 09:00:00
+  - platform: time
+    at: '22:00:00'
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.today_maximum_temperature
+    below: 18
+    alias: Today Maximum Temperature Outside is below 18 degrees
+  action:
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id:
+      - switch.shelly_plug_douche_verwarming_relay
+      - switch.shelly_plug_badkamer_verwarming_relay
+  - delay:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id:
+      - switch.shelly_plug_badkamer_verwarming_relay
+      - switch.shelly_plug_douche_verwarming_relay
   mode: single

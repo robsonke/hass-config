@@ -38,3 +38,34 @@ input_number:
     max: 60
     step: 5
     unit_of_measurement: "minutes"
+
+  # Controls the hvac operation mode (cooling/heating/off)
+  hvac_heating_limit:
+    name: Minimale HVAC temperatuur
+    icon: mdi:fire-circle
+    min: 10
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"
+  hvac_cooling_limit:
+    name: Maximale HVAC temperatuur
+    icon: mdi:air-conditioner
+    min: 10
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"
+
+  hvac_winter_target_temperature:
+    name: Winter temperatuur
+    icon: mdi:snowflake-thermometer
+    min: 10
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"
+  hvac_summer_target_temperature:
+    name: Zomer temperatuur
+    icon: mdi:sun-thermometer
+    min: 10
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"

@@ -4,6 +4,7 @@ browser_mod:
   data:
     title: Het weer in Kloetinge
     size: wide
+    timeout: 60000
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout
@@ -38,6 +39,13 @@ browser_mod:
               forecast: true
               hourly_forecast: false
               number_of_forecasts: '5'
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.rate_rain_piezo
+                - entity: sensor.daily_rain_piezo
+                - entity: sensor.weekly_rain_piezo
+                - entity: sensor.monthly_rain_piezo
         - type: vertical-stack
           view_layout:
             grid-area: rain

@@ -3,6 +3,7 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Deuren en ramen boven
+    timeout: 60000
     content:
       type: custom:auto-entities
       card:

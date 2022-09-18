@@ -4,6 +4,7 @@ browser_mod:
   data:
     title: Rob
     size: wide
+    timeout: 60000
     style: |-
       --popup-padding-x: 24px;
       --popup-padding-y: 20px;

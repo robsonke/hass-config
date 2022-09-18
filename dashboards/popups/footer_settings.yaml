@@ -1,0 +1,52 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: System Settings
+    size: wide
+    timeout: 60000
+    content:
+      type: vertical-stack
+      cards:
+        - type: entities
+          show_header_toggle: false
+          title: Automatische acties
+          entities:
+            - entity: input_boolean.enable_automatic_lights
+            - entity: input_boolean.enable_automatic_garden_lights
+            - entity: input_boolean.enable_automatic_screens
+            - entity: input_boolean.enable_automatic_hvac
+        - type: entities
+          entities:
+            - entity: switch.evabed_detect
+            - entity: switch.bijkeuken_detect
+            - entity: switch.achterdeur_detect
+            - entity: switch.terras_detect
+            - entity: switch.doorbell_detect
+            - entity: switch.veranda_detect
+          title: Camera detectie
+          show_header_toggle: false
+          state_color: false
+        - type: entities
+          show_header_toggle: false
+          title: Theme
+          entities:
+            - entity: input_boolean.dark_mode
+        - type: entities
+          view_layout:
+            grid-area: hass
+          title: Home Assistant
+          show_header_toggle: false
+          card_mod:
+            class: header
+            style: |
+              ha-card {
+                margin: 0px !important;
+              }
+          entities:
+            - entity: sensor.hass_version_installed
+            - entity: sensor.uptime
+        
+
+
+

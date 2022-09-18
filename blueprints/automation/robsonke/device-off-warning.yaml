@@ -1,0 +1,47 @@
+blueprint:
+  name: Alert when cooling devices are off too long
+  description: Many of my devices do have a power metering including the option to
+    turn off the device. This is nice but we want to avoid turning off a fridge for
+    hours accidentally.
+  domain: automation
+  input:
+    switch:
+      name: Switch Entity
+      description: The switch we want to monitor.
+      selector:
+        entity:
+          domain: switch
+          multiple: false
+    max_time_off:
+      name: Maximum Time Off
+      description: How many minutes is the device allowed to be off.
+      default: 15
+      selector:
+        number:
+          min: 5.0
+          max: 120.0
+          step: 5.0
+          mode: slider
+    actions:
+      name: Actions when it's too long off
+      description: Actions (e.g. pushing a notification, TTS announcement, ...)
+      selector:
+        action: {}
+  source_url: https://gist.github.com/robsonke/c714301b560081e9a76cfbf88f5e730f
+variables:
+  max_time_off: !input max_time_off
+  switch: !input switch
+  actions: !input actions
+trigger:
+- platform: state
+  entity_id:
+  - !input switch
+  to: 'off'
+  for:
+    hours: 0
+    minutes: !input max_time_off
+    seconds: 0
+action:
+- choose: []
+  default: !input actions
+mode: single

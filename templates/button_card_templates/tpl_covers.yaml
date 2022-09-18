@@ -1,0 +1,93 @@
+#################################################
+#                                               #
+#                     COVERS                    #
+#                                               #
+#################################################
+
+cover:
+  template:
+    - simple
+  variables:
+    timeout: >
+      [[[ return entity === undefined || Date.now() - Date.parse(entity.last_changed); ]]]
+    consider_on: >
+      [[[
+        var state = entity === undefined || entity.state;
+        return state !== 'open';
+      ]]]
+    circle_input: >
+      [[[
+        if (entity) {
+          let real_position = entity.attributes.current_position*100/(100-25)-35;
+          return (real_position < 3) ? 0 : (real_position > 97) ? 100 : real_position;
+        }
+      ]]]
+    close_position: 25
+    quarter1_position: 50
+    middle_position: 70
+    quarter3_position: 85
+  styles:
+    custom_fields:
+      info:
+        - text-align: right
+  custom_fields:
+    info: >
+      [[[
+        let coverage = states['sensor.openweathermap_cloud_coverage'].state;
+        let temp = Math.round(states['sensor.openweathermap_forecast_temperature'].state*10)/10;
+        return `<span><ha-icon icon="mdi:cloud-outline" style="width: 1rem;"></ha-icon> ${coverage}%<br/><ha-icon icon="mdi:thermometer" style="width: 1rem;"></ha-icon> ${temp} °C</span>`;
+      ]]]
+    icon: >
+      [[[
+        const fill_color = (entity.attributes.current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : 'var(--green)';
+        let common = `<svg viewBox="0 0 50 50">
+            <g transform="matrix(0.00733309,0,0,-0.00934536,-0.00876259,42.68667)" fill="${fill_color}" stroke="none">
+            <path d="M 95,4556 C 54,4538 12,4487 5,4447 2,4429 0,4290 2,4138 c 3,-314 3,-312 88,-355 41,-21 58,-23 207,-23 H 460 V 2311 862 L 281,858 C 118,855 99,853 74,834 23,796 5,763 5,705 5,647 23,614 74,576 l 27,-21 h 2459 2459 l 27,21 c 51,38 69,71 69,129 0,58 -18,91 -69,129 -25,19 -44,21 -207,24 l -179,4 v 1449 1449 h 163 c 149,0 166,2 207,23 87,44 85,37 85,382 0,291 -1,305 -21,331 -11,15 -33,37 -48,48 l -27,21 -2447,2 C 553,4569 120,4567 95,4556 Z M 4350,2310 V 860 H 2560 770 v 1450 1450 h 1790 1790 z" />`,
+            path75 = `<path d="m 1152,3300 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`,
+            path50 = `<path d="m 1164,2741 c -111,-51 -114,-214 -4,-272 33,-18 90,-19 1400,-19 1310,0 1367,1 1400,19 110,58 107,221 -4,272 -39,18 -96,19 -1396,19 -1300,0 -1357,-1 -1396,-19 z" />`,
+            path25 = `<path d="m 1160,2152 c -104,-52 -109,-206 -8,-267 33,-20 51,-20 1408,-20 1357,0 1375,0 1408,20 101,61 96,215 -8,267 -33,17 -120,18 -1400,18 -1280,0 -1367,-1 -1400,-18 z" />`,
+            path0  = `<path d="m 1152,1580 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`;
+        if (entity.attributes.current_position <= variables.close_position) {
+          return `${common}${path75}${path50}${path25}${path0}</g></svg>`;
+        } 
+        if (entity.attributes.current_position <= variables.quarter1_position) {
+          return `${common}${path75}${path50}${path25}</g></svg>`;
+        }
+        if (entity.attributes.current_position <= variables.middle_position) {
+          return `${common}${path75}${path50}</g></svg>`;
+        }
+        if (entity.attributes.current_position <= variables.quarter3_position) {
+          return `${common}${path75}</g></svg>`;
+        }
+        if (entity.attributes.current_position <= 100) {
+          return `${common}</g></svg>`;
+        }
+      ]]]
+  label: |
+    [[[
+      if (entity.attributes.current_position <= variables.close_position)
+        return 'Dicht';
+      return 'Open';
+    ]]]
+  state_display: >
+    [[[ if (variables.state === true) return 'Offline'; ]]]
+  hold_action:
+    animation_card: |
+      [[[
+        const animation_speed_ms = 900;
+        const animation = `card_bounce ${animation_speed_ms}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+        this.shadowRoot.getElementById("card").style.animation = animation;
+        window.setTimeout(() => {
+          this.shadowRoot.getElementById("card").style.animation = "none";
+        }, animation_speed_ms)
+      ]]]
+    action: call-service
+    service: cover.set_cover_position
+    service_data:
+      entity_id: entity
+      position: |
+        [[[
+          return (variables.close_position == null) ? 20 : variables.close_position;
+        ]]]
+  tap_action:
+    !include ../../dashboards/popups/covers.yaml

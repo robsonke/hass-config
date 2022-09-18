@@ -1,0 +1,119 @@
+#################################################
+#                                               #
+#                    UPDATES                    #
+#                                               #
+#################################################
+
+updates:
+  show_state: true
+  show_name: false
+  show_icon: false
+  styles:
+    state:
+      - text-align: left
+      - justify-self: left
+      - white-space: normal
+    card:
+      - cursor: default
+      - padding: 0.2em 0 0 0.6em
+      - letter-spacing: var(--mdc-typography-body1-letter-spacing)
+  tap_action:
+    href:
+  extra_styles: |
+    #ripple {
+      display: none;
+    }
+    ha-icon {
+      width: 1.5em;
+      vertical-align: 18%;
+      opacity: 0.5;
+      padding-right: 2px;
+    }
+    .title {
+      font-family: SF Text;
+      font-size: 1.3em;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    .subtitle {
+      font-family: SF Text;
+      font-size: 1em;
+      line-height: 0.7em;
+      padding-left: 3px;
+      padding-bottom: 10px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: #828383;
+    }
+    a {
+      color: var(--primary-color);
+    }
+    ul {
+      margin-top: -0.6em;
+      font-family: SF Display;
+      font-size: 0.95em;
+      letter-spacing: 0.5px;
+      padding: 0 0 0 2.5em;
+      line-height: 1.6em;
+    }
+    code {
+      background-color: var(--secondary-background-color);
+    }
+
+updates_hass:
+  template:
+    - updates
+  state_display: |
+    [[[
+      if (entity) {
+        // markdown parser
+        let links = new RegExp('<a href="([^"]+)"', "g");
+        // states
+        let installed = entity.state;
+        let latest = states["sensor.hass_version_latest"].state;
+        let release_notes = marked.parse(states["sensor.hass_release_notes"].attributes.body);
+        // return
+        let subtitle = installed == latest ?
+          `Geen update` :
+          `${latest} beschikbaar ${String.fromCodePoint("0x1f389")}`;
+        let output = installed == latest ?
+          `<ul></ul>` :
+          release_notes.replace(links, '<a href="#" onclick="window.open(\'$1\')"');
+        return `
+          <ha-icon icon="mdi:home-assistant"></ha-icon> <span class="title">Home Assistant ${installed}</span><br>
+          <p class="subtitle">${subtitle}</p>
+          ${output}
+        `;
+      }
+    ]]]
+
+updates_hass_icon_name:
+  template: icon_name
+  icon: mdi:update
+  styles:
+    card:
+      - opacity: >
+          [[[
+            return entity && entity.state === states[variables.latest].state
+                ? '0.3'
+                : '1';
+          ]]]
+      - display: >
+          [[[
+            return entity
+              ? 'flex'
+              : 'none';
+          ]]]
+
+updates_rest:
+  template:
+    - updates
+  state_display: >
+    [[[
+      if (states[variables.updates].state > 0) {
+        let output = `<p class="subtitle">Er zijn ${states[variables.updates].state} update(s).</p>`;
+        output += states[variables.updates].attributes.updates;
+        return output;
+      }
+      return '<p class="subtitle">Er zijn geen verdere updates beschikbaar.</p>';
+    ]]]

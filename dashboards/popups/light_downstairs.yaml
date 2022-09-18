@@ -2,15 +2,16 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
-    title: Woonkamer verlichting
+    title: Verlichting beneden
+    timeout: 60000
     style: |-
       --popup-padding-x: 24px;
       --popup-padding-y: 20px;
       --popup-border-radius: 1em;
+      --popup-min-width: 600px;
     content:
-      type: grid
-      columns: 3
-      cards:
+      type: entities
+      entities:
         - type: custom:decluttering-card
           template: light_button
           variables: 
@@ -24,21 +25,21 @@ browser_mod:
         - type: custom:decluttering-card
           template: light_button
           variables: 
+            - title: Bank
             - entity: light.zwave_light_couch_level
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
+            - title: Hoeklamp
             - entity: light.zwave_light_corner_level
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
+            - title: Ledstrip TV
             - entity: light.ledstrip_tv
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - title: Toilet
-            - entity: light.toilet_downstairs
-
+        
+        - type: divider
+        
         - type: custom:decluttering-card
           template: light_button
           variables: 
@@ -54,6 +55,9 @@ browser_mod:
           variables: 
             - entity: light.kitchendesk_light
             - title: Kookeiland
+
+        - type: divider
+
         - type: custom:decluttering-card
           template: light_button
           variables: 
@@ -68,6 +72,9 @@ browser_mod:
           template: light_button
           variables: 
             - entity: light.boekenkast
+            - title: Boekenkast
+
+        - type: divider
 
         - type: custom:decluttering-card
           template: light_button
@@ -79,3 +86,15 @@ browser_mod:
           variables: 
             - entity: light.ledstrip_office
             - title: Led Bureau
+
+        - type: divider
+
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.hal
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - title: Toilet
+            - entity: light.toilet_downstairs

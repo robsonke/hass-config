@@ -1,0 +1,49 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Update Info
+    size: wide
+    timeout: 60000
+    style: |-
+      --popup-padding-x: 24px;
+      --popup-padding-y: 20px;
+      --popup-border-radius: 1em;
+    content:
+      type: grid
+      columns: 1
+      square: false
+      cards:
+        ### hass
+        - type: custom:button-card
+          entity: sensor.hass_version_installed
+          triggers_update:
+            - sensor.hass_version_latest
+            - sensor.hass_release_notes
+          template:
+            - updates_hass
+        - type: custom:button-card
+          entity: sensor.hass_version_installed
+          triggers_update:
+            - sensor.hass_version_latest
+          name: Update Home Assistant
+          variables:
+            latest: sensor.hass_version_latest
+          tap_action:
+            action: fire-dom-event
+            browser_mod:
+              service: browser_mod.sequence
+              data:
+                sequence:
+                  - service: browser_mod.close_popup
+                  - service: browser_mod.navigate
+                    data:
+                      path: /config/dashboard
+          template: updates_hass_icon_name
+
+        ### all others
+        - type: custom:button-card
+          entity: sensor.all_updates
+          variables:
+            updates: sensor.all_updates
+          template: updates_rest

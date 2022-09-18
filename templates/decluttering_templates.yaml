@@ -1,98 +1,18 @@
 
 light_button:
   card:
-    type: custom:button-card
-    variables:
-      title: '[[title]]'
+    type: custom:mushroom-light-card
     entity: '[[entity]]'
-    name: >
-      [[[
-        // really weird workaround, but hey it works
-        const found = '[[title]]'.match(/\[\[title\]\]/g);
-        if (!found)
-          return '[[title]]';
-        return entity.attributes.friendly_name;
-      ]]]
-    template:
-      - light
-    custom_fields:
-      icon: >
-        [[[
-          if (entity.attributes.icon)
-            return html`<state-badge .stateObj="${entity}" .hass="${hass}"></state-badge>`;
-          return html`<state-badge .stateObj="${entity}" .hass="${hass}" icon="mdi:lightbulb"></state-badge>`;
-        ]]]
-    styles:
-      card:
-        - --mdc-icon-size: 100%
-    extra_styles: |
-      state-badge {
-        width: 100%;
-        height: 100%;
-      }
-    aspect_ratio: 1/1
-    double_tap_action: &detailaction
-      action: fire-dom-event
-      browser_mod:
-        service: browser_mod.popup
-        data:
-          title: >
-            [[[ return entity.attributes.friendly_name; ]]]
-          content:
-            type: custom:light-popup-card
-            entity: >
-              [[[ return entity.entity_id ]]]
-            icon: fire
-            fullscreen: false
-            brightnessWidth: 130px
-            brightnessHeight: 360px
-            borderRadius: 1.7em
-            sliderColor: '#c7c7c7'
-            sliderTrackColor: rgba(25, 25, 25, 0.9)
-            displayType: slider
-            actions:
-              - action: fire-dom-event
-                browser_mod:
-                  service: browser_mod.popup
-                  data:
-                    title: >
-                      [[[ return entity.attributes.friendly_name; ]]]
-                    content:
-                      type: vertical-stack
-                      cards:
-                        - type: history-graph
-                          hours_to_show: 24
-                          entities:
-                            - entity: >
-                                [[[ return entity.entity_id ]]]
-                        - type: custom:more-info-card
-                          entity: >
-                            [[[ return entity.entity_id ]]]
-              - action: fire-dom-event
-                name: kleur
-                image: >-
-                  data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
-                  50 50"%3E%3Cstyle%3Esvg%7Bbackground:radial-gradient(circle,rgba(255,255,
-                  255,1) 0%25,rgba(255,255,255,0) 80%25),conic-gradient(%237827e6,%23e622e7,
-                  %23e40588,%23e41919,%23e5691e,%23e8e22e,%237de629,%2334e828,%2333e75c,
-                  %2334e8e0,%23207de5,%231227e5,%237827e6)%7D%3C/style%3E%3C/svg%3E
-                browser_mod:
-                  service: browser_mod.popup
-                  data:
-                    title: >
-                      [[[ return entity.attributes.friendly_name ]]]
-                    content:
-                      type: custom:light-entity-card
-                      entity: >
-                        [[[ return entity.entity_id ]]]
-                      brightness: true
-                      color_temp: true
-                      effects_list: false
-                      full_width_sliders: false
-                      hide_header: true
-                      show_slider_percent: true
-                      smooth_color_wheel: true
-                      persist_features: true
-                      consolidate_entities: false
-    hold_action: *detailaction
-
+    name: '[[title]]'
+    primary_info: name
+    secondary_info: state
+    icon_type: icon
+    show_brightness_control: true
+    use_light_color: true
+    show_color_temp_control: true
+    collapsible_controls: true
+    show_color_control: true
+    fill_container: true
+    layout: horizontal
+    double_tap_action:
+      action: more-info

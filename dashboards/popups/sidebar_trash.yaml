@@ -3,6 +3,7 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Afval
+    timeout: 60000
     content:
       type: vertical-stack
       title: Afval

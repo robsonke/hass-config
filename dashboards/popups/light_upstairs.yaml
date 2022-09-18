@@ -2,27 +2,42 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
-    title: Bovenverdieping verlichting
+    title: Verlichting boven
+    timeout: 60000
     style: |-
       --popup-padding-x: 24px;
       --popup-padding-y: 20px;
       --popup-border-radius: 1em;
+      --popup-min-width: 600px;
     content:
-      type: grid
-      columns: 3
-      cards:
+      type: entities
+      entities:
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
+            - entity: light.overloop
+            - title: Overloop
+
+        - type: divider
+
         - type: custom:decluttering-card
           template: light_button
           variables: 
             - entity: light.hoofdslaapkamer
+            - title: Slaapkamer
         - type: custom:decluttering-card
           template: light_button
           variables: 
             - entity: light.inloopkast
+            - title: Inloopkast
         - type: custom:decluttering-card
           template: light_button
           variables: 
             - entity: light.douche
+            - title: Douche
+
+        - type: divider
+
         - type: custom:decluttering-card
           template: light_button
           variables: 
@@ -32,21 +47,14 @@ browser_mod:
           template: light_button
           variables: 
             - entity: light.badkamer
+            - title: Badkamer
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - title: Logeer
+            - title: Logeerkamer
             - entity: light.logeerkamer
         - type: custom:decluttering-card
           template: light_button
           variables: 
             - entity: light.zolder
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.overloop
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.hal
-
+            - title: Zolderkamer

@@ -3,6 +3,7 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Alarm
+    timeout: 60000
     style: |
       --popup-max-width: 1200px;
     content:
