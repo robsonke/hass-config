@@ -171,6 +171,8 @@ browser_mod:
               entities:
                 - entity: device_tracker.ix3
                   secondary_info: last-changed
+                - entity: sensor.ix3_charging_energy_daily
+                  name: Verbruik laden vandaag (kWh)
         - type: map
           default_zoom: 13
           dark_mode: true

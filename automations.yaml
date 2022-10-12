@@ -186,7 +186,7 @@
   - service: browser_mod.popup
     data:
       title: Alarm actief
-      card:
+      content:
         type: custom:alarmo-card
         entity: alarm_control_panel.alarmo
   - repeat:
@@ -543,8 +543,12 @@
     at: 09:00
   - platform: numeric_state
     entity_id: sensor.light_sensor_garden
-    above: '10'
-    for: 0:05:00
+    above: 5
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
   condition:
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
@@ -873,8 +877,10 @@
         de {{ trigger.payload_json["after"]["camera"] }} camera
       data:
         persistent: true
-        tag: persistent
-        image: http://ccab4aaf-frigate:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
+        image: https://home.tigrou.nl/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        tag: '{{trigger.payload_json["after"]["id"]}}'
+        when: '{{trigger.payload_json["after"]["start_time"]|int}}'
+        entity_id: camera.{{trigger.payload_json["after"]["camera"]}}
   mode: single
 - alias: Theme - Switch to dark mode
   id: theme_switch_dark
@@ -1173,13 +1179,13 @@
         conditions:
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_temperature
-          above: '18'
+          above: '20'
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_cloud_coverage
           below: '80'
       - condition: numeric_state
         entity_id: sensor.openweathermap_forecast_temperature
-        above: '20'
+        above: '22'
     - condition: device
       device_id: eb69e1ad4596ef0df19b685a4e84e026
       domain: cover
@@ -2577,13 +2583,13 @@
         conditions:
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_temperature
-          above: '16'
+          above: '20'
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_cloud_coverage
           below: '80'
       - condition: numeric_state
         entity_id: sensor.openweathermap_forecast_temperature
-        above: '20'
+        above: '22'
     - condition: device
       device_id: 7a674f956b15af8decebb36355772928
       domain: cover
@@ -2623,7 +2629,7 @@
     attribute: current_temperature
     below: '35'
   - platform: time_pattern
-    minutes: /15
+    minutes: /30
   condition:
   - condition: or
     conditions:
@@ -2666,6 +2672,8 @@
       operation_mode: 'on'
     target:
       entity_id: water_heater.domestic_hot_water_tank
+  trace:
+    stored_traces: 50
   mode: single
 - id: '1659881596095'
   alias: DHW - Disable warm water heating
@@ -2760,7 +2768,14 @@
           }}'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
-        below: '15'
+        below: 18
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: climate.warmtepomp
+          attribute: hvac_action
+          state: heating
+        alias: Action should not be set to heating already
       sequence:
       - service: climate.set_hvac_mode
         target:
@@ -2768,6 +2783,11 @@
         data:
           hvac_mode: heat
         alias: Set HVAC to heating
+      - service: select.select_option
+        data:
+          option: heating
+        target:
+          entity_id: select.operation_mode
     - conditions:
       - alias: Confirm if the temperature is below the maximum and above the minimum
           allowed temperature
@@ -2775,6 +2795,12 @@
         value_template: '{{ states(''sensor.downstairs_temperature'') < states(''input_number.hvac_cooling_limit'')
           and states(''sensor.downstairs_temperature'') > states(''input_number.hvac_heating_limit'')
           }}'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: climate.warmtepomp
+          attribute: hvac_action
+          state: 'off'
       sequence:
       - service: climate.set_hvac_mode
         target:
@@ -2790,6 +2816,13 @@
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         above: '26'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: climate.warmtepomp
+          attribute: hvac_action
+          state: cooling
+        alias: Action should not be set to cooling already
       sequence:
       - service: climate.set_hvac_mode
         target:
@@ -2797,13 +2830,11 @@
         data:
           hvac_mode: cool
         alias: Set HVAC to cooling
-    default:
-    - service: climate.set_hvac_mode
-      data:
-        hvac_mode: 'off'
-      target:
-        entity_id: climate.warmtepomp
-      alias: Default to off
+      - service: select.select_option
+        data:
+          option: cooling
+        target:
+          entity_id: select.operation_mode
   trace:
     stored_traces: 20
   mode: queued
@@ -2929,14 +2960,13 @@
         entity_id: schedule.hvac_schedule
         state: 'on'
       - condition: state
-        entity_id: climate.warmtepomp
-        attribute: hvac_action
+        entity_id: select.operation_mode
         state: heating
       sequence:
       - service: climate.set_temperature
         data_template:
-          temperature: '{{ states.input_number.hvac_winter_target_temperature | float
-            }}'
+          temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
+            | float }}'
         target:
           entity_id: climate.warmtepomp
         alias: Heat - Set temperature to 21 degrees during the day
@@ -2945,8 +2975,7 @@
         entity_id: schedule.hvac_schedule
         state: 'off'
       - condition: state
-        entity_id: climate.warmtepomp
-        attribute: hvac_action
+        entity_id: select.operation_mode
         state: heating
       sequence:
       - service: climate.set_temperature
@@ -2960,14 +2989,13 @@
         entity_id: schedule.hvac_schedule
         state: 'on'
       - condition: state
-        entity_id: climate.warmtepomp
-        attribute: hvac_action
+        entity_id: select.operation_mode
         state: cooling
       sequence:
       - service: climate.set_temperature
         data_template:
-          temperature: '{{ states.input_number.hvac_summer_target_temperature | float
-            }}'
+          temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
+            | float }}'
         target:
           entity_id: climate.warmtepomp
         alias: Cool - Set temperature to 23 degrees during the day
@@ -2976,8 +3004,7 @@
         entity_id: schedule.hvac_schedule
         state: 'off'
       - condition: state
-        entity_id: climate.warmtepomp
-        attribute: hvac_action
+        entity_id: select.operation_mode
         state: cooling
       sequence:
       - service: climate.set_temperature
@@ -3011,6 +3038,9 @@
     entity_id: input_boolean.enable_automatic_hvac
     state: 'on'
     alias: Only dis/enable the heappump when the automation is active
+  - condition: template
+    value_template: '{{ trigger.from_state.state != "unavailable" and trigger.to_state.state
+      != "unavailable" }}'
   action:
   - choose:
     - conditions:
@@ -3038,11 +3068,18 @@
         data: {}
         target:
           entity_id: switch.climate_control
-    default:
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.climate_control
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: switch.climate_control
+          state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.climate_control
+    default: []
     alias: Turn on when needed and the price is oke, otherwise default off
   trace:
     stored_traces: 20
@@ -3095,7 +3132,7 @@
   condition:
   - condition: numeric_state
     entity_id: sensor.today_maximum_temperature
-    below: 18
+    below: 14
     alias: Today Maximum Temperature Outside is below 18 degrees
   action:
   - service: switch.turn_on
@@ -3105,7 +3142,7 @@
       - switch.shelly_plug_douche_verwarming_relay
       - switch.shelly_plug_badkamer_verwarming_relay
   - delay:
-      hours: 2
+      hours: 1
       minutes: 0
       seconds: 0
       milliseconds: 0

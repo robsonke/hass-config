@@ -26,11 +26,11 @@ template:
       intstate: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
       text: |
         {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
-        {% set stateInt = state_attr('sensor.afvalinfo_paper', 'days_until_collection_date') | int(default=0) %}
+        {% set stateInt = state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) %}
         {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
       short_text: |
         {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
-        {% set stateInt = state_attr('sensor.afvalinfo_paper', 'days_until_collection_date') | int(default=0) %}
+        {% set stateInt = state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) %}
         {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
     icon: mdi:trash-can
   - unique_id: gft_days_until_collection
@@ -186,6 +186,15 @@ template:
         |round(2)
       }}
       {% else %} 0 {%endif%}
+  - unique_id: altherma_cop2
+    attributes:
+      friendly_name: Altherma COP2
+    unit_of_measurement: 'COP'
+    state_class: measurement
+    state: >
+      {% if is_state('sensor.altherma_operation_mode', 'Heating') %} 
+      {{ ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.template_altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) ) / (states('sensor.altherma_inv_secundary_current') | float / 3 * states('sensor.altherma_voltage_n_phase') | float / 1000)) |round(2) }}
+      {% else %} 0 {%endif%}
 
 - sensor:
   - unique_id: water_meter_total_m3
@@ -338,15 +347,25 @@ template:
       {{ states('sensor.open_windows_and_doors_upstairs') | int(default=0) + states('sensor.open_windows_and_doors_downstairs') | int(default=0) }}
 
 - sensor:
+  - name: "Current Price Electricity"
+    unique_id: current_price_electricity
+    attributes:
+      tax: >
+        {{ 0.0368 + 0.0305 }}
+      incl_tax: >
+        {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.0368 + 0.0305 }}
+    state: >
+      {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) }}
+
   - name: "Energy Price Level"
     unique_id: energy_price_level
     attributes:
       percentage: >
-        {{ states('sensor.electricity_price_langeweide_28') | float / state_attr('sensor.electricity_price_langeweide_28','avg_price') | float * 100 }}
+        {{ states('sensor.current_price_electricity') | float(default=0.3) / state_attr('sensor.current_price_electricity','avg_price') | float(default=0.3) * 100 }}
     state: >
-      {% set percentage = states('sensor.electricity_price_langeweide_28') | float / state_attr('sensor.electricity_price_langeweide_28','avg_price') | float * 100 %}
+      {% set percentage = states('sensor.current_price_electricity') | float(default=0.3) / state_attr('sensor.current_price_electricity','avg_price') | float(default=0.3) * 100 %}
       {# In case it's less then 20 cents, we still consider it cheap #}
-      {% if states('sensor.electricity_price_langeweide_28') | float(default=0) < 0.2 %}
+      {% if states('sensor.current_price_electricity') | float(default=0.3) < 0.2 %}
         {{ "very_cheap" }}
       {% elif percentage <= 60 %}
         {{ "very_cheap" }}
@@ -362,7 +381,10 @@ template:
         {{ "normal" }}
       {% endif %}
   
-- sensor:
+- trigger:
+  - platform: time_pattern
+    hours: "*"
+  sensor:
   - name: Cheapest 8 Hours 24h
     unique_id: cheapest_8_hours_24h
     attributes:
@@ -383,6 +405,20 @@ template:
         {% endif %}
       {%- endfor -%}
       {{ ns.cheapest_hour }}
+  - name: Average price today
+    unique_id: average_price_today
+    icon: mdi:lightning-bolt
+    attributes:
+      friendly_name: Average price today
+    state: >-
+      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | count) | round(2, 'floor') }}
+  - name: Average price tomorrow
+    unique_id: average_price_tomorrow
+    icon: mdi:lightning-bolt
+    attributes:
+      friendly_name: Average price tomorrow
+    state: >-
+      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | count) | round(2, 'floor') }}
     
 - sensor:
   - name: "Today Maximum Temperature"

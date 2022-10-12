@@ -26,6 +26,14 @@ sensor:
   round: 2
 
 - platform: integration
+  source: sensor.ix3_charging_power
+  name: iX3 Charging Power
+  unique_id: ix3_charging_energy
+  method: trapezoidal
+  unit_prefix: k
+  round: 2
+
+- platform: integration
   source: sensor.shelly_plug_office_power
   name: Shelly Plug Office Energy Usage
   unique_id: shelly_plug_office_energy_usage
@@ -131,9 +139,6 @@ sensor:
     - 'time'
     - 'date'
     - 'date_time'
-
-- platform: moon
-- platform: uptime
 
 - platform: systemmonitor
   resources:

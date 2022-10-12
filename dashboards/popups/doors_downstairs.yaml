@@ -29,10 +29,14 @@ browser_mod:
             - entity: binary_sensor.doorbell_lw_motion
           menu:
             buttons:
-              frigate: false
-              frigate_ui: false
-              image: false
-            mode: overlay-top
+              frigate:
+                enabled: false
+              image:
+                enabled: false
+              frigate_ui:
+                enabled: false
+            style: overlay
+            position: top
           view:
             default: live
           live:
@@ -40,16 +44,17 @@ browser_mod:
               thumbnails:
                 mode: below
                 media: snapshots
-          event_viewer:
-            controls:
-              next_previous:
-                style: chevrons
           cameras:
             - camera_entity: camera.doorbell
-              camera_name: Voordeur
               live_provider: webrtc-card
               webrtc_card:
                 entity: camera.doorbell_camera_webrtc
+              frigate:
+                camera_name: Voordeur
+          media_viewer:
+            controls:
+              next_previous:
+                style: chevrons
         - type: custom:vertical-stack-in-card
           view_layout:
             grid-area: doors

@@ -410,7 +410,7 @@ energy:
     info: >
       [[[
         let today = Math.round(states['sensor.daily_consumption_energy'].state);
-        let price = Math.round(states['sensor.electricity_price_langeweide_28'].state * 100) / 100;
+        let price = Math.round(states['sensor.current_price_electricity'].state * 100) / 100;
         let level = states['sensor.energy_price_level'].state;
         let color = 'var(--green)';
         if (level === 'very_cheap') color = 'var(--blue)';
@@ -433,7 +433,7 @@ energy:
             ]]]
   state_display: >
     [[[
-      return `<span>-${Math.round(entity.state*1000)/1000} / +${states['sensor.solaredge_modbus'].state/1000} kW</span>`;
+      return `<span style="font-size: 1rem">-${Number.parseFloat(entity.state).toFixed(3)} / +${(Number.parseFloat(states['sensor.solaredge_modbus'].state) / 1000 ).toFixed(3)} kW</span>`;
     ]]]
 
 #################################################

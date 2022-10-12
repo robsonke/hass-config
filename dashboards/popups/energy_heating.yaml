@@ -2,7 +2,7 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
-    title: Energie verbruik en kosten
+    title: Koeling en verwarming beneden
     size: wide
     timeout: 60000
     content:
@@ -43,7 +43,7 @@ browser_mod:
               entities:
                 - entity: switch.climate_control
                 - entity: select.operation_mode
-                - entity: number.temperature_control
+                #- entity: number.temperature_control
                 - type: divider
                 - entity: sensor.downstairs_temperature
                 - entity: sensor.today_maximum_temperature
@@ -54,6 +54,14 @@ browser_mod:
                 - type: divider
                 - entity: schedule.hvac_schedule
                 - entity: input_boolean.enable_automatic_hvac
+                - entity: sensor.altherma_power_usage
+                  name: Altherma verbruik huidig
+                - entity: sensor.altherma_heatpump_daily
+                  name: Altherma verbruik vandaag
+                - entity: sensor.altherma_cop
+                - entity: sensor.altherma_cop2
+                  name: Altherma COP - experimental
+
             
         - type: vertical-stack
           view_layout:
@@ -69,3 +77,70 @@ browser_mod:
               entities:
                 - switch.climate_control
                 - select.operation_mode
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              header:
+                title: Temperatuur
+              series:
+                - entity: sensor.climate_sensor_living_temperature
+                  name: Temperatuur Woonkamer
+                  color: '#e74c3c'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_office_temperature
+                  name: Kantoor
+                  color: '#e74c3c' 
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_kitchen_temperature
+                  name: Keuken
+                  color: '#e74c3c'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              header:
+                title: Luchtvochtigheid
+              series:
+                - entity: sensor.climate_sensor_living_humidity
+                  name: Woonkamer
+                  color: 'blue'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_office_humidity
+                  name: Kantoor
+                  color: 'blue'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_kitchen_humidity
+                  name: Keuken
+                  color: 'blue'
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              header:
+                title: Lichtsterkte
+              series:
+                - entity: sensor.lightlevel_living
+                  name: Woonkamer
+                  color: '#F7BF10'
+                - entity: sensor.lightlevel_office
+                  name: Kantoor
+                  color: '#F7BF10'
+                - entity: sensor.lightlevel_kitchen
+                  name: Keuken
+                  color: '#F7BF10'

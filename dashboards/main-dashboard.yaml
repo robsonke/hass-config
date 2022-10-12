@@ -189,7 +189,7 @@ views:
 
       #################################################
       #                                               #
-      #                  Living                       #
+      #                  Downstairs                   #
       #                                               #
       #################################################
 
@@ -211,16 +211,17 @@ views:
               action: none
           - type: custom:button-card
             entity: sensor.downstairs_temperature
-            name: Klimaat
+            name: Warmtepomp
             template:
               - climate
               - icon_temp
             triggers_update: climate.warmtepomp
             tap_action:
-              !include popups/climate_downstairs.yaml
+              !include popups/energy_heating.yaml
             hold_action:
               action: none
             variables:
+              icon: "mdi:radiator"
               heating: >
                 [[[
                   return states['sensor.altherma_operation_mode'].state === 'Heating' && states['switch.climate_control'].state === 'on'
@@ -421,7 +422,7 @@ views:
             variables:
               heating: >
                 [[[
-                  let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'var(--custom-button-card-color-off)';
+                  let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off';
                   heating = heating || states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50;
                   return heating;
                 ]]]
@@ -458,33 +459,6 @@ views:
           grid-area: energy
         columns: 2
         cards:
-          - type: custom:button-card
-            entity: sensor.downstairs_temperature
-            name: Warmtepomp
-            template:
-              - climate
-              - icon_temp
-            triggers_update: climate.warmtepomp
-            tap_action:
-              !include popups/energy_heating.yaml
-            hold_action:
-              action: none
-            variables:
-              icon: "mdi:radiator"
-              heating: >
-                [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Heating' && states['switch.climate_control'].state === 'on'
-                ]]]
-              cooling: >
-                [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Cooling' && states['switch.climate_control'].state === 'on'
-                ]]]
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.downstairs_temperature
-                      color: 'var(--red)'
           - type: custom:button-card
             entity: water_heater.domestic_hot_water_tank
             name: Warm water
@@ -585,9 +559,9 @@ views:
           - type: custom:button-card
             template: footer
             name: >
-              <ha-icon icon="mdi:cog"></ha-icon> Settings
+              <ha-icon icon="mdi:cog"></ha-icon> System
             tap_action:
-              !include popups/footer_settings.yaml
+              !include popups/footer_system.yaml
           - type: custom:button-card
             entity: binary_sensor.stookalert_zeeland
             template: footer

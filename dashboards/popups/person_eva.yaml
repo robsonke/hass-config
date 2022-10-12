@@ -11,23 +11,28 @@ browser_mod:
         aspect_ratio_mode: unconstrained
       view:
         default: live
-      event_viewer:
+      menu:
+        buttons:
+          frigate:
+            enabled: false
+          snapshots:
+            enabled: true
+          frigate_ui:
+            enabled: false
+          fullscreen:
+            enabled: true
+        style: overlay
+        position: top
+      cameras:
+        - camera_entity: camera.evabed
+          live_provider: webrtc-card
+          webrtc_card:
+            entity: camera.eva_camera_webrtc
+          frigate:
+            camera_name: Eva
+      media_viewer:
         controls:
           thumbnails:
             mode: below
           next_previous:
             style: chevrons
-      menu:
-        mode: overlay-top
-        buttons:
-          snapshots: true
-          frigate: false
-          frigate_ui: false
-          fullscreen: true
-      cameras:
-        - camera_entity: camera.evabed
-          camera_name: Eva
-          live_provider: webrtc-card
-          webrtc_card:
-            entity: camera.eva_camera_webrtc
-    

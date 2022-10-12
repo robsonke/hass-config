@@ -43,3 +43,20 @@ utility_meter:
   water_yearly:
     source: sensor.template_water_meter_total_m3
     cycle: yearly
+
+  # specific electronic devices
+  altherma_heatpump_daily:
+    source: sensor.altherma_energy_usage
+    cycle: daily
+  ix3_charging_energy_daily:
+    source: sensor.ix3_charging_energy
+    cycle: daily
+  shelly_plug_douche_verwarming_energy_daily:
+    source: sensor.shelly_plug_douche_verwarming_energy_usage
+    cycle: daily
+  shelly_plug_badkamer_verwarming_energy_daily:
+    source: sensor.shelly_plug_badkamer_verwarming_energy_usage
+    cycle: daily
+  eurom_alutherm_energy_daily:
+    source: sensor.eurom_alutherm_energy
+    cycle: daily

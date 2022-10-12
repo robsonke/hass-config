@@ -21,6 +21,7 @@ browser_mod:
           template: light_button
           variables: 
             - entity: light.dimmer_cabinroof_level
+            - title: Veranda
         - type: custom:decluttering-card
           template: light_button
           variables: 

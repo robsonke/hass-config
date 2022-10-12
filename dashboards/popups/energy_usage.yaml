@@ -119,6 +119,7 @@ browser_mod:
                   - entity_id: sensor.kitchen_light_power
                   - entity_id: sensor.solaredge_current_power
                   - entity_id: sensor.power_production_now
+                  - entity_id: sensor.altherma_power_usage_secundary
               sort:
                 method: state
                 count: 10
@@ -217,7 +218,7 @@ browser_mod:
                       color: darkred
                     - value: 0.8
                       color: purple
-                - entity: sensor.electricity_price_langeweide_28
+                - entity: sensor.current_price_electricity
                   stroke_width: 2
                   show:
                     legend_value: false
@@ -231,7 +232,7 @@ browser_mod:
                   group_by:
                     duration: 24hours
                     func: min
-                - entity: sensor.electricity_price_langeweide_28
+                - entity: sensor.current_price_electricity
                   stroke_width: 2
                   yaxis_id: EUR
                   name: AVG
@@ -245,7 +246,7 @@ browser_mod:
                   group_by:
                     duration: 24hours
                     func: avg
-                - entity: sensor.electricity_price_langeweide_28
+                - entity: sensor.current_price_electricity
                   attribute: max_price
                   stroke_width: 2
                   curve: smooth
@@ -268,11 +269,10 @@ browser_mod:
             - type: entities
               title: Tarieven vandaag en morgen
               entities:
-                - type: attribute
-                  entity: sensor.nordpool_kwh_nl_eur_3_10_021
+                - entity: sensor.average_price_today
                   name: Gemiddeld kWh prijs vandaag
-                  attribute: average
-                  suffix: Cent
+                - entity: sensor.average_price_tomorrow
+                  name: Gemiddeld kWh prijs morgen
             - type: custom:apexcharts-card
               experimental:
                 color_threshold: true

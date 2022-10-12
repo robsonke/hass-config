@@ -41,6 +41,8 @@ browser_mod:
                 show_header_toggle: false
                 entities:
                   - entity: sensor.shelly_plug_badkamer_verwarming_power
+                  - entity: sensor.shelly_plug_badkamer_verwarming_energy_usage
+                    name: Verbruik vandaag (kWh)
 
             - type: entities
               show_header_toggle: false
@@ -55,6 +57,8 @@ browser_mod:
                 show_header_toggle: false
                 entities:
                   - entity: sensor.shelly_plug_douche_verwarming_power
+                  - entity: sensor.shelly_plug_douche_verwarming_energy_usage
+                    name: Verbruik vandaag (kWh)
 
             - type: entities
               show_header_toggle: false
@@ -75,6 +79,8 @@ browser_mod:
                         name: Verwarm mode slaapkamer
                       - entity: sensor.eurom_alutherm_power
                         name: Verbruik
+                      - entity: sensor.eurom_alutherm_energy_daily
+                        name: Verbruik vandaag (kWh)
                   - type: 'custom:simple-thermostat'
                     entity: climate.eurom_alutherm_baseboard_heater
                     version: 3
