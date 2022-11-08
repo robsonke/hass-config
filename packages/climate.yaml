@@ -12,7 +12,7 @@ climate:
   - platform: dualmode_generic
     name: Warmtepomp
     unique_id: daikin_climate_control
-    target_sensor: sensor.downstairs_temperature
+    target_sensor: sensor.indoor_temperature
     min_temp: 19
     max_temp: 23
     heater: input_boolean.heating_downstairs

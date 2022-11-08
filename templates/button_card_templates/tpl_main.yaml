@@ -176,13 +176,8 @@ sidebar_template:
 
     .time-colon {
       position: relative;
-      top: -.07em;
     }
     
-    p > b {
-      color: rgba(255, 255, 255, 0.8);
-    }
-
     /* portrait */
     @media screen and (max-width: 1200px) {
       .time {
@@ -359,7 +354,7 @@ dhw:
           [[[
             if (variables.heating)
               return 'var(--red)';
-            return "#9da0a2";
+            return 'var(--custom-button-card-color-off)';
           ]]]
   custom_fields:
     info: >
@@ -863,7 +858,7 @@ footer:
         - position: absolute
         - font-weight: 700
         - color: '#d6d6d6'
-        - background: '#8b3333'
+        - background: 'var(--accent-color)'
         - border-radius: 50%
         - text-align: center
         - text-overflow: unset

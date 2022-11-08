@@ -150,9 +150,6 @@ views:
           - type: custom:mushroom-chips-card
             card_mod:
               style: |
-                :host {
-                  --primary-text-color: rgba(255, 255, 255, 0.3);
-                }
                 ha-card.type-custom-mushroom-chips-card {
                   --chip-font-weight: normal;
                   --chip-font-size: 1rem;

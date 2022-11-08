@@ -1,5 +1,7 @@
 # Water Meter
 #
+# THIS FILE IS ONLY FOR WATERMETERKIT MODEL B!
+#
 # The blue LED tells the device is powered on (built-in on the Wemos D1 mini).
 # The green LED blinks when a pulse is measures (each liter of water used).
 # The red LED shows if there is a problem:
@@ -13,7 +15,7 @@ substitutions:
   device_name: watermeter
   friendly_name: Water meter
   time_timezone: "Europe/Amsterdam"
-  watermeterkit_version: "1.1"
+  watermeterkit_version: "2.0"
   watermeterkit_model: "model-b"
   ssid: !secret wifi_ssid
   password: !secret wifi_password
@@ -153,7 +155,9 @@ sensor:
       id: sensor_pulse_meter_total
       name: "${friendly_name} Total Consumption"
       icon: "mdi:cube-outline"
-      unit_of_measurement: "M3"
+      unit_of_measurement: "m³"
+      state_class: total_increasing
+      device_class: water
       accuracy_decimals: 3
       filters:
         - multiply: 0.001

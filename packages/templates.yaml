@@ -141,11 +141,11 @@ template:
     icon: mdi:thermometer
   - unique_id: altherma_leaving_water_temp_after_buh_r1t
     attributes:
-      friendly_name: Altherma Leaving water temp. after BUH (R1T)
+      friendly_name: Altherma Leaving water temp. after BUH (R2T)
     device_class: temperature
     state_class: measurement
     unit_of_measurement: °C
-    state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. after BUH (R1T)') | float(default=0) }}"
+    state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. after BUH (R2T)') | float(default=0) }}"
     icon: mdi:thermometer
   - unique_id: altherma_inlet_water_temp
     attributes:
@@ -156,6 +156,14 @@ template:
     state: "{{ state_attr('sensor.althermasensors', 'Inlet water temp.(R4T)') | float(default=0) }}"
     icon: mdi:thermometer
 
+- binary_sensor:
+  - unique_id: altherma_main_pump
+    attributes:
+      friendly_name: Altherma Main pump
+    state: >
+      {{ is_state_attr('sensor.althermasensors', 'Main pump', 'ON') }}
+    
+- sensor:
   - unique_id: altherma_power_usage
     attributes:
       friendly_name: Altherma Power Usage
@@ -349,6 +357,7 @@ template:
 - sensor:
   - name: "Current Price Electricity"
     unique_id: current_price_electricity
+    unit_of_measurement: "EUR/kWh"
     attributes:
       tax: >
         {{ 0.0368 + 0.0305 }}

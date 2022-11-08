@@ -3063,6 +3063,15 @@
           entity_id: climate.warmtepomp
           attribute: hvac_action
           state: 'off'
+      - condition: or
+        alias: And only when the generic thermostat said we need to heat or cool
+        conditions:
+        - condition: state
+          entity_id: input_boolean.cooling_downstairs
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.heating_downstairs
+          state: 'on'
       sequence:
       - service: switch.turn_on
         data: {}
@@ -3073,6 +3082,16 @@
         conditions:
         - condition: state
           entity_id: switch.climate_control
+          state: 'off'
+      - condition: and
+        alias: And only when the generic thermostat said we do not need to heat and
+          cool
+        conditions:
+        - condition: state
+          entity_id: input_boolean.cooling_downstairs
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_downstairs
           state: 'off'
       sequence:
       - service: switch.turn_off
@@ -3142,8 +3161,8 @@
       - switch.shelly_plug_douche_verwarming_relay
       - switch.shelly_plug_badkamer_verwarming_relay
   - delay:
-      hours: 1
-      minutes: 0
+      hours: 0
+      minutes: 30
       seconds: 0
       milliseconds: 0
   - service: switch.turn_off
