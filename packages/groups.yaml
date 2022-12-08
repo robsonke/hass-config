@@ -91,6 +91,12 @@ group:
       - binary_sensor.motion_sensor_toiletdownstairs_presence
       - sensor.energy_consumed_tariff_1
       - sensor.energy_consumed_tariff_2
+      - sensor.climate_sensor_kitchen_temperature
+      - sensor.climate_sensor_living_temperature
+      - binary_sensor.window_atticroom_openclose_sensor
+      - binary_sensor.window_masterbed_1_openclose_sensor
+      - binary_sensor.window_masterbed_2_openclose_sensor
+      - binary_sensor.window_guestroom_openclose_sensor
 
   ignored_entities:
     entities:

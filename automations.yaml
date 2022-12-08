@@ -269,8 +269,6 @@
     entity_id: input_boolean.enable_automatic_lights
   - service: input_boolean.turn_on
     entity_id: input_boolean.enable_automatic_garden_lights
-  - service: input_boolean.turn_on
-    data: {}
 - id: groundfloor_lights_on_when_dark_away
   alias: Lights - Turn on lights when dark - away
   description: Switch standard lights on when it's after 2 PM and light level too
@@ -493,7 +491,7 @@
           attribute: elevation
           below: '-4'
   - condition: state
-    entity_id: light.garden_lantern_light1
+    entity_id: light.garden_lantern_light2
     state: 'off'
     for:
       hours: 0
@@ -505,6 +503,11 @@
       brightness_pct: 50
     target:
       entity_id: light.garden_light
+  - service: switch.turn_on
+    target:
+      entity_id:
+      - switch.shelly_plug_s_10_relay
+      - switch.light_garden_front
   - service: light.turn_on
     data:
       brightness_pct: 50
@@ -560,6 +563,11 @@
       entity_id:
       - light.dimmer_cabinroof_level
       - group.hue_lights_garden
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.shelly_plug_s_10_relay
+      - switch.light_garden_front
   - delay:
       hours: 0
       minutes: 0
@@ -2078,12 +2086,13 @@
   description: Turn on heating after schedule turns off
   trigger:
   - platform: time
-    at: '19:05'
+    at: '22:05:00'
   condition: []
   action:
   - service: switch.turn_off
     target:
       entity_id: switch.shelly_plug_kachel_slaapkamer
+    data: {}
   mode: single
 - id: '1642502040367'
   alias: Heating - Control heating Eva
@@ -2202,7 +2211,7 @@
     above: '0'
     for:
       hours: 0
-      minutes: 3
+      minutes: 10
       seconds: 0
   condition:
   - condition: device
@@ -2241,7 +2250,7 @@
     - conditions:
       - condition: time
         after: '10:00'
-        before: '19:00'
+        before: '22:00:00'
       - condition: numeric_state
         entity_id: sensor.climate_sensor_masterbedroom_temperature
         below: '17'
@@ -2255,11 +2264,10 @@
         device_id: 83daade23505c1645165605bc56c49d1
         entity_id: binary_sensor.window_masterbed_2_openclose_sensor
         domain: binary_sensor
-      - condition: numeric_state
-        entity_id: sensor.energy_price_level
-        attribute: percentage
-        below: 91
-        alias: The price should be low
+      - condition: state
+        entity_id: sensor.cheapest_16_hours_24h
+        state: 'True'
+        alias: The price should be not too high
       sequence:
       - device_id: 63bfcece97a8578bf632cddbc75ee61d
         domain: select
@@ -2269,7 +2277,7 @@
       - service: climate.set_temperature
         data:
           hvac_mode: heat
-          temperature: 19
+          temperature: 17
         target:
           entity_id: climate.eurom_alutherm_baseboard_heater
     default:
@@ -2278,7 +2286,10 @@
       entity_id: select.eurom_alutherm_capacity
       type: select_option
       option: 'Off'
-  mode: single
+  trace:
+    stored_traces: 50
+  mode: queued
+  max: 4
 - id: '1644692915726'
   alias: Garden - Turn off garden lights - evening
   description: Turn off lights in the garden in the evening but keep a few on on low
@@ -2318,6 +2329,11 @@
     target:
       entity_id:
       - light.dimmer_cabinroof_level
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.shelly_plug_s_10_relay
+      - switch.light_garden_front
   - delay:
       hours: 0
       minutes: 0
@@ -2325,10 +2341,9 @@
       milliseconds: 0
   - service: light.turn_on
     data:
-      brightness_pct: 20
+      brightness_pct: 30
     target:
       entity_id:
-      - light.garden_lantern_light1
       - light.garden_lantern_light2
       - light.garden_lantern_light3
       - light.garden_light
@@ -2518,7 +2533,7 @@
         data_template:
           entity_id: light.office_lights
           brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
-            | int %} {{ [bri+30, 249] | min }}
+            | int %} {{ [bri+20, 249] | min }}
 
             '
       action_down_press:
@@ -2526,7 +2541,7 @@
         data_template:
           entity_id: light.office_lights
           brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
-            | int %} {{ [bri-30, 249] | min }}
+            | int %} {{ [bri-20, 249] | min }}
 
             '
       action_on_hold:
@@ -2544,7 +2559,7 @@
         data_template:
           entity_id: light.office_lights
           brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
-            | int %} {{ [bri+30, 249] | min }}
+            | int %} {{ [bri+20, 249] | min }}
 
             '
       action_down_hold:
@@ -2552,7 +2567,7 @@
         data_template:
           entity_id: light.office_lights
           brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
-            | int %} {{ [bri-30, 249] | min }}
+            | int %} {{ [bri-20, 249] | min }}
 
             '
 - id: '1657445203959'
@@ -2624,12 +2639,10 @@
     entity_id: sensor.energy_price_level
     attribute: percentage
     below: '91'
-  - platform: numeric_state
+  - platform: state
     entity_id: water_heater.domestic_hot_water_tank
-    attribute: current_temperature
-    below: '35'
   - platform: time_pattern
-    minutes: /30
+    minutes: /10
   condition:
   - condition: or
     conditions:
@@ -2660,7 +2673,7 @@
   - condition: numeric_state
     entity_id: sensor.energy_price_level
     attribute: percentage
-    below: '116'
+    below: 125
   action:
   - service: water_heater.set_temperature
     data:
@@ -2837,8 +2850,6 @@
           entity_id: select.operation_mode
   trace:
     stored_traces: 20
-  mode: queued
-  max: 3
 - id: '1662038485202'
   alias: System - Control the wallpanel screensaver mode during the night
   description: ''
@@ -2952,6 +2963,10 @@
   - platform: state
     entity_id:
     - schedule.hvac_schedule
+  - platform: state
+    entity_id:
+    - input_number.hvac_winter_target_temperature
+    - input_number.hvac_summer_target_temperature
   condition: []
   action:
   - choose:
@@ -2969,7 +2984,7 @@
             | float }}'
         target:
           entity_id: climate.warmtepomp
-        alias: Heat - Set temperature to 21 degrees during the day
+        alias: Heat - Set temperature to the winter target during the day
     - conditions:
       - condition: state
         entity_id: schedule.hvac_schedule
@@ -2979,8 +2994,9 @@
         state: heating
       sequence:
       - service: climate.set_temperature
-        data:
-          temperature: 18
+        data_template:
+          temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
+            | float -1 }}'
         target:
           entity_id: climate.warmtepomp
         alias: Heat - Set temperature to 18 degrees during the night
@@ -2998,7 +3014,7 @@
             | float }}'
         target:
           entity_id: climate.warmtepomp
-        alias: Cool - Set temperature to 23 degrees during the day
+        alias: Cool - Set temperature to the summer target during the day
     - conditions:
       - condition: state
         entity_id: schedule.hvac_schedule
@@ -3008,8 +3024,9 @@
         state: cooling
       sequence:
       - service: climate.set_temperature
-        data:
-          temperature: 25
+        data_template:
+          temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
+            | float + 1}}'
         target:
           entity_id: climate.warmtepomp
         alias: Cool - Set temperature to 25 degrees during the night
@@ -3047,9 +3064,9 @@
       - condition: or
         conditions:
         - condition: state
-          entity_id: sensor.cheapest_8_hours_24h
+          entity_id: sensor.cheapest_12_hours_24h
           state: 'True'
-          alias: Is this one of the 8 cheapest hours of the day
+          alias: Is this one of the cheapest hours of the day
         - condition: numeric_state
           entity_id: sensor.energy_price_level
           attribute: percentage
@@ -3083,22 +3100,33 @@
         - condition: state
           entity_id: switch.climate_control
           state: 'off'
-      - condition: and
-        alias: And only when the generic thermostat said we do not need to heat and
-          cool
+      - condition: or
         conditions:
-        - condition: state
-          entity_id: input_boolean.cooling_downstairs
-          state: 'off'
-        - condition: state
-          entity_id: input_boolean.heating_downstairs
-          state: 'off'
+        - condition: numeric_state
+          entity_id: sensor.energy_price_level
+          attribute: percentage
+          above: 115
+          alias: Or in case the price is too high
+        - condition: and
+          alias: And only when the generic thermostat said we do not need to heat
+            and cool
+          conditions:
+          - condition: state
+            entity_id: input_boolean.cooling_downstairs
+            state: 'off'
+          - condition: state
+            entity_id: input_boolean.heating_downstairs
+            state: 'off'
       sequence:
       - service: switch.turn_off
         data: {}
         target:
           entity_id: switch.climate_control
-    default: []
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.climate_control
     alias: Turn on when needed and the price is oke, otherwise default off
   trace:
     stored_traces: 20

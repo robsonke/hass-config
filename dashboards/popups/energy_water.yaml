@@ -25,13 +25,14 @@ browser_mod:
           view_layout:
             grid-area: details
           cards:
-            - chart_type: bar
-              period: hour
-              days_to_show: 1
-              type: statistics-graph
-              title: Water usage
-              stat_types:
-                - state
-              entities:
-                - entity: sensor.water_hourly
-                  name: Hourly water usage
+            - type: energy-water-graph
+            # - chart_type: bar
+            #   period: hour
+            #   days_to_show: 1
+            #   type: statistics-graph
+            #   title: Water usage
+            #   stat_types:
+            #     - state
+            #   entities:
+            #     - entity: sensor.water_hourly
+            #       name: Hourly water usage

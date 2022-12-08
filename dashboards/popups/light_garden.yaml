@@ -58,8 +58,8 @@ browser_mod:
             - entity: light.hue_lily_light_tree_1
             - title: Boom 1
 
-        - entity: switch.pool_fountain
-          name: Fontein vijver
+        # - entity: switch.pool_fountain
+        #   name: Fontein vijver
         - entity: sensor.light_sensor_garden
           name: Lichtsterkte buiten
 

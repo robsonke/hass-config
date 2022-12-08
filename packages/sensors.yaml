@@ -108,11 +108,11 @@ sensor:
 
 - platform: min_max
   name: Downstairs Temperature
+  unique_id: downstairs_temperature
   type: mean
   round_digits: 1
   entity_ids:
     - sensor.climate_sensor_kitchen_temperature
-    - sensor.climate_sensor_office_temperature
     - sensor.climate_sensor_living_temperature
     - sensor.indoor_temperature
 
@@ -196,7 +196,7 @@ sensor:
     User-Agent: REST
 
 - platform: nordpool_diff
-  nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_021
+  nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_009
 
 
 # Lots of power sensors based on powercalc for existing entities
@@ -236,6 +236,7 @@ sensor:
             value: 20
             unit_of_measurement: W
     - create_group: All Media
+      # this is also part of sensor.all_media_player_power automatically
       entities:
         # See https://support.sonos.com/s/article/256?language=en_US
         - entity_id: media_player.living_room
@@ -257,12 +258,12 @@ sensor:
           - entity_id: media_player.tv_room
             name: Sonos TV
             fixed:
-              # Sonos Beam Gen 2 + 2X Sonos Play:1
-              # 6,3W + 3.4 + 3.4
-              power: 13.1
+              # Sonos Beam Gen 2
+              # 6,3W
+              power: 6.3
               states_power:
-                # 9W + 4.5W + 4.5W
-                playing: 18
+                # 9W
+                playing: 9
           - entity_id: media_player.samsung_qn95aa_55_tv
             standby_power: 0.5
             fixed:

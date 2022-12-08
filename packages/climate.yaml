@@ -9,6 +9,7 @@
 #
 
 climate:
+  # https://github.com/zacs/ha-dualmodegeneric
   - platform: dualmode_generic
     name: Warmtepomp
     unique_id: daikin_climate_control

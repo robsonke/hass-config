@@ -41,8 +41,6 @@ browser_mod:
                 show_header_toggle: false
                 entities:
                   - entity: sensor.shelly_plug_badkamer_verwarming_power
-                  - entity: sensor.shelly_plug_badkamer_verwarming_energy_usage
-                    name: Verbruik vandaag (kWh)
 
             - type: entities
               show_header_toggle: false
@@ -57,8 +55,6 @@ browser_mod:
                 show_header_toggle: false
                 entities:
                   - entity: sensor.shelly_plug_douche_verwarming_power
-                  - entity: sensor.shelly_plug_douche_verwarming_energy_usage
-                    name: Verbruik vandaag (kWh)
 
             - type: entities
               show_header_toggle: false

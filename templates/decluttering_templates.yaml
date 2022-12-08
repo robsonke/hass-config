@@ -12,7 +12,7 @@ light_button:
     show_color_temp_control: true
     collapsible_controls: true
     show_color_control: true
-    fill_container: true
-    layout: horizontal
+    #fill_container: true
+    layout: default
     double_tap_action:
       action: more-info

@@ -10,6 +10,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.util import dt
 from datetime import datetime, timedelta
+from math import sqrt
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,16 +26,18 @@ NORMALIZE = "normalize"
 NO = "no"
 MAX = "max"
 MAX_MIN = "max_min"
+SQRT_MAX = "sqrt_max"
+MAX_MIN_SQRT_MAX = "max_min_sqrt_max"
 UNIT = "unit"
 
 # https://developers.home-assistant.io/docs/development_validation/
 # https://github.com/home-assistant/core/blob/dev/homeassistant/helpers/config_validation.py
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(NORDPOOL_ENTITY, default=""): cv.string,  # Is there a way to require EITHER nordpool OR entsoe being valid cv.entity_id?
-    vol.Optional(ENTSOE_ENTITY, default="sensor.current_electricity_market_price"): cv.string,  # hass-entso-e's default entity id
+    vol.Optional(ENTSOE_ENTITY, default="sensor.average_electricity_price_today"): cv.string,  # hass-entso-e's default entity id
     vol.Optional(FILTER_LENGTH, default=10): vol.All(vol.Coerce(int), vol.Range(min=2, max=20)),
     vol.Optional(FILTER_TYPE, default=TRIANGLE): vol.In([RECTANGLE, TRIANGLE, INTERVAL, RANK]),
-    vol.Optional(NORMALIZE, default=NO): vol.In([NO, MAX, MAX_MIN]),
+    vol.Optional(NORMALIZE, default=NO): vol.In([NO, MAX, MAX_MIN, SQRT_MAX, MAX_MIN_SQRT_MAX]),
     vol.Optional(UNIT, default="EUR/kWh/h"): cv.string
 })
 
@@ -102,6 +105,13 @@ class NordpoolDiffSensor(SensorEntity):
         elif normalize == MAX_MIN:
             normalize = lambda prices : 1 / (max(prices) - min(prices) if max(prices) - min(prices) > 0 else 1)
             normalize_suffix = "_normalize_max_min"
+        elif normalize == SQRT_MAX:
+            normalize = lambda prices: 1 / sqrt(max(prices) if max(prices) > 0 else 1)
+            normalize_suffix = "_normalize_sqrt_max"
+        elif normalize == MAX_MIN_SQRT_MAX:
+            normalize = lambda prices: sqrt(max(prices) if max(prices) > 0 else 0) \
+                                       / (max(prices) - min(prices) if max(prices) - min(prices) > 0 else 1)
+            normalize_suffix = "_normalize_max_min_sqrt_max"
         else:  # NO
             normalize = lambda prices : 1
             normalize_suffix = ""

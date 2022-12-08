@@ -41,7 +41,7 @@ _REGIONS = {
     # What zone is this?
     "SYS": ["EUR", "System zone", 0.25],
     "FR": ["EUR", "France", 0.055],
-    "NL": ["EUR", "Netherlands", 0.21],
+    "NL": ["EUR", "Netherlands", 0.09],
     "BE": ["EUR", "Belgium", 0.21],
     "AT": ["EUR", "Austria", 0.20],
     # Tax is disabled for now, i need to split the areas
@@ -168,7 +168,9 @@ class NordpoolSensor(Entity):
         self._off_peak_1 = None
         self._off_peak_2 = None
         self._peak = None
+        self._additional_costs_value = None
 
+        _LOGGER.debug("Template %s", str(ad_template))
         # Check incase the sensor was setup using config flow.
         # This blow up if the template isnt valid.
         if not isinstance(self._ad_template, Template):
@@ -238,10 +240,23 @@ class NordpoolSensor(Entity):
         return self.current_price
 
     @property
+    def additional_costs(self):
+        return self._additional_costs_value
+
+    @property
     def low_price(self) -> bool:
         """Check if the price is lower then avg depending on settings"""
         return (
             self.current_price < self._average * self._low_price_cutoff
+            if self.current_price and self._average
+            else None
+        )
+
+    @property
+    def price_percent_to_average(self) -> float:
+        """Price in percent to average price"""
+        return (
+            self.current_price / self._average
             if self.current_price and self._average
             else None
         )
@@ -255,27 +270,28 @@ class NordpoolSensor(Entity):
             _LOGGER.debug("api returned junk infinty %s", value)
             return None
 
-        # Used to inject the current hour.
-        # so template can be simplified using now
-        if fake_dt is not None:
+        def faker():
+            def inner(*args, **kwargs):
+                return fake_dt or dt_utils.now()
 
-            def faker():
-                def inner(*args, **kwargs):
-                    return fake_dt
-
-                return pass_context(inner)
-
-            template_value = self._ad_template.async_render(now=faker())
-        else:
-            template_value = self._ad_template.async_render()
+            return pass_context(inner)
 
         # The api returns prices in MWh
         if self._price_type in ("MWh", "mWh"):
-            price = template_value / 1000 + value * float(1 + self._vat)
-        else:
-            price = template_value + value / _PRICE_IN[self._price_type] * (
-                float(1 + self._vat)
+            price = value / 1000 * float(1 + self._vat)
+            template_value = self._ad_template.async_render(
+                now=faker(), current_price=price
             )
+            self._additional_costs_value = template_value
+
+            price += template_value
+        else:
+            price = value / _PRICE_IN[self._price_type] * (float(1 + self._vat))
+            template_value = self._ad_template.async_render(
+                now=faker(), current_price=price
+            )
+            self._additional_costs_value = template_value
+            price += template_value
 
         # Convert price to cents if specified by the user.
         if self._use_cents:
@@ -287,36 +303,18 @@ class NordpoolSensor(Entity):
         """Set attrs."""
         _LOGGER.debug("Called _update setting attrs for the day")
 
-        # if has_junk(data):
-        #    # _LOGGER.debug("It was junk infinity in api response, fixed it.")
+        if data is None:
+            return
+
         d = extract_attrs(data.get("values"))
         data.update(d)
 
-        if self._ad_template.template == DEFAULT_TEMPLATE:
-            self._average = self._calc_price(data.get("Average"))
-            self._min = self._calc_price(data.get("Min"))
-            self._max = self._calc_price(data.get("Max"))
-            self._off_peak_1 = self._calc_price(data.get("Off-peak 1"))
-            self._off_peak_2 = self._calc_price(data.get("Off-peak 2"))
-            self._peak = self._calc_price(data.get("Peak"))
-        else:
-            data = sorted(data.get("values"), key=itemgetter("start"))
-            formatted_prices = [
-                self._calc_price(
-                    i.get("value"), fake_dt=dt_utils.as_local(i.get("start"))
-                )
-                for i in data
-            ]
-            offpeak1 = formatted_prices[0:8]
-            peak = formatted_prices[9:17]
-            offpeak2 = formatted_prices[20:]
-
-            self._peak = mean(peak)
-            self._off_peak_1 = mean(offpeak1)
-            self._off_peak_2 = mean(offpeak2)
-            self._average = mean(formatted_prices)
-            self._min = min(formatted_prices)
-            self._max = max(formatted_prices)
+        self._average = self._calc_price(data.get("Average"))
+        self._min = self._calc_price(data.get("Min"))
+        self._max = self._calc_price(data.get("Max"))
+        self._off_peak_1 = self._calc_price(data.get("Off-peak 1"))
+        self._off_peak_2 = self._calc_price(data.get("Off-peak 2"))
+        self._peak = self._calc_price(data.get("Peak"))
 
     @property
     def current_price(self) -> float:
@@ -384,12 +382,14 @@ class NordpoolSensor(Entity):
             "currency": self._currency,
             "country": _REGIONS[self._area][1],
             "region": self._area,
-            "low price": self.low_price,
-            "tomorrow_valid": self.tomorrow_valid,
+            "low_price": self.low_price,
+            "price_percent_to_average": self.price_percent_to_average,
             "today": self.today,
             "tomorrow": self.tomorrow,
+            "tomorrow_valid": self.tomorrow_valid,
             "raw_today": self.raw_today,
             "raw_tomorrow": self.raw_tomorrow,
+            "additional_costs_current_hour": self.additional_costs,
         }
 
     def _add_raw(self, data):
@@ -413,7 +413,9 @@ class NordpoolSensor(Entity):
 
     @property
     def tomorrow_valid(self):
-        return self._api.tomorrow_valid()
+        """Verify that we have the values for tomorrow."""
+        # this should be checked a better way
+        return len([i for i in self.tomorrow if i not in (None, float("inf"))]) >= 23
 
     async def _update_current_price(self) -> None:
         """update the current price (price this hour)"""
@@ -433,19 +435,24 @@ class NordpoolSensor(Entity):
 
     async def check_stuff(self) -> None:
         """Cb to do some house keeping, called every hour to get the current hours price"""
-        _LOGGER.debug("called check_stuff")
+        # _LOGGER.debug("called check_stuff")
         if self._last_tick is None:
             self._last_tick = dt_utils.now()
 
         if self._data_today is None:
-            _LOGGER.debug("NordpoolSensor _data_today is none, trying to fetch it.")
+            _LOGGER.debug(
+                "NordpoolSensor _data_today is none, trying to fetch it. %s", self.name
+            )
             today = await self._api.today(self._area, self._currency)
             if today:
                 self._data_today = today
                 self._update(today)
 
         if self._data_tomorrow is None:
-            _LOGGER.debug("NordpoolSensor _data_tomorrow is none, trying to fetch it.")
+            _LOGGER.debug(
+                "NordpoolSensor _data_tomorrow is none, trying to fetch it. %s",
+                self.name,
+            )
             tomorrow = await self._api.tomorrow(self._area, self._currency)
             if tomorrow:
                 self._data_tomorrow = tomorrow
@@ -480,10 +487,4 @@ class NordpoolSensor(Entity):
         await super().async_added_to_hass()
         _LOGGER.debug("called async_added_to_hass %s", self.name)
         async_dispatcher_connect(self._api._hass, EVENT_NEW_DATA, self.check_stuff)
-
         await self.check_stuff()
-
-    # async def async_will_remove_from_hass(self):
-    #     """This needs some testing.."""
-    #     for cb in self._cbs:
-    #         self._api._hass.bus._async_remove_listener(EVENT_TIME_CHANGED, cb)

@@ -45,14 +45,14 @@ input_number:
     icon: mdi:fire-circle
     min: 10
     max: 30
-    step: 1
+    step: 0.5
     unit_of_measurement: "°C"
   hvac_cooling_limit:
     name: Maximale HVAC temperatuur
     icon: mdi:air-conditioner
     min: 10
     max: 30
-    step: 1
+    step: 0.5
     unit_of_measurement: "°C"
 
   hvac_winter_target_temperature:
@@ -60,12 +60,12 @@ input_number:
     icon: mdi:snowflake-thermometer
     min: 10
     max: 30
-    step: 1
+    step: 0.5
     unit_of_measurement: "°C"
   hvac_summer_target_temperature:
     name: Zomer temperatuur
     icon: mdi:sun-thermometer
     min: 10
     max: 30
-    step: 1
+    step: 0.5
     unit_of_measurement: "°C"

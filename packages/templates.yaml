@@ -221,9 +221,10 @@ template:
   - unique_id: unavailable_entities
     attributes:
       friendly_name: "Unavailable Entities"
+      count: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
     state_class: measurement
     unit_of_measurement: entities
-    state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') |selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
+    state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
 
 # all unavailable entities
 - trigger:
@@ -362,9 +363,9 @@ template:
       tax: >
         {{ 0.0368 + 0.0305 }}
       incl_tax: >
-        {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.0368 + 0.0305 }}
+        {{ states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) + 0.0368 + 0.0305 }}
     state: >
-      {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) }}
+      {{ states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) }}
 
   - name: "Energy Price Level"
     unique_id: energy_price_level
@@ -390,10 +391,6 @@ template:
         {{ "normal" }}
       {% endif %}
   
-- trigger:
-  - platform: time_pattern
-    hours: "*"
-  sensor:
   - name: Cheapest 8 Hours 24h
     unique_id: cheapest_8_hours_24h
     attributes:
@@ -402,7 +399,47 @@ template:
       {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
       {%- set cheap_hours = namespace(number=8) %}
       {% for i in range(0, 23) %} 
-        {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+        {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today[i].value)] %}
+      {%- endfor -%}
+      {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+      {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+      {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+        {% if sorted_hour_price_dict[i].0 == now().hour %}
+          {% set ns.cheapest_hour = true %}
+        {% else %}
+          {% set ns.cheapest_hour = false %}
+        {% endif %}
+      {%- endfor -%}
+      {{ ns.cheapest_hour }}
+  - name: Cheapest 12 Hours 24h
+    unique_id: cheapest_12_hours_24h
+    attributes:
+      friendly_name: Cheapest 12 Hours 24h
+    state: >-
+      {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+      {%- set cheap_hours = namespace(number=12) %}
+      {% for i in range(0, 23) %} 
+        {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today[i].value)] %}
+      {%- endfor -%}
+      {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+      {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+      {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+        {% if sorted_hour_price_dict[i].0 == now().hour %}
+          {% set ns.cheapest_hour = true %}
+        {% else %}
+          {% set ns.cheapest_hour = false %}
+        {% endif %}
+      {%- endfor -%}
+      {{ ns.cheapest_hour }}
+  - name: Cheapest 16 Hours 24h
+    unique_id: cheapest_16_hours_24h
+    attributes:
+      friendly_name: Cheapest 16 Hours 24h
+    state: >-
+      {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+      {%- set cheap_hours = namespace(number=16) %}
+      {% for i in range(0, 23) %} 
+        {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today[i].value)] %}
       {%- endfor -%}
       {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
       {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
@@ -420,14 +457,14 @@ template:
     attributes:
       friendly_name: Average price today
     state: >-
-      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | count) | round(2, 'floor') }}
+      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today | count) | round(2, 'floor') }}
   - name: Average price tomorrow
     unique_id: average_price_tomorrow
     icon: mdi:lightning-bolt
     attributes:
       friendly_name: Average price tomorrow
     state: >-
-      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | count) | round(2, 'floor') }}
+      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_tomorrow | sum(attribute='value') | float(default=0) / states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_tomorrow | count) | round(2, 'floor') }}
     
 - sensor:
   - name: "Today Maximum Temperature"

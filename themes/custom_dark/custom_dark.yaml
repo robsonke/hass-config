@@ -177,7 +177,7 @@ custom-dark:
       hui-grid-card:
         .: |
             hui-grid-card {
-              padding-bottom: 1vw;
+              padding-bottom: 0vw;
             }
         $: |
           /* default */
@@ -187,7 +187,7 @@ custom-dark:
             font-family: SF Text !important;
             font-weight: 500 !important;
             color: var(--grid-card-heading-text-color) !important;
-            padding: 1vw 0 2vw 0 !important;
+            padding: 1vw 0 1.5vw 0 !important;
           }
           /* portrait */
           @media screen and (max-width: 1200px) {

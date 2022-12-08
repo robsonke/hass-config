@@ -70,6 +70,7 @@ switch:
   - platform: gpio
     pin: GPIO15
     id: relay
+    restore_mode: ALWAYS_ON
     name: "${channel_1}"
     on_turn_on:
       - output.turn_on: led

@@ -419,8 +419,8 @@ views:
             variables:
               heating: >
                 [[[
-                  let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off';
-                  heating = heating || states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50;
+                  let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off' && states['sensor.eurom_alutherm_power'].state > 50;
+                  heating = heating || (states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50);
                   return heating;
                 ]]]
             custom_fields:
@@ -559,6 +559,11 @@ views:
               <ha-icon icon="mdi:cog"></ha-icon> System
             tap_action:
               !include popups/footer_system.yaml
+            variables:
+              notify: >
+                [[[
+                  return parseInt(states['sensor.unavailable_entities'].attributes['count']);
+                ]]]
           - type: custom:button-card
             entity: binary_sensor.stookalert_zeeland
             template: footer

@@ -15,6 +15,6 @@ logger:
     homeassistant.components.websocket_api: fatal
     homeassistant.components.camera: fatal
     homeassistant.components.casambi: info
+    homeassistant.components.mqtt: warn
     custom_components.casambi: info
     aiocasambi: info
-    custom_components.powercalc: debug

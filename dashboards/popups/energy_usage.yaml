@@ -119,6 +119,7 @@ browser_mod:
                   - entity_id: sensor.kitchen_light_power
                   - entity_id: sensor.solaredge_current_power
                   - entity_id: sensor.power_production_now
+                  - entity_id: sensor.shelly_plug_kachel_slaapkamer_power
                   - entity_id: sensor.altherma_power_usage_secundary
               sort:
                 method: state
@@ -280,7 +281,7 @@ browser_mod:
               span:
                 start: day
               series:
-                - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+                - entity: sensor.nordpool_kwh_nl_eur_3_10_009
                   data_generator: |
                     return entity.attributes.raw_today.map((entry) => {
                       return [new Date(entry.start), entry.value];
@@ -316,7 +317,7 @@ browser_mod:
                 start: day
                 offset: +1d
               series:
-                - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+                - entity: sensor.nordpool_kwh_nl_eur_3_10_009
                   data_generator: |
                     return entity.attributes.raw_tomorrow.map((entry) => {
                       return [new Date(entry.start), entry.value];

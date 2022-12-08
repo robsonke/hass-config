@@ -34,6 +34,11 @@ browser_mod:
                 - entity: sensor.hass_version_installed
                   name: Versie
                   icon: mdi:home-assistant
+                - type: attribute
+                  entity: sensor.unavailable_entities
+                  name: Offline belangrijke entities
+                  attribute: count
+                  icon: mdi:alert-circle
                 - entity: sensor.uptime
                   name: Uptime
                   icon: mdi:update
