@@ -51,14 +51,19 @@ group:
       - binary_sensor.backdoor_openclose_sensor
       - binary_sensor.frontdoor_openclose_sensor
       - binary_sensor.door_terrace_openclose_contact
-      - binary_sensor.sheddoor_openclose_sensor
-      - binary_sensor.sheddoor_back_openclose_sensor
-      - binary_sensor.cabindoor_openclose_contact
       - binary_sensor.windowdoor_ground_1_openclose_sensor
       - binary_sensor.windowdoor_ground_2_openclose_sensor
       - binary_sensor.windowdoor_ground_3_openclose_sensor
       - binary_sensor.windowdoor_ground_4_openclose_sensor
       - binary_sensor.window_office_openclose_sensor
+
+  doors_and_windows_garden:
+    name: All doors and windows garden
+    icon: mdi:door
+    entities:
+      - binary_sensor.sheddoor_openclose_sensor
+      - binary_sensor.sheddoor_back_openclose_sensor
+      - binary_sensor.cabindoor_openclose_contact
       
   doors_and_windows_upstairs:
     name: All doors and windows upstairs

@@ -207,7 +207,7 @@ views:
             hold_action:
               action: none
           - type: custom:button-card
-            entity: sensor.downstairs_temperature
+            entity: sensor.indoor_temperature
             name: Warmtepomp
             template:
               - climate
@@ -378,6 +378,12 @@ views:
               !include popups/irrigation.yaml
             hold_action:
               action: none
+          - type: custom:button-card
+            entity: group.doors_and_windows_garden
+            name: Deuren
+            template:
+              - door_window_group_garden
+            group_expand: true
 
       #################################################
       #                                               #
@@ -421,6 +427,7 @@ views:
                 [[[
                   let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off' && states['sensor.eurom_alutherm_power'].state > 50;
                   heating = heating || (states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50);
+                  heating = heating || states['switch.kasa_infrarood_slaapkamer'].state === 'on' || states['switch.infraroodpanel_eva'].state === 'on'
                   return heating;
                 ]]]
             custom_fields:
@@ -471,6 +478,8 @@ views:
               heating: >
                 [[[
                   return states['water_heater.domestic_hot_water_tank'].attributes['operation_mode'] === 'on'
+                  && states['water_heater.domestic_hot_water_tank'].attributes['temperature'] - states['water_heater.domestic_hot_water_tank'].attributes['current_temperature'] > 5
+                  && states['sensor.altherma_power_usage'].state > 1000
                 ]]] 
             custom_fields:
               graph:

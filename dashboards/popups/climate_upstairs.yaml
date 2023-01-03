@@ -30,7 +30,34 @@ browser_mod:
               entities:
                 - entity: switch.kasa_infrarood_slaapkamer
                   name: Infraroodpanel logeerkamer
+            - type: conditional
+              conditions:
+                - entity: switch.kasa_infrarood_slaapkamer
+                  state_not: "off"
+              card:
+                type: entities
+                show_header_toggle: false
+                entities:
+                  - entity: sensor.infrarood_slaapkamer_current_consumption
+            - type: entities
+              show_header_toggle: false
+              entities:
                 - entity: switch.infraroodpanel_eva
+            - type: conditional
+              conditions:
+                - entity: switch.infraroodpanel_eva
+                  state_not: "off"
+              card:
+                type: entities
+                show_header_toggle: false
+                entities:
+                  - entity: sensor.infraroodpanel_eva_current_consumption
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: switch.kasa_infrarood_slaapkamer
+                  name: Infraroodpanel logeerkamer
                 - entity: switch.shelly_plug_badkamer_verwarming_relay
             - type: conditional
               conditions:

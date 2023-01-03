@@ -284,7 +284,8 @@ browser_mod:
                 - entity: sensor.nordpool_kwh_nl_eur_3_10_009
                   data_generator: |
                     return entity.attributes.raw_today.map((entry) => {
-                      return [new Date(entry.start), entry.value];
+                      let value = (entry.value + 0.12599) * 1.21;
+                      return [new Date(entry.start), value];
                     });
                   type: column
                   float_precision: 2
@@ -295,7 +296,7 @@ browser_mod:
                       color: blue
                     - value: 0.15
                       color: green
-                    - value: 0.30
+                    - value: 0.35
                       color: darkorange
                     - value: 0.40
                       color: red
@@ -320,7 +321,8 @@ browser_mod:
                 - entity: sensor.nordpool_kwh_nl_eur_3_10_009
                   data_generator: |
                     return entity.attributes.raw_tomorrow.map((entry) => {
-                      return [new Date(entry.start), entry.value];
+                      let value = (entry.value + 0.12599) * 1.21;
+                      return [new Date(entry.start), value];
                     });
                   type: column
                   float_precision: 2
@@ -331,7 +333,7 @@ browser_mod:
                       color: blue
                     - value: 0.15
                       color: green
-                    - value: 0.30
+                    - value: 0.35
                       color: darkorange
                     - value: 0.40
                       color: red

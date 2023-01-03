@@ -163,21 +163,17 @@ async def create_group_sensors_from_config_entry(
     return group_sensors
 
 
-async def remove_from_associated_group_entries(
+async def remove_power_sensor_from_associated_groups(
     hass: HomeAssistant, config_entry: ConfigEntry
 ) -> list[ConfigEntry]:
     """
     When the user remove a virtual power config entry we need to update all the groups which this sensor belongs to
     """
-    sensor_type = config_entry.data.get(CONF_SENSOR_TYPE)
-    if sensor_type != SensorType.VIRTUAL_POWER:
-        return []
-
     group_entries = [
         entry
         for entry in hass.config_entries.async_entries(DOMAIN)
         if entry.data.get(CONF_SENSOR_TYPE) == SensorType.GROUP
-        and config_entry.entry_id in entry.data.get(CONF_GROUP_MEMBER_SENSORS)
+        and config_entry.entry_id in (entry.data.get(CONF_GROUP_MEMBER_SENSORS) or [])
     ]
 
     for group_entry in group_entries:
@@ -190,6 +186,28 @@ async def remove_from_associated_group_entries(
         )
 
     return group_entries
+
+
+async def remove_group_from_power_sensor_entry(
+    hass: HomeAssistant, config_entry: ConfigEntry
+) -> list[ConfigEntry]:
+    """
+    When the user removes a group config entry we need to update all the virtual power sensors which reference this group
+    """
+    entries_to_update = [
+        entry
+        for entry in hass.config_entries.async_entries(DOMAIN)
+        if entry.data.get(CONF_SENSOR_TYPE) == SensorType.VIRTUAL_POWER
+        and entry.data.get(CONF_GROUP) == config_entry.entry_id
+    ]
+
+    for group_entry in entries_to_update:
+        hass.config_entries.async_update_entry(
+            group_entry,
+            data={**group_entry.data, CONF_GROUP: None},
+        )
+
+    return entries_to_update
 
 
 async def add_to_associated_group(
@@ -210,8 +228,8 @@ async def add_to_associated_group(
     group_entry = hass.config_entries.async_get_entry(group_entry_id)
 
     if not group_entry:
-        _LOGGER.error(
-            f"Cannot add/remove power sensor to group {group_entry_id}. It does not exist."
+        _LOGGER.warning(
+            f"ConfigEntry {config_entry.title}: Cannot add/remove to group {group_entry_id}. It does not exist."
         )
         return None
 
@@ -430,7 +448,7 @@ class GroupedSensor(BaseEntity, RestoreEntity, SensorEntity):
         apply_unit_conversions = AwesomeVersion(HA_VERSION) >= AwesomeVersion(
             "2022.10.0"
         )
-        if not apply_unit_conversions:
+        if not apply_unit_conversions:  # pragma: no-cover
             self._remove_incompatible_unit_entities(available_states)
 
         if not available_states:

@@ -137,7 +137,8 @@ lights_on_away:
   mode: single
   sequence:
   - service: light.turn_on
-    data:
+    data: {}
+    target:
       entity_id:
       - light.zwave_light_corner_level
       - light.zwave_light_couch_level
@@ -151,7 +152,6 @@ lights_on_away:
     target:
       entity_id:
       - light.dining_light
-      - light.livingback_light
   - service: light.turn_on
     data: {}
     target:
@@ -163,7 +163,8 @@ lights_on_home:
   alias: Lights on - home
   sequence:
   - service: light.turn_on
-    data:
+    data: {}
+    target:
       entity_id:
       - light.zwave_light_corner_level
       - light.zwave_light_couch_level
@@ -217,7 +218,7 @@ reload_frontend:
   - service: template.reload
   - service: browser_mod.javascript
     data:
-      code: "lovelace_reload();"
+      code: lovelace_reload();
   - service: frontend.reload_themes
   - service: browser_mod.refresh
   mode: single

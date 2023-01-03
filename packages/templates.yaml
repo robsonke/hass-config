@@ -349,23 +349,30 @@ template:
       friendly_name: Open windows and doors downstairs
     state: >
       {{ expand('group.doors_and_windows_downstairs') | selectattr('state', 'in', ['on']) | list | count }}
+  - unique_id: open_windows_and_doors_garden
+    attributes:
+      friendly_name: Open windows and doors garden
+    state: >
+      {{ expand('group.doors_and_windows_garden') | selectattr('state', 'in', ['on']) | list | count }}
   - unique_id: open_windows_and_doors
     attributes:
       friendly_name: Open windows and doors
     state: >
-      {{ states('sensor.open_windows_and_doors_upstairs') | int(default=0) + states('sensor.open_windows_and_doors_downstairs') | int(default=0) }}
+      {{ states('sensor.open_windows_and_doors_upstairs') | int(default=0) + states('sensor.open_windows_and_doors_downstairs') | int(default=0) + states('sensor.open_windows_and_doors_garden') | int(default=0) }}
 
 - sensor:
   - name: "Current Price Electricity"
     unique_id: current_price_electricity
     unit_of_measurement: "EUR/kWh"
     attributes:
-      tax: >
-        {{ 0.0368 + 0.0305 }}
+      excl_tax: >
+        {{ states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) }}
       incl_tax: >
-        {{ states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) + 0.0368 + 0.0305 }}
+        {{ (states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) + 0.12599) * 1.21 }}
+      avg_price: >
+        {{ state_attr('sensor.nordpool_kwh_nl_eur_3_10_009', 'average') }}
     state: >
-      {{ states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) }}
+      {{ (states('sensor.nordpool_kwh_nl_eur_3_10_009') | float(default=0.3) + 0.12599) * 1.21 }}
 
   - name: "Energy Price Level"
     unique_id: energy_price_level
@@ -375,7 +382,7 @@ template:
     state: >
       {% set percentage = states('sensor.current_price_electricity') | float(default=0.3) / state_attr('sensor.current_price_electricity','avg_price') | float(default=0.3) * 100 %}
       {# In case it's less then 20 cents, we still consider it cheap #}
-      {% if states('sensor.current_price_electricity') | float(default=0.3) < 0.2 %}
+      {% if states('sensor.current_price_electricity') | float(default=0.3) < 0.1 %}
         {{ "very_cheap" }}
       {% elif percentage <= 60 %}
         {{ "very_cheap" }}
@@ -457,14 +464,14 @@ template:
     attributes:
       friendly_name: Average price today
     state: >-
-      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today | count) | round(2, 'floor') }}
+      {{ (((states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_today | count) + 0.12599) * 1.21) | round(2, 'floor') }}
   - name: Average price tomorrow
     unique_id: average_price_tomorrow
     icon: mdi:lightning-bolt
     attributes:
       friendly_name: Average price tomorrow
     state: >-
-      {{ (states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_tomorrow | sum(attribute='value') | float(default=0) / states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_tomorrow | count) | round(2, 'floor') }}
+      {{ (((states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_tomorrow | sum(attribute='value') | float(default=0) / states.sensor.nordpool_kwh_nl_eur_3_10_009.attributes.raw_tomorrow | count) + 0.12599) * 1.21) | round(2, 'floor') }}
     
 - sensor:
   - name: "Today Maximum Temperature"

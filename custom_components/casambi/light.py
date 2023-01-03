@@ -40,7 +40,9 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities,
 ):
-    """Setup sensors from a config entry created in the integrations UI."""
+    """
+    Setup sensors from a config entry created in the integrations UI.
+    """
     controller = hass.data[DOMAIN][CONF_CONTROLLER]
     coordinator = hass.data[DOMAIN][CONF_COORDINATOR]
 
@@ -79,8 +81,9 @@ async def async_setup_platform(
     """
     Setup Casambi platform, called when setup through configuration.yaml
     """
-    warn_msg = "Using Casambi integration through configuration.yaml is deprecated, "
-    warn_msg += "please consider to switch to configuration flow!"
+    warn_msg = "Using Casambi integration through configuration.yaml is "
+    warn_msg += "deprecated, please consider to "
+    warn_msg += "switch to configuration flow!"
     _LOGGER.warning(warn_msg)
 
     if CONF_CONTROLLER in hass.data[DOMAIN]:
@@ -89,17 +92,23 @@ async def async_setup_platform(
         return
 
     config = hass.data[DOMAIN][config_entry.entry_id]
-    controller = hass.data[DOMAIN][CONF_CONTROLLER] = await async_create_controller(hass, config)
+    controller = hass.data[DOMAIN][CONF_CONTROLLER] = await async_create_controller(
+        hass, config
+    )
     if not controller:
         return False
-    coordinator = hass.data[DOMAIN][CONF_COORDINATOR] = await async_create_coordinator(hass, config, controller)
+    coordinator = hass.data[DOMAIN][CONF_COORDINATOR] = await async_create_coordinator(
+        hass, config, controller
+    )
 
     units = controller.aiocasambi_controller.get_units()
     for unit in units:
         if not unit.is_light():
             continue
 
-        casambi_light = CasambiLightEntity(coordinator, unit, controller.aiocasambi_controller, hass)
+        casambi_light = CasambiLightEntity(
+            coordinator, unit, controller.aiocasambi_controller, hass
+        )
         async_add_entities([casambi_light], True)
 
         controller.lights[casambi_light.unique_id] = casambi_light
@@ -114,10 +123,10 @@ async def async_setup_platform(
         # Check if entities were selected
         if ATTR_SERV_ENTITY_ID not in call.data:
             # service handle currently only supports selection of entities
-            dbg_msg = f"ServiceCall {call.domain}.{call.service}:"
-            dbg_msg += " No entity was specified."
-            dbg_msg += " Please specify entities instead of areas or devices."
-            _LOGGER.error(dbg_msg)
+            err_msg = f"ServiceCall {call.domain}.{call.service}:"
+            err_msg += " No entity was specified."
+            err_msg += " Please specify entities instead of areas or devices."
+            _LOGGER.error(err_msg)
 
             return
 

@@ -16,5 +16,9 @@ logger:
     homeassistant.components.camera: fatal
     homeassistant.components.casambi: info
     homeassistant.components.mqtt: warn
+    homeassistant.components.casambi-bt: info
     custom_components.casambi: info
+    custom_components.casambi-bt: info
     aiocasambi: info
+    CasambiBt: debug
+    bleak_retry_connector: debug

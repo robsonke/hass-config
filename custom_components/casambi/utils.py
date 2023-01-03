@@ -1,3 +1,6 @@
+"""
+Utils for Casambi
+"""
 import logging
 import ssl
 import asyncio
@@ -35,7 +38,9 @@ _LOGGER = logging.getLogger(__name__)
 async def async_create_controller(
     hass: HomeAssistant, config: ConfigEntry
 ) -> CasambiController:
-    """Creates a Controller for the Casambi API."""
+    """
+    Creates a Controller for the Casambi API.
+    """
     api_key = config[CONF_API_KEY]
 
     email = config[CONF_EMAIL]
@@ -57,9 +62,9 @@ async def async_create_controller(
         network_timeout = config[CONF_NETWORK_TIMEOUT]
 
     if not user_password and not network_password:
-        raise ConfigurationError(
-            f"{CONF_USER_PASSWORD} or {CONF_NETWORK_PASSWORD} must be set in config!"
-        )
+        err_msg = f"{CONF_USER_PASSWORD} or {CONF_NETWORK_PASSWORD} "
+        err_msg += "must be set in config!"
+        raise ConfigurationError(err_msg)
 
     controller = CasambiController(hass)
 
@@ -80,26 +85,20 @@ async def async_create_controller(
             await aiocasambi_controller.initialize()
             await aiocasambi_controller.start_websockets()
 
-    except aiocasambi.LoginRequired:
+    except aiocasambi.Unauthorized:
         _LOGGER.error("Connected to casambi but couldn't log in")
         return None
 
-    except aiocasambi.Unauthorized:
-        _LOGGER.error("Connected to casambi but not registered")
-        return None
-
-    except aiocasambi.RequestError as err:
-        _LOGGER.error(
-            f"Error connecting to the Casambi, caught aiocasambi.RequestError, error message: {str(err)}"
-        )
-        return None
-
     except asyncio.TimeoutError:
-        _LOGGER.error("Error connecting to the Casambi, caught asyncio.TimeoutError")
+        err_msg = "Error connecting to the Casambi, "
+        err_msg += "caught asyncio.TimeoutError"
+        _LOGGER.error(err_msg)
         return None
 
-    except aiocasambi.AiocasambiException:
-        _LOGGER.error("Unknown Casambi communication error occurred!")
+    except aiocasambi.AiocasambiException as err:
+        err_msg = "Unknown Casambi communication error occurred! "
+        err_msg += f"err: {err}"
+        _LOGGER.error(err_msg)
         return None
 
     # Sleep so we get some websocket messages,

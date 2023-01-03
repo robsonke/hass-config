@@ -1,9 +1,11 @@
+"""
+Binary Sensor implementation for Casambi
+"""
 import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-# from .casambi.CasambiOverheatBinarySensorEntity import CasambiOverheatBinarySensorEntity
 from .casambi.CasambiStatusBinarySensorEntity import CasambiStatusBinarySensorEntity
 from .const import (
     DOMAIN,
@@ -14,11 +16,19 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """
+    Support unloading of entry
+    """
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities):
-    _LOGGER.debug("Setting up binary sensor entities.")
+async def async_setup_entry(
+    hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities
+):
+    """
+    Setting up binary sensor
+    """
+    _LOGGER.debug(f"Setting up binary sensor entities. config_entry:{config_entry}")
 
     controller = hass.data[DOMAIN][CONF_CONTROLLER]
     units = controller.aiocasambi_controller.get_units()

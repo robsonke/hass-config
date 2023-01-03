@@ -114,6 +114,7 @@ sensor:
   entity_ids:
     - sensor.climate_sensor_kitchen_temperature
     - sensor.climate_sensor_living_temperature
+    - sensor.climate_sensor_office_temperature
     - sensor.indoor_temperature
 
 - platform: rest

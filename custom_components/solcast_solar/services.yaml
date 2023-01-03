@@ -1,0 +1,4 @@
+# Describes the format for available services for the Solcast integration
+update_forecasts:
+  name: Update
+  description: Fetches the forecasts from Solcast.

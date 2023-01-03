@@ -1,19 +1,17 @@
 """Config flow for Samsung TV."""
 from __future__ import annotations
 
+import logging
+from numbers import Number
 import socket
 from typing import Any, Dict
-import logging
 
 import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.components.binary_sensor import DOMAIN as BS_DOMAIN
-from homeassistant.core import callback, HomeAssistant
-
 from homeassistant.const import (
     ATTR_DEVICE_ID,
-    ATTR_FRIENDLY_NAME,
     CONF_API_KEY,
     CONF_BASE,
     CONF_DEVICE_ID,
@@ -25,7 +23,17 @@ from homeassistant.const import (
     CONF_TOKEN,
     __version__,
 )
-from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
+    ObjectSelector,
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from . import SamsungTVInfo, get_device_info, is_valid_ha_version
 from .const import (
@@ -33,11 +41,12 @@ from .const import (
     ATTR_DEVICE_MODEL,
     ATTR_DEVICE_NAME,
     ATTR_DEVICE_OS,
-    DOMAIN,
     CONF_APP_LAUNCH_METHOD,
+    CONF_APP_LIST,
     CONF_APP_LOAD_METHOD,
-    CONF_DEVICE_NAME,
+    CONF_CHANNEL_LIST,
     CONF_DEVICE_MODEL,
+    CONF_DEVICE_NAME,
     CONF_DEVICE_OS,
     CONF_DUMP_APPS,
     CONF_EXT_POWER_ENTITY,
@@ -46,6 +55,7 @@ from .const import (
     CONF_POWER_ON_DELAY,
     CONF_POWER_ON_METHOD,
     CONF_SHOW_CHANNEL_NR,
+    CONF_SOURCE_LIST,
     CONF_SYNC_TURN_OFF,
     CONF_SYNC_TURN_ON,
     CONF_TOGGLE_ART_MODE,
@@ -56,6 +66,7 @@ from .const import (
     CONF_WOL_REPEAT,
     CONF_WS_NAME,
     DEFAULT_POWER_ON_DELAY,
+    DOMAIN,
     MAX_WOL_REPEAT,
     RESULT_ST_DEVICE_NOT_FOUND,
     RESULT_ST_DEVICE_USED,
@@ -101,7 +112,6 @@ CONF_ST_DEVICE = "st_devices"
 CONF_USE_HA_NAME = "use_ha_name_for_ws"
 
 ADVANCED_OPTIONS = [
-    CONF_APP_LOAD_METHOD,
     CONF_APP_LAUNCH_METHOD,
     CONF_DUMP_APPS,
     CONF_EXT_POWER_ENTITY,
@@ -110,6 +120,13 @@ ADVANCED_OPTIONS = [
     CONF_POWER_ON_DELAY,
     CONF_TOGGLE_ART_MODE,
     CONF_USE_MUTE_CHECK,
+]
+
+ENUM_OPTIONS = [
+    CONF_APP_LOAD_METHOD,
+    CONF_APP_LAUNCH_METHOD,
+    CONF_LOGO_OPTION,
+    CONF_POWER_ON_METHOD,
 ]
 
 _LOGGER = logging.getLogger(__name__)
@@ -128,7 +145,6 @@ class SamsungTVConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a Samsung TV config flow."""
 
     VERSION = 1
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     # pylint: disable=no-member # https://github.com/PyCQA/pylint/issues/3167
 
@@ -230,7 +246,8 @@ class SamsungTVConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(
                 reason="unsupported_version",
                 description_placeholders={
-                    "req_ver": __min_ha_version__, "run_ver": __version__
+                    "req_ver": __min_ha_version__,
+                    "run_ver": __version__,
                 },
             )
 
@@ -357,9 +374,6 @@ class SamsungTVConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data[CONF_API_KEY] = self._api_key
             data[CONF_DEVICE_ID] = self._device_id
             title += " (SmartThings)"
-            self.CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
-        else:
-            self.CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
         options = None
         if self._ping_port:
@@ -378,7 +392,8 @@ class SamsungTVConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_USE_HA_NAME, default=data.get(CONF_USE_HA_NAME, False)
                 ): bool,
                 vol.Optional(
-                    CONF_API_KEY, description={"suggested_value": data.get(CONF_API_KEY, "")}
+                    CONF_API_KEY,
+                    description={"suggested_value": data.get(CONF_API_KEY, "")},
                 ): str,
             }
         )
@@ -417,12 +432,21 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
         self._entry_id = config_entry.entry_id
+        self._adv_chk = False
         self._std_options = config_entry.options.copy()
         self._adv_options = {
             key: values
             for key, values in config_entry.options.items()
             if key in ADVANCED_OPTIONS
         }
+        self._sync_ent_opt = {
+            key: values
+            for key, values in config_entry.options.items()
+            if key in [CONF_SYNC_TURN_OFF, CONF_SYNC_TURN_ON]
+        }
+        self._app_list = self._std_options.get(CONF_APP_LIST)
+        self._channel_list = self._std_options.get(CONF_CHANNEL_LIST)
+        self._source_list = self._std_options.get(CONF_SOURCE_LIST)
         api_key = config_entry.data.get(CONF_API_KEY)
         st_dev = config_entry.data.get(CONF_DEVICE_ID)
         self._use_st = api_key and st_dev
@@ -431,171 +455,292 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     def _save_entry(self, data):
         """Save configuration options"""
         data.update(self._adv_options)
+        data.update(self._sync_ent_opt)
         entry_data = {k: v for k, v in data.items() if v is not None}
+        for key, value in entry_data.items():
+            if key in ENUM_OPTIONS:
+                entry_data[key] = int(value)
+        entry_data[CONF_APP_LIST] = self._app_list or {}
+        entry_data[CONF_CHANNEL_LIST] = self._channel_list or {}
+        entry_data[CONF_SOURCE_LIST] = self._source_list or {}
+
         return self.async_create_entry(title="", data=entry_data)
 
     async def async_step_init(self, user_input=None):
-        """Handle options flow."""
+        """Handle initial options flow."""
         if user_input is not None:
-            if user_input.pop(CONF_SHOW_ADV_OPT, False):
+            if self._adv_chk or user_input.pop(CONF_SHOW_ADV_OPT, False):
+                self._adv_chk = True
                 self._std_options = user_input
-                return await self.async_step_adv_opt()
+                return await self.async_step_menu()
             return self._save_entry(data=user_input)
         return self._async_option_form()
 
     @callback
     def _async_option_form(self):
         """Return configuration form for options."""
-        switch_entities = _async_get_matching_entities(
-            self.hass,
-            _async_get_domains_service(self.hass, SERVICE_TURN_ON),
-            _async_get_entry_entities(self.hass, self._entry_id),
-        )
-        options = _validate_options(self._std_options, switch_entities)
+        options = _validate_options(self._std_options)
 
         opt_schema = {
             vol.Required(
                 CONF_LOGO_OPTION,
-                default=options.get(
-                    CONF_LOGO_OPTION, LOGO_OPTION_DEFAULT.value
-                ),
-            ): vol.In(LOGO_OPTIONS),
+                default=options.get(CONF_LOGO_OPTION, str(LOGO_OPTION_DEFAULT.value)),
+            ): SelectSelector(_dict_to_select(LOGO_OPTIONS)),
             vol.Required(
                 CONF_USE_LOCAL_LOGO,
                 default=options.get(CONF_USE_LOCAL_LOGO, True),
             ): bool,
-            vol.Optional(
-                CONF_SYNC_TURN_OFF,
-                description={
-                    "suggested_value": options.get(CONF_SYNC_TURN_OFF, [])
-                },
-            ): cv.multi_select(switch_entities),
-            vol.Optional(
-                CONF_SYNC_TURN_ON,
-                description={
-                    "suggested_value": options.get(CONF_SYNC_TURN_ON, [])
-                },
-            ): cv.multi_select(switch_entities),
-            vol.Required(CONF_SHOW_ADV_OPT, default=False): bool,
         }
 
+        if not self._app_list:
+            opt_schema.update(
+                {
+                    vol.Required(
+                        CONF_APP_LOAD_METHOD,
+                        default=options.get(
+                            CONF_APP_LOAD_METHOD, str(AppLoadMethod.All.value)
+                        ),
+                    ): SelectSelector(_dict_to_select(APP_LOAD_METHODS)),
+                }
+            )
+
         if self._use_st:
-            data_schema = {
-                vol.Required(
-                    CONF_USE_ST_STATUS_INFO,
-                    default=options.get(CONF_USE_ST_STATUS_INFO, True),
-                ): bool,
-                vol.Required(
-                    CONF_USE_ST_CHANNEL_INFO,
-                    default=options.get(CONF_USE_ST_CHANNEL_INFO, True),
-                ): bool,
-                vol.Required(
-                    CONF_SHOW_CHANNEL_NR,
-                    default=options.get(CONF_SHOW_CHANNEL_NR, False),
-                ): bool,
-                vol.Required(
-                    CONF_POWER_ON_METHOD,
-                    default=options.get(
-                        CONF_POWER_ON_METHOD, PowerOnMethod.WOL.value
-                    ),
-                ): vol.In(POWER_ON_METHODS),
-            }
-
-            data_schema.update(opt_schema)
-
+            data_schema = vol.Schema(
+                {
+                    vol.Required(
+                        CONF_USE_ST_STATUS_INFO,
+                        default=options.get(CONF_USE_ST_STATUS_INFO, True),
+                    ): bool,
+                    vol.Required(
+                        CONF_USE_ST_CHANNEL_INFO,
+                        default=options.get(CONF_USE_ST_CHANNEL_INFO, True),
+                    ): bool,
+                    vol.Required(
+                        CONF_SHOW_CHANNEL_NR,
+                        default=options.get(CONF_SHOW_CHANNEL_NR, False),
+                    ): bool,
+                }
+            ).extend(opt_schema)
+            data_schema = data_schema.extend(
+                {
+                    vol.Required(
+                        CONF_POWER_ON_METHOD,
+                        default=options.get(
+                            CONF_POWER_ON_METHOD, str(PowerOnMethod.WOL.value)
+                        ),
+                    ): SelectSelector(_dict_to_select(POWER_ON_METHODS)),
+                }
+            )
         else:
-            data_schema = opt_schema
+            data_schema = vol.Schema(opt_schema)
 
-        return self.async_show_form(
-            step_id="init", data_schema=vol.Schema(data_schema)
+        if not self._adv_chk:
+            data_schema = data_schema.extend(
+                {vol.Required(CONF_SHOW_ADV_OPT, default=False): bool}
+            )
+
+        return self.async_show_form(step_id="init", data_schema=data_schema)
+
+    async def async_step_menu(self, _=None):
+        """Handle advanced options menu."""
+        return self.async_show_menu(
+            step_id="menu",
+            menu_options=[
+                "source_list",
+                "app_list",
+                "channel_list",
+                "sync_ent",
+                "init",
+                "adv_opt",
+                "save_exit",
+            ],
         )
+
+    async def async_step_save_exit(self, _):
+        """Handle save and exit flow."""
+        return self._save_entry(data=self._std_options)
+
+    async def async_step_source_list(self, user_input=None):
+        """Handle sources list flow."""
+        errors: dict[str, str] | None = None
+        if user_input is not None:
+            valid_list = _validate_tv_list(user_input[CONF_SOURCE_LIST])
+            if valid_list is not None:
+                self._source_list = valid_list
+                return await self.async_step_menu()
+            errors = {CONF_BASE: "invalid_tv_list"}
+
+        data_schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_SOURCE_LIST, default=self._source_list
+                ): ObjectSelector()
+            }
+        )
+        return self.async_show_form(
+            step_id="source_list", data_schema=data_schema, errors=errors
+        )
+
+    async def async_step_app_list(self, user_input=None):
+        """Handle apps list flow."""
+        errors: dict[str, str] | None = None
+        if user_input is not None:
+            valid_list = _validate_tv_list(user_input[CONF_APP_LIST])
+            if valid_list is not None:
+                self._app_list = valid_list
+                return await self.async_step_menu()
+            errors = {CONF_BASE: "invalid_tv_list"}
+
+        data_schema = vol.Schema(
+            {vol.Optional(CONF_APP_LIST, default=self._app_list): ObjectSelector()}
+        )
+        return self.async_show_form(
+            step_id="app_list", data_schema=data_schema, errors=errors
+        )
+
+    async def async_step_channel_list(self, user_input=None):
+        """Handle channels list flow."""
+        errors: dict[str, str] | None = None
+        if user_input is not None:
+            valid_list = _validate_tv_list(user_input[CONF_CHANNEL_LIST])
+            if valid_list is not None:
+                self._channel_list = valid_list
+                return await self.async_step_menu()
+            errors = {CONF_BASE: "invalid_tv_list"}
+
+        data_schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_CHANNEL_LIST, default=self._channel_list
+                ): ObjectSelector()
+            }
+        )
+        return self.async_show_form(
+            step_id="channel_list", data_schema=data_schema, errors=errors
+        )
+
+    async def async_step_sync_ent(self, user_input=None):
+        """Handle syncronized entity flow."""
+        if user_input is not None:
+            self._sync_ent_opt = user_input
+            return await self.async_step_menu()
+        return self._async_sync_ent_form()
+
+    @callback
+    def _async_sync_ent_form(self):
+        """Return configuration form for syncronized entity."""
+        select_entities = EntitySelectorConfig(
+            domain=_async_get_domains_service(self.hass, SERVICE_TURN_ON),
+            exclude_entities=_async_get_entry_entities(self.hass, self._entry_id),
+            multiple=True,
+        )
+        options = _validate_options(self._sync_ent_opt)
+
+        data_schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_SYNC_TURN_OFF,
+                    description={
+                        "suggested_value": options.get(CONF_SYNC_TURN_OFF, [])
+                    },
+                ): EntitySelector(select_entities),
+                vol.Optional(
+                    CONF_SYNC_TURN_ON,
+                    description={"suggested_value": options.get(CONF_SYNC_TURN_ON, [])},
+                ): EntitySelector(select_entities),
+            }
+        )
+        return self.async_show_form(step_id="sync_ent", data_schema=data_schema)
 
     async def async_step_adv_opt(self, user_input=None):
         """Handle advanced options flow."""
         if user_input is not None:
             self._adv_options = user_input
-            return await self.async_step_init()
+            return await self.async_step_menu()
         return self._async_adv_opt_form()
 
     @callback
     def _async_adv_opt_form(self):
         """Return configuration form for advanced options."""
-        external_entities = _async_get_matching_entities(
-            self.hass, [BS_DOMAIN]
+        select_entities = EntitySelectorConfig(domain=BS_DOMAIN)
+        options = _validate_options(self._adv_options)
+
+        data_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_APP_LAUNCH_METHOD,
+                    default=options.get(
+                        CONF_APP_LAUNCH_METHOD, str(AppLaunchMethod.Standard.value)
+                    ),
+                ): SelectSelector(_dict_to_select(APP_LAUNCH_METHODS)),
+                vol.Required(
+                    CONF_WOL_REPEAT,
+                    default=min(options.get(CONF_WOL_REPEAT, 1), MAX_WOL_REPEAT),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=1, max=MAX_WOL_REPEAT)),
+                vol.Required(
+                    CONF_POWER_ON_DELAY,
+                    default=options.get(CONF_POWER_ON_DELAY, DEFAULT_POWER_ON_DELAY),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=60)),
+                vol.Required(
+                    CONF_PING_PORT, default=options.get(CONF_PING_PORT, 0)
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
+                vol.Optional(
+                    CONF_EXT_POWER_ENTITY,
+                    description={
+                        "suggested_value": options.get(CONF_EXT_POWER_ENTITY, "")
+                    },
+                ): EntitySelector(select_entities),
+                vol.Required(
+                    CONF_USE_MUTE_CHECK,
+                    default=options.get(CONF_USE_MUTE_CHECK, True),
+                ): bool,
+                vol.Required(
+                    CONF_DUMP_APPS,
+                    default=options.get(CONF_DUMP_APPS, False),
+                ): bool,
+                vol.Required(
+                    CONF_TOGGLE_ART_MODE,
+                    default=options.get(CONF_TOGGLE_ART_MODE, False),
+                ): bool,
+            }
         )
-        options = self._adv_options
-
-        data_schema = {
-            vol.Required(
-                CONF_APP_LOAD_METHOD,
-                default=options.get(
-                    CONF_APP_LOAD_METHOD, AppLoadMethod.All.value
-                ),
-            ): vol.In(APP_LOAD_METHODS),
-            vol.Required(
-                CONF_DUMP_APPS,
-                default=options.get(CONF_DUMP_APPS, False),
-            ): bool,
-            vol.Required(
-                CONF_APP_LAUNCH_METHOD,
-                default=options.get(
-                    CONF_APP_LAUNCH_METHOD, AppLaunchMethod.Standard.value
-                ),
-            ): vol.In(APP_LAUNCH_METHODS),
-            vol.Required(
-                CONF_WOL_REPEAT,
-                default=min(options.get(CONF_WOL_REPEAT, 1), MAX_WOL_REPEAT),
-            ): vol.All(vol.Coerce(int), vol.Clamp(min=1, max=MAX_WOL_REPEAT)),
-            vol.Required(
-                CONF_POWER_ON_DELAY,
-                default=options.get(CONF_POWER_ON_DELAY, DEFAULT_POWER_ON_DELAY),
-            ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=60)),
-            vol.Required(
-                CONF_PING_PORT, default=options.get(CONF_PING_PORT, 0)
-            ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
-            vol.Optional(
-                CONF_EXT_POWER_ENTITY,
-                description={
-                    "suggested_value": options.get(CONF_EXT_POWER_ENTITY, "")
-                }
-            ): vol.In(external_entities),
-            vol.Required(
-                CONF_USE_MUTE_CHECK,
-                default=options.get(CONF_USE_MUTE_CHECK, True),
-            ): bool,
-            vol.Required(
-                CONF_TOGGLE_ART_MODE,
-                default=options.get(CONF_TOGGLE_ART_MODE, False),
-            ): bool,
-        }
-
-        return self.async_show_form(
-            step_id="adv_opt", data_schema=vol.Schema(data_schema)
-        )
+        return self.async_show_form(step_id="adv_opt", data_schema=data_schema)
 
 
-def _validate_options(options: dict, sw_ent: dict):
+def _validate_options(options: dict):
     """Validate options format"""
     valid_options = {}
     for opt_key, opt_val in options.items():
         if opt_key in [CONF_SYNC_TURN_OFF, CONF_SYNC_TURN_ON]:
-            if isinstance(opt_val, list):
-                valid_options[opt_key] = [k for k in opt_val if k in sw_ent]
-            continue
-        valid_options[opt_key] = opt_val
+            if not isinstance(opt_val, list):
+                continue
+        if opt_key in ENUM_OPTIONS:
+            valid_options[opt_key] = str(opt_val)
+        else:
+            valid_options[opt_key] = opt_val
     return valid_options
 
 
-def _async_get_matching_entities(hass: HomeAssistant, domains=None, excl_entities=None):
-    """Fetch all entities or entities in the given domains."""
-    return {
-        state.entity_id: f"{state.attributes.get(ATTR_FRIENDLY_NAME, state.entity_id)} ({state.entity_id})"
-        for state in sorted(
-            hass.states.async_all(domains and set(domains)),
-            key=lambda item: item.entity_id,
-        )
-        if state.entity_id not in (excl_entities or [])
-    }
+def _validate_tv_list(input_list: dict[str, Any]) -> dict[str, str] | None:
+    """Validate TV list from object selector."""
+    valid_list = {}
+    for name_val, id_val in input_list.items():
+        if not id_val:
+            continue
+        if isinstance(id_val, Number):
+            id_val = str(id_val)
+        if not isinstance(id_val, str):
+            return None
+        valid_list[name_val] = id_val
+    return valid_list
+
+
+def _dict_to_select(opt_dict: dict):
+    """Covert a dict to a SelectSelectorConfig."""
+    return SelectSelectorConfig(
+        options=[SelectOptionDict(value=str(k), label=v) for k, v in opt_dict.items()],
+        mode=SelectSelectorMode.DROPDOWN,
+    )
 
 
 def _async_get_domains_service(hass: HomeAssistant, service_name: str):
@@ -611,9 +756,5 @@ def _async_get_entry_entities(hass: HomeAssistant, entry_id: str):
     """Get the entities related to current entry"""
     return [
         entry.entity_id
-        for entry in (
-            er.async_entries_for_config_entry(
-                er.async_get(hass), entry_id
-            )
-        )
+        for entry in (er.async_entries_for_config_entry(er.async_get(hass), entry_id))
     ]
