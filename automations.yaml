@@ -1680,11 +1680,11 @@
         }}\n{% endfor %}\n"
   mode: single
 - id: '1633552734408'
-  alias: Alarm - Enable guest mode when nanny home
+  alias: Alarm - Enable guest mode when nanny or cleaner home
   description: Enable on Thursday when we're away or leaving the house
   trigger:
   - platform: time
-    at: '14:00'
+    at: 08:20:00
   - platform: state
     entity_id:
     - zone.home
@@ -1694,7 +1694,7 @@
     weekday:
     - thu
     before: '18:30'
-    after: '13:50'
+    after: 07:00:00
   - condition: state
     entity_id: zone.home
     state: '0'
@@ -1713,12 +1713,12 @@
     code: automation
   - service: notify.all_phones
     data:
-      message: Guest modus aangezet en alarm uit voor Maartje
+      message: Guest modus aangezet en alarm uit voor Maartje of Jeanet
       data:
         persistent: true
         tag: persistent
   - delay:
-      hours: 5
+      hours: 11
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -3201,3 +3201,87 @@
       - switch.shelly_plug_badkamer_verwarming_relay
       - switch.shelly_plug_douche_verwarming_relay
   mode: single
+- id: '1673167307057'
+  alias: Humidifier - Alert when bin is full
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.master_bedroom_tank_full
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.master_bedroom_tank_full
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  action:
+  - service: notify.all_phones
+    data_template:
+      message: "\U0001F4A6 De waterbak van de ontvochtiger zit vol, zsm legen"
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1673167830535'
+  alias: Humidifier - Control the humidifier based on humidity, windows and electricity
+    pricing
+  description: Turn on between 10h and 22h only when the air is too humid and the
+    windows are closed
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time_pattern
+    minutes: /10
+  - platform: state
+    entity_id:
+    - sensor.energy_price_level
+  - platform: state
+    entity_id:
+    - binary_sensor.window_masterbed_1_openclose_sensor
+    - binary_sensor.window_masterbed_2_openclose_sensor
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: time
+        after: '10:00'
+        before: '22:00:00'
+      - condition: numeric_state
+        entity_id: sensor.master_bedroom_humidity
+        above: '50'
+      - type: is_not_open
+        condition: device
+        device_id: e495b09d382329f43540381dedb31f15
+        entity_id: binary_sensor.window_masterbed_1_openclose_sensor
+        domain: binary_sensor
+      - type: is_not_open
+        condition: device
+        device_id: 83daade23505c1645165605bc56c49d1
+        entity_id: binary_sensor.window_masterbed_2_openclose_sensor
+        domain: binary_sensor
+      - condition: state
+        entity_id: sensor.cheapest_16_hours_24h
+        state: 'True'
+        alias: The price should be not too high
+      sequence:
+      - type: turn_on
+        device_id: 07b2e94a74ca7803550f5109008d6353
+        entity_id: humidifier.master_bedroom
+        domain: humidifier
+      - device_id: 07b2e94a74ca7803550f5109008d6353
+        domain: humidifier
+        entity_id: humidifier.master_bedroom
+        type: set_mode
+        mode: Smart
+    default:
+    - type: turn_off
+      device_id: 07b2e94a74ca7803550f5109008d6353
+      entity_id: humidifier.master_bedroom
+      domain: humidifier
+  trace:
+    stored_traces: 50
+  mode: queued
+  max: 4

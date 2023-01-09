@@ -1,0 +1,23 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Picnic
+    timeout: 60000
+    content:
+      type: vertical-stack
+      cards:
+        - type: entities
+          show_header_toggle: false
+          entities:
+            - entity: sensor.picnic_cart_items_count
+              name: Boodschappen in mandje
+            - entity: sensor.picnic_cart_total_price
+              name: Prijs winkelmandje
+            - entity: sensor.picnic_selected_slot_max_order_time
+              name: Laatste bestelmoment
+            - entity: sensor.picnic_selected_slot_min_order_value
+              name: Minimale bedrag
+            - type: divider
+            - entity: sensor.picnic_last_order_total_price
+              name: Prijs laatste bestelling

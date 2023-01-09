@@ -168,6 +168,13 @@ group:
       - media_player.zithoek
       - media_player.sonos_roam
 
+  covers_downstairs:
+    name: Screens
+    icon: mdi:projector-screen-variant-outline
+    entities:
+      - cover.zijraam
+      - cover.voorraam
+
   irrigation_switches:
     name: Irrigatie zones
     icon: mdi:sprinkler-variant

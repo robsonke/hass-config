@@ -1,0 +1,37 @@
+#################################################
+#                                               #
+#                     PICNIC                    #
+#                                               #
+#################################################
+
+picnic:
+  template:
+    - simple
+  variables:
+    consider_on: >
+      [[[
+        return false;
+      ]]]
+  styles:
+    custom_fields:
+      info:
+        - text-align: right
+  custom_fields:
+    info: >
+      [[[
+        return `<span><ha-icon icon="mdi:cart-arrow-down" style="width: 1rem;"></ha-icon> ${states['sensor.picnic_cart_items_count'].state}<br/><ha-icon icon="mdi:currency-eur" style="width: 1rem;"></ha-icon> ${states['sensor.picnic_cart_total_price'].state}</span>`;
+      ]]]
+  state_display: >
+    [[[
+      return html`
+        <ha-relative-time
+          id="label"
+          class="ellipsis"
+          .hass="${hass}"
+          .datetime="${states['sensor.picnic_selected_slot_start'].state}"
+        ></ha-relative-time>`
+    ]]]
+  tap_action:
+    !include ../../dashboards/popups/picnic.yaml
+
+

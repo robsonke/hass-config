@@ -1,0 +1,136 @@
+#################################################
+#                                               #
+#                     CLIMATE                   #
+#                                               #
+#################################################
+
+climate:
+  template:
+    - simple
+  show_state: true
+  variables:
+    consider_on: >
+      [[[ return false; ]]]
+  custom_fields:
+    info: >
+      [[[ {
+      const temperature = Math.round(entity.state * 10) / 10;
+      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
+      <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
+    graph:
+      card:
+        type: custom:apexcharts-card
+        config_templates: dashboard_button_chart
+  styles:
+    custom_fields:
+      graph:
+        - bottom: 5%
+        - left: 0%
+        - width: 100%
+        - position: absolute
+      icon:
+        - fill: "#9da0a2"
+    state:
+      - color: rgba(0, 0, 0, 0)
+
+#################################################
+#                                               #
+#                 DHW Warm Water                #
+#                                               #
+#################################################
+
+dhw:
+  template:
+    - climate
+  show_state: true
+  show_name: true
+  variables:
+    consider_on: >
+      [[[
+        return entity.attributes['operation_mode'] === 'on'
+        && entity.attributes['temperature'] - entity.attributes['current_temperature'] > 5
+        && states['sensor.altherma_power_usage'].state > 1000;
+      ]]]
+  styles:
+    custom_fields:
+      icon:
+      - color: >
+          [[[
+            if (variables.heating)
+              return 'var(--red)';
+            return 'var(--custom-button-card-color-off)';
+          ]]]
+  custom_fields:
+    info: >
+      [[[
+        const currentTemperature = entity.attributes['current_temperature'];
+        const temperature = entity.attributes['temperature'];
+        const input = currentTemperature / temperature || 0;
+        if (input > 100)
+          input = 100;
+        const radius = 20.5;
+        const circumference = radius * 2 * Math.PI;
+        return `
+          <svg viewBox="0 0 50 50">
+            <style>
+              circle {
+                transform: rotate(-90deg);
+                transform-origin: 50% 50%;
+                stroke-dasharray: ${circumference};
+                stroke-dashoffset: ${circumference - input * circumference};
+              }
+              tspan {
+                font-size: 10px;
+              }
+            </style>
+            <circle cx="25" cy="25" r="${radius}" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="none" />
+            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${currentTemperature} °C</tspan></text>
+          </svg>
+        `;
+      ]]]
+  state_display: >
+    [[[
+      return "Warm water (" + entity.attributes['temperature'] + "°)";
+    ]]]
+
+#################################################
+#                                               #
+#                     ENERGY                    #
+#                                               #
+#################################################
+
+energy:
+  template:
+    - simple
+  variables:
+    consider_on: >
+      [[[ return false; ]]]
+  custom_fields:
+    info: >
+      [[[
+        let today = Math.round(states['sensor.daily_consumption_energy'].state);
+        let price = Math.round(states['sensor.current_price_electricity'].attributes.incl_tax * 100) / 100;
+        let level = states['sensor.energy_price_level'].state;
+        let color = 'var(--green)';
+        if (level === 'very_cheap') color = 'var(--blue)';
+        if (level === 'cheap') color = 'var(--green)';
+        if (level === 'normal') color = 'var(--yellow)';
+        if (level === 'expensive') color = 'var(--orange)';
+        if (level === 'very_expensive') color = 'var(--red)';
+        
+        return `<span><ha-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-icon> ${today} kWh<br/><ha-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-icon> <span style="color: ${color}">${price}</span></span>`;
+      ]]]
+  styles:
+    custom_fields:
+      icon:
+        - color: >
+            [[[
+              let color = 'var(--red)';
+              if (states['sensor.solaredge_modbus'].state/1000 > entity.state)
+                color = 'var(--green)';
+              return color;
+            ]]]
+  state_display: >
+    [[[
+      return `<span style="font-size: 1rem">-${Number.parseFloat(entity.state).toFixed(3)} / +${(Number.parseFloat(states['sensor.solaredge_modbus'].state) / 1000 ).toFixed(3)} kW</span>`;
+    ]]]

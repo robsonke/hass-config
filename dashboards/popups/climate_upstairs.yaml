@@ -25,6 +25,9 @@ browser_mod:
           view_layout:
             grid-area: thermostat
           cards:
+            - type: custom:more-info-card
+              entity: humidifier.master_bedroom
+              title: Luchtonvochtiger
             - type: entities
               show_header_toggle: false
               entities:
@@ -104,7 +107,7 @@ browser_mod:
                         name: Verbruik
                       - entity: sensor.eurom_alutherm_energy_daily
                         name: Verbruik vandaag (kWh)
-                  - type: 'custom:simple-thermostat'
+                  - type: custom:simple-thermostat
                     entity: climate.eurom_alutherm_baseboard_heater
                     version: 3
                     layout:
