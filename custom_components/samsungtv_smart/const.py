@@ -47,7 +47,6 @@ CONF_EXT_POWER_ENTITY = "ext_power_entity"
 CONF_LOAD_ALL_APPS = "load_all_apps"
 CONF_LOGO_OPTION = "logo_option"
 CONF_PING_PORT = "ping_port"
-CONF_POWER_ON_DELAY = "power_on_delay"
 CONF_POWER_ON_METHOD = "power_on_method"
 CONF_SHOW_CHANNEL_NR = "show_channel_number"
 CONF_SOURCE_LIST = "source_list"
@@ -68,7 +67,6 @@ CONF_SCAN_APP_HTTP = "scan_app_http"
 
 DEFAULT_APP = "TV/HDMI"
 DEFAULT_PORT = 8001
-DEFAULT_POWER_ON_DELAY = 30
 DEFAULT_SOURCE_LIST = {"TV": "KEY_TV", "HDMI": "KEY_HDMI"}
 DEFAULT_TIMEOUT = 6
 
@@ -91,8 +89,10 @@ SERVICE_TURN_ON = "turn_on"
 SIGNAL_CONFIG_ENTITY = f"{DOMAIN}_config"
 
 STD_APP_LIST = {
-    # app_id: smartthings app id (if different and available)
-    "org.tizen.browser": {"st_app_id": "", "logo": "tizenbrowser.png"},  # Internet
+    "org.tizen.browser": {
+        "st_app_id": "",
+        "logo": "tizenbrowser.png",
+    },  # Internet
     "11101200001": {
         "st_app_id": "RN1MCdNq8t.Netflix",
         "logo": "netflix.png",
@@ -109,7 +109,10 @@ STD_APP_LIST = {
         "st_app_id": "org.tizen.ignition",
         "logo": "primevideo.png",
     },  # Prime Video
-    # "3201512006785": {"st_app_id": "evKhCgZelL.AmazonIgnitionLauncher2", "logo": ""},  # Prime Video
+    # "3201512006785": {
+    #     "st_app_id": "evKhCgZelL.AmazonIgnitionLauncher2",
+    #     "logo": "",
+    # },  # Prime Video
     "3201901017640": {
         "st_app_id": "MCmYXNxgcu.DisneyPlus",
         "logo": "disneyplus.png",
@@ -122,10 +125,20 @@ STD_APP_LIST = {
         "st_app_id": "4ovn894vo9.Facebook",
         "logo": "facebook.png",
     },  # Facebook
-    "3201806016390": {"st_app_id": "yu1NM3vHsU.DAZN", "logo": "dazn.png"},  # Dazn
-    "3201601007250": {"st_app_id": "QizQxC7CUf.PlayMovies", "logo": ""},  # Google Play
+    "3201806016390": {
+        "st_app_id": "yu1NM3vHsU.DAZN",
+        "logo": "dazn.png",
+    },  # Dazn
+    "3201601007250": {
+        "st_app_id": "QizQxC7CUf.PlayMovies",
+        "logo": "",
+    },  # Google Play
     "3201606009684": {
         "st_app_id": "rJeHak5zRg.Spotify",
         "logo": "spotify.png",
     },  # Spotify
+    "3201512006963": {
+        "st_app_id": "kIciSQlYEM.plex",
+        "logo": "",
+    },  # Plex
 }

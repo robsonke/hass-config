@@ -12,6 +12,7 @@ substitutions:
   password: !secret wifi_password
   ip: !secret sonoff4chpro_garden_ip
   project: Garden irrigation
+  api_key: !secret api_key
 
 esphome:
   name: ${device_name}
@@ -74,6 +75,8 @@ logger:
 
 # Enable Home Assistant API
 api:
+  # encryption:
+  #   key: ${api_key}
 
 ota:
   password: "8789ff569642774d2e2ad47f88ffa234"

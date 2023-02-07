@@ -20,6 +20,11 @@ browser_mod:
         - type: custom:decluttering-card
           template: light_button
           variables: 
+            - entity: light.woodshed_light
+            - title: Houthok
+        - type: custom:decluttering-card
+          template: light_button
+          variables: 
             - entity: light.dimmer_cabinroof_level
             - title: Veranda
         - type: custom:decluttering-card

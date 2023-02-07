@@ -3,13 +3,13 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 from homeassistant.core import HomeAssistant
 
 from ..aliases import MANUFACTURER_DIRECTORY_MAPPING
 from ..const import DATA_PROFILE_LIBRARY, DOMAIN
-from .power_profile import DEVICE_DOMAINS, DeviceType, PowerProfile
+from .power_profile import DEVICE_DOMAINS, PowerProfile
 
 BUILT_IN_DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), "../data")
 CUSTOM_DATA_DIRECTORY = "powercalc-custom-models"
@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ProfileLibrary:
-    def __init__(self, hass: HomeAssistant, extra_data_directories: list = None):
+    def __init__(self, hass: HomeAssistant):
         self._hass = hass
         self._data_directories: list[str] = [
             d
@@ -29,8 +29,6 @@ class ProfileLibrary:
             )
             if os.path.exists(d)
         ]
-        if extra_data_directories:
-            self._data_directories.extend(extra_data_directories)
         self._profiles: dict[str, list[PowerProfile]] = {}
         self._manufacturer_device_types: dict[str, list] | None = None
 
@@ -150,7 +148,7 @@ class ProfileLibrary:
                     ModelInfo(manufacturer, model),
                     os.path.join(manufacturer_dir, model),
                 )
-                if power_profile is None:
+                if power_profile is None:  # pragma: no cover
                     continue
 
                 profiles.append(power_profile)

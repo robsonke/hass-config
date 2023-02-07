@@ -2,9 +2,9 @@ substitutions:
   devicename: "shelly-plug-s-4-office"
   channel_1: Relay
   ip: !secret shellyplug4_ip
-
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  api_key: !secret api_key
 
   # Higher value gives lower watt readout
   current_res: "0.00290"
@@ -34,7 +34,8 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: ${password}
+  encryption:
+    key: ${api_key}
 
 ota:
   password: ${password}

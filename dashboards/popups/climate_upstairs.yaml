@@ -31,36 +31,34 @@ browser_mod:
             - type: entities
               show_header_toggle: false
               entities:
-                - entity: switch.kasa_infrarood_slaapkamer
-                  name: Infraroodpanel logeerkamer
+                - entity: switch.kasa_infrarood_eva
+                  name: Infraroodpanel Eva
             - type: conditional
               conditions:
-                - entity: switch.kasa_infrarood_slaapkamer
+                - entity: switch.kasa_infrarood_eva
                   state_not: "off"
               card:
                 type: entities
                 show_header_toggle: false
                 entities:
-                  - entity: sensor.infrarood_slaapkamer_current_consumption
+                  - entity: sensor.infrarood_eva_current_consumption
             - type: entities
               show_header_toggle: false
               entities:
-                - entity: switch.infraroodpanel_eva
+                - entity: switch.infraroodpanel_eva2
             - type: conditional
               conditions:
-                - entity: switch.infraroodpanel_eva
+                - entity: switch.infraroodpanel_eva2
                   state_not: "off"
               card:
                 type: entities
                 show_header_toggle: false
                 entities:
-                  - entity: sensor.infraroodpanel_eva_current_consumption
+                  - entity: sensor.infraroodpanel_eva2_current_consumption
 
             - type: entities
               show_header_toggle: false
               entities:
-                - entity: switch.kasa_infrarood_slaapkamer
-                  name: Infraroodpanel logeerkamer
                 - entity: switch.shelly_plug_badkamer_verwarming_relay
             - type: conditional
               conditions:
@@ -146,6 +144,14 @@ browser_mod:
                   group_by:
                     func: avg
                     duration: 1h
+                - entity: sensor.climate_sensor_eva2_temperature
+                  name: Eva2
+                  color: '#e74c3c'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
                 - entity: sensor.climate_sensor_guestroom_temperature
                   name: Logeerkamer
                   color: '#e74c3c'
@@ -169,6 +175,14 @@ browser_mod:
                     duration: 1h
                 - entity: sensor.climate_sensor_eva_humidity
                   name: Eva
+                  color: 'blue'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 1h
+                - entity: sensor.climate_sensor_eva2_humidity
+                  name: Eva2
                   color: 'blue'
                   type: area
                   fill_raw: last

@@ -14,14 +14,14 @@ sensor:
   source: sensor.altherma_power_usage
   name: Altherma Energy Usage
   unique_id: altherma_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.altherma_power_usage_secundary
   name: Altherma Energy Usage Secundary
   unique_id: altherma_energy_usage_secundary
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 
@@ -29,7 +29,7 @@ sensor:
   source: sensor.ix3_charging_power
   name: iX3 Charging Power
   unique_id: ix3_charging_energy
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 
@@ -37,35 +37,35 @@ sensor:
   source: sensor.shelly_plug_office_power
   name: Shelly Plug Office Energy Usage
   unique_id: shelly_plug_office_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_droger_power
   name: Shelly Plug Droger Energy Usage
   unique_id: shelly_plug_droger_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_douche_verwarming_power
   name: Shelly Plug Douche Verwarming Energy Usage
   unique_id: shelly_plug_douche_verwarming_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_badkamer_verwarming_power
   name: Shelly Plug Badkamer Verwarming Energy Usage
   unique_id: shelly_plug_badkamer_verwarming_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_kachel_slaapkamer_power
   name: Shelly Plug Slaapkamer Verwarming Energy Usage
   unique_id: shelly_plug_slaapkamer_verwarming_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
@@ -86,14 +86,14 @@ sensor:
   source: sensor.shelly_plug_s_8_fridge1_power
   name: Shelly Plug Vriezer Schuur Energy Usage
   unique_id: shelly_plug_vriezer_schuur_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 - platform: integration
   source: sensor.shelly_plug_koelkast_power
   name: Shelly Plug Koelkast Energy Usage
   unique_id: shelly_plug_koelkast_energy_usage
-  method: trapezoidal
+  method: left
   unit_prefix: k
   round: 2
 
@@ -197,7 +197,7 @@ sensor:
     User-Agent: REST
 
 - platform: nordpool_diff
-  nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_009
+  nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_021
 
 
 # Lots of power sensors based on powercalc for existing entities
@@ -354,12 +354,12 @@ sensor:
             # 4 * 5.5W
             min_power: 0.5
             max_power: 22
-        - entity_id: light.zolder
+        - entity_id: light.eva
           linear:
             # 4 * 5.5W
             min_power: 0.5
             max_power: 22
-        - entity_id: light.slaapkamer_eva
+        - entity_id: light.slaapkamer_eva2
           linear:
             # 4 * 5.5W
             min_power: 0.5

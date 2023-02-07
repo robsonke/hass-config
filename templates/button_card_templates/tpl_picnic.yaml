@@ -23,12 +23,16 @@ picnic:
       ]]]
   state_display: >
     [[[
+      let deliveryDate = states['sensor.picnic_selected_slot_start'].state;
+      if (states['sensor.picnic_selected_slot_start'].state === "unknown")
+        deliveryDate = states['sensor.picnic_next_delivery_slot_start'].state;
+
       return html`
         <ha-relative-time
           id="label"
           class="ellipsis"
           .hass="${hass}"
-          .datetime="${states['sensor.picnic_selected_slot_start'].state}"
+          .datetime="${deliveryDate}"
         ></ha-relative-time>`
     ]]]
   tap_action:

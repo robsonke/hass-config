@@ -116,8 +116,8 @@ views:
           - height: 110px
         type: custom:button-card
       - entity: binary_sensor.frontdoor_openclose_sensor
-        label: "[[[\n  var state = states['lock.voordeur_slot'].state;\n  return (state\
-          \ == 'unlocked' ? 'ontgrendeld' : 'vergrendeld');\n]]]\n"
+        label: "[[[\n  var state = states['lock.nuki_voordeur_slot_lock'].state;\n\
+          \  return (state == 'unlocked' ? 'ontgrendeld' : 'vergrendeld');\n]]]\n"
         show_label: true
         show_name: true
         styles:
@@ -311,37 +311,42 @@ views:
     title: Media
     type: vertical-stack
   - cards:
-    - cards:
-      - entities:
-        - entity: binary_sensor.doorbell_lw_doorbell
-          name: Doorbell ding
-          secondary_info: last-changed
-        - binary_sensor.frontdoor_openclose_sensor
-        - entity: binary_sensor.doorbell_lw_motion
-          name: Last motion
-          secondary_info: last-changed
-        show_header_toggle: false
-        type: entities
+    - entities:
+      - entity: binary_sensor.doorbell_lw_doorbell
+        name: Doorbell ding
+        secondary_info: last-changed
+      - binary_sensor.frontdoor_openclose_sensor
+      - entity: binary_sensor.doorbell_lw_motion
+        name: Last motion
+        secondary_info: last-changed
+      show_header_toggle: false
+      type: entities
+    - camera_image: camera.doorbell
+      cameras:
       - camera_entity: camera.doorbell
-        camera_image: camera.doorbell
+        camera_name: Voordeur
+        live_provider: webrtc-card
+        webrtc_card:
+          entity: camera.doorbell_camera_webrtc
+      dimensions:
+        aspect_ratio_mode: unconstrained
+      entities:
+      - entity: binary_sensor.doorbell_lw_doorbell
+      - entity: binary_sensor.doorbell_lw_motion
+      event_viewer:
         controls:
-          nextprev: chevrons
-        dimensions:
-          aspect_ratio_mode: unconstrained
-        entities:
-        - entity: binary_sensor.doorbell_lw_doorbell
-        - entity: binary_sensor.doorbell_lw_motion
-        frigate_camera_name: Voordeur
-        live_provider: webrtc
-        menu_buttons:
+          next_previous:
+            style: chevrons
+      live:
+        webrtc_card: {}
+      menu:
+        buttons:
           frigate: false
           frigate_ui: false
-        menu_mode: overlay-top
-        type: custom:frigate-card
-        view_default: live
-        webrtc:
-          entity: camera.doorbell_camera_webrtc
-      type: custom:vertical-stack-in-card
+        mode: overlay-top
+      type: custom:frigate-card
+      view:
+        default: live
     - camera_image: camera.bijkeuken
       camera_view: live
       entity: camera.bijkeuken
@@ -698,38 +703,43 @@ views:
     title: Camera's
     type: vertical-stack
   - cards:
-    - cards:
-      - entities:
-        - entity: binary_sensor.doorbell_lw_doorbell
-          name: Doorbell ding
-          secondary_info: last-changed
-        - binary_sensor.frontdoor_openclose_sensor
-        - entity: binary_sensor.doorbell_lw_motion
-          name: Last motion
-          secondary_info: last-changed
-        show_header_toggle: false
-        title: Doorbell
-        type: entities
+    - entities:
+      - entity: binary_sensor.doorbell_lw_doorbell
+        name: Doorbell ding
+        secondary_info: last-changed
+      - binary_sensor.frontdoor_openclose_sensor
+      - entity: binary_sensor.doorbell_lw_motion
+        name: Last motion
+        secondary_info: last-changed
+      show_header_toggle: false
+      type: entities
+    - camera_image: camera.doorbell
+      cameras:
       - camera_entity: camera.doorbell
+        camera_name: Voordeur
+        live_provider: webrtc-card
+        webrtc_card:
+          entity: camera.doorbell_camera_webrtc
+      dimensions:
+        aspect_ratio_mode: unconstrained
+      entities:
+      - entity: binary_sensor.doorbell_lw_doorbell
+      - entity: binary_sensor.doorbell_lw_motion
+      event_viewer:
         controls:
-          nextprev: chevrons
-        dimensions:
-          aspect_ratio_mode: unconstrained
-        entities:
-        - entity: binary_sensor.doorbell_lw_doorbell
-        - entity: binary_sensor.doorbell_lw_motion
-        frigate_camera_name: Voordeur
-        live_provider: webrtc
-        menu_buttons:
+          next_previous:
+            style: chevrons
+      live:
+        webrtc_card: {}
+      menu:
+        buttons:
           frigate: false
           frigate_ui: false
-        menu_mode: overlay-top
-        type: custom:frigate-card
-        view_default: live
-        webrtc:
-          entity: camera.doorbell_camera_webrtc
-      type: custom:vertical-stack-in-card
-    title: Voordeur
+        mode: overlay-top
+      type: custom:frigate-card
+      view:
+        default: live
+    title: Camera's
     type: vertical-stack
   - cards:
     - artwork: cover
@@ -942,7 +952,12 @@ views:
     - entity: switch.infraroodpanel_eva
     show_header_toggle: false
     type: entities
-  - camera_entity: camera.evabed
+  - cameras:
+    - camera_entity: camera.evabed
+      camera_name: Eva
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.eva_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -951,12 +966,8 @@ views:
           style: chevrons
         thumbnails:
           mode: below
-    frigate:
-      camera_name: Eva
     live:
-      provider: webrtc
-      webrtc:
-        entity: camera.eva_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1059,7 +1070,12 @@ views:
   title: Boven
 - badges: []
   cards:
-  - camera_entity: camera.evabed
+  - cameras:
+    - camera_entity: camera.evabed
+      camera_name: Eva
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.eva_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1068,12 +1084,8 @@ views:
           style: chevrons
         thumbnails:
           mode: below
-    frigate:
-      camera_name: Eva
     live:
-      provider: webrtc
-      webrtc:
-        entity: camera.eva_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1084,19 +1096,20 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.bijkeuken
+  - cameras:
+    - camera_entity: camera.bijkeuken
+      camera_name: Bijkeuken
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.bijkeuken_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
       controls:
         next_previous:
           style: chevrons
-    frigate:
-      camera_name: Bijkeuken
     live:
-      provider: webrtc
-      webrtc:
-        entity: camera.bijkeuken_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1106,19 +1119,20 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.terras
+  - cameras:
+    - camera_entity: camera.terras
+      camera_name: Achtertuin
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.reoachtertuin_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
       controls:
         next_previous:
           style: chevrons
-    frigate:
-      camera_name: Achtertuin
     live:
-      provider: webrtc
-      webrtc:
-        entity: camera.reoachtertuin_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1127,7 +1141,12 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.achterdeur
+  - cameras:
+    - camera_entity: camera.achterdeur
+      camera_name: Achterdeur
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.reoachterdeur_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1136,12 +1155,8 @@ views:
           style: chevrons
         thumbnails:
           mode: below
-    frigate:
-      camera_name: Achterdeur
     live:
-      provider: webrtc
-      webrtc:
-        entity: camera.reoachterdeur_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1150,7 +1165,12 @@ views:
     type: custom:frigate-card
     view:
       default: live
-  - camera_entity: camera.doorbell
+  - cameras:
+    - camera_entity: camera.doorbell
+      camera_name: Voordeur
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.doorbell_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     entities:
@@ -1160,16 +1180,12 @@ views:
       controls:
         next_previous:
           style: chevrons
-    frigate:
-      camera_name: Voordeur
     live:
       controls:
         thumbnails:
           media: snapshots
           mode: below
-      provider: webrtc
-      webrtc:
-        entity: camera.doorbell_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1190,7 +1206,12 @@ views:
     state_color: false
     title: Camera detectie
     type: entities
-  - camera_entity: camera.veranda
+  - cameras:
+    - camera_entity: camera.veranda
+      camera_name: Veranda
+      live_provider: webrtc-card
+      webrtc_card:
+        entity: camera.reoveranda_camera_webrtc
     dimensions:
       aspect_ratio_mode: unconstrained
     event_viewer:
@@ -1199,12 +1220,8 @@ views:
           style: chevrons
         thumbnails:
           mode: below
-    frigate:
-      camera_name: Veranda
     live:
-      provider: webrtc
-      webrtc:
-        entity: camera.reoveranda_camera_webrtc
+      webrtc_card: {}
     menu:
       buttons:
         frigate: false
@@ -1733,3 +1750,10 @@ views:
   path: test
   title: ''
   type: custom:grid-layout
+- badges: []
+  cards: []
+  icon: mdi:google
+  path: hub
+  theme: dark_teal
+  title: Hub
+  type: sidebar

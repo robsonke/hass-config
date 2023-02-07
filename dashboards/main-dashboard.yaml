@@ -428,7 +428,7 @@ views:
                 [[[
                   let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off' && states['sensor.eurom_alutherm_power'].state > 50;
                   heating = heating || (states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50);
-                  heating = heating || states['switch.kasa_infrarood_slaapkamer'].state === 'on' || states['switch.infraroodpanel_eva'].state === 'on'
+                  heating = heating || states['switch.kasa_infrarood_eva'].state === 'on' || states['switch.infraroodpanel_eva2'].state === 'on'
                   return heating;
                 ]]]
             custom_fields:
@@ -580,11 +580,11 @@ views:
             name: >
               <ha-icon icon="mdi:fire"></ha-icon> Stook Alert
             tap_action:
-              action: more-info
+              !include popups/footer_stookalert.yaml
             variables:
               notify: >
                 [[[
-                  return entity.state === 'on';
+                  return entity.state === 'on' || states['sensor.stookwijzer'] !== 'blauw';
                 ]]]
           - type: custom:button-card
             template: footer

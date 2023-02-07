@@ -737,8 +737,6 @@ icon_name:
 
 footer:
   template:
-    #- settings
-    #- tilt
     - extra_styles
   variables:
     notify: >

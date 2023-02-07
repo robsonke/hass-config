@@ -363,7 +363,7 @@ class SolcastApi:
             lastday = dt.now().date() + timedelta(days=7)
 
             #if dopast:
-            _detailedForcost = []
+            _detailedForcast = []
 
             _s = {}
 
@@ -452,13 +452,16 @@ class SolcastApi:
                                     if "pv_estimate10" in inset_data and "pv_estimate90" in inset_data:
                                         newElement["pv_estimate10"] = inset_data["pv_estimate10"]
                                         newElement["pv_estimate90"] = inset_data["pv_estimate90"]
+                                    else:
+                                        newElement["pv_estimate10"] = 0
+                                        newElement["pv_estimate90"] = 0
                                     _data.append(newElement)
                                 else:
                                     #_LOGGER.debug("IS old data to fill in the missing data but didnt find any match so adding empty item as 0 value")
-                                    _data.append({"period_start": findme.astimezone(),"pv_estimate": 0})
+                                    _data.append({"period_start": findme.astimezone(),"pv_estimate": 0, "pv_estimate10": 0, "pv_estimate90": 0})
                         else:
                             #_LOGGER.debug("No old data to fill in the missing data so adding empty item as 0 value")
-                            _data.append({"period_start": findme.astimezone(),"pv_estimate": 0})
+                            _data.append({"period_start": findme.astimezone(),"pv_estimate": 0, "pv_estimate10": 0, "pv_estimate90": 0})
 
                 _data = sorted(_data, key=itemgetter("period_start"))
 
@@ -476,11 +479,13 @@ class SolcastApi:
                 # _LOGGER.debug(_data[0])
 
                 # Combine the data from the current solar array with the previous ones
-                if len(_detailedForcost) == 0:
-                    _detailedForcost = _data
+                if len(_detailedForcast) == 0:
+                    _LOGGER.debug("_detailedForcost len is zero")
+                    _detailedForcast = _data
                 else:
-                    for number in range(len(_detailedForcost)):
-                        p = _detailedForcost[number]
+                    _LOGGER.debug("hmmm _detailedForcost len is not zero")
+                    for number in range(len(_detailedForcast)):
+                        p = _detailedForcast[number]
                         p["pv_estimate"] = float(p["pv_estimate"]) + float(_data[number]["pv_estimate"])
                         # Merge the 10 and 90 % estimates. But only leave the keys in the dict if they are present in both the sources
                         has10 = "pv_estimate10" in p
@@ -496,7 +501,7 @@ class SolcastApi:
 
             # Combine pairs of samples to get slot lengths of 1 hour
             _newData = []
-            it       = iter(_detailedForcost)
+            it       = iter(_detailedForcast)
             for x in it:
                 a = x
                 b = next(it)
@@ -515,7 +520,7 @@ class SolcastApi:
             else:
                 #self._data = sorted(self._data, key=itemgetter("period_start"))
                 self._data = dict({"forecasts": _newData,
-                                    "detailedForecasts": _detailedForcost})
+                                    "detailedForecasts": _detailedForcast})
 
                 self._data["energy"] = {"wh_hours": self.makeenergydict()}
 

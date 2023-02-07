@@ -1,9 +1,13 @@
 """Support for interface with an Samsung TV."""
+from __future__ import annotations
+
 import asyncio
 from datetime import datetime, timedelta
+from enum import Enum
 import logging
 from socket import error as socketError
 from time import sleep
+from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
@@ -14,7 +18,9 @@ from websocket import WebSocketTimeoutException
 
 from homeassistant.components import media_source
 from homeassistant.components.media_player import (
+    ATTR_MEDIA_ENQUEUE,
     MediaPlayerDeviceClass,
+    MediaPlayerEnqueue,
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
@@ -43,16 +49,17 @@ from homeassistant.const import (
 from homeassistant.core import DOMAIN as HA_DOMAIN, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.service import CONF_SERVICE_ENTITY_ID, async_call_from_config
 from homeassistant.helpers.storage import STORAGE_DIR
 from homeassistant.util import Throttle, dt as dt_util
 from homeassistant.util.async_ import run_callback_threadsafe
 
-from .api.samsungws import ArtModeStatus, SamsungTVWS
+from .api.samsungcast import SamsungCastTube
+from .api.samsungws import ArtModeStatus, SamsungTVAsyncRest, SamsungTVWS
 from .api.smartthings import SmartThingsTV, STStatus
 from .api.upnp import SamsungUPnP
 from .const import (
@@ -67,7 +74,6 @@ from .const import (
     CONF_EXT_POWER_ENTITY,
     CONF_LOGO_OPTION,
     CONF_PING_PORT,
-    CONF_POWER_ON_DELAY,
     CONF_POWER_ON_METHOD,
     CONF_SHOW_CHANNEL_NR,
     CONF_SOURCE_LIST,
@@ -84,7 +90,6 @@ from .const import (
     DATA_OPTIONS,
     DEFAULT_APP,
     DEFAULT_PORT,
-    DEFAULT_POWER_ON_DELAY,
     DEFAULT_SOURCE_LIST,
     DEFAULT_TIMEOUT,
     DOMAIN,
@@ -125,16 +130,14 @@ MEDIA_TYPE_BROWSER = "browser"
 MEDIA_TYPE_KEY = "send_key"
 MEDIA_TYPE_TEXT = "send_text"
 POWER_OFF_DELAY = 20
-POWER_ON_DELAY = 5
 ST_APP_SEPARATOR = "/"
 ST_UPDATE_TIMEOUT = 5
 
 YT_APP_IDS = ("111299001912", "9Ur5IzDKqV.TizenYouTube")
 YT_VIDEO_QS = "v"
+YT_SVIDEO = "/shorts/"
 
 MAX_CONTROLLED_ENTITY = 4
-
-MIN_TIME_BETWEEN_APP_SCANS = timedelta(seconds=60)
 
 SUPPORT_SAMSUNGTV_SMART = (
     MediaPlayerEntityFeature.PAUSE
@@ -151,6 +154,7 @@ SUPPORT_SAMSUNGTV_SMART = (
     | MediaPlayerEntityFeature.STOP
 )
 
+MIN_TIME_BETWEEN_ST_UPDATE = timedelta(seconds=5)
 SCAN_INTERVAL = timedelta(seconds=15)
 
 _LOGGER = logging.getLogger(__name__)
@@ -162,7 +166,7 @@ async def async_setup_entry(
     """Set up the Samsung TV from a config entry."""
 
     # session used by aiohttp
-    session = hass.helpers.aiohttp_client.async_get_clientsession()
+    session = async_get_clientsession(hass)
     local_logo_path = hass.data[DOMAIN].get(LOCAL_LOGO_PATH)
 
     config = entry.data.copy()
@@ -233,6 +237,14 @@ def _get_default_app_info(app_id):
     return None, None, None
 
 
+class ArtModeSupport(Enum):
+    """Define ArtMode support lever."""
+
+    UNSUPPORTED = 0
+    PARTIAL = 1
+    FULL = 2
+
+
 class SamsungTVDevice(MediaPlayerEntity):
     """Representation of a Samsung TV."""
 
@@ -249,7 +261,6 @@ class SamsungTVDevice(MediaPlayerEntity):
         """Initialize the Samsung device."""
 
         self._entry_data = entry_data
-        self._session = session
         self._host = config[CONF_HOST]
         self._mac = config.get(CONF_MAC)
 
@@ -280,6 +291,9 @@ class SamsungTVDevice(MediaPlayerEntity):
             )
         )
 
+        # Device information from TV
+        self._device_info: dict[str, Any] | None = None
+
         # Save a reference to the imported config
         self._broadcast = config.get(CONF_BROADCAST_ADDRESS)
 
@@ -291,11 +305,6 @@ class SamsungTVDevice(MediaPlayerEntity):
         # sending the next command to avoid turning the TV back ON).
         self._started_up = False
         self._end_of_power_off = None
-        self._power_on_detected = None
-        self._delay_cancel = None
-        self._set_update_forced = 0
-        self._delay_status_update = False
-        self._update_forced_time = None
         self._fake_on = None
         self._delayed_set_source = None
         self._delayed_set_source_time = None
@@ -314,28 +323,20 @@ class SamsungTVDevice(MediaPlayerEntity):
         self._channel_list = None
 
         # config options reloaded on change
-        self._ping_port: int = 0
         self._use_st_status: bool = True
         self._use_channel_info: bool = True
         self._use_mute_check: bool = False
         self._show_channel_number: bool = False
 
-        # update config options for first time
-        self._update_config_options(True)
-
         # ws initialization
         ws_name = config.get(CONF_WS_NAME, self._attr_name)
-        ws_port = config.get(CONF_PORT, DEFAULT_PORT)
-        ws_timeout = config.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
-        ws_token = config.get(CONF_TOKEN)
         self._ws = SamsungTVWS(
-            name=f"{WS_PREFIX} {ws_name}",  # this is the name shown in the TV external device.
             host=self._host,
-            port=ws_port,
-            timeout=ws_timeout,
+            token=config.get(CONF_TOKEN),
+            port=config.get(CONF_PORT, DEFAULT_PORT),
+            timeout=config.get(CONF_TIMEOUT, DEFAULT_TIMEOUT),
             key_press_delay=KEYPRESS_DEFAULT_DELAY,
-            token=ws_token,
-            app_list=self._app_list,
+            name=f"{WS_PREFIX} {ws_name}",  # this is the name shown in the TV external device.
         )
 
         def new_token_callback():
@@ -360,6 +361,7 @@ class SamsungTVDevice(MediaPlayerEntity):
             )
 
         self._st_error_count = 0
+        self._st_last_exc = None
         self._setvolumebyst = False
 
         # logo control initializzation
@@ -371,9 +373,16 @@ class SamsungTVDevice(MediaPlayerEntity):
             session=session,
         )
 
+        # YouTube cast
+        self._cast_api = SamsungCastTube(self._host)
+
+        # update config options for first time
+        self._update_config_options(True)
+
     async def async_added_to_hass(self):
         """Set config parameter when add to hass."""
         await super().async_added_to_hass()
+
         # this will update config options when changed
         self.async_on_remove(
             async_dispatcher_connect(
@@ -381,9 +390,17 @@ class SamsungTVDevice(MediaPlayerEntity):
             )
         )
 
+        def update_status_callback():
+            """Update current TV status."""
+            run_callback_threadsafe(self.hass.loop, self._status_changed_callback)
+
+        self._ws.register_status_callback(update_status_callback)
+        await self.hass.async_add_executor_job(self._ws.start_poll)
+
     async def async_will_remove_from_hass(self):
         """Run when entity will be removed from hass."""
-        await self.hass.async_add_executor_job(self._ws.stop_client)
+        self._ws.unregister_status_callback()
+        await self.hass.async_add_executor_job(self._ws.stop_poll)
 
     @staticmethod
     def _get_add_dev_info(dev_model, dev_name, dev_os, dev_mac):
@@ -458,11 +475,18 @@ class SamsungTVDevice(MediaPlayerEntity):
     def _update_config_options(self, first_load=False):
         """Update config options."""
         self._load_tv_lists(first_load)
-        self._ping_port = self._get_option(CONF_PING_PORT, 0)
         self._use_st_status = self._get_option(CONF_USE_ST_STATUS_INFO, True)
         self._use_channel_info = self._get_option(CONF_USE_ST_CHANNEL_INFO, True)
         self._use_mute_check = self._get_option(CONF_USE_MUTE_CHECK, False)
         self._show_channel_number = self._get_option(CONF_SHOW_CHANNEL_NR, False)
+        self._ws.update_app_list(self._app_list)
+        self._ws.set_ping_port(self._get_option(CONF_PING_PORT, 0))
+
+    @callback
+    def _status_changed_callback(self):
+        """Called when status changed."""
+        _LOGGER.debug("status_changed_callback called")
+        self.async_schedule_update_ha_state(True)
 
     def _get_option(self, param, default=None):
         """Get option from entity configuration."""
@@ -471,6 +495,12 @@ class SamsungTVDevice(MediaPlayerEntity):
         option = self._entry_data[DATA_OPTIONS].get(param)
         return default if option is None else option
 
+    def _get_device_spec(self, key: str) -> Any | None:
+        """Check if a flag exists in latest device info."""
+        if not ((info := self._device_info) and (device := info.get("device"))):
+            return None
+        return device.get(key)
+
     def _power_off_in_progress(self):
         """Check if a power off request is in progress."""
         return (
@@ -478,81 +508,9 @@ class SamsungTVDevice(MediaPlayerEntity):
             and self._end_of_power_off > dt_util.utcnow()
         )
 
-    def _update_forced(self):
-        """Check if a forced update is required."""
-        if self._delay_status_update:
-            self._delay_status_update = False
-            return True
-
-        if self._delay_cancel:
-            self._delay_cancel()
-            self._delay_cancel = None
-
-        if self._set_update_forced > 0:
-            self._set_update_forced -= 1
-            self._update_forced_time = datetime.utcnow()
-            self._power_on_detected = datetime.min
-            return False
-
-        if not self._update_forced_time:
-            return False
-
-        call_time = datetime.utcnow()
-        difference = (call_time - self._update_forced_time).total_seconds()
-        if difference >= 10:
-            self._update_forced_time = None
-            return False
-        return True
-
-    def _delay_update(self, delay_sec: int):
-        """Delay the update for a specific interval"""
-        if self._set_update_forced <= 0:
-            return
-
-        if self._state == MediaPlayerState.ON:
-            self._set_update_forced = 0
-            return
-
-        @callback
-        def update_status(_):
-            self._delay_status_update = False
-            if self._state != MediaPlayerState.ON:
-                self.async_schedule_update_ha_state(True)
-            else:
-                self._set_update_forced = 0
-
-        self._delay_status_update = True
-        self._delay_cancel = async_call_later(self.hass, delay_sec, update_status)
-
-    def _delay_power_on(self, result):
-        """Manage delay for power on status."""
-        if result and self._state == MediaPlayerState.OFF:
-
-            power_on_delay = self._get_option(
-                CONF_POWER_ON_DELAY, DEFAULT_POWER_ON_DELAY
-            )
-
-            if power_on_delay > 0:
-                if not self._power_on_detected:
-                    self._power_on_detected = datetime.utcnow()
-                    return False
-                difference = (
-                    datetime.utcnow() - self._power_on_detected
-                ).total_seconds()
-                if difference < power_on_delay:
-                    return False
-        else:
-            if self._ws.artmode_status == ArtModeStatus.On:
-                self._power_on_detected = datetime.min
-            else:
-                self._power_on_detected = None
-
-        return result
-
     async def _update_volume_info(self):
         """Update the volume info."""
         if self._state == MediaPlayerState.ON:
-
             # if self._st and self._setvolumebyst:
             #     self._attr_volume_level = self._st.volume
             #     self._attr_is_volume_muted = self._st.muted
@@ -570,10 +528,10 @@ class SamsungTVDevice(MediaPlayerEntity):
             return True
         return not self.hass.states.is_state(ext_entity, STATE_OFF)
 
-    def _ping_device(self):
-        """Ping TV with WS and others method to check power status."""
+    def _check_status(self):
+        """Check TV status with WS and others method to check power status."""
 
-        result = self._ws.ping_device(self._ping_port)
+        result = self._ws.is_connected
         if result and self._st:
             if (
                 self._st.state == STStatus.STATE_OFF
@@ -587,15 +545,8 @@ class SamsungTVDevice(MediaPlayerEntity):
             result = self._get_external_entity_status()
 
         if result:
-            self._ws.start_client()
-            self._ws.get_running_app()
-            if (
-                self._ws.artmode_status == ArtModeStatus.On
-                or self._ws.artmode_status == ArtModeStatus.Unavailable
-            ):
+            if self._ws.artmode_status in (ArtModeStatus.On, ArtModeStatus.Unavailable):
                 result = False
-        else:
-            self._ws.stop_client()
 
         return result
 
@@ -603,20 +554,20 @@ class SamsungTVDevice(MediaPlayerEntity):
     def _get_running_app(self):
         """Retrieve name of running apps."""
 
+        st_running_app = None
         if self._app_list is not None:
-
             for app, app_id in self._app_list.items():
-                if self._ws.running_app:
-                    if app_id == self._ws.running_app:
-                        self._running_app = app
-                        return
+                if app_running := self._ws.is_app_running(app_id):
+                    self._running_app = app
+                    return
+                if app_running is False:
+                    continue
                 if self._st and self._st.channel_name != "":
                     st_app_id = self._app_list_st.get(app, "")
                     if st_app_id == self._st.channel_name:
-                        self._running_app = app
-                        return
+                        st_running_app = app
 
-        self._running_app = DEFAULT_APP
+        self._running_app = st_running_app or DEFAULT_APP
 
     def _get_st_sources(self):
         """Get sources from SmartThings."""
@@ -670,8 +621,7 @@ class SamsungTVDevice(MediaPlayerEntity):
             self._source_list = st_source_list
             self._default_source_used = False
 
-    @Throttle(MIN_TIME_BETWEEN_APP_SCANS)
-    def _gen_installed_app_list(self, **kwargs):
+    def _gen_installed_app_list(self):
         """Get apps installed on TV."""
 
         if self._dump_apps:
@@ -731,11 +681,8 @@ class SamsungTVDevice(MediaPlayerEntity):
             self._source = None
             return self._source
 
-        if self._running_app != DEFAULT_APP or not self._st:
-            self._source = self._running_app
-            return self._source
-
-        if self._st.state != STStatus.STATE_ON:
+        use_st: bool = self._st is not None and self._st.state == STStatus.STATE_ON
+        if self._running_app != DEFAULT_APP or not use_st:
             self._source = self._running_app
             return self._source
 
@@ -795,7 +742,7 @@ class SamsungTVDevice(MediaPlayerEntity):
             return False
         return True
 
-    def _log_st_error(self, st_error):
+    def _log_st_error(self, st_error: bool):
         """Log start or end problem in ST communication"""
         if self._st_error_count == 0 and not st_error:
             return
@@ -806,39 +753,73 @@ class SamsungTVDevice(MediaPlayerEntity):
 
             self._st_error_count += 1
             if self._st_error_count == MAX_ST_ERROR_COUNT:
-                _LOGGER.error(
-                    "%s - Error refreshing from SmartThings."
-                    " Check connection status with TV on the phone App",
-                    self.entity_id,
-                )
+                msg_chk = "Check connection status with TV on the phone App"
+                if self._st_last_exc is not None:
+                    _LOGGER.error(
+                        "%s - Error refreshing from SmartThings. %s. Error: %s",
+                        self.entity_id,
+                        msg_chk,
+                        self._st_last_exc,
+                    )
+                else:
+                    _LOGGER.warning(
+                        "%s - SmartThings report TV is off but status detected is on. %s",
+                        self.entity_id,
+                        msg_chk,
+                    )
             return
 
         if self._st_error_count >= MAX_ST_ERROR_COUNT:
             _LOGGER.warning("%s - Connection to SmartThings restored", self.entity_id)
         self._st_error_count = 0
 
+    async def _async_load_device_info(self) -> None:
+        """Try to gather infos of this TV."""
+        if self._device_info is not None:
+            return
+
+        rest_api = SamsungTVAsyncRest(
+            host=self._host,
+            session=async_get_clientsession(self.hass),
+            timeout=DEFAULT_TIMEOUT,
+        )
+
+        try:
+            device_info: dict[str, Any] = await rest_api.async_rest_device_info()
+            _LOGGER.debug("Device info on %s is: %s", self._host, device_info)
+            self._device_info = device_info
+        except Exception as ex:  # pylint: disable=broad-except
+            _LOGGER.warning("Error retrieving device info on %s: %s", self._host, ex)
+            self._device_info = {}
+
+    @Throttle(MIN_TIME_BETWEEN_ST_UPDATE)
+    async def _async_st_update(self, **kwargs) -> bool | None:
+        """Update SmartThings state of device."""
+        try:
+            async with async_timeout.timeout(ST_UPDATE_TIMEOUT):
+                await self._st.async_device_update(self._use_channel_info)
+        except (
+            asyncio.TimeoutError,
+            ClientConnectionError,
+            ClientResponseError,
+        ) as exc:
+            _LOGGER.debug("%s - SmartThings error: [%s]", self.entity_id, exc)
+            self._st_last_exc = exc
+            return False
+
+        self._st_last_exc = None
+        return True
+
     async def async_update(self):
         """Update state of device."""
 
-        if self._update_forced():
-            return
-
         # Required to get source and media title
-        st_error = False
+        st_error: bool | None = None
         if self._st:
-            try:
-                async with async_timeout.timeout(ST_UPDATE_TIMEOUT):
-                    await self._st.async_device_update(self._use_channel_info)
-            except (
-                asyncio.TimeoutError,
-                ClientConnectionError,
-                ClientResponseError,
-            ) as ex:
-                st_error = True
-                _LOGGER.debug("%s - SmartThings error: [%s]", self.entity_id, ex)
+            if (st_update := await self._async_st_update()) is not None:
+                st_error = not st_update
 
-        result = await self.hass.async_add_executor_job(self._ping_device)
-
+        result = self._check_status()
         if not self._started_up or not result:
             use_mute_check = False
             self._fake_on = None
@@ -860,21 +841,16 @@ class SamsungTVDevice(MediaPlayerEntity):
                         )
                     result = False
 
-        if self._started_up:
-            result = self._delay_power_on(result)
-
-        if result and self._st:
-            if self._st.state != STStatus.STATE_ON:
-                st_error = True
-        self._log_st_error(st_error)
+        if st_error is not None:
+            if result and not st_error:
+                st_error = self._st.state != STStatus.STATE_ON
+            self._log_st_error(st_error)
 
         self._state = MediaPlayerState.ON if result else MediaPlayerState.OFF
         self._started_up = True
-        self._delay_update(POWER_ON_DELAY)
 
-        if (
-            self.state == MediaPlayerState.ON
-        ):  # NB: We are checking properties, not attribute!
+        # NB: We are checking properties, not attribute!
+        if self.state == MediaPlayerState.ON:
             if self._delayed_set_source:
                 difference = (
                     datetime.utcnow() - self._delayed_set_source_time
@@ -883,6 +859,7 @@ class SamsungTVDevice(MediaPlayerEntity):
                     self._delayed_set_source = None
                 else:
                     await self._async_select_source_delayed(self._delayed_set_source)
+            await self._async_load_device_info()
             await self._update_volume_info()
             self._get_running_app()
             await self._update_media()
@@ -1039,10 +1016,14 @@ class SamsungTVDevice(MediaPlayerEntity):
                         return self._st.channel
                     return None
 
-                if self._st.channel_name != "":
+                if (run_app := self._st.channel_name) != "":
                     # the channel name holds the running app ID
                     # regardless of the self._cloud_source value
-                    return self._st.channel_name
+                    # if the app ID is in the configured apps but is not running_app,
+                    # means that this is not the real running app / media title
+                    st_apps = self._app_list_st or {}
+                    if run_app not in list(st_apps.values()):
+                        return self._st.channel_name
 
         media_title = self._get_source()
         if media_title and media_title != DEFAULT_APP:
@@ -1181,6 +1162,15 @@ class SamsungTVDevice(MediaPlayerEntity):
             return self._st.sound_mode_list or None
         return None
 
+    @property
+    def support_art_mode(self) -> ArtModeSupport:
+        """Return if art mode is supported."""
+        if self._ws.artmode_status != ArtModeStatus.Unsupported:
+            return ArtModeSupport.FULL
+        if self._get_device_spec("FrameTVSupport") == "true":
+            return ArtModeSupport.PARTIAL
+        return ArtModeSupport.UNSUPPORTED
+
     def _send_wol_packet(self, wol_repeat=None):
         """Send a WOL packet to turn on the TV."""
         if not self._mac:
@@ -1257,10 +1247,6 @@ class SamsungTVDevice(MediaPlayerEntity):
         if self._state != MediaPlayerState.OFF:
             return True
 
-        self._set_update_forced = (
-            2  # we try to check status 2 times in a shorter interval
-        )
-        self._delay_update(POWER_ON_DELAY)
         await self._async_switch_entity(not set_art_mode)
 
         return True
@@ -1271,7 +1257,13 @@ class SamsungTVDevice(MediaPlayerEntity):
 
     async def async_set_art_mode(self):
         """Turn the media player on setting in art mode."""
-        await self._async_turn_on(True)
+        if (
+            self._state == MediaPlayerState.ON
+            and self.support_art_mode == ArtModeSupport.PARTIAL
+        ):
+            await self.async_send_command("KEY_POWER")
+        elif self.support_art_mode == ArtModeSupport.FULL:
+            await self._async_turn_on(True)
 
     def _turn_off(self):
         """Turn off media player."""
@@ -1282,7 +1274,7 @@ class SamsungTVDevice(MediaPlayerEntity):
         cmd_power_art = "KEY_POWER"
         self._ws.set_power_off_request()
         if self._state == MediaPlayerState.ON:
-            if self._ws.artmode_status == ArtModeStatus.Unsupported:
+            if self.support_art_mode == ArtModeSupport.UNSUPPORTED:
                 self.send_command(cmd_power_off)
             else:
                 self.send_command(f"{cmd_power_art},3000")
@@ -1305,7 +1297,7 @@ class SamsungTVDevice(MediaPlayerEntity):
         """Toggle the power on the media player."""
         if (
             self.state == MediaPlayerState.ON
-            and self._ws.artmode_status != ArtModeStatus.Unsupported
+            and self.support_art_mode != ArtModeSupport.UNSUPPORTED
         ):
             if self._get_option(CONF_TOGGLE_ART_MODE, False):
                 await self.async_set_art_mode()
@@ -1527,27 +1519,69 @@ class SamsungTVDevice(MediaPlayerEntity):
 
     def _get_youtube_video_id(self, url):
         """Try to get youtube video id from url."""
-        if not self._get_youtube_app_id():
-            _LOGGER.debug("You tube App ID not available")
-            return None
-
         url_parsed = urlparse(url)
         url_host = str(url_parsed.hostname).casefold()
+        url_path = url_parsed.path
         if url_host.find("youtube") < 0:
             _LOGGER.debug("URL not related to Youtube")
             return None
 
+        video_id = None
         url_query = parse_qs(url_parsed.query)
-        if YT_VIDEO_QS not in url_query:
-            _LOGGER.debug("Youtube video ID not found")
+        if YT_VIDEO_QS in url_query:
+            video_id = url_query[YT_VIDEO_QS][0]
+        elif url_path and str(url_path).casefold().startswith(YT_SVIDEO):
+            video_id = url_path[len(YT_SVIDEO) :]
+
+        if not video_id:
+            _LOGGER.warning("Youtube video ID not found in url: %s", url)
             return None
 
-        video_id = url_query[YT_VIDEO_QS][0]
+        if not self._get_youtube_app_id():
+            _LOGGER.warning("Youtube app ID not available, configure in apps list")
+            return None
+
         _LOGGER.debug("Youtube video ID: %s", video_id)
         return video_id
 
-    async def async_play_media(self, media_type, media_id, **kwargs):
+    def _cast_youtube_video(self, video_id: str, enqueue: MediaPlayerEnqueue):
+        """
+        Cast a youtube video using samsungcast library.
+        This method is sync and must run in job executor.
+        """
+        if enqueue == MediaPlayerEnqueue.PLAY:
+            self._cast_api.play_video(video_id)
+        elif enqueue == MediaPlayerEnqueue.NEXT:
+            self._cast_api.play_next(video_id)
+        elif enqueue == MediaPlayerEnqueue.ADD:
+            self._cast_api.add_to_queue(video_id)
+        elif enqueue == MediaPlayerEnqueue.REPLACE:
+            self._cast_api.clear_queue()
+            self._cast_api.play_video(video_id)
+
+    async def _async_play_youtube_video(
+        self, video_id: str, enqueue: MediaPlayerEnqueue
+    ):
+        """Play a YouTube video using YouTube app."""
+        run_app_id = None
+        if self._running_app != DEFAULT_APP:
+            run_app_id = self._app_list.get(self._running_app)
+
+        # launch youtube app if not running
+        if run_app_id != self._yt_app_id:
+            await self._async_launch_app(self._yt_app_id)
+            await asyncio.sleep(3)  # we wait for YouTube app to start
+
+        await self.hass.async_add_executor_job(
+            self._cast_youtube_video, video_id, enqueue
+        )
+
+    async def async_play_media(
+        self, media_type: MediaType | str, media_id: str, **kwargs
+    ):
         """Support running different media type command."""
+        enqueue: MediaPlayerEnqueue | None = kwargs.get(ATTR_MEDIA_ENQUEUE)
+
         if media_source.is_media_source_id(media_id):
             media_type = MediaType.URL
             play_item = await media_source.async_resolve_media(self.hass, media_id)
@@ -1583,12 +1617,12 @@ class SamsungTVDevice(MediaPlayerEntity):
 
         # Open url or youtube app
         elif media_type == MediaType.URL:
-            if await self._upnp.async_set_current_media(media_id):
-                self._playing = True
+            if enqueue and (video_id := self._get_youtube_video_id(media_id)):
+                await self._async_play_youtube_video(video_id, enqueue)
                 return
 
-            if video_id := self._get_youtube_video_id(media_id):
-                await self._async_launch_app(self._yt_app_id, video_id)
+            if await self._upnp.async_set_current_media(media_id):
+                self._playing = True
                 return
 
             await self.async_send_command(media_id, CMD_OPEN_BROWSER)

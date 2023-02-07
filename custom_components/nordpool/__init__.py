@@ -20,7 +20,11 @@ DOMAIN = "nordpool"
 _LOGGER = logging.getLogger(__name__)
 RANDOM_MINUTE = randint(10, 30)
 RANDOM_SECOND = randint(0, 59)
-EVENT_NEW_DATA = "nordpool_update"
+EVENT_NEW_HOUR = "nordpool_update_hour"
+EVENT_NEW_DAY = "nordpool_update_day"
+EVENT_NEW_PRICE = "nordpool_update_new_price"
+SENTINEL = object()
+
 _CURRENCY_LIST = ["DKK", "EUR", "NOK", "SEK"]
 
 
@@ -28,7 +32,7 @@ CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
 
 
 NAME = DOMAIN
-VERSION = "0.0.9"
+VERSION = "0.0.11"
 ISSUEURL = "https://github.com/custom-components/nordpool/issues"
 
 STARTUP = f"""
@@ -43,11 +47,12 @@ If you have any issues with this you need to open an issue here:
 
 
 class NordpoolData:
+    """Holds the data"""
+
     def __init__(self, hass: HomeAssistant):
         self._hass = hass
         self._last_tick = None
         self._data = defaultdict(dict)
-        self._tomorrow_valid = False
         self.currency = []
         self.listeners = []
 
@@ -72,14 +77,15 @@ class NordpoolData:
                 _LOGGER.info("Some crap happend, retrying request later.")
                 async_call_later(hass, 20, partial(self._update, type_=type_, dt=dt))
 
-    async def update_today(self, n: datetime):
-        _LOGGER.debug("Updating tomorrows prices.")
+    async def update_today(self, _: datetime):
+        """Update today's prices"""
+        _LOGGER.debug("Updating today's prices.")
         await self._update("today")
 
-    async def update_tomorrow(self, n: datetime):
+    async def update_tomorrow(self, _: datetime):
+        """Update tomorrows prices."""
         _LOGGER.debug("Updating tomorrows prices.")
         await self._update(type_="tomorrow", dt=dt_utils.now() + timedelta(hours=24))
-        self._tomorrow_valid = True
 
     async def _someday(self, area: str, currency: str, day: str):
         """Returns todays or tomorrows prices in a area in the currency"""
@@ -98,7 +104,7 @@ class NordpoolData:
 
             # Send a new data request after new data is updated for this first run
             # This way if the user has multiple sensors they will all update
-            async_dispatcher_send(self._hass, EVENT_NEW_DATA)
+            async_dispatcher_send(self._hass, EVENT_NEW_HOUR)
 
         return self._data.get(currency, {}).get(day, {}).get(area)
 
@@ -113,39 +119,38 @@ class NordpoolData:
         return res
 
 
-async def _dry_setup(hass: HomeAssistant, config: Config) -> bool:
+async def _dry_setup(hass: HomeAssistant, _: Config) -> bool:
     """Set up using yaml config file."""
     if DOMAIN not in hass.data:
         api = NordpoolData(hass)
         hass.data[DOMAIN] = api
         _LOGGER.debug("Added %s to hass.data", DOMAIN)
 
-        async def new_day_cb(n):
+        async def new_day_cb(_):
             """Cb to handle some house keeping when it a new day."""
             _LOGGER.debug("Called new_day_cb callback")
-            api._tomorrow_valid = False
 
             for curr in api.currency:
-                if not len(api._data[curr]["tomorrow"]):
+                if not api._data[curr]["tomorrow"]:
                     api._data[curr]["today"] = await api.update_today(None)
                 else:
                     api._data[curr]["today"] = api._data[curr]["tomorrow"]
                 api._data[curr]["tomorrow"] = {}
 
-            async_dispatcher_send(hass, EVENT_NEW_DATA)
+            async_dispatcher_send(hass, EVENT_NEW_DAY)
 
-        async def new_hr(n):
+        async def new_hr(_):
             """Callback to tell the sensors to update on a new hour."""
             _LOGGER.debug("Called new_hr callback")
-            async_dispatcher_send(hass, EVENT_NEW_DATA)
+            async_dispatcher_send(hass, EVENT_NEW_HOUR)
 
-        async def new_data_cb(n):
+        async def new_data_cb(tdo):
             """Callback to fetch new data for tomorrows prices at 1300ish CET
             and notify any sensors, about the new data
             """
             # _LOGGER.debug("Called new_data_cb")
-            await api.update_tomorrow(n)
-            async_dispatcher_send(hass, EVENT_NEW_DATA)
+            await api.update_tomorrow(tdo)
+            async_dispatcher_send(hass, EVENT_NEW_PRICE)
 
         # Handles futures updates
         cb_update_tomorrow = async_track_time_change_in_tz(
@@ -192,7 +197,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     if unload_ok:
         # This is a issue if you have mulitple sensors as everything related to DOMAIN
-        # is removed, regardless if you have mulitple sensors or not. Don't seem to 
+        # is removed, regardless if you have mulitple sensors or not. Don't seem to
         # create a big issue for now #TODO
         if DOMAIN in hass.data:
             for unsub in hass.data[DOMAIN].listeners:

@@ -84,9 +84,9 @@ browser_mod:
                   name: Meterkast1
                 - entity: sensor.shelly_plug_s_8_fridge1_power
                   name: Vriezer Schuur
-                - entity: sensor.infrarood_slaapkamer_current_consumption
+                - entity: sensor.infrarood_eva_current_consumption
                   name: Verwarming Logeerkamer
-                - entity: sensor.infraroodpanel_eva_current_consumption
+                - entity: sensor.infraroodpanel_eva2_current_consumption
                   name: Verwarming Eva
                 - entity: sensor.all_light_power
                 - entity: sensor.all_housekeeping_entities_power
@@ -281,7 +281,7 @@ browser_mod:
               span:
                 start: day
               series:
-                - entity: sensor.nordpool_kwh_nl_eur_3_10_009
+                - entity: sensor.nordpool_kwh_nl_eur_3_10_021
                   data_generator: |
                     return entity.attributes.raw_today.map((entry) => {
                       let value = (entry.value + 0.12599) * 1.21;
@@ -318,7 +318,7 @@ browser_mod:
                 start: day
                 offset: +1d
               series:
-                - entity: sensor.nordpool_kwh_nl_eur_3_10_009
+                - entity: sensor.nordpool_kwh_nl_eur_3_10_021
                   data_generator: |
                     let hour = new Date().getHours();
                     if (hour >= 13) {

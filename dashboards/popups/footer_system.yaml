@@ -90,6 +90,7 @@ browser_mod:
                 - entity: switch.terras_detect
                 - entity: switch.doorbell_detect
                 - entity: switch.veranda_detect
+                - entity: switch.zwembad_detect
               title: Camera detectie
               show_header_toggle: false
               state_color: false

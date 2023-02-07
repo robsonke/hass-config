@@ -499,16 +499,14 @@
       seconds: 0
   action:
   - service: light.turn_on
-    data:
-      brightness_pct: 50
+    data: {}
     target:
       entity_id: light.garden_light
-  - service: switch.turn_on
+  - service: light.turn_on
+    data:
+      brightness_pct: 6
     target:
-      entity_id:
-      - switch.shelly_plug_s_10_relay
-      - switch.light_garden_front
-    data: {}
+      entity_id: light.woodshed_light
   - service: light.turn_on
     data:
       brightness_pct: 50
@@ -564,11 +562,7 @@
       entity_id:
       - light.dimmer_cabinroof_level
       - group.hue_lights_garden
-  - service: switch.turn_off
-    target:
-      entity_id:
-      - switch.shelly_plug_s_10_relay
-      - switch.light_garden_front
+      - light.woodshed_light
   - delay:
       hours: 0
       minutes: 0
@@ -1089,6 +1083,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+      - switch.zwembad_detect
     data: {}
   mode: single
 - id: '1621190465429'
@@ -1112,6 +1107,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+      - switch.zwembad_detect
   mode: single
 - id: '1621192167984'
   alias: Night - Check for open windows and doors
@@ -1426,6 +1422,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+      - switch.zwembad_detect
   mode: single
 - id: '1625685392220'
   alias: Car - Alert when full and still plugged in
@@ -1684,7 +1681,7 @@
   description: Enable on Thursday when we're away or leaving the house
   trigger:
   - platform: time
-    at: 08:20:00
+    at: 08:00:00
   - platform: state
     entity_id:
     - zone.home
@@ -2096,14 +2093,14 @@
     data: {}
   mode: single
 - id: '1642502040367'
-  alias: Heating - Control heating Eva
-  description: This turns on the infra red heating panel in Eva's room
+  alias: Heating - Control heating Eva2
+  description: This turns on the infra red heating panel in Eva2's room
   use_blueprint:
     path: robsonke/heating.yaml
     input:
-      heating: switch.infraroodpanel_eva
-      temp_sensor: sensor.climate_sensor_eva_temperature
-      min_temp: 17
+      heating: switch.infraroodpanel_eva2
+      temp_sensor: sensor.climate_sensor_eva2_temperature
+      min_temp: 16
       set_temp: 18
       time_after: 09:00:00
       time_before: '18:00:00'
@@ -2114,7 +2111,7 @@
       run_on_friday: true
       run_on_saturday: true
       run_on_sunday: true
-      window_sensor: binary_sensor.window_evaroom_openclose_sensor
+      window_sensor: binary_sensor.window_eva2room_openclose_sensor
       price_level_sensor: sensor.energy_price_level
       price_level_percentage: 110
 - id: '1642502861762'
@@ -2124,7 +2121,7 @@
     path: robsonke/heating.yaml
     input:
       heating: switch.kasa_infrarood_slaapkamer
-      temp_sensor: sensor.climate_sensor_guestroom_temperature
+      temp_sensor: sensor.climate_sensor_eva_temperature
       min_temp: 17
       set_temp: 18
       time_after: 07:00:00
@@ -2136,7 +2133,7 @@
       run_on_friday: false
       run_on_saturday: true
       run_on_sunday: false
-      window_sensor: binary_sensor.window_guestroom_openclose_sensor
+      window_sensor: binary_sensor.window_eva_openclose_sensor
       price_level_sensor: sensor.energy_price_level
       price_level_percentage: 110
 - id: '1642624564993'
@@ -2200,9 +2197,9 @@
   use_blueprint:
     path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
     input:
-      dashboard: main-dashboard
+      dashboard: lovelace
       player: media_player.keuken_display
-      view: '0'
+      view: hub
 - id: '1643267142475'
   alias: Presence - Send message if cooker is still enabled and we left the house
   description: ''
@@ -2278,7 +2275,7 @@
       - service: climate.set_temperature
         data:
           hvac_mode: heat
-          temperature: 17
+          temperature: 18
         target:
           entity_id: climate.eurom_alutherm_baseboard_heater
     default:
@@ -2330,11 +2327,11 @@
     target:
       entity_id:
       - light.dimmer_cabinroof_level
-  - service: switch.turn_off
+  - service: light.turn_off
+    data: {}
     target:
       entity_id:
-      - switch.shelly_plug_s_10_relay
-      - switch.light_garden_front
+      - light.woodshed_light
   - delay:
       hours: 0
       minutes: 0
@@ -2393,18 +2390,18 @@
             persistent: true
             tag: persistent
 - id: '1645648632551'
-  alias: Windows - Eva open and low temperature
+  alias: Windows - Eva2 open and low temperature
   description: ''
   use_blueprint:
     path: robsonke/window-open-temperature.yaml
     input:
-      temp_sensor: sensor.climate_sensor_eva_temperature
-      window_sensor: binary_sensor.window_evaroom_openclose_sensor
+      temp_sensor: sensor.climate_sensor_eva2_temperature
+      window_sensor: binary_sensor.window_eva2_openclose_sensor
       min_temp: 15
       actions:
       - service: notify.all_phones
         data:
-          message: "\U0001F3E0 Het raam bij Eva staat open en het begint nu wel een
+          message: "\U0001F3E0 Het raam bij Eva2 staat open en het begint nu wel een
             beetje fris te worden."
           data:
             persistent: true
@@ -3233,8 +3230,6 @@
   trigger:
   - platform: homeassistant
     event: start
-  - platform: time_pattern
-    minutes: /10
   - platform: state
     entity_id:
     - sensor.energy_price_level
@@ -3285,3 +3280,25 @@
     stored_traces: 50
   mode: queued
   max: 4
+- id: '1674673558309'
+  alias: EMHass - Day Ahead optimisation
+  description: ''
+  trigger:
+  - platform: time
+    at: 05:30:00
+  condition: []
+  action:
+  - service: shell_command.dayahead_optim
+    data: {}
+  mode: single
+- id: '1674673634309'
+  alias: EMHass - publish data to EMHass
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /5
+  condition: []
+  action:
+  - service: shell_command.publish_data
+    data: {}
+  mode: single

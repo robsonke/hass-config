@@ -11,3 +11,5 @@
 
 shell_command:
   convert_lovelace: "python /config/utils/json2yaml.py /config/.storage/lovelace /config/lovelace-ui.yaml"
+  dayahead_optim: "curl -i -H \"Content-Type:application/json\" -X POST -d '{}' http://localhost:5001/action/dayahead-optim"
+  publish_data: "curl -i -H \"Content-Type:application/json\" -X POST -d '{}' http://localhost:5001/action/publish-data"

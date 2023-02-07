@@ -4,6 +4,7 @@ substitutions:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ip: !secret heater_slaapkamer_ip
+  api_key: !secret api_key
 
 esphome:
   name: ${devicename}
@@ -36,7 +37,9 @@ captive_portal:
 
 # Enable Home Assistant API
 api:
-  password: ${password}
+  encryption:
+    key: ${api_key}
+  #password: ${password}
 
 ota:
   password: ${password}

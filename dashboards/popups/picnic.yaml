@@ -16,6 +16,8 @@ browser_mod:
               name: Prijs winkelmandje
             - entity: sensor.picnic_selected_slot_max_order_time
               name: Laatste bestelmoment
+            - entity: sensor.picnic_next_delivery_slot_start
+              name: Eerste volgende levering
             - entity: sensor.picnic_selected_slot_min_order_value
               name: Minimale bedrag
             - type: divider
