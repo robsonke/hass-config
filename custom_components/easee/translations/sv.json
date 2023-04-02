@@ -1,0 +1,49 @@
+{
+  "config": {
+    "abort": {
+      "already_setup": "Endast en anslutning för Easee kan konfigureras."
+    },
+    "error": {
+      "auth_failure": "Autentisering misslyckades. Kontrollera användarnamn och lösenord.",
+      "connection_failure": "Kan inte ansluta till Easee. Försök igen senare.",
+      "refused_failure": "Anslutning nekades till Easee. Försök igen senare.",
+      "no_sites": "Ingen plats vald"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "password": "Lösenord",
+          "username": "Användarnamn"
+        },
+        "description": "Ange användarnamn och lösenord för ditt Easee-konto",
+        "title": "Anslut till Easee"
+      },
+      "sites": {
+        "data": {
+          "monitored_sites": "Platser"
+        },
+        "description": "Välj platser att monitorera",
+        "title": "Easee EV Charger"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "monitored_conditions": "Monitorerade laddbox-sensorer",
+          "monitored_eq_conditions": "Monitorerade equalizer-sensorer",
+          "measured_consumption_days": "Förbrukning - antal dagar",
+          "custom_units": "Anpassade enheter",
+          "monitored_sites": "Monitorerade platser"
+        },
+        "description": "Välj inställningar",
+        "title": "Easee EV Charger"
+      }
+    },
+    "error": {
+      "no_sites": "Ingen monitorerad plats vald"
+    }
+  },
+  "title": "Easee EV Charger"
+}

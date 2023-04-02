@@ -45,16 +45,16 @@ browser_mod:
             - type: entities
               show_header_toggle: false
               entities:
-                - entity: switch.infraroodpanel_eva2
+                - entity: switch.infraroodpanel_noa
             - type: conditional
               conditions:
-                - entity: switch.infraroodpanel_eva2
+                - entity: switch.infraroodpanel_noa
                   state_not: "off"
               card:
                 type: entities
                 show_header_toggle: false
                 entities:
-                  - entity: sensor.infraroodpanel_eva2_current_consumption
+                  - entity: sensor.infraroodpanel_noa_current_consumption
 
             - type: entities
               show_header_toggle: false
@@ -88,36 +88,36 @@ browser_mod:
               show_header_toggle: false
               entities:
                 - entity: switch.shelly_plug_kachel_slaapkamer
-            - type: conditional
-              conditions:
-                - entity: switch.shelly_plug_kachel_slaapkamer
-                  state_not: "off"
-              card:
-                type: vertical-stack
-                title: Slaapkamer
-                cards:
-                  - type: entities
-                    show_header_toggle: false
-                    entities:
-                      - entity: select.eurom_alutherm_capacity
-                        name: Verwarm mode slaapkamer
-                      - entity: sensor.eurom_alutherm_power
-                        name: Verbruik
-                      - entity: sensor.eurom_alutherm_energy_daily
-                        name: Verbruik vandaag (kWh)
-                  - type: custom:simple-thermostat
-                    entity: climate.eurom_alutherm_baseboard_heater
-                    version: 3
-                    layout:
-                      step: row
-                    header: false
-                    style: |
-                      div.mode-title {
-                        display: none;
-                      }
-                      .modes.heading {
-                        grid-template-columns: auto !important;
-                      }
+            # - type: conditional
+            #   conditions:
+            #     - entity: switch.shelly_plug_kachel_slaapkamer
+            #       state_not: "off"
+            #   card:
+            - type: vertical-stack
+              title: Slaapkamer
+              cards:
+                - type: entities
+                  show_header_toggle: false
+                  entities:
+                    - entity: select.eurom_alutherm_capacity
+                      name: Verwarm mode slaapkamer
+                    - entity: sensor.eurom_alutherm_power
+                      name: Verbruik
+                    - entity: sensor.eurom_alutherm_energy_daily
+                      name: Verbruik vandaag (kWh)
+                - type: custom:simple-thermostat
+                  entity: climate.eurom_alutherm_baseboard_heater
+                  version: 3
+                  layout:
+                    step: row
+                  header: false
+                  style: |
+                    div.mode-title {
+                      display: none;
+                    }
+                    .modes.heading {
+                      grid-template-columns: auto !important;
+                    }
 
         - type: vertical-stack
           view_layout:
@@ -144,8 +144,8 @@ browser_mod:
                   group_by:
                     func: avg
                     duration: 1h
-                - entity: sensor.climate_sensor_eva2_temperature
-                  name: Eva2
+                - entity: sensor.climate_sensor_noa_temperature
+                  name: Noa
                   color: '#e74c3c'
                   type: area
                   fill_raw: last
@@ -181,8 +181,8 @@ browser_mod:
                   group_by:
                     func: avg
                     duration: 1h
-                - entity: sensor.climate_sensor_eva2_humidity
-                  name: Eva2
+                - entity: sensor.climate_sensor_noa_humidity
+                  name: Noa
                   color: 'blue'
                   type: area
                   fill_raw: last

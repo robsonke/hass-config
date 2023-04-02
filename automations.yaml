@@ -224,8 +224,8 @@
     data:
       message: Het alarm is uitgeschakeld
   mode: single
-- alias: Mail - Alert when mail in the mailbox
-  id: mailbox_notification
+- id: mailbox_notification
+  alias: Mail - Alert when mail in the mailbox
   description: See if there's a vibration in the mailbox, identifying new mail
   trigger:
   - entity_id: binary_sensor.mailbox_vibration_sensor
@@ -235,9 +235,6 @@
   - condition: template
     value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.mailbox_notification.attributes.last_triggered,
       0) | int > 20 }}'
-  - condition: template
-    value_template: '{{ states.automation.mailbox_notification.attributes.last_triggered
-      != none }}'
   action:
   - service: notify.all_phones
     data:
@@ -481,6 +478,9 @@
       - condition: state
         entity_id: light.dimmer_cabinroof_level
         state: 'off'
+      - condition: state
+        entity_id: light.garden_lantern_light1
+        state: 'on'
       - condition: or
         conditions:
         - condition: numeric_state
@@ -490,6 +490,8 @@
           entity_id: sun.sun
           attribute: elevation
           below: '-4'
+      alias: In the morning it should be dark enough and not just turned off by the
+        other automation
   - condition: state
     entity_id: light.hue_lily_light_fence_1
     state: 'off'
@@ -499,9 +501,18 @@
       seconds: 0
   action:
   - service: light.turn_on
-    data: {}
+    data:
+      brightness_pct: 50
     target:
-      entity_id: light.garden_light
+      entity_id:
+      - light.garden_light
+  - service: light.turn_on
+    data:
+      kelvin: 2200
+    target:
+      entity_id:
+      - light.palm1_light
+      - light.palm2_light
   - service: light.turn_on
     data:
       brightness_pct: 6
@@ -533,7 +544,8 @@
     target:
       entity_id: light.dimmer_cabinroof_level
   - service: light.turn_on
-    data: {}
+    data:
+      kelvin: 2200
     target:
       entity_id: group.hue_lights_garden
   mode: single
@@ -563,6 +575,8 @@
       - light.dimmer_cabinroof_level
       - group.hue_lights_garden
       - light.woodshed_light
+      - light.palm1_light
+      - light.palm2_light
   - delay:
       hours: 0
       minutes: 0
@@ -859,6 +873,9 @@
       type: is_armed_away
   - condition: template
     value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
+  - condition: template
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.presence_notify_of_events_in_frigate.attributes.last_triggered,
+      0) | int > 20 }}'
   - condition: or
     conditions:
     - condition: template
@@ -1083,6 +1100,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+      - switch.noabed_detect
       - switch.zwembad_detect
     data: {}
   mode: single
@@ -1107,6 +1125,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+      - switch.noabed_detect
       - switch.zwembad_detect
   mode: single
 - id: '1621192167984'
@@ -1422,6 +1441,7 @@
       - switch.veranda_detect
       - switch.bijkeuken_detect
       - switch.evabed_detect
+      - switch.noabed_detect
       - switch.zwembad_detect
   mode: single
 - id: '1625685392220'
@@ -1487,6 +1507,12 @@
     entity_id: alarm_control_panel.alarmo
     type: disarm
     code: automation
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.living_room
+      volume: 0.3
+      message: Het alarm is voor 2 uur uitgezet.
+      delay: 00:00:10
   - delay:
       hours: 1
       minutes: 55
@@ -2093,14 +2119,14 @@
     data: {}
   mode: single
 - id: '1642502040367'
-  alias: Heating - Control heating Eva2
-  description: This turns on the infra red heating panel in Eva2's room
+  alias: Heating - Control heating Noa
+  description: This turns on the infra red heating panel in Noa's room
   use_blueprint:
     path: robsonke/heating.yaml
     input:
-      heating: switch.infraroodpanel_eva2
-      temp_sensor: sensor.climate_sensor_eva2_temperature
-      min_temp: 16
+      heating: switch.infraroodpanel_noa
+      temp_sensor: sensor.climate_sensor_noa_temperature
+      min_temp: 19
       set_temp: 18
       time_after: 09:00:00
       time_before: '18:00:00'
@@ -2111,7 +2137,7 @@
       run_on_friday: true
       run_on_saturday: true
       run_on_sunday: true
-      window_sensor: binary_sensor.window_eva2room_openclose_sensor
+      window_sensor: binary_sensor.window_noaroom_openclose_contact
       price_level_sensor: sensor.energy_price_level
       price_level_percentage: 110
 - id: '1642502861762'
@@ -2332,6 +2358,8 @@
     target:
       entity_id:
       - light.woodshed_light
+      - light.palm1_light
+      - light.palm2_light
   - delay:
       hours: 0
       minutes: 0
@@ -2390,18 +2418,18 @@
             persistent: true
             tag: persistent
 - id: '1645648632551'
-  alias: Windows - Eva2 open and low temperature
+  alias: Windows - Noa open and low temperature
   description: ''
   use_blueprint:
     path: robsonke/window-open-temperature.yaml
     input:
-      temp_sensor: sensor.climate_sensor_eva2_temperature
-      window_sensor: binary_sensor.window_eva2_openclose_sensor
+      temp_sensor: sensor.climate_sensor_noa_temperature
+      window_sensor: binary_sensor.window_noa_openclose_sensor
       min_temp: 15
       actions:
       - service: notify.all_phones
         data:
-          message: "\U0001F3E0 Het raam bij Eva2 staat open en het begint nu wel een
+          message: "\U0001F3E0 Het raam bij Noa staat open en het begint nu wel een
             beetje fris te worden."
           data:
             persistent: true
@@ -2569,7 +2597,7 @@
 
             '
 - id: '1657445203959'
-  alias: System - Restart armcrest addon
+  alias: System - Restart amcrest addon
   description: ''
   trigger:
   - platform: time
@@ -3301,4 +3329,47 @@
   action:
   - service: shell_command.publish_data
     data: {}
+  mode: single
+- id: '1676024605779'
+  alias: Heating - Control heating Eva
+  description: This turns on the infra red heating panel in Eva's room
+  use_blueprint:
+    path: robsonke/heating.yaml
+    input:
+      heating: switch.kasa_infrarood_eva
+      temp_sensor: sensor.climate_sensor_eva_temperature
+      min_temp: 16
+      set_temp: 18
+      time_after: 09:00:00
+      time_before: '18:00:00'
+      run_on_monday: true
+      run_on_tuesday: true
+      run_on_wednesday: true
+      run_on_thursday: true
+      run_on_friday: true
+      run_on_saturday: true
+      run_on_sunday: true
+      window_sensor: binary_sensor.window_eva_openclose_sensor
+      price_level_sensor: sensor.energy_price_level
+      price_level_percentage: 110
+- id: '1677612384420'
+  alias: System - Inform Frigate off
+  description: Inform when Frigate isn't running, since we won't be recording either
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.frigate_nvr_running
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone_rob
+    data:
+      message: "\U0001F3A5 Frigate staat uit, aanzetten aub"
+      data:
+        persistent: true
+        tag: persistent
   mode: single

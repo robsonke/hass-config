@@ -1,0 +1,12 @@
+#   ____      _                _
+#  / ___|__ _| | ___ _ __   __| | __ _ _ __
+# | |   / _` | |/ _ \ '_ \ / _` |/ _` | '__|
+# | |__| (_| | |  __/ | | | (_| | (_| | |
+#  \____\__,_|_|\___|_| |_|\__,_|\__,_|_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+calendar:
+  - platform: todoist
+    token: !secret todoist_apikey

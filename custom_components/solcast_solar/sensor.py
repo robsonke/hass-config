@@ -10,15 +10,14 @@ from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity,
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (ATTR_IDENTIFIERS, ATTR_MANUFACTURER,
                                  ATTR_MODEL, ATTR_NAME, ENERGY_KILO_WATT_HOUR,
-                                 ENERGY_WATT_HOUR, POWER_WATT)
+                                 ENERGY_WATT_HOUR)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import DOMAIN
-from .const import ATTR_ENTRY_TYPE
+from .const import DOMAIN, ATTR_ENTRY_TYPE
 from .coordinator import SolcastUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -97,6 +96,41 @@ SENSORS: dict[str, SensorEntityDescription] = {
         icon="mdi:clock",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
+    "total_kwh_forecast_d3": SensorEntityDescription(
+        key="total_kwh_forecast_d3",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        name="Forecast D3",
+        icon="mdi:solar-power",
+    ),
+    "total_kwh_forecast_d4": SensorEntityDescription(
+        key="total_kwh_forecast_d4",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        name="Forecast D4",
+        icon="mdi:solar-power",
+    ),
+    "total_kwh_forecast_d5": SensorEntityDescription(
+        key="total_kwh_forecast_d5",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        name="Forecast D5",
+        icon="mdi:solar-power",
+    ),
+    "total_kwh_forecast_d6": SensorEntityDescription(
+        key="total_kwh_forecast_d6",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        name="Forecast D6",
+        icon="mdi:solar-power",
+    ),
+    "total_kwh_forecast_d7": SensorEntityDescription(
+        key="total_kwh_forecast_d7",
+        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        name="Forecast D7",
+        icon="mdi:solar-power",
+    ),
 }
 
 
@@ -105,13 +139,13 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the Airthings sensor."""
+    """Set up the Solcast sensor."""
 
     coordinator: SolcastUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities = []
 
     for sensor_types in SENSORS:
-        sen = SolcastSensor(coordinator, SENSORS[sensor_types],entry)
+        sen = SolcastSensor(coordinator, SENSORS[sensor_types],entry, coordinator._version)
         entities.append(sen)
 
     for site in coordinator.solcast._sites:
@@ -121,15 +155,26 @@ async def async_setup_entry(
                 icon="mdi:home",
                 device_class=SensorDeviceClass.ENERGY,
                 native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
-                entity_category=EntityCategory.DIAGNOSTIC,
+                entity_category=EntityCategory.CONFIG,
             )
-        sen = RooftopSensor(coordinator, k,entry)
+        sen = RooftopSensor(coordinator, k,entry, coordinator._version)
         entities.append(sen)
+
+    k = SensorEntityDescription(
+            key="solcast_has_update",
+            name="Integration Update",
+            icon="mdi:update",
+            #device_class=SensorDeviceClass.ENERGY,
+            #native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+            entity_category=EntityCategory.CONFIG,
+        )
+    # sen = SolcastUpdate(coordinator, k,entry, coordinator._version)
+    # entities.append(sen)
     
     async_add_entities(entities)
 
 class SolcastSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a Airthings Sensor device."""
+    """Representation of a Seplos Sensor device."""
 
 
     def __init__(
@@ -137,6 +182,7 @@ class SolcastSensor(CoordinatorEntity, SensorEntity):
         coordinator: SolcastUpdateCoordinator,
         entity_description: SensorEntityDescription,
         entry: ConfigEntry,
+        version: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
@@ -155,10 +201,11 @@ class SolcastSensor(CoordinatorEntity, SensorEntity):
         
         self._attr_device_info = {
             ATTR_IDENTIFIERS: {(DOMAIN, entry.entry_id)},
-            ATTR_NAME: "Solcast API Forecast", #entry.title,
-            ATTR_MANUFACTURER: "Solcast Solar",
-            ATTR_MODEL: "Solcast API",
+            ATTR_NAME: "Solcast PV Forecast", #entry.title,
+            ATTR_MANUFACTURER: "Oziee",
+            ATTR_MODEL: "Solcast PV Forecast",
             ATTR_ENTRY_TYPE: DeviceEntryType.SERVICE,
+            "sw_version": version,
             "configuration_url": "https://toolkit.solcast.com.au/live-forecast",
             #"configuration_url": f"https://toolkit.solcast.com.au/rooftop-sites/{entry.options[CONF_RESOURCE_ID]}/detail",
             #"hw_version": entry.options[CONF_RESOURCE_ID],
@@ -209,10 +256,8 @@ class SolcastSensor(CoordinatorEntity, SensorEntity):
         """Handle updated data from the coordinator."""
         self._sensor_data = self.coordinator.get_sensor_value(self.entity_description.key)
         self.async_write_ha_state()
-
-
 class RooftopSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a Airthings Sensor device."""
+    """Representation of a Seplos Sensor device."""
 
 
     def __init__(
@@ -220,6 +265,7 @@ class RooftopSensor(CoordinatorEntity, SensorEntity):
         coordinator: SolcastUpdateCoordinator,
         entity_description: SensorEntityDescription,
         entry: ConfigEntry,
+        version: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
@@ -238,10 +284,11 @@ class RooftopSensor(CoordinatorEntity, SensorEntity):
         
         self._attr_device_info = {
             ATTR_IDENTIFIERS: {(DOMAIN, entry.entry_id)},
-            ATTR_NAME: "Solcast API Forecast", #entry.title,
-            ATTR_MANUFACTURER: "Solcast Solar",
-            ATTR_MODEL: "Solcast API",
+            ATTR_NAME: "Solcast PV Forecast", #entry.title,
+            ATTR_MANUFACTURER: "Oziee",
+            ATTR_MODEL: "Solcast PV Forecast",
             ATTR_ENTRY_TYPE: DeviceEntryType.SERVICE,
+            "sw_version": version,
             "configuration_url": "https://toolkit.solcast.com.au/live-forecast",
             #"configuration_url": f"https://toolkit.solcast.com.au/rooftop-sites/{entry.options[CONF_RESOURCE_ID]}/detail",
             #"hw_version": entry.options[CONF_RESOURCE_ID],

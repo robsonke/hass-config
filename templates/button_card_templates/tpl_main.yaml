@@ -628,7 +628,7 @@ person:
         return `<ha-icon icon="${icon}" style="width: 1rem;"></ha-icon>`
       ]]]
 
-person_eva:
+person_kid:
   template:
     - person
   show_state: false

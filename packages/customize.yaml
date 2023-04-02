@@ -87,8 +87,8 @@ homeassistant:
     binary_sensor.window_eva_openclose_sensor:
       friendly_name: Raam Eva
       device_class: window
-    binary_sensor.window_eva2room_openclose_sensor:
-      friendly_name: Raam Eva2
+    binary_sensor.window_noaroom_openclose_sensor:
+      friendly_name: Raam Noa
       device_class: window
     binary_sensor.window_masterbed_1_openclose_sensor:
       friendly_name: Raam master bedroom 1

@@ -24,7 +24,7 @@ browser_mod:
           - entity_id: binary_sensor.window_eva_openclose_sensor
             options:
               secondary_info: last-changed
-          - entity_id: binary_sensor.window_eva2room_openclose_sensor
+          - entity_id: binary_sensor.window_noaroom_openclose_contact
             options:
               secondary_info: last-changed
           - entity_id: binary_sensor.window_guestroom_openclose_sensor

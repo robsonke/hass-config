@@ -1,0 +1,43 @@
+substitutions:
+  ip: !secret pool_lights_ip
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  api_key: !secret api_key
+
+esphome:
+  name: pool-lights
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: ${api_key}
+
+ota:
+
+
+wifi:
+  ssid: ${ssid}
+  password: ${password}
+  manual_ip:
+    static_ip: ${ip}
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  # ap:
+  #   ssid: "Esphome-Web-3Abea8"
+  #   password: "tFFw9oFP6Iyr"
+
+captive_portal:
+
+web_server:
+  port: 80
+    

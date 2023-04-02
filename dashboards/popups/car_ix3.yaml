@@ -159,20 +159,169 @@ browser_mod:
                     width: 4em
                     height: 4em
                     transform: none
-            - type: history-graph
-              title: BMW iX3
-              hours_to_show: 12
-              refresh_interval: 30
-              entities:
-                - device_tracker.ix3
-            - type: entities
-              card_mod:
-                class: content
-              entities:
-                - entity: device_tracker.ix3
-                  secondary_info: last-changed
-                - entity: sensor.ix3_charging_energy_daily
-                  name: Verbruik laden vandaag (kWh)
+            # - type: history-graph
+            #   title: BMW iX3
+            #   hours_to_show: 12
+            #   refresh_interval: 30
+            #   entities:
+            #     - device_tracker.ix3
+            # - type: entities
+            #   card_mod:
+            #     class: content
+            #   entities:
+            #     - entity: device_tracker.ix3
+            #       secondary_info: last-changed
+            #     - entity: sensor.ix3_charging_energy_daily
+            #       name: Verbruik laden vandaag (kWh)
+            - type: custom:charger-card
+              customCardTheme: theme_default
+              entity: sensor.ehhatdgg_status
+              compact_view: false
+              show_name: true
+              show_leds: true
+              show_status: true
+              show_collapsibles: true
+              details:
+                name:
+                  entity_id: sensor.ehhatdgg_status
+                  attribute: name
+                smartcharging:
+                  entity_id: switch.ehhatdgg_smart_charging
+                group1:
+                  - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+                    text: dyn_charger_limit
+                    service: easee.set_charger_dynamic_limit
+                    service_data:
+                      charger_id: CHARGERID
+                      current: '#SERVICEVAL#'
+                  - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+                    text: dyn_circuit_limit
+                    service: easee.set_charger_circuit_dynamic_limit
+                    service_data:
+                      charger_id: CHARGERID
+                      currentP1: '#SERVICEVAL#'
+                group2:
+                  - entity_id: binary_sensor.ehhatdgg_online
+                    text: online
+                  - entity_id: sensor.ehhatdgg_voltage
+                    text: voltage
+                    unit_show: true
+                  - entity_id: sensor.ehhatdgg_power
+                    text: power
+                    unit_show: true
+                  - entity_id: sensor.ehhatdgg_current
+                    text: charger_current
+                    unit_show: true
+                  - entity_id: sensor.ehhatdgg_circuit_current
+                    text: circuit_current
+                    unit_show: true
+                  - entity_id: sensor.ehhatdgg_energy_per_hour
+                    text: energy_per_hour
+                    unit_show: true
+                  - entity_id: sensor.ehhatdgg_session_energy
+                    text: session_energy
+                    unit_show: true
+                  - entity_id: sensor.ehhatdgg_lifetime_energy
+                    text: lifetime_energy
+                    unit_show: true
+                group3:
+                  - entity_id: switch.ehhatdgg_is_enabled
+                    text: enabled
+                  - entity_id: switch.ehhatdgg_enable_idle_current
+                    text: idle_current
+                  - entity_id: binary_sensor.ehhatdgg_cable_locked
+                    text: cable_locked
+                  - entity_id: switch.ehhatdgg_cable_locked_permanently
+                    text: perm_cable_locked
+                  - entity_id: switch.ehhatdgg_smart_charging
+                    text: smart_charging
+                  - entity_id: sensor.ehhatdgg_cost_per_kwh
+                    text: cost_per_kwh
+                  - entity_id: binary_sensor.ehhatdgg_update_available
+                    text: update_available
+                  - entity_id: binary_sensor.ehhatdgg_basic_schedule
+                    text: schedule
+                stats:
+                  default:
+                    - entity_id: sensor.ehhatdgg_session_energy
+                      text: session_energy
+                      unit_show: true
+                    - entity_id: switch.ehhatdgg_cable_locked_permanently
+                      text: cable_locked
+                    - entity_id: binary_sensor.ehhatdgg_basic_schedule
+                      text: schedule
+                  disconnected:
+                    - entity_id: sensor.ehhatdgg_session_energy
+                      text: session_energy
+                      unit_show: true
+                    - entity_id: switch.ehhatdgg_cable_locked_permanently
+                      text: cable_locked
+                    - entity_id: calculated
+                      text: used_limit
+                      unit: A
+                      unit_show: true
+                      calc_function: min
+                      calc_entities:
+                        - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+                        - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+                        - entity_id: sensor.ehhatdgg_max_charger_limit
+                        - entity_id: sensor.ehhatdgg_max_circuit_limit
+                        - entity_id: sensor.ehhatdgg_offline_circuit_limit
+                  awaiting_start:
+                    - entity_id: sensor.ehhatdgg_session_energy
+                      text: session_energy
+                      unit_show: true
+                    - entity_id: binary_sensor.ehhatdgg_basic_schedule
+                      text: schedule
+                    - entity_id: switch.ehhatdgg_smart_charging
+                      text: smart_charging
+                    - entity_id: calculated
+                      text: used_limit
+                      unit: A
+                      unit_show: true
+                      calc_function: min
+                      calc_entities:
+                        - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+                        - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+                        - entity_id: sensor.ehhatdgg_max_charger_limit
+                        - entity_id: sensor.ehhatdgg_max_circuit_limit
+                        - entity_id: sensor.ehhatdgg_offline_circuit_limit
+                  charging:
+                    - entity_id: sensor.ehhatdgg_session_energy
+                      text: session_energy
+                      unit_show: true
+                    - entity_id: sensor.ehhatdgg_energy_per_hour
+                      text: energy_per_hour
+                      unit_show: true
+                    - entity_id: sensor.ehhatdgg_circuit_current
+                      text: circuit_current
+                      unit_show: true
+                    - entity_id: sensor.ehhatdgg_output_limit
+                      text: output_limit
+                      unit_show: true
+                    - entity_id: sensor.ehhatdgg_current
+                      text: current
+                      unit_show: true
+                    - entity_id: sensor.ehhatdgg_power
+                      text: power
+                      unit_show: true
+                  completed:
+                    - entity_id: sensor.ehhatdgg_session_energy
+                      text: session_energy
+                      unit_show: true
+                    - entity_id: binary_sensor.ehhatdgg_basic_schedule
+                      text: schedule
+                    - entity_id: calculated
+                      text: used_limit
+                      unit: A
+                      unit_show: true
+                      calc_function: min
+                      calc_entities:
+                        - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+                        - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+                        - entity_id: sensor.ehhatdgg_max_charger_limit
+                        - entity_id: sensor.ehhatdgg_max_circuit_limit
+                        - entity_id: sensor.ehhatdgg_offline_circuit_limit
         - type: map
           default_zoom: 13
           dark_mode: true

@@ -4,67 +4,104 @@ browser_mod:
   data:
     title: Tuin verlichting
     timeout: 60000
-    style: |-
-      --popup-padding-x: 24px;
-      --popup-padding-y: 20px;
-      --popup-border-radius: 1em;
-      --popup-min-width: 600px;
+    size: wide
     content:
-      type: entities
-      entities:
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.garden_light
-            - title: Wandlampen
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.woodshed_light
-            - title: Houthok
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.dimmer_cabinroof_level
-            - title: Veranda
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.garden_lantern_light1
-            - title: Lantaarn 1
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.garden_lantern_light2
-            - title: Lantaarn 2
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.garden_lantern_light3
-            - title: Lantaarn 3
-        - type: custom:decluttering-card
-          template: light_button
-          variables:
-            - entity: light.hue_lily_light_fence_1
-            - title: Hek 1
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.hue_lily_light_fence_2
-            - title: Hek 2
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.hue_lily_light_fence_3
-            - title: Hek 3
-        - type: custom:decluttering-card
-          template: light_button
-          variables: 
-            - entity: light.hue_lily_light_tree_1
-            - title: Boom 1
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 1fr 1fr
+        grid-template-rows: auto
+        grid-template-areas: |
+          "part1 part2"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "part1"
+              "part2"
+      cards:
+        - type: entities
+          view_layout:
+            grid-area: part1
+          entities:
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.garden_light
+                - title: Wandlampen
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.woodshed_light
+                - title: Houthok
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.dimmer_cabinroof_level
+                - title: Veranda
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.pool_terrace_light1
+                - title: Zwembad hoek 1
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.pool_terrace_light2
+                - title: Zwembad hoek 2
 
-        # - entity: switch.pool_fountain
-        #   name: Fontein vijver
-        - entity: sensor.light_sensor_garden
-          name: Lichtsterkte buiten
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.palm1_light
+                - title: Palm 1
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.palm2_light
+                - title: Palm 2
+
+        - type: entities
+          view_layout:
+            grid-area: part2
+          entities:
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.garden_lantern_light1
+                - title: Lantaarn 1
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.garden_lantern_light2
+                - title: Lantaarn 2
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.garden_lantern_light3
+                - title: Lantaarn 3
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
+                - entity: light.hue_lily_light_fence_1
+                - title: Hek 1
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.hue_lily_light_fence_2
+                - title: Hek 2
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.hue_lily_light_fence_3
+                - title: Hek 3
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.hue_lily_light_tree_1
+                - title: Boom 1
+
+            - entity: sensor.light_sensor_garden
+              name: Lichtsterkte buiten
 

@@ -1,0 +1,22 @@
+{
+  "domain": "easee",
+  "name": "Easee EV charger",
+  "version": "0.9.48",
+  "documentation": "https://github.com/fondberg/easee_hass",
+  "issue_tracker": "https://github.com/fondberg/easee_hass/issues",
+  "requirements": [
+    "pyeasee==0.7.50"
+  ],
+  "config_flow": true,
+  "codeowners": [
+    "@fondberg",
+    "@tmjo",
+    "@olalid",
+    "@astrandb"
+  ],
+  "iot_class": "cloud_push",
+  "integration_type": "hub",
+  "loggers": [
+    "pyeasee"
+  ]
+}

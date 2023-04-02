@@ -12,11 +12,7 @@ from homeassistant.helpers.template import Template, attach
 from homeassistant.util import dt as dt_utils
 
 # Import sensor entity and classes.
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from jinja2 import pass_context
 
 from . import (
@@ -139,7 +135,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 class NordpoolSensor(SensorEntity):
     "Sensors data"
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = None
 
     def __init__(
         self,
@@ -158,7 +154,9 @@ class NordpoolSensor(SensorEntity):
         self._area = area
         self._currency = currency or _REGIONS[area][0]
         self._price_type = price_type
+        # Should be depricated in a future version
         self._precision = precision
+        self._attr_suggested_display_precision = precision
         self._low_price_cutoff = low_price_cutoff
         self._use_cents = use_cents
         self._api = api
@@ -358,7 +356,7 @@ class NordpoolSensor(SensorEntity):
 
     def _someday(self, data) -> list:
         """The data is already sorted in the xml,
-        but i dont trust that to continue forever. Thats why we sort it ourselfs."""
+        but I don't trust that to continue forever. That's why we sort it ourselves."""
         if data is None or data is SENTINEL:
             return []
 
@@ -425,6 +423,7 @@ class NordpoolSensor(SensorEntity):
             "raw_tomorrow": self.raw_tomorrow,
             "current_price": self.current_price,
             "additional_costs_current_hour": self.additional_costs,
+            "price_in_cents": self._use_cents,
         }
 
     def _add_raw(self, data) -> list:
@@ -472,7 +471,7 @@ class NordpoolSensor(SensorEntity):
 
     async def handle_new_day(self):
         """Update attrs for the new day"""
-        _LOGGER.debug("handel_new_day")
+        _LOGGER.debug("handle_new_day")
         self._data_tomorrow = None
         # update attrs for the new day
         await self.handle_new_hr()

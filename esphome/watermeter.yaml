@@ -56,6 +56,9 @@ api:
 # Enable over the air updates
 ota:
 
+web_server:
+  port: 80
+
 # Status LED of ESP
 status_led:
   pin: D3

@@ -22,3 +22,4 @@ logger:
     aiocasambi: info
     CasambiBt: debug
     bleak_retry_connector: debug
+    custom_components.multiscrape: debug

@@ -1,0 +1,40 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Noa
+    size: wide
+    content:
+      type: custom:frigate-card
+      dimensions:
+        aspect_ratio_mode: unconstrained
+      view:
+        default: live
+      menu:
+        buttons:
+          frigate:
+            enabled: false
+          snapshots:
+            enabled: true
+          frigate_ui:
+            enabled: false
+          fullscreen:
+            enabled: true
+        style: overlay
+        position: top
+      timeline:
+        window_seconds: 3600
+        media: all
+      cameras:
+        - camera_entity: camera.noabed
+          live_provider: webrtc-card
+          webrtc_card:
+            entity: camera.noa_camera_webrtc
+          frigate:
+            camera_name: Noa
+      media_viewer:
+        controls:
+          thumbnails:
+            mode: below
+          next_previous:
+            style: chevrons

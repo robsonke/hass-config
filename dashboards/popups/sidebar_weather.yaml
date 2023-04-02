@@ -46,6 +46,11 @@ browser_mod:
                 - entity: sensor.daily_rain_piezo
                 - entity: sensor.weekly_rain_piezo
                 - entity: sensor.monthly_rain_piezo
+            - type: history-graph
+              hours_to_show: 24
+              refresh_interval: 30
+              entities:
+                - sensor.temp
         - type: vertical-stack
           view_layout:
             grid-area: rain
@@ -91,4 +96,3 @@ browser_mod:
           camera_image: camera.buienradar
           view_layout:
             grid-area: map
-        

@@ -86,7 +86,7 @@ browser_mod:
                   name: Vriezer Schuur
                 - entity: sensor.infrarood_eva_current_consumption
                   name: Verwarming Logeerkamer
-                - entity: sensor.infraroodpanel_eva2_current_consumption
+                - entity: sensor.infraroodpanel_noa_current_consumption
                   name: Verwarming Eva
                 - entity: sensor.all_light_power
                 - entity: sensor.all_housekeeping_entities_power

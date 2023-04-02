@@ -1,0 +1,62 @@
+{
+  "config": {
+    "abort": {
+      "already_setup": "You can only configure a single Easee connection."
+    },
+    "error": {
+      "auth_failure": "Unable to connect to Easee. Check your username and password.",
+      "connection_failure": "Unable to connect to Easee. Test again later.",
+      "refused_failure": "Connection refused to Easee. Test again later.",
+      "no_sites": "No monitored sites selected"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "password": "Password",
+          "username": "Username"
+        },
+        "description": "Please enter the username and password for your Easee account",
+        "title": "Connect to Easee"
+      },
+      "sites": {
+        "data": {
+          "monitored_sites": "Sites"
+        },
+        "description": "Select sites to monitor",
+        "title": "Easee EV Charger"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "monitored_conditions": "Charger sensors monitored",
+          "monitored_eq_conditions": "Equalizer sensors monitored",
+          "measured_consumption_days": "Consumption monitoring days",
+          "custom_units": "Custom units",
+          "monitored_sites": "Sites monitored"
+        },
+        "description": "Select options",
+        "title": "Easee EV Charger"
+      }
+    },
+    "error": {
+      "no_sites": "No monitored sites selected"
+    }
+  },
+  "system_health": {
+    "info": {
+      "reach_easee_cloud": "Reach Easee Cloud",
+      "component_version": "Version",
+      "connected2stream": "Connected to signalr"
+    }
+  },
+  "issues": {
+    "deprecated_service": {
+      "description": "The use of the service **{deprecation}** is deprecated and the service will be removed in the future.\n\nPlease convert your automations and scripts to use **{recommend}** as soon as possible",
+      "title": "Use of deprecated service: {deprecation}"
+    }
+  },
+  "title": "Easee EV Charger"
+}

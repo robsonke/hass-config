@@ -111,7 +111,15 @@ views:
               !include popups/person_eva.yaml
             hold_action:
               action: none
-            template: person_eva
+            template: person_kid
+          - type: custom:button-card
+            entity: camera.noabed
+            name: Noa
+            tap_action:
+              !include popups/person_noa.yaml
+            hold_action:
+              action: none
+            template: person_kid
 
           - type: custom:button-card
             entity: alarm_control_panel.alarmo
@@ -428,7 +436,7 @@ views:
                 [[[
                   let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off' && states['sensor.eurom_alutherm_power'].state > 50;
                   heating = heating || (states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50);
-                  heating = heating || states['switch.kasa_infrarood_eva'].state === 'on' || states['switch.infraroodpanel_eva2'].state === 'on'
+                  heating = heating || states['switch.kasa_infrarood_eva'].state === 'on' || states['switch.infraroodpanel_noa'].state === 'on'
                   return heating;
                 ]]]
             custom_fields:
@@ -584,7 +592,7 @@ views:
             variables:
               notify: >
                 [[[
-                  return entity.state === 'on' || states['sensor.stookwijzer'] !== 'blauw';
+                  return (entity.state === 'on' || states['sensor.stookwijzer'].state !== 'blauw') && states['sensor.stookwijzer'].state !== 'unavailable';
                 ]]]
           - type: custom:button-card
             template: footer
@@ -594,3 +602,9 @@ views:
               !include popups/footer_calendar.yaml
             hold_action:
               action: none
+          # - type: custom:mushroom-chips-card
+          #   alignment: justify
+          #   chips:
+          #     - type: entity
+          #       entity: binary_sensor.stookalert_zeeland
+          #       icon_color: orange

@@ -359,7 +359,7 @@ sensor:
             # 4 * 5.5W
             min_power: 0.5
             max_power: 22
-        - entity_id: light.slaapkamer_eva2
+        - entity_id: light.slaapkamer_noa
           linear:
             # 4 * 5.5W
             min_power: 0.5

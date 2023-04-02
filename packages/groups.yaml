@@ -38,7 +38,7 @@ group:
       - binary_sensor.windowdoor_ground_4_openclose_sensor
       - binary_sensor.window_office_openclose_sensor
       - binary_sensor.door_hallcloset_openclose_sensor
-      - binary_sensor.window_eva2room_openclose_sensor
+      - binary_sensor.window_noaroom_openclose_sensor
       - binary_sensor.window_eva_openclose_sensor
       - binary_sensor.window_masterbed_1_openclose_sensor
       - binary_sensor.window_masterbed_2_openclose_sensor
@@ -69,7 +69,7 @@ group:
     name: All doors and windows upstairs
     icon: mdi:window-closed-variant
     entities:
-      - binary_sensor.window_eva2room_openclose_sensor
+      - binary_sensor.window_noaroom_openclose_sensor
       - binary_sensor.window_eva_openclose_sensor
       - binary_sensor.window_masterbed_1_openclose_sensor
       - binary_sensor.window_masterbed_2_openclose_sensor
@@ -90,9 +90,9 @@ group:
       - sensor.light_sensor_garden
       - binary_sensor.hallwaydoor_openclose_sensor
       - binary_sensor.window_eva_openclose_sensor
-      - binary_sensor.window_eva2room_openclose_sensor
+      - binary_sensor.window_noaroom_openclose_sensor
       - sensor.climate_sensor_eva_temperature
-      - sensor.climate_sensor_eva2_temperature
+      - sensor.climate_sensor_noa_temperature
       - sensor.climate_sensor_guestroom_temperature
       - sensor.climate_sensor_masterbedroom_temperature
       - binary_sensor.motion_sensor_toiletdownstairs_presence
@@ -137,7 +137,7 @@ group:
       - light.inloopkast
       - light.logeerkamer
       - light.overloop
-      - light.slaapkamer_eva2
+      - light.slaapkamer_noa
       - light.eva
   lights_garden:
     name: Tuin
@@ -149,6 +149,11 @@ group:
       - light.hue_lily_light_fence_2
       - light.hue_lily_light_fence_3
       - light.hue_lily_light_tree_1
+      - light.woodshed_light
+      - light.palm1_light
+      - light.palm2_light
+      - light.pool_terrace_light1
+      - light.pool_terrace_light2
   
   hue_lights_garden:
     name: Tuin Hue
@@ -158,6 +163,10 @@ group:
       - light.hue_lily_light_fence_2
       - light.hue_lily_light_fence_3
       - light.hue_lily_light_tree_1
+      - light.palm1_light
+      - light.palm2_light
+      - light.pool_terrace_light1
+      - light.pool_terrace_light2
   
   music_downstairs:
     name: Muziek

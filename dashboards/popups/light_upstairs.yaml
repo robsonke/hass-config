@@ -51,8 +51,8 @@ browser_mod:
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - title: Eva2
-            - entity: light.slaapkamer_eva2
+            - title: Noa
+            - entity: light.slaapkamer_noa
         - type: custom:decluttering-card
           template: light_button
           variables: 

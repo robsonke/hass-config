@@ -112,7 +112,7 @@ devices:
   '0x00158d00053e0558':
     friendly_name: window_guestroom_openclose
   '0x00158d00053d6c24':
-    friendly_name: window_eva2room_openclose
+    friendly_name: window_noaroom_openclose
   '0x00158d000533c62a':
     friendly_name: climate_sensor_eva
   '0x00158d00053fdd47':
@@ -142,9 +142,17 @@ devices:
   '0x00158d0007e66b1b':
     friendly_name: climate_sensor_guestroom
   '0x00158d0007088b7f':
-    friendly_name: climate_sensor_eva2
+    friendly_name: climate_sensor_noa
   '0x84b4dbfffe0de05b':
     friendly_name: woodshed_light
+  '0x001788010c5ba9c2':
+    friendly_name: palm1_light
+  '0x001788010bf0fda4':
+    friendly_name: palm2_light
+  '0x001788010b972c35':
+    friendly_name: pool_terrace_light1
+  '0x001788010b9ceab7':
+    friendly_name: pool_terrace_light2
 availability:
   active:
     timeout: 10
