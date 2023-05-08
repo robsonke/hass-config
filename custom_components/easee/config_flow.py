@@ -15,7 +15,7 @@ from homeassistant.helpers.typing import ConfigType
 from pyeasee import AuthorizationFailedException, Easee, Site
 import voluptuous as vol
 
-from .const import CONF_MONITORED_SITES, CUSTOM_UNITS, CUSTOM_UNITS_OPTIONS, DOMAIN
+from .const import CONF_MONITORED_SITES, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 class EaseeConfigFlow(config_entries.ConfigFlow):
     """Easee config flow."""
 
-    VERSION = 2
+    VERSION = 3
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_PUSH
 
     def __init__(self):
@@ -75,11 +75,11 @@ class EaseeConfigFlow(config_entries.ConfigFlow):
                 errors["base"] = "auth_failure"
                 _LOGGER.debug("AuthorizationFailed")
 
-            except (ConnectionRefusedError):
+            except ConnectionRefusedError:
                 errors["base"] = "refused_failure"
                 _LOGGER.debug("ConnectionRefusedError")
 
-            except (ClientConnectionError):
+            except ClientConnectionError:
                 errors["base"] = "connection_failure"
                 _LOGGER.debug("ClientConnectionError")
 
@@ -94,7 +94,6 @@ class EaseeConfigFlow(config_entries.ConfigFlow):
     async def async_step_sites(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-
         errors = {}
         if user_input is not None:
             if len(user_input[CONF_MONITORED_SITES]) > 0:
@@ -161,10 +160,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                             CONF_MONITORED_SITES, default_sites
                         ),
                     ): cv.multi_select(sites_multi_select),
-                    vol.Optional(
-                        CUSTOM_UNITS,
-                        default=self.config_entry.options.get(CUSTOM_UNITS, []),
-                    ): cv.multi_select(CUSTOM_UNITS_OPTIONS),
                 }
             ),
             errors=errors,

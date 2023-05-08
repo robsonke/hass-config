@@ -153,6 +153,8 @@ devices:
     friendly_name: pool_terrace_light1
   '0x001788010b9ceab7':
     friendly_name: pool_terrace_light2
+  '0x001788010b408f59':
+    friendly_name: hue_lily_light_tree_2
 availability:
   active:
     timeout: 10

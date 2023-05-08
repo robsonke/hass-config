@@ -69,7 +69,7 @@ group:
     name: All doors and windows upstairs
     icon: mdi:window-closed-variant
     entities:
-      - binary_sensor.window_noaroom_openclose_sensor
+      - binary_sensor.window_noaroom_openclose_contact
       - binary_sensor.window_eva_openclose_sensor
       - binary_sensor.window_masterbed_1_openclose_sensor
       - binary_sensor.window_masterbed_2_openclose_sensor
@@ -149,6 +149,7 @@ group:
       - light.hue_lily_light_fence_2
       - light.hue_lily_light_fence_3
       - light.hue_lily_light_tree_1
+      - light.hue_lily_light_tree_2
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
@@ -163,6 +164,7 @@ group:
       - light.hue_lily_light_fence_2
       - light.hue_lily_light_fence_3
       - light.hue_lily_light_tree_1
+      - light.hue_lily_light_tree_2
       - light.palm1_light
       - light.palm2_light
       - light.pool_terrace_light1

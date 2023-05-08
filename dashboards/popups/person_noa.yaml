@@ -16,7 +16,7 @@ browser_mod:
             enabled: false
           snapshots:
             enabled: true
-          frigate_ui:
+          camera_ui:
             enabled: false
           fullscreen:
             enabled: true
@@ -27,9 +27,7 @@ browser_mod:
         media: all
       cameras:
         - camera_entity: camera.noabed
-          live_provider: webrtc-card
-          webrtc_card:
-            entity: camera.noa_camera_webrtc
+          live_provider: ha
           frigate:
             camera_name: Noa
       media_viewer:

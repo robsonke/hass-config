@@ -69,6 +69,58 @@ browser_mod:
                     - entity: sensor.glances_data_used_percent
                       icon: mdi:server
                       name: Disk Usage
+            - type: entities
+              title: Synology NAS
+              show_header_toggle: false
+              card_mod:
+                class: header
+              entities:
+                - type: custom:bar-card
+                  width: 55%
+                  height: 2em
+                  decimal: 0
+                  unit_of_measurement: '%'
+                  positions: &bar_card_positions_nas
+                    icon: outside
+                    indicator: 'off'
+                    name: outside
+                  severity: &bar_card_severity_nas
+                    - color: '#6d2525'
+                      from: 85
+                      to: 999
+                  entity_row: true
+                  entities:
+                    - entity: sensor.diskstation_cpu_load_total
+                      name: CPU
+                      icon: mdi:chip
+                    - entity: sensor.diskstation_memory_usage_real
+                      icon: mdi:memory
+                      name: Memory
+                    - entity: sensor.diskstation_volume_1_volume_used
+                      icon: mdi:server
+                      name: Disk Usage Volume 1
+                    - entity: sensor.diskstation_volume_2_volume_used
+                      icon: mdi:server
+                      name: Disk Usage Volume 2
+            - type: entities
+              title: Internet
+              show_header_toggle: false
+              card_mod:
+                class: header
+              entities:
+                - type: custom:uptime-card
+                  entity: binary_sensor.internet_ping
+                  icon: mdi:raspberry-pi
+                  name: Internet Status
+                  icon_adaptive_color: true
+                  title_adaptive_color: true
+                  status_adaptive_color: true
+                  hours_to_show: 24
+                  alignment:
+                    status: spaced
+                    header: center
+                  show:
+                    footer: false
 
         - type: vertical-stack
           view_layout:

@@ -4,22 +4,47 @@ browser_mod:
   data:
     title: Screens
     timeout: 60000
+    size: wide
     content:
-      type: vertical-stack
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: auto
+        grid-template-rows: auto
+        grid-template-areas: |
+          "settings history"
+          "cover1   cover2"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: 50% 50%
+            grid-template-rows: auto
+            grid-template-areas: |
+              "settings"
+              "cover1"
+              "cover2"
+              "history"
       cards:
         - type: entities
+          view_layout:
+            grid-area: settings
           show_header_toggle: false
           title: Automatisch?
           entities:
             - entity: input_boolean.enable_automatic_screens
               name: Screens automatisch aansturen vandaag?
         - type: custom:more-info-card
+          view_layout:
+            grid-area: cover1
           entity: cover.voorraam
           title: Voorkant
         - type: custom:more-info-card
+          view_layout:
+            grid-area: cover2
           entity: cover.zijraam
           title: Zijkant
         - type: history-graph
+          view_layout:
+            grid-area: history
           hours_to_show: 12
           entities:
             - cover.voorraam

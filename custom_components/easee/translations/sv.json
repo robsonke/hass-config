@@ -6,10 +6,17 @@
     "error": {
       "auth_failure": "Autentisering misslyckades. Kontrollera användarnamn och lösenord.",
       "connection_failure": "Kan inte ansluta till Easee. Försök igen senare.",
-      "refused_failure": "Anslutning nekades till Easee. Försök igen senare.",
-      "no_sites": "Ingen plats vald"
+      "no_sites": "Ingen plats vald",
+      "refused_failure": "Anslutning nekades till Easee. Försök igen senare."
     },
     "step": {
+      "sites": {
+        "data": {
+          "monitored_sites": "Platser"
+        },
+        "description": "Välj platser att monitorera",
+        "title": "Easee EV Charger"
+      },
       "user": {
         "data": {
           "password": "Lösenord",
@@ -17,32 +24,209 @@
         },
         "description": "Ange användarnamn och lösenord för ditt Easee-konto",
         "title": "Anslut till Easee"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "basic_schedule": {
+        "name": "Grundschema"
       },
-      "sites": {
-        "data": {
-          "monitored_sites": "Platser"
-        },
-        "description": "Välj platser att monitorera",
-        "title": "Easee EV Charger"
+      "cable_locked": {
+        "name": "Kabellås"
+      },
+      "online": {
+        "name": "Online"
+      },
+      "update_available": {
+        "name": "Uppdatering tillgänglig"
+      },
+      "weekly_schedule": {
+        "name": "Veckoschema"
+      }
+    },
+    "sensor": {
+      "circuit_current": {
+        "name": "Kretsström"
+      },
+      "cost_day": {
+        "name": "Kostnad idag"
+      },
+      "cost_month": {
+        "name": "Kostnad denna månad"
+      },
+      "cost_per_kwh": {
+        "name": "Kostnad per kWh"
+      },
+      "cost_year": {
+        "name": "Kostnad i år"
+      },
+      "current": {
+        "name": "Ström"
+      },
+      "dynamic_charger_limit": {
+        "name": "Dynamisk laddarbegränsning"
+      },
+      "dynamic_circuit_limit": {
+        "name": "Dynamisk kretsbegränsning"
+      },
+      "easee_reason_no_current": {
+        "name": "Anledning för ingen ström",
+        "state": {
+          "car_not_charging": "Fordonet laddar inte",
+          "charger_disabled": "Laddaren avstängd",
+          "charger_in_error_state": "Laddaren i felläge",
+          "circuit_fuse_too_low": "Kretssäkring för låg",
+          "eq_too_low_current": "Equalizerström för låg",
+          "ev_behaving_erratic": "Fordonsfel",
+          "illegal_grid_type": "Otillåten elnätstyp",
+          "limited_by_cable_rating": "Begränsad av kabel",
+          "limited_by_car": "Begränsad av fordon",
+          "limited_by_charger_dynamic_limit": "Begränsad av laddboxens dynamiska gräns",
+          "limited_by_charger_max_limit": "Begränsad av laddboxens maxström",
+          "limited_by_circuit_dynamic_limit": "Begränsad av dynamisk krets-gräns",
+          "limited_by_circuit_fuse": "Begränsad av kretssäkring",
+          "limited_by_circuit_max_limit": "Begränsad av max krets-gräns",
+          "limited_by_equalizer": "Begränsad av equalizer",
+          "limited_by_load_balancing": "Begränsad av lastbalansering",
+          "limited_by_local_adjustment": "Begränsad av lokal justering",
+          "limited_by_offline_setting": "Begränsad av offline-läge",
+          "limited_by_schedule": "Begränsad av schema",
+          "max_charger_current_too_low": "Laddarens maxström för låg",
+          "max_circuit_current_too_low": "Max kretsström för låg",
+          "max_dynamic_charger_current_too_low": "Laddarens dynamiska maxström för låg",
+          "max_dynamic_circuit_current_too_low": "Max dynamisk kretsström för låg",
+          "max_dynamic_offline_fallback_circuit_current_too_low": "Max dynamic offline fallback circuit current too low",
+          "no_current_request": "Ingen begäran om ström från sekundär enhet",
+          "none": "Ingen",
+          "not_connected_to_master": "Inte ansluten till master",
+          "not_requesting_current": "Sekundär enhet begär ingen ström",
+          "ok": "OK",
+          "pending_authorization": "Inväntar autentisering",
+          "pending_schedule": "Inväntar schema",
+          "phase_not_connected": "Fas ej ansluten",
+          "undefined": "Ej definierat",
+          "waiting_in_fully": "Waiting in fully",
+          "waiting_in_queue": "Väntar i kö"
+        }
+      },
+      "easee_status": {
+        "name": "Status",
+        "state": {
+          "authenticating": "Autentiserar",
+          "awaiting_authentication": "Väntar på autentisering",
+          "awaiting_authorization": "Väntar på godkännande",
+          "awaiting_load_balancing": "Väntar på lastbalansering",
+          "awaiting_scheduled_start": "Väntar på schemalagd start",
+          "awaiting_smart_start": "Väntar på smart start",
+          "awaiting_start": "Väntar på start",
+          "charging": "Laddar",
+          "completed": "Klar",
+          "de_authorizing": "Avslutar godkännande",
+          "disconnected": "Fordon ej anslutet",
+          "erratic_ev": "Fel i fordon",
+          "error": "Fel",
+          "error_dead_powerboard": "Fel Trasigt kretskort",
+          "error_overcurrent": "Fel Överström",
+          "error_pen_fault": "Fel Jordfel",
+          "error_temperature_too_high": "Error För hög temperatur",
+          "offline": "Offline",
+          "paused_due_to_equalizer": "Pausad av Equalizer",
+          "ready_to_charge": "Redo för laddning",
+          "searching_for_master": "Letar efter master",
+          "start_charging": "Starta laddning",
+          "stop_charging": "Stoppa laddning"
+        }
+      },
+      "energy_per_hour": {
+        "name": "Energi senaste timme"
+      },
+      "equalizer_limit": {
+        "name": "Equalizer begränsning"
+      },
+      "export_energy": {
+        "name": "Exporterad energi"
+      },
+      "export_power": {
+        "name": "Exporterad effekt"
+      },
+      "export_reactive_energy": {
+        "name": "Exporterad reaktiv energi"
+      },
+      "export_reactive_power": {
+        "name": "Exporterad reaktiv effekt"
+      },
+      "import_energy": {
+        "name": "Importerad energi"
+      },
+      "import_power": {
+        "name": "Importerad effekt"
+      },
+      "import_reactive_energy": {
+        "name": "Importerad reaktiv energi"
+      },
+      "import_reactive_power": {
+        "name": "Importerad reaktiv effekt"
+      },
+      "internal_temperature": {
+        "name": "Intern temperatur"
+      },
+      "lifetime_energy": {
+        "name": "Livstidsförbrukning"
+      },
+      "max_charger_limit": {
+        "name": "Max laddarbegränsning"
+      },
+      "max_circuit_limit": {
+        "name": "Max kretsbegränsning"
+      },
+      "offline_circuit_limit": {
+        "name": "Offline kretsbegränsning"
+      },
+      "output_limit": {
+        "name": "Total begränsning"
+      },
+      "power": {
+        "name": "Effekt"
+      },
+      "session_energy": {
+        "name": "Energi laddningssession"
+      },
+      "voltage": {
+        "name": "Spänning"
+      }
+    },
+    "switch": {
+      "cable_locked_permanently": {
+        "name": "Permanent kabellås"
+      },
+      "idle_current": {
+        "name": "Viloström"
+      },
+      "is_enabled": {
+        "name": "Laddare aktiverad"
+      },
+      "smart_charging": {
+        "name": "Smart laddning"
       }
     }
   },
   "options": {
+    "error": {
+      "no_sites": "Ingen monitorerad plats vald"
+    },
     "step": {
       "init": {
         "data": {
+          "custom_units": "Anpassade enheter",
+          "measured_consumption_days": "Förbrukning - antal dagar",
           "monitored_conditions": "Monitorerade laddbox-sensorer",
           "monitored_eq_conditions": "Monitorerade equalizer-sensorer",
-          "measured_consumption_days": "Förbrukning - antal dagar",
-          "custom_units": "Anpassade enheter",
           "monitored_sites": "Monitorerade platser"
         },
         "description": "Välj inställningar",
         "title": "Easee EV Charger"
       }
-    },
-    "error": {
-      "no_sites": "Ingen monitorerad plats vald"
     }
   },
   "title": "Easee EV Charger"

@@ -1,12 +1,13 @@
 """Easee charger component."""
-import asyncio
 import logging
 
+from awesomeversion import AwesomeVersion
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import __version__ as HA_VERSION
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, LISTENER_FN_CLOSE, PLATFORMS, VERSION
+from .const import DOMAIN, LISTENER_FN_CLOSE, MIN_HA_VERSION, PLATFORMS, VERSION
 from .controller import Controller
 from .services import async_setup_services
 
@@ -15,6 +16,13 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the Easee integration component."""
+    current = AwesomeVersion(HA_VERSION)
+    req_min = AwesomeVersion(MIN_HA_VERSION)
+    if current < req_min:
+        _LOGGER.error(
+            "Integration requires Home Assistant version %s or later", req_min
+        )
+        return False
     return True
 
 
@@ -32,12 +40,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     await controller.initialize()
     hass.data[DOMAIN]["controller"] = controller
 
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Setup services
     await async_setup_services(hass)
 
     undo_listener = entry.add_update_listener(config_entry_update_listener)
@@ -51,14 +55,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
-    unload_ok = all(
-        await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, component)
-                for component in PLATFORMS
-            ]
-        )
-    )
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
     if hass.data[DOMAIN]["controller"] is not None:
         await hass.data[DOMAIN]["controller"].cleanup()
     if unload_ok:
@@ -69,7 +67,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 async def config_entry_update_listener(hass: HomeAssistant, entry: ConfigEntry):
-
+    """Update listener."""
     await hass.config_entries.async_reload(entry.entry_id)
 
 
@@ -78,7 +76,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
     _LOGGER.info("Migrating from version %s", config_entry.version)
 
     if config_entry.version == 1:
-
         options = {**config_entry.options}
         # modify Config Entry data
         if "monitored_conditions" in options:
@@ -90,6 +87,16 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         config_entry.options = {**options}
 
         config_entry.version = 2
+
+    if config_entry.version == 2:
+        options = {**config_entry.options}
+        # modify Config Entry data
+        if "custom_units" in options:
+            options.pop("custom_units")
+
+        config_entry.options = {**options}
+
+        config_entry.version = 3
 
     _LOGGER.info("Migration to version %s successful", config_entry.version)
 

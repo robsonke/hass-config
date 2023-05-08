@@ -33,7 +33,7 @@ browser_mod:
                 enabled: false
               image:
                 enabled: false
-              frigate_ui:
+              camera_ui:
                 enabled: false
             style: overlay
             position: top
@@ -46,9 +46,7 @@ browser_mod:
                 media: snapshots
           cameras:
             - camera_entity: camera.doorbell
-              live_provider: webrtc-card
-              webrtc_card:
-                entity: camera.doorbell_camera_webrtc
+              live_provider: ha
               frigate:
                 camera_name: Voordeur
           media_viewer:

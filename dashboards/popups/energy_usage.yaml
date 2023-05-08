@@ -18,8 +18,8 @@ browser_mod:
             grid-template-columns: auto
             grid-template-rows: auto
             grid-template-areas: |
-              "details"
               "details2"
+              "details"
       cards:
         - type: vertical-stack
           view_layout:
@@ -126,11 +126,28 @@ browser_mod:
                 count: 10
                 numeric: true
                 reverse: true
-            - type: energy-date-selection
-            - type: energy-distribution
-              link_dashboard: true
-              view_layout:
-                position: sidebar
+
+            - type: 'custom:bar-card'
+              entities:
+                - sensor.current_phase_1
+                - sensor.current_phase_2
+                - sensor.current_phase_3
+              title: Fasen
+              direction: up
+              max: 25
+              height: 200px
+              stack: horizontal
+              severity:
+              - color: Red
+                from: 20
+                to: 35
+              - color: Orange
+                from: 15
+                to: 20
+              - color: Green
+                from: 0
+                to: 15
+
             - type: energy-usage-graph
             - type: energy-devices-graph
             - type: entities
@@ -348,3 +365,8 @@ browser_mod:
                 - min: 0
                   decimals: 2
             - type: energy-sources-table
+            - type: energy-date-selection
+            - type: energy-distribution
+              link_dashboard: true
+              view_layout:
+                position: sidebar

@@ -21,6 +21,7 @@ esphome:
 wifi:
   ssid: ${ssid}
   password: ${password}
+  use_address: ${ip}
   manual_ip:
     static_ip: ${ip}
     gateway: 192.168.0.1

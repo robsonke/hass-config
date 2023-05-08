@@ -6,7 +6,7 @@ from datetime import datetime
 import logging
 from typing import Callable, List
 
-from homeassistant.const import ENERGY_WATT_HOUR, POWER_WATT
+from homeassistant.const import UnitOfEnergy, UnitOfPower
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.entity_registry import async_entries_for_device
@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def round_to_dec(value, decimals=None, unit=None):
     """Round to selected no of decimals."""
-    if unit == POWER_WATT or unit == ENERGY_WATT_HOUR:
+    if unit == UnitOfPower.WATT or unit == UnitOfEnergy.WATT_HOUR:
         value = value * 1000
         decimals = None
     try:
@@ -32,22 +32,27 @@ def round_to_dec(value, decimals=None, unit=None):
 
 
 def round_2_dec(value, unit=None):
+    """Round to 2 decimals."""
     return round_to_dec(value, 2, unit)
 
 
 def round_1_dec(value, unit=None):
+    """Round to 1 decimal."""
     return round_to_dec(value, 1, unit)
 
 
 def round_0_dec(value, unit=None):
+    """Round to 0 decimals."""
     return round_to_dec(value, None, unit)
 
 
 def map_charger_status(value, unit=None):
+    """Map charger status."""
     return EASEE_STATUS.get(value, f"unknown {value}")
 
 
 def map_reason_no_current(value, unit=None):
+    """Map reason for no current."""
     return REASON_NO_CURRENT.get(value, f"unknown {value}")
 
 
@@ -79,8 +84,9 @@ class ChargerEntity(Entity):
         enabled_default=True,
         state_class=None,
         entity_category=None,
+        translation_key=None,
+        suggested_display_precision=None,
     ):
-
         """Initialize the entity."""
         self.controller = controller
         self.data = data
@@ -94,10 +100,13 @@ class ChargerEntity(Entity):
         self._switch_func = switch_func
         self._attr_unique_id = f"{self.data.product.id}_{self._entity_name}"
         self._attr_device_class = device_class
+        self._attr_translation_key = translation_key
+        self._attr_suggested_display_precision = suggested_display_precision
         self._attr_icon = icon
         self._attr_should_poll = False
         self._attr_entity_registry_enabled_default = enabled_default
-        self._attr_name = f"{self._entity_name}".capitalize().replace("_", " ")
+        if translation_key is None:
+            self._attr_name = f"{self._entity_name}".capitalize().replace("_", " ")
         self._attr_has_entity_name = True
         self._attr_state_class = state_class
         self._attr_entity_category = entity_category
@@ -107,7 +116,10 @@ class ChargerEntity(Entity):
             name=self.data.product.name,
             manufacturer="Easee",
             model="Charging Robot",
-            configuration_url=f"https://easee.cloud/mypage/products/{self.data.product.id}",
+            configuration_url=(
+                f"https://easee.cloud/sites/{self.data.site.id}"
+                f"/products/{self.data.product.id}"
+            ),
         )
 
     async def async_added_to_hass(self) -> None:
@@ -143,11 +155,11 @@ class ChargerEntity(Entity):
     @property
     def available(self):
         """Return True if entity is available."""
-        return self._state is not None
+        return True
 
     @property
-    def state_attributes(self):
-        """Return the state attributes."""
+    def extra_state_attributes(self):
+        """Return the extra state attributes."""
         try:
             attrs = {
                 "name": self.data.product.name,
@@ -177,6 +189,7 @@ class ChargerEntity(Entity):
             return {}
 
     def set_value_from_key(self, key, value):
+        """Set value from key."""
         first, second = key.split(".")
         if first == "config":
             if self.data.config is not None:
@@ -201,6 +214,7 @@ class ChargerEntity(Entity):
         return value
 
     def get_value_from_key(self, key):
+        """Get value from key."""
         try:
             first, second = key.split(".")
             value = None
@@ -228,7 +242,7 @@ class ChargerEntity(Entity):
                 _LOGGER.error("Unknown first part of key: %s", key)
                 raise IndexError("Unknown first part of key")
 
-            if type(value) is datetime:
+            if isinstance(value, datetime):
                 value = dt.as_local(value)
         except KeyError:
             value = ""
@@ -244,6 +258,8 @@ class ChargerEntity(Entity):
         )
         try:
             self._state = self.get_value_from_key(self._state_key)
+            if self._state == "":
+                self._state = None
             if self._state_func is not None:
                 if self._state_key.startswith("state"):
                     self._state = self._state_func(self.data.state)
@@ -256,6 +272,8 @@ class ChargerEntity(Entity):
             if self._convert_units_func is not None:
                 self._state = self._convert_units_func(self._state, self._units)
 
+        except KeyError:
+            self._state = None
         except IndexError as exc:
             raise IndexError(f"Wrong key for entity: {self._state_key}") from exc
         except TypeError:

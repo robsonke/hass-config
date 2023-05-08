@@ -464,7 +464,7 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'on'
       - condition: state
-        entity_id: light.dimmer_cabinroof_level
+        entity_id: light.hue_lily_light_fence_1
         state: 'off'
     - condition: and
       conditions:
@@ -476,7 +476,7 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'on'
       - condition: state
-        entity_id: light.dimmer_cabinroof_level
+        entity_id: light.hue_lily_light_fence_1
         state: 'off'
       - condition: state
         entity_id: light.garden_lantern_light1
@@ -2658,62 +2658,57 @@
       entity_id: cover.zijraam
   mode: single
 - id: '1659880318627'
-  alias: DHW - Enable warm water heating
-  description: Enable the heatpump based on need and energy pricing
+  alias: Pool - Control the Pool Heatpump
+  description: Turn on the pool heatpump based on need and energy pricing and outdoor
+    temperature
   trigger:
   - platform: numeric_state
     entity_id: sensor.energy_price_level
     attribute: percentage
-    below: '91'
+    below: '100'
   - platform: state
-    entity_id: water_heater.domestic_hot_water_tank
-  - platform: time_pattern
-    minutes: /10
+    entity_id: sensor.today_maximum_temperature
+  - platform: state
+    entity_id:
+    - binary_sensor.pool_pump_active
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
   condition:
-  - condition: or
-    conditions:
-    - condition: and
-      conditions:
-      - condition: numeric_state
-        entity_id: sensor.energy_price_level
-        attribute: percentage
-        below: '91'
-      - condition: numeric_state
-        entity_id: water_heater.domestic_hot_water_tank
-        attribute: current_temperature
-        below: '40'
-        above: '0'
-    - condition: numeric_state
-      entity_id: water_heater.domestic_hot_water_tank
-      attribute: current_temperature
-      below: '32'
-      above: '0'
+  - condition: numeric_state
+    entity_id: sensor.today_maximum_temperature
+    above: 14
   - condition: state
-    entity_id: water_heater.domestic_hot_water_tank
-    attribute: operation_mode
-    state: 'off'
+    entity_id: binary_sensor.pool_pump_active
+    state: 'on'
     for:
       hours: 0
       minutes: 0
       seconds: 0
-  - condition: numeric_state
-    entity_id: sensor.energy_price_level
-    attribute: percentage
-    below: 125
   action:
-  - service: water_heater.set_temperature
-    data:
-      temperature: 50
-    target:
-      entity_id: water_heater.domestic_hot_water_tank
-  - service: water_heater.set_operation_mode
-    data:
-      operation_mode: 'on'
-    target:
-      entity_id: water_heater.domestic_hot_water_tank
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energy_price_level
+        attribute: percentage
+        below: 100
+      - condition: numeric_state
+        entity_id: sensor.today_maximum_temperature
+        above: 14
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.heatpump_pool_switch
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.heatpump_pool_switch
+  mode: single
   trace:
     stored_traces: 50
-  mode: single
 - id: '1659881596095'
   alias: DHW - Disable warm water heating
   description: Disable the heatpump based on need and energy pricing. Also lower the
@@ -3369,6 +3364,25 @@
   - service: notify.mobile_app_iphone_rob
     data:
       message: "\U0001F3A5 Frigate staat uit, aanzetten aub"
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1683057208426'
+  alias: Vacuum - Alert Sjorsje offline
+  description: Alert when Sjorsje is offline
+  trigger:
+  - platform: state
+    entity_id:
+    - vacuum.sjorsje
+  condition:
+  - condition: state
+    entity_id: vacuum.sjorsje
+    state: unavailable
+  action:
+  - service: notify.all_phones
+    data:
+      message: "\U0001F5D1 Sjorsje is onbereikbaar"
       data:
         persistent: true
         tag: persistent

@@ -98,6 +98,8 @@ browser_mod:
                 - type: 'custom:webrtc-camera'
                   entity: camera.reoachtertuin_camera_webrtc
                 - type: 'custom:webrtc-camera'
+                  entity: camera.zwembad_camera_webrtc
+                - type: 'custom:webrtc-camera'
                   entity: camera.eva_camera_webrtc
                 - type: 'custom:webrtc-camera'
                   entity: camera.noa_camera_webrtc

@@ -1,15 +1,39 @@
 #include "axp192.h"
 #include "esphome/core/log.h"
 #include "esp_sleep.h"
+#include <Esp.h>
 
 namespace esphome {
 namespace axp192 {
 
 static const char *TAG = "axp192.sensor";
-
 void AXP192Component::setup() 
 {
-  begin(false, false, false, false, false);
+//   switch (this->model_) {
+    // case AXP192_M5STICKC:
+    // {
+    //     begin(false, false, false, false, false);
+    // }
+    // case AXP192_M5CORE2:
+    // {
+        // disable LDO3 Vibration
+        // ROB: changed second param to false to disable the buzzing
+        begin(false, true, false, false, false);
+    // }
+    // case AXP192_M5TOUGH:
+    // {
+    //     begin(false, false, false, false, false);
+
+    //     // If we're waking from a cold boot
+    //     if (GetStartupReason() == "ESP_RST_POWERON")
+    //     {
+    //         ESP_LOGD(TAG, "First power on, restarting ESP...");
+
+    //         // Reboot the ESP with the axp initialised
+    //         ESP.restart();
+    //     }
+    // }
+//   }
 }
 
 void AXP192Component::dump_config() {
@@ -41,8 +65,27 @@ void AXP192Component::update() {
 
 void AXP192Component::begin(bool disableLDO2, bool disableLDO3, bool disableRTC, bool disableDCDC1, bool disableDCDC3)
 {  
-    // Set LDO2 & LDO3(TFT_LED & TFT) 3.0V
-    Write1Byte(0x28, 0xcc);	
+  switch (this->model_) {
+    case AXP192_M5STICKC:
+    {
+        // Set LDO2 & LDO3(TFT_LED & TFT) 3.0V
+        Write1Byte(0x28, 0xcc);	
+    }
+    case AXP192_M5CORE2:
+    {
+        // Set DCDC3 (TFT_LED & TFT) 3.0V
+        Write1Byte(0x27, 0xcc);	
+        // Set LDO2 & LDO3(TFT_LED & TFT) 3.0V
+        Write1Byte(0x28, 0xcc);	
+    }
+    case AXP192_M5TOUGH:
+    {
+        // Set DCDC3 (TFT_LED & TFT) 3.0V
+        Write1Byte(0x27, 0xcc);	
+        // Set LDO2 & LDO3(TFT_LED & TFT) 3.0V
+        Write1Byte(0x28, 0xcc);	
+    }
+  }
 
     // Set ADC sample rate to 200hz
     Write1Byte(0x84, 0b11110010);
@@ -84,6 +127,7 @@ void AXP192Component::begin(bool disableLDO2, bool disableLDO3, bool disableRTC,
     
     // Enable bat detection
     Write1Byte(0x32, 0x46);
+	
 }
 
 void AXP192Component::Write1Byte( uint8_t Addr ,  uint8_t Data )
@@ -162,11 +206,12 @@ void AXP192Component::ReadBuff( uint8_t Addr , uint8_t Size , uint8_t *Buff )
 
 void AXP192Component::UpdateBrightness()
 {
-    ESP_LOGD(TAG, "Brightness=%f (Curr: %f)", brightness_, curr_brightness_);
     if (brightness_ == curr_brightness_)
     {
         return;
     }
+
+    ESP_LOGD(TAG, "Brightness=%f (Curr: %f)", brightness_, curr_brightness_);
     curr_brightness_ = brightness_;
 
     const uint8_t c_min = 7;
@@ -177,12 +222,27 @@ void AXP192Component::UpdateBrightness()
     {
         ubri = c_max;
     }
-    uint8_t buf = Read8bit( 0x28 );
-    Write1Byte( 0x28 , ((buf & 0x0f) | (ubri << 4)) );
+    switch (this->model_) {
+      case AXP192_M5STICKC:
+      {
+        uint8_t buf = Read8bit( 0x28 );
+        Write1Byte( 0x28 , ((buf & 0x0f) | (ubri << 4)) );
+      }
+      case AXP192_M5CORE2:
+      {
+        uint8_t buf = Read8bit( 0x27 );
+	Write1Byte( 0x27 , ((buf & 0x80) | (ubri << 3)) );
+      }
+      case AXP192_M5TOUGH:
+      {
+        uint8_t buf = Read8bit( 0x27 );
+	Write1Byte( 0x27 , ((buf & 0x80) | (ubri << 3)) );
+      }
+    }
 }
 
 bool AXP192Component::GetBatState()
-{
+{	
     if( Read8bit(0x01) | 0x20 )
         return true;
     else
@@ -510,7 +570,6 @@ void AXP192Component::SetLDO3(bool State)
     Write1Byte( 0x12 , buf );
 }
 
-
 void AXP192Component::SetChargeCurrent(uint8_t current)
 {
     uint8_t buf = Read8bit(0x33);
@@ -527,6 +586,50 @@ void AXP192Component::SetAdcState(bool state)
 {
     Write1Byte(0x82, state ? 0xff : 0x00);
 }
-}
-}
 
+std::string AXP192Component::GetStartupReason() {
+  esp_reset_reason_t reset_reason = ::esp_reset_reason();
+  if (reset_reason == ESP_RST_DEEPSLEEP) {
+    esp_sleep_source_t wake_reason = esp_sleep_get_wakeup_cause();
+    if (wake_reason == ESP_SLEEP_WAKEUP_EXT0)
+      return "ESP_SLEEP_WAKEUP_EXT0";
+    if (wake_reason == ESP_SLEEP_WAKEUP_EXT0)
+      return "ESP_SLEEP_WAKEUP_EXT0";
+    if (wake_reason == ESP_SLEEP_WAKEUP_EXT1)
+      return "ESP_SLEEP_WAKEUP_EXT1";
+    if (wake_reason == ESP_SLEEP_WAKEUP_TIMER)
+      return "ESP_SLEEP_WAKEUP_TIMER";
+    if (wake_reason == ESP_SLEEP_WAKEUP_TOUCHPAD)
+      return "ESP_SLEEP_WAKEUP_TOUCHPAD";
+    if (wake_reason == ESP_SLEEP_WAKEUP_ULP)
+      return "ESP_SLEEP_WAKEUP_ULP";
+    if (wake_reason == ESP_SLEEP_WAKEUP_GPIO)
+      return "ESP_SLEEP_WAKEUP_GPIO";
+    if (wake_reason == ESP_SLEEP_WAKEUP_UART)
+      return "ESP_SLEEP_WAKEUP_UART";
+    return std::string{"WAKEUP_UNKNOWN_REASON"};
+  }
+	
+  if (reset_reason == ESP_RST_UNKNOWN)
+    return "ESP_RST_UNKNOWN";
+  if (reset_reason == ESP_RST_POWERON)
+    return "ESP_RST_POWERON";
+  if (reset_reason == ESP_RST_SW)
+    return "ESP_RST_SW";
+  if (reset_reason == ESP_RST_PANIC)
+    return "ESP_RST_PANIC";
+  if (reset_reason == ESP_RST_INT_WDT)
+    return "ESP_RST_INT_WDT";
+  if (reset_reason == ESP_RST_TASK_WDT)
+    return "ESP_RST_TASK_WDT";
+  if (reset_reason == ESP_RST_WDT)
+    return "ESP_RST_WDT";
+  if (reset_reason == ESP_RST_BROWNOUT)
+    return "ESP_RST_BROWNOUT";
+  if (reset_reason == ESP_RST_SDIO)
+    return "ESP_RST_SDIO";
+  return std::string{"RESET_UNKNOWN_REASON"};
+}
+	
+}
+}

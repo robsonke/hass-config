@@ -6,10 +6,17 @@
     "error": {
       "auth_failure": "Unable to connect to Easee. Check your username and password.",
       "connection_failure": "Unable to connect to Easee. Test again later.",
-      "refused_failure": "Connection refused to Easee. Test again later.",
-      "no_sites": "No monitored sites selected"
+      "no_sites": "No monitored sites selected",
+      "refused_failure": "Connection refused to Easee. Test again later."
     },
     "step": {
+      "sites": {
+        "data": {
+          "monitored_sites": "Sites"
+        },
+        "description": "Select sites to monitor",
+        "title": "Easee EV Charger"
+      },
       "user": {
         "data": {
           "password": "Password",
@@ -17,45 +24,222 @@
         },
         "description": "Please enter the username and password for your Easee account",
         "title": "Connect to Easee"
-      },
-      "sites": {
-        "data": {
-          "monitored_sites": "Sites"
-        },
-        "description": "Select sites to monitor",
-        "title": "Easee EV Charger"
       }
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "data": {
-          "monitored_conditions": "Charger sensors monitored",
-          "monitored_eq_conditions": "Equalizer sensors monitored",
-          "measured_consumption_days": "Consumption monitoring days",
-          "custom_units": "Custom units",
-          "monitored_sites": "Sites monitored"
-        },
-        "description": "Select options",
-        "title": "Easee EV Charger"
+  "entity": {
+    "binary_sensor": {
+      "basic_schedule": {
+        "name": "Basic schedule"
+      },
+      "cable_locked": {
+        "name": "Cable lock"
+      },
+      "online": {
+        "name": "Online"
+      },
+      "update_available": {
+        "name": "Update available"
+      },
+      "weekly_schedule": {
+        "name": "Weekly schedule"
       }
     },
-    "error": {
-      "no_sites": "No monitored sites selected"
-    }
-  },
-  "system_health": {
-    "info": {
-      "reach_easee_cloud": "Reach Easee Cloud",
-      "component_version": "Version",
-      "connected2stream": "Connected to signalr"
+    "sensor": {
+      "circuit_current": {
+        "name": "Circuit current"
+      },
+      "cost_day": {
+        "name": "Cost day"
+      },
+      "cost_month": {
+        "name": "Cost month"
+      },
+      "cost_per_kwh": {
+        "name": "Cost per kWh"
+      },
+      "cost_year": {
+        "name": "Cost year"
+      },
+      "current": {
+        "name": "Current"
+      },
+      "dynamic_charger_limit": {
+        "name": "Dynamic charger limit"
+      },
+      "dynamic_circuit_limit": {
+        "name": "Dynamic circuit limit"
+      },
+      "easee_reason_no_current": {
+        "name": "Reason for no current",
+        "state": {
+          "car_not_charging": "EV not charging",
+          "charger_disabled": "Charger disabled",
+          "charger_in_error_state": "Charger in error state",
+          "circuit_fuse_too_low": "Circuit fuse too low",
+          "eq_too_low_current": "Equalizer current too low",
+          "ev_behaving_erratic": "EV behaving erratic",
+          "illegal_grid_type": "Illegal grid type",
+          "limited_by_cable_rating": "Limited by cable rating",
+          "limited_by_car": "Limited by EV",
+          "limited_by_charger_dynamic_limit": "Limited by charger dynamic limit",
+          "limited_by_charger_max_limit": "Limited by charger max limit",
+          "limited_by_circuit_dynamic_limit": "Limited by circuit dynamic limit",
+          "limited_by_circuit_fuse": "Limited by circuit fuse",
+          "limited_by_circuit_max_limit": "Limited by circuit max limit",
+          "limited_by_equalizer": "Limited by equalizer",
+          "limited_by_load_balancing": "Limited by load balancing",
+          "limited_by_local_adjustment": "Limited by local adjustment",
+          "limited_by_offline_setting": "Limited by offline setting",
+          "limited_by_schedule": "Limited by schedule",
+          "max_charger_current_too_low": "Max charger limit too low",
+          "max_circuit_current_too_low": "Max circuit current too low",
+          "max_dynamic_charger_current_too_low": "Max dynamic charger limit too low",
+          "max_dynamic_circuit_current_too_low": "Max circuit current too low",
+          "max_dynamic_offline_fallback_circuit_current_too_low": "Max dynamic offline fallback circuit current too low",
+          "no_current_request": "No current request",
+          "none": "None",
+          "not_connected_to_master": "Not connected to master",
+          "not_requesting_current": "Not requesting current",
+          "ok": "OK",
+          "pending_authorization": "Pending authorization",
+          "pending_schedule": "Pending schedule",
+          "phase_not_connected": "Phase not connected",
+          "undefined": "Undefined",
+          "waiting_in_fully": "Waiting in fully",
+          "waiting_in_queue": "Waiting in queue"
+        }
+      },
+      "easee_status": {
+        "name": "Status",
+        "state": {
+          "authenticating": "Authenticating",
+          "awaiting_authentication": "Waiting for authentication",
+          "awaiting_authorization": "Waiting for authorization",
+          "awaiting_load_balancing": "Waiting for load balancing",
+          "awaiting_scheduled_start": "Waiting for scheduled start",
+          "awaiting_smart_start": "Waiting for smart start",
+          "awaiting_start": "Awaiting start",
+          "charging": "Charging",
+          "completed": "Completed",
+          "de_authorizing": "Closing authorization",
+          "disconnected": "Car disconnected",
+          "erratic_ev": "Erratic EV",
+          "error": "Error",
+          "error_dead_powerboard": "Error Dead powerboard",
+          "error_overcurrent": "Error Overcurrent",
+          "error_pen_fault": "Error PEN fault",
+          "error_temperature_too_high": "Error Temperature too high",
+          "offline": "Offline",
+          "paused_due_to_equalizer": "Paused due to Equalizer",
+          "ready_to_charge": "Ready to charge",
+          "searching_for_master": "Searching for master",
+          "start_charging": "Start charging",
+          "stop_charging": "Stop charging"
+        }
+      },
+      "energy_per_hour": {
+        "name": "Energy per hour"
+      },
+      "equalizer_limit": {
+        "name": "Equalizer limit"
+      },
+      "export_energy": {
+        "name": "Export energy"
+      },
+      "export_power": {
+        "name": "Export power"
+      },
+      "export_reactive_energy": {
+        "name": "Export reactive energy"
+      },
+      "export_reactive_power": {
+        "name": "Export reactive power"
+      },
+      "import_energy": {
+        "name": "Import energy"
+      },
+      "import_power": {
+        "name": "Import power"
+      },
+      "import_reactive_energy": {
+        "name": "Import reactive energy"
+      },
+      "import_reactive_power": {
+        "name": "Import reactive power"
+      },
+      "internal_temperature": {
+        "name": "Internal temperature"
+      },
+      "lifetime_energy": {
+        "name": "Lifetime energy"
+      },
+      "max_charger_limit": {
+        "name": "Max charger limit"
+      },
+      "max_circuit_limit": {
+        "name": "Max circuit limit"
+      },
+      "offline_circuit_limit": {
+        "name": "Offline circuit limit"
+      },
+      "output_limit": {
+        "name": "Output limit"
+      },
+      "power": {
+        "name": "Power"
+      },
+      "session_energy": {
+        "name": "Session Energy"
+      },
+      "voltage": {
+        "name": "Voltage"
+      }
+    },
+    "switch": {
+      "cable_locked_permanently": {
+        "name": "Cable locked permanently"
+      },
+      "idle_current": {
+        "name": "Idle current"
+      },
+      "is_enabled": {
+        "name": "Charger enabled"
+      },
+      "smart_charging": {
+        "name": "Smart charging"
+      }
     }
   },
   "issues": {
     "deprecated_service": {
       "description": "The use of the service **{deprecation}** is deprecated and the service will be removed in the future.\n\nPlease convert your automations and scripts to use **{recommend}** as soon as possible",
       "title": "Use of deprecated service: {deprecation}"
+    }
+  },
+  "options": {
+    "error": {
+      "no_sites": "No monitored sites selected"
+    },
+    "step": {
+      "init": {
+        "data": {
+          "custom_units": "Custom units",
+          "measured_consumption_days": "Consumption monitoring days",
+          "monitored_conditions": "Charger sensors monitored",
+          "monitored_eq_conditions": "Equalizer sensors monitored",
+          "monitored_sites": "Sites monitored"
+        },
+        "description": "Select options",
+        "title": "Easee EV Charger"
+      }
+    }
+  },
+  "system_health": {
+    "info": {
+      "component_version": "Version",
+      "connected2stream": "Connected to signalr",
+      "reach_easee_cloud": "Reach Easee Cloud"
     }
   },
   "title": "Easee EV Charger"

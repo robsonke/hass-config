@@ -18,7 +18,7 @@ homeassistant:
   unit_system: metric
   time_zone: !secret time_zone
   external_url: !secret external_url
-  internal_url: !secret external_url
+  internal_url: !secret internal_url
   allowlist_external_dirs:
     - '/config/'
   auth_providers:

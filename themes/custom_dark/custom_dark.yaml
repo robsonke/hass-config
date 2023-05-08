@@ -157,7 +157,7 @@ custom-dark:
   card-mod-theme: custom-dark
 
   card-mod-root: |
-    ha-app-layout {
+    #view {
       background: var(--lovelace-background);
       background-size: cover;
     }
@@ -166,7 +166,6 @@ custom-dark:
     .: |
       hui-view {
         background: none !important;
-        min-height: 100vh;
       }
     #################################################
     #                                               #

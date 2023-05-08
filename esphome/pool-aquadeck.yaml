@@ -1,0 +1,57 @@
+substitutions:
+  ip: !secret pool_aquadeck_ip
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  api_key: !secret api_key
+
+esphome:
+  name: "pool-aquadeck"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: ${api_key}
+
+ota:
+
+wifi:
+  ssid: ${ssid}
+  password: ${password}
+  manual_ip:
+    static_ip: ${ip}
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+captive_portal:
+
+web_server:
+  port: 80
+
+switch:
+  - platform: gpio
+    pin: GPIO13
+    id: relay_cover_open
+    name: "Cover open"
+    icon: "mdi:garage-open"
+    interlock: [relay_cover_closed]
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: relay_cover_open
+  - platform: gpio
+    pin: GPIO14
+    id: relay_cover_closed
+    name: "Cover close"
+    icon: "mdi:garage"
+    interlock: [relay_cover_open]
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: relay_cover_closed
+

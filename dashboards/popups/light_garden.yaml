@@ -100,7 +100,12 @@ browser_mod:
               template: light_button
               variables: 
                 - entity: light.hue_lily_light_tree_1
-                - title: Boom 1
+                - title: Boom Eva
+            - type: custom:decluttering-card
+              template: light_button
+              variables: 
+                - entity: light.hue_lily_light_tree_2
+                - title: Boom Noa
 
             - entity: sensor.light_sensor_garden
               name: Lichtsterkte buiten

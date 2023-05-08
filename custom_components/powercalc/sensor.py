@@ -5,10 +5,12 @@ from __future__ import annotations
 import copy
 import logging
 import uuid
+from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Any, Final, NamedTuple, Optional
 
 import homeassistant.helpers.config_validation as cv
+import homeassistant.helpers.device_registry as dr
 import homeassistant.helpers.entity_registry as er
 import voluptuous as vol
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
@@ -234,7 +236,9 @@ async def async_setup_platform(
 ) -> None:
     """Setup sensors from YAML config sensor entries"""
 
-    await _async_setup_entities(hass, config, async_add_entities, discovery_info)
+    await _async_setup_entities(
+        hass, config, async_add_entities, discovery_info=discovery_info
+    )
 
 
 async def async_setup_entry(
@@ -260,7 +264,9 @@ async def async_setup_entry(
     if CONF_UNIQUE_ID not in sensor_config:
         sensor_config[CONF_UNIQUE_ID] = entry.unique_id
 
-    await _async_setup_entities(hass, sensor_config, async_add_entities)
+    await _async_setup_entities(
+        hass, sensor_config, async_add_entities, config_entry=entry
+    )
     if updated_group_entry and updated_group_entry.state == ConfigEntryState.LOADED:
         await hass.config_entries.async_reload(updated_group_entry.entry_id)
 
@@ -269,6 +275,7 @@ async def _async_setup_entities(
     hass: HomeAssistant,
     config: dict[str, Any],
     async_add_entities: AddEntitiesCallback,
+    config_entry: ConfigEntry | None = None,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Main routine to setup power/energy sensors from provided configuration"""
@@ -276,7 +283,7 @@ async def _async_setup_entities(
     register_entity_services()
 
     try:
-        entities = await create_sensors(hass, config, discovery_info)
+        entities = await create_sensors(hass, config, discovery_info, config_entry)
     except SensorConfigurationError as err:
         _LOGGER.error(err)
         return
@@ -388,6 +395,7 @@ async def create_sensors(
     hass: HomeAssistant,
     config: ConfigType,
     discovery_info: DiscoveryInfoType | None = None,
+    config_entry: ConfigEntry | None = None,
     context: Optional[CreationContext] = None,
 ) -> EntitiesBucket:
     """Main routine to create all sensors (power, energy, utility, group) for a given entity"""
@@ -421,26 +429,21 @@ async def create_sensors(
             config[CONF_ENTITY_ID] = discovery_info[CONF_ENTITY_ID]
         merged_sensor_config = get_merged_sensor_configuration(global_config, config)
         return await create_individual_sensors(
-            hass, merged_sensor_config, context, discovery_info
+            hass, merged_sensor_config, context, config_entry, discovery_info
         )
 
     # Setup power sensors for multiple appliances in one config entry
     sensor_configs = {}
-    new_sensors = []
-    existing_sensors = []
-    if CONF_ENTITIES in config:
-        for entity_config in config[CONF_ENTITIES]:
-            # When there are nested entities, combine these with the current entities, recursively
-            if CONF_ENTITIES in entity_config or CONF_CREATE_GROUP in entity_config:
-                (child_new_sensors, child_existing_sensors) = await create_sensors(
-                    hass, entity_config, context=context
-                )
-                new_sensors.extend(child_new_sensors)
-                existing_sensors.extend(child_existing_sensors)
-                continue
+    entities_to_add = EntitiesBucket()
+    for entity_config in config.get(CONF_ENTITIES) or []:
+        # When there are nested entities, combine these with the current entities, recursively
+        if CONF_ENTITIES in entity_config or CONF_CREATE_GROUP in entity_config:
+            child_entities = await create_sensors(hass, entity_config, context=context)
+            entities_to_add.extend_items(child_entities)
+            continue
 
-            entity_id = entity_config.get(CONF_ENTITY_ID) or str(uuid.uuid4())
-            sensor_configs.update({entity_id: entity_config})
+        entity_id = entity_config.get(CONF_ENTITY_ID) or str(uuid.uuid4())
+        sensor_configs.update({entity_id: entity_config})
 
     # Automatically add a bunch of entities by area or evaluating template
     if CONF_INCLUDE in config:
@@ -454,20 +457,24 @@ async def create_sensors(
 
     # Create sensors for each entity
     for sensor_config in sensor_configs.values():
-        context = CreationContext(group=context.group, entity_config=sensor_config)
         try:
             merged_sensor_config = get_merged_sensor_configuration(
                 global_config, config, sensor_config
             )
-            new_entities = await create_individual_sensors(
-                hass, merged_sensor_config, context=context
+            entities_to_add.extend_items(
+                await create_individual_sensors(
+                    hass,
+                    merged_sensor_config,
+                    config_entry=config_entry,
+                    context=CreationContext(
+                        group=context.group, entity_config=sensor_config
+                    ),
+                )
             )
-            new_sensors.extend(new_entities.new)
-            existing_sensors.extend(new_entities.existing)
         except SensorConfigurationError as error:
             _LOGGER.error(error)
 
-    if not new_sensors and not existing_sensors:
+    if not entities_to_add.has_entities():
         if CONF_CREATE_GROUP in config:
             raise SensorConfigurationError(
                 f"Could not resolve any entities in group '{config.get(CONF_CREATE_GROUP)}'"
@@ -479,23 +486,23 @@ async def create_sensors(
 
     # Create group sensors (power, energy, utility)
     if CONF_CREATE_GROUP in config:
-        group_entities = new_sensors + existing_sensors
-        group_name = config.get(CONF_CREATE_GROUP)
-        group_sensors = await create_group_sensors(
-            group_name,
-            get_merged_sensor_configuration(global_config, config, validate=False),
-            group_entities,
-            hass=hass,
+        entities_to_add.new.extend(
+            await create_group_sensors(
+                config.get(CONF_CREATE_GROUP),
+                get_merged_sensor_configuration(global_config, config, validate=False),
+                entities_to_add.new + entities_to_add.existing,
+                hass=hass,
+            )
         )
-        new_sensors.extend(group_sensors)
 
-    return EntitiesBucket(new=new_sensors, existing=existing_sensors)
+    return entities_to_add
 
 
 async def create_individual_sensors(  # noqa: C901
     hass: HomeAssistant,
     sensor_config: dict,
     context: CreationContext,
+    config_entry: ConfigEntry | None = None,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> EntitiesBucket:
     """Create entities (power, energy, utility_meters) which track the appliance."""
@@ -563,13 +570,22 @@ async def create_individual_sensors(  # noqa: C901
 
     # Set the entity to same device as the source entity, if any available
     if source_entity.entity_entry and source_entity.device_entry:
+        device_id = source_entity.device_entry.id
+        device_registry = dr.async_get(hass)
         for entity in entities_to_add:
-            if not isinstance(entity, SensorEntity):
+            if not isinstance(entity, BaseEntity):
                 continue
             try:
-                setattr(entity, "device_id", source_entity.device_entry.id)
+                setattr(entity, "source_device_id", source_entity.device_entry.id)
             except AttributeError:
                 _LOGGER.error(f"{entity.entity_id}: Cannot set device id on entity")
+        if (
+            config_entry
+            and config_entry not in source_entity.device_entry.config_entries
+        ):
+            device_registry.async_update_device(
+                device_id, add_config_entry_id=config_entry.entry_id
+            )
 
     # Update several registries
     if discovery_info:
@@ -651,6 +667,9 @@ async def is_auto_configurable(
         )
         if not power_profile:
             return False
+        source_entity = await create_source_entity(entity_entry.entity_id, hass)
+        if not power_profile.is_entity_domain_supported(source_entity):
+            return False
         if power_profile.has_sub_profiles and power_profile.sub_profile:
             return True
         return not power_profile.is_additional_configuration_required
@@ -658,9 +677,17 @@ async def is_auto_configurable(
         return False
 
 
-class EntitiesBucket(NamedTuple):
-    new: list[BaseEntity] = []
-    existing: list[BaseEntity] = []
+@dataclass
+class EntitiesBucket:
+    new: list[BaseEntity] = field(default_factory=list)
+    existing: list[BaseEntity] = field(default_factory=list)
+
+    def extend_items(self, bucket: EntitiesBucket):
+        self.new.extend(bucket.new)
+        self.existing.extend(bucket.existing)
+
+    def has_entities(self) -> bool:
+        return bool(self.new) or bool(self.existing)
 
 
 class CreationContext(NamedTuple):

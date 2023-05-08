@@ -15,7 +15,7 @@ views:
       grid-template-areas: |
         "sidebar  .        .          .        ."
         "sidebar  home     downstairs upstairs ."
-        "sidebar  garden   energy     .        ."
+        "sidebar  garden   energy     people   ."
         "sidebar  footer   footer     footer   ."
       mediaquery:
         '(max-width: 800px)':
@@ -27,6 +27,7 @@ views:
             ".  sidebar    ."
             ".  footer     ."
             ".  home       ."
+            ".  people     ."
             ".  downstairs ."
             ".  upstairs   ."
             ".  garden     ."
@@ -39,7 +40,7 @@ views:
           grid-template-areas: |
             "sidebar  .        .          .        ."
             "sidebar  home     downstairs upstairs ."
-            "sidebar  garden   energy     .        ."
+            "sidebar  garden   energy     people   ."
             "sidebar  footer   footer     footer   ."
             "sidebar  .        .          .        ."
 
@@ -302,6 +303,7 @@ views:
             triggers_update:
               - binary_sensor.ix3_connection_status
               - binary_sensor.ix3_charging_status
+              - sensor.ehhatdgg_status
             styles:
               entity_picture:
                 - width: 45%
@@ -311,14 +313,15 @@ views:
                 icon:
                   - color: >
                       [[[
-                        let plugged = states['binary_sensor.ix3_connection_status'].state;
-                        if (plugged === 'on') return 'var(--state-icon-active-color)';
+                        let plugged = states['binary_sensor.ehhatdgg_cable_locked'].state;
+                        // weird but off seems to be plugged
+                        if (plugged === 'off') return 'var(--state-icon-active-color)';
                         return 'var(--custom-button-card-color-off)';
                       ]]]
                   - animation: >
                       [[[
-                        let charging = states['binary_sensor.ix3_charging_status'].state;
-                        if (charging === 'on') return 'blink 4s ease infinite';
+                        let charging = states['sensor.ehhatdgg_status'].state;
+                        if (charging === 'charging') return 'blink 4s ease infinite';
                         return 'none';
                       ]]]
             state:
@@ -359,14 +362,9 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
-            entity: binary_sensor.motion_sensor_cats_presence
-            template: cats
-            name: Boris&Puk
-            styles:
-              label:
-                - color: gray
-                - font-size: 11px
-            show_label: true
+            entity: sensor.heatpump_pool_water_temperature
+            template: pool
+            name: Zwembad
           - type: custom:button-card
             entity: group.lights_garden
             name: Tuin
@@ -504,6 +502,7 @@ views:
               - sensor.daily_consumption_energy
               - sensor.energy_price_level
               - sensor.solaredge_modbus
+              - sensor.electricity_cost_today
             name: Energie verbruik
             template:
               - energy
@@ -548,6 +547,28 @@ views:
                   - position: absolute
               state:
                 - color: rgba(0, 0, 0, 0)
+
+      #################################################
+      #                                               #
+      #                  People                       #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Wij
+        view_layout:
+          grid-area: people
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: binary_sensor.motion_sensor_cats_presence
+            template: cats
+            name: Boris&Puk
+            styles:
+              label:
+                - color: gray
+                - font-size: 11px
+            show_label: true
 
       #################################################
       #                                               #
@@ -602,9 +623,3 @@ views:
               !include popups/footer_calendar.yaml
             hold_action:
               action: none
-          # - type: custom:mushroom-chips-card
-          #   alignment: justify
-          #   chips:
-          #     - type: entity
-          #       entity: binary_sensor.stookalert_zeeland
-          #       icon_color: orange

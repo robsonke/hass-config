@@ -1,0 +1,137 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Zwembad
+    timeout: 60000
+    size: wide
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 40% 60%
+        grid-template-rows: auto
+        grid-template-areas: |
+          "settings camera"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "settings"
+              "camera"
+      cards:
+
+# is het dek open
+# pomp aan
+# verlichting
+
+        - type: vertical-stack
+          view_layout:
+            grid-area: settings
+          cards:
+            - type: entities
+              title: Waardes
+              show_header_toggle: false
+              card_mod:
+                class: header
+              entities:
+                - entity: sensor.pool_ph_value
+                  name: Ph waarde
+                - entity: sensor.pool_redox_value
+                  name: Redox waarde
+                - entity: sensor.pool_flow_value
+                  name: Flow?
+            - type: entities
+              title: Warmtepomp
+              show_header_toggle: false
+              card_mod:
+                class: header
+              entities:
+                - entity: switch.heatpump_pool_switch
+                  name: Warmtepomp
+                - entity: switch.heatpump_pool_smartmode
+                  name: Smart of Silent mode
+                - entity: number.heatpump_pool_water_temperature_target
+                  name: Gewenste temperatuur 
+                - entity: sensor.heatpump_pool_water_temperature
+                  name: Huidige temperatuur
+                - entity: sensor.heatpump_pool_speed
+                  name: Vermogen warmtepomp
+            - type: entities
+              title: Energie
+              show_header_toggle: false
+              card_mod:
+                class: header
+              entities: 
+                - entity: sensor.shelly_em3_zwembad_channel_b_power
+                  name: Pomp & roldek
+                - entity: sensor.shelly_em3_zwembad_channel_a_power
+                  name: Warmtepomp
+                - entity: sensor.shelly_em3_zwembad_channel_c_power
+                  name: Verlichting
+
+        - type: vertical-stack
+          view_layout:
+            grid-area: camera
+          cards:
+            - type: custom:frigate-card
+              dimensions:
+                aspect_ratio_mode: unconstrained
+              view:
+                default: live
+              menu:
+                buttons:
+                  frigate:
+                    enabled: false
+                  snapshots:
+                    enabled: true
+                  camera_ui:
+                    enabled: false
+                  fullscreen:
+                    enabled: true
+                style: overlay
+                position: top
+              timeline:
+                window_seconds: 3600
+                media: all
+              cameras:
+                - camera_entity: camera.zwembad
+                  live_provider: ha
+                  frigate:
+                    camera_name: Noa
+              media_viewer:
+                controls:
+                  thumbnails:
+                    mode: below
+                  next_previous:
+                    style: chevrons
+
+
+        # - type: entities
+        #   view_layout:
+        #     grid-area: settings
+        #   show_header_toggle: false
+        #   title: Automatisch?
+        #   entities:
+        #     - entity: input_boolean.enable_automatic_screens
+        #       name: Screens automatisch aansturen vandaag?
+        # - type: custom:more-info-card
+        #   view_layout:
+        #     grid-area: cover1
+        #   entity: cover.voorraam
+        #   title: Voorkant
+        # - type: custom:more-info-card
+        #   view_layout:
+        #     grid-area: cover2
+        #   entity: cover.zijraam
+        #   title: Zijkant
+        # - type: history-graph
+        #   view_layout:
+        #     grid-area: history
+        #   hours_to_show: 12
+        #   entities:
+        #     - cover.voorraam
+        #     - cover.zijraam
+
+

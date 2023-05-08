@@ -373,6 +373,13 @@ template:
         {{ (state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + 0.12599) * 1.21 }}
     state: >
       {{ (states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.12599) * 1.21 }}
+  
+  - name: "Electricity Cost Today"
+    unique_id: electricity_cost_today
+    unit_of_measurement: "EUR"
+    state: >
+      {{ states.sensor.accumulated_cost_langeweide.state | float - states.sensor.accumulated_reward_langeweide.state | float }}
+
 
   - name: "Energy Price Level"
     unique_id: energy_price_level
@@ -480,6 +487,16 @@ template:
     state: >
       {{ states.weather.openweathermap.attributes.forecast[0].temperature | float(default=20) }}
 
+# Pool sensors
+- binary_sensor:
+  - unique_id: pool_pump_active
+    attributes:
+      friendly_name: Pool Pump Active
+    state: >
+      {{ states.sensor.shelly_em3_zwembad_channel_b_power.state | float > 20 and states.sensor.pool_flow_value.state }}
+
+
+# Regular counters
 - sensor:
   - unique_id: count_automations
     attributes:

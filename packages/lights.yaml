@@ -12,21 +12,25 @@
 light:
   - platform: group
     name: Woonkamer
+    unique_id: woonkamer
     entities:
       - light.livingback_light
       - light.livingfront_light
   - platform: group
     name: Overloop
+    unique_id: overloop
     entities:
       - light.overloop_1
       - light.overloop_2
   - platform: group
     name: Keuken
+    unique_id: keuken
     entities:
       - light.kitchen_light
       - light.kitchencabin_light
   - platform: group
     name: Boekenkast
+    unique_id: boekenkast
     entities:
       - light.ledstrip_book1
       - light.ledstrip_book2

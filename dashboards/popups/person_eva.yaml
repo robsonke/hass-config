@@ -17,7 +17,7 @@ browser_mod:
             enabled: false
           snapshots:
             enabled: true
-          frigate_ui:
+          camera_ui:
             enabled: false
           fullscreen:
             enabled: true
@@ -25,9 +25,7 @@ browser_mod:
         position: top
       cameras:
         - camera_entity: camera.evabed
-          live_provider: webrtc-card
-          webrtc_card:
-            entity: camera.eva_camera_webrtc
+          live_provider: ha
           frigate:
             camera_name: Eva
       media_viewer:

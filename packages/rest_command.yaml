@@ -20,3 +20,11 @@ rest_command:
       X-Key: !secret auping_key
       accept: "application/json"
     payload: '{"CBU":{{ cbu }},"motor_1":{"Action":{{ motor_1_action }},"TimeInMs": {{ motor_1_time }} },"motor_2":{"Action":{{ motor_2_action }},"TimeInMs":{{ motor_2_time }}},"motor_3":{"Action":{{ motor_3_action }},"TimeInMs": {{ motor_3_time }}}}'
+  
+  todoist:
+    method: post
+    url: 'https://api.todoist.com/sync/v9/{{ url }}'
+    payload: '{{ payload }}'
+    headers:
+      Authorization: !secret todoist_apikey_auth
+    content_type: 'application/x-www-form-urlencoded'
