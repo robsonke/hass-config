@@ -49,51 +49,6 @@ browser_mod:
                     yellow: 3
                     red: 6
                   max: 10
-            - type: custom:apexcharts-card
-              config_templates: energy_chart
-              all_series_config:
-                type: line
-                group_by:
-                  duration: 10min
-                  func: max
-              apex_config:
-                yaxis:
-                  logarithmic: true
-              series:
-                - entity: sensor.altherma_power_usage
-                  name: Altherma Primary
-                - entity: sensor.shelly_plug_s_7_meterkast2_power
-                  name: Meterkast2
-                - entity: sensor.vaatwasser_switch_current_consumption
-                  name: Vaatwasser
-                - entity: sensor.wasmachine_switch_current_consumption
-                  name: Wasmachine
-                - entity: sensor.winecooler_switch_current_consumption
-                  name: Wijnkoeler
-                - entity: sensor.shelly_plug_droger_power
-                  name: Droger
-                - entity: sensor.shelly_plug_office_power
-                  name: Kantoor
-                - entity: sensor.eurom_alutherm_power
-                  name: Verwarming slaapkamer
-                - entity: sensor.shelly_plug_badkamer_verwarming_power
-                  name: Verwarming Badkamer
-                - entity: sensor.shelly_plug_douche_verwarming_power
-                  name: Verwarming Douche
-                - entity: sensor.shelly_plug_s_6_meterkast1_power
-                  name: Meterkast1
-                - entity: sensor.shelly_plug_s_8_fridge1_power
-                  name: Vriezer Schuur
-                - entity: sensor.infrarood_eva_current_consumption
-                  name: Verwarming Logeerkamer
-                - entity: sensor.infraroodpanel_noa_current_consumption
-                  name: Verwarming Eva
-                - entity: sensor.all_light_power
-                - entity: sensor.all_housekeeping_entities_power
-                - entity: sensor.all_manual_lights_power
-                - entity: sensor.all_media_power
-                - entity: sensor.ix3_charging_power
-                - entity: sensor.shelly_plug_koelkast_power
             - type: custom:auto-entities
               title: Meest verbruikende apparaten
               card:
@@ -169,115 +124,160 @@ browser_mod:
               state_color: false
               title: Energie totalen
             - type: custom:apexcharts-card
-              experimental:
-                color_threshold: true
+              config_templates: energy_chart
+              all_series_config:
+                type: line
+                group_by:
+                  duration: 10min
+                  func: max
               apex_config:
-                chart:
-                  height: 500px
-              header:
-                show: true
-                title: Energy stats
-                show_states: true
-                colorize_states: true
-              now:
-                show: true
-                color: white
-                label: NOW
-              hours_12: false
-              graph_span: 36h
-              span:
-                start: day
-              yaxis:
-                - id: kWh
-                  decimals: 0
-                  opposite: true
-                  max: 500
-                  apex_config:
-                    tickAmount: 4
-                - id: EUR
+                yaxis:
+                  logarithmic: true
               series:
-                - entity: sensor.power_langeweide_28
-                  type: column
-                  show:
-                    extremas: true
-                  name: Usage
-                  stroke_width: 2
-                  color: '#64511c'
-                  opacity: 0.3
-                  yaxis_id: kWh
-                  group_by:
-                    func: avg
-                    duration: 15min
-                - entity: sensor.tibber_prices
-                  stroke_width: 2
-                  curve: smooth
-                  show:
-                    legend_value: false
-                    extremas: true
-                    in_header: false
-                  extend_to: now
-                  yaxis_id: EUR
-                  name: Price per kWh
-                  data_generator: |
-                    let today = entity.attributes.today.map((entry) => {
-                      return [new Date(entry.startsAt), entry.total];
-                    });
-                    return today.concat(entity.attributes.tomorrow.map((entry) => {
-                      return [new Date(entry.startsAt), entry.total];
-                    }));
-                  color_threshold:
-                    - value: 0
-                      color: blue
-                    - value: 0.3
-                      color: green
-                    - value: 0.6
-                      color: red
-                    - value: 0.7
-                      color: darkred
-                    - value: 0.8
-                      color: purple
-                - entity: sensor.current_price_electricity
-                  stroke_width: 2
-                  show:
-                    legend_value: false
-                    extremas: true
-                  curve: smooth
-                  attribute: min_price
-                  name: MIN
-                  color: green
-                  yaxis_id: EUR
-                  type: line
-                  group_by:
-                    duration: 24hours
-                    func: min
-                - entity: sensor.current_price_electricity
-                  stroke_width: 2
-                  yaxis_id: EUR
-                  name: AVG
-                  attribute: avg_price
-                  color: violet
-                  curve: smooth
-                  type: line
-                  show:
-                    legend_value: false
-                    extremas: true
-                  group_by:
-                    duration: 24hours
-                    func: avg
-                - entity: sensor.current_price_electricity
-                  attribute: max_price
-                  stroke_width: 2
-                  curve: smooth
-                  show:
-                    legend_value: false
-                    extremas: true
-                  name: MAX
-                  color: red
-                  yaxis_id: EUR
-                  type: line
-                  group_by:
-                    duration: 24hours
-                    func: max
+                - entity: sensor.altherma_power_usage
+                  name: Altherma Primary
+                - entity: sensor.shelly_plug_s_7_meterkast2_power
+                  name: Meterkast2
+                - entity: sensor.vaatwasser_switch_current_consumption
+                  name: Vaatwasser
+                - entity: sensor.wasmachine_switch_current_consumption
+                  name: Wasmachine
+                - entity: sensor.winecooler_switch_current_consumption
+                  name: Wijnkoeler
+                - entity: sensor.shelly_plug_droger_power
+                  name: Droger
+                - entity: sensor.shelly_plug_office_power
+                  name: Kantoor
+                - entity: sensor.eurom_alutherm_power
+                  name: Verwarming slaapkamer
+                - entity: sensor.shelly_plug_badkamer_verwarming_power
+                  name: Verwarming Badkamer
+                - entity: sensor.shelly_plug_douche_verwarming_power
+                  name: Verwarming Douche
+                - entity: sensor.shelly_plug_s_6_meterkast1_power
+                  name: Meterkast1
+                - entity: sensor.shelly_plug_s_8_fridge1_power
+                  name: Vriezer Schuur
+                - entity: sensor.infrarood_eva_current_consumption
+                  name: Verwarming Logeerkamer
+                - entity: sensor.infraroodpanel_noa_current_consumption
+                  name: Verwarming Eva
+                - entity: sensor.all_light_power
+                - entity: sensor.all_housekeeping_entities_power
+                - entity: sensor.all_manual_lights_power
+                - entity: sensor.all_media_power
+                - entity: sensor.ehhatdgg_power
+                - entity: sensor.shelly_plug_koelkast_power
+            # - type: custom:apexcharts-card
+            #   experimental:
+            #     color_threshold: true
+            #   apex_config:
+            #     chart:
+            #       height: 500px
+            #   header:
+            #     show: true
+            #     title: Energy stats
+            #     show_states: true
+            #     colorize_states: true
+            #   now:
+            #     show: true
+            #     color: white
+            #     label: NOW
+            #   hours_12: false
+            #   graph_span: 36h
+            #   span:
+            #     start: day
+            #   yaxis:
+            #     - id: kWh
+            #       decimals: 0
+            #       opposite: true
+            #       max: 500
+            #       apex_config:
+            #         tickAmount: 4
+            #     - id: EUR
+            #   series:
+            #     - entity: sensor.power_langeweide_28
+            #       type: column
+            #       show:
+            #         extremas: true
+            #       name: Usage
+            #       stroke_width: 2
+            #       color: '#64511c'
+            #       opacity: 0.3
+            #       yaxis_id: kWh
+            #       group_by:
+            #         func: avg
+            #         duration: 15min
+            #     - entity: sensor.tibber_prices
+            #       stroke_width: 2
+            #       curve: smooth
+            #       show:
+            #         legend_value: false
+            #         extremas: true
+            #         in_header: false
+            #       extend_to: now
+            #       yaxis_id: EUR
+            #       name: Price per kWh
+            #       data_generator: |
+            #         let today = entity.attributes.today.map((entry) => {
+            #           return [new Date(entry.startsAt), entry.total];
+            #         });
+            #         return today.concat(entity.attributes.tomorrow.map((entry) => {
+            #           return [new Date(entry.startsAt), entry.total];
+            #         }));
+            #       color_threshold:
+            #         - value: 0
+            #           color: blue
+            #         - value: 0.3
+            #           color: green
+            #         - value: 0.6
+            #           color: red
+            #         - value: 0.7
+            #           color: darkred
+            #         - value: 0.8
+            #           color: purple
+            #     - entity: sensor.current_price_electricity
+            #       stroke_width: 2
+            #       show:
+            #         legend_value: false
+            #         extremas: true
+            #       curve: smooth
+            #       attribute: min_price
+            #       name: MIN
+            #       color: green
+            #       yaxis_id: EUR
+            #       type: line
+            #       group_by:
+            #         duration: 24hours
+            #         func: min
+            #     - entity: sensor.current_price_electricity
+            #       stroke_width: 2
+            #       yaxis_id: EUR
+            #       name: AVG
+            #       attribute: avg_price
+            #       color: violet
+            #       curve: smooth
+            #       type: line
+            #       show:
+            #         legend_value: false
+            #         extremas: true
+            #       group_by:
+            #         duration: 24hours
+            #         func: avg
+            #     - entity: sensor.current_price_electricity
+            #       attribute: max_price
+            #       stroke_width: 2
+            #       curve: smooth
+            #       show:
+            #         legend_value: false
+            #         extremas: true
+            #       name: MAX
+            #       color: red
+            #       yaxis_id: EUR
+            #       type: line
+            #       group_by:
+            #         duration: 24hours
+            #         func: max
 
 
         - type: vertical-stack

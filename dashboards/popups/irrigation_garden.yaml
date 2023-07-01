@@ -1,0 +1,133 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Tuin beregening
+    size: wide
+    timeout: 60000
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 50% 50%
+        grid-template-rows: auto
+        grid-template-areas: |
+          "control control-settings"
+          "switch-history water-history"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "control"
+              "control-settings"
+              "switch-history"
+              "water-history"
+      cards:
+        - type: vertical-stack
+          view_layout:
+            grid-area: control
+          cards:
+            - type: horizontal-stack
+              cards:
+                - type: custom:button-card
+                  name: Sproeien
+                  entity: switch.irrigation_main_switch
+                  show_state: false
+                  styles:
+                    card:
+                      - height: 100px
+                      - width: 200px
+                  tap_action:
+                    action: call-service
+                    service: switch.toggle
+                    service_data:
+                      entity_id: switch.irrigation_main_switch
+                - type: custom:button-card
+                  name: Automatisch rouleren
+                  entity: switch.auto_advance_next_zone
+                  show_state: false
+                  styles:
+                    card:
+                      - height: 100px
+                      - width: 200px
+                  tap_action:
+                    action: call-service
+                    service: switch.toggle
+                    service_data:
+                      entity_id: switch.auto_advance_next_zone
+                - type: custom:button-card
+                  name: Activeer sproei planning
+                  entity: input_boolean.irrigation_plan_enable
+                  show_state: false
+                  styles:
+                    card:
+                      - height: 100px
+                      - width: 200px
+                  
+            - type: entities
+              entities:
+                - entity: switch.irrigation_zone_achter_links
+                  name: Achter links
+                - entity: switch.irrigation_zone_achter_rechts
+                  name: Achter rechts
+                - entity: switch.irrigation_zone_terras_midden
+                  name: Terras midden
+                - entity: switch.irrigation_zone_terras_zijkant
+                  name: Terras zijkant
+              title: Handmatig sproeien
+              show_header_toggle: false
+            - type: glance
+              entities:
+                - entity: binary_sensor.sonoff_4ch_status
+                  name: Status
+                - entity: sensor.sonoff_4ch_irrigation_uptime
+                  name: Uptime
+                - entity: sensor.sonoff_4ch_irrigation_wifi_signal
+                  name: WiFi Signal
+          title: Controller Status
+        - type: vertical-stack
+          view_layout:
+            grid-area: control-settings
+          cards:
+            - type: entities
+              entities:
+                - entity: input_datetime.irrigation_start_time
+                  name: Starttijd
+                - entity: switch.valve_4_achter_links_enabled
+                  name: Achter links enabled
+                - entity: number.sproeiduur_zone_achter_links
+                - entity: switch.valve_3_achter_rechts_enabled
+                  name: Achter rechts enabled
+                - entity: number.sproeiduur_zone_achter_rechts
+                - entity: switch.valve_1_terras_midden_enabled
+                  name: Terras midden enabled
+                - entity: number.sproeiduur_zone_terras_midden
+                - entity: switch.valve_2_terras_zijkant_enabled
+                  name: Terras zijkant enabled
+                - entity: number.sproeiduur_zone_terras_zijkant
+
+        
+        - type: history-graph
+          view_layout:
+            grid-area: switch-history
+          title: Zone history
+          hours_to_show: 72
+          entities:
+            - switch.irrigation_zone_achter_links
+            - switch.irrigation_zone_achter_rechts
+            - switch.irrigation_zone_terras_midden
+            - switch.irrigation_zone_terras_zijkant
+        - type: statistics-graph
+          view_layout:
+            grid-area: water-history
+          title: Water usage
+          period: day
+          days_to_show: 7
+          chart_type: bar
+          stat_types:
+          - state
+          entities:
+            - entity: sensor.water_daily
+              name: daily water usage
+

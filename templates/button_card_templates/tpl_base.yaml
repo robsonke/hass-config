@@ -1,0 +1,125 @@
+# !toggle word-wrap
+
+#################################################
+#                                               #
+#                     BASE                      #
+#                                               #
+#################################################
+
+base:
+  variables:
+    state: >
+      [[[ return entity === undefined || entity.state; ]]]
+    timeout: >
+      [[[ return entity === undefined || Date.now() - Date.parse(entity.last_changed); ]]]
+    consider_on: >
+      [[[
+        var state = entity === undefined || entity.state;
+        return (
+          state === 'on' ||
+          state === 'cool' ||
+          state === 'fan_only' ||
+          state === 'playing' ||
+          state === 'open' ||
+          state > 0
+        );
+      ]]]
+    unit: '%'
+  aspect_ratio: 1/1
+  show_state: true
+  show_icon: false
+  state_display: >
+    [[[ if (variables.state === true) return 'Onbekend'; ]]]
+  custom_fields:
+    icon: >
+      [[[ 
+        let icon = entity.attributes.icon;
+        if (variables.icon)
+          icon = variables.icon;
+        return `<ha-icon icon="${icon}"></ha-icon>`;
+      ]]]
+  styles:
+    grid:
+      - grid-template-areas: |
+          "icon  circle"
+          "n     n"
+          "s     s"
+      - grid-template-columns: repeat(2, 1fr)
+      - grid-template-rows: auto repeat(2, min-content)
+      - gap: 2%
+      - align-items: start
+    name:
+      - justify-self: start
+      - line-height: 115%
+    state:
+      - justify-self: start
+      - line-height: 115%
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - border-width: 0
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - transition: none
+      - padding: 10%
+      - --mdc-ripple-color: >
+          [[[
+            return variables.consider_on ?
+              'rgb(0, 0, 0)' :
+              'rgba(255, 255, 255, 0.3)';
+          ]]]
+      - --custom-circle-text-color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - --custom-circle-stroke-color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - color: >
+          [[[
+            return variables.consider_on ?
+              'var(--custom-button-card-color-on)' :
+              'var(--custom-button-card-color-off)';
+          ]]]
+      - background-color: >
+          [[[
+            return variables.consider_on ?
+              'rgba(255, 255, 255, 0.8)' :
+              'rgba(115, 115, 115, 0.4)';
+          ]]]
+  extra_styles: |
+    /* phone */
+    @media screen and (max-width: 1200px) {
+      #circle, #name, #state, #label, #info {
+        font-size: 1rem;
+      }
+    }
+
+#################################################
+#                                               #
+#                     SIMPLE                    #
+#                                               #
+#################################################
+
+simple:
+  template:
+    - base
+  styles:
+    grid:
+      - grid-template-areas: |
+          "icon  info"
+          "n     n"
+          "s     s"
+      - grid-template-rows: auto repeat(2, min-content)
+      - grid-template-columns: repeat(2, 1fr)
+      - gap: 2%
+      - align-items: start
+    custom_fields:
+      info:
+        - text-align: right
+  hold_action:
+    action: none

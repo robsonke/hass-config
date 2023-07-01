@@ -9,10 +9,3 @@
 # https://github.com/robsonke/hass-config
 #
 history:
-  exclude:
-    domains:
-      - automation
-      - script
-      - sun
-    entities:
-      - sensor.last_boot

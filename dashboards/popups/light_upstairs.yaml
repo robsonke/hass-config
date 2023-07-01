@@ -46,7 +46,7 @@ browser_mod:
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - entity: light.badkamer
+            - entity: light.dimmer_bathroom
             - title: Badkamer
         - type: custom:decluttering-card
           template: light_button

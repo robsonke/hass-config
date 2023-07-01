@@ -7,6 +7,7 @@
       "auth_failure": "Autentisering misslyckades. Kontrollera användarnamn och lösenord.",
       "connection_failure": "Kan inte ansluta till Easee. Försök igen senare.",
       "no_sites": "Ingen plats vald",
+      "no_sites_in_account": "Inga tillgängliga platser i detta konto.",
       "refused_failure": "Anslutning nekades till Easee. Försök igen senare."
     },
     "step": {
@@ -129,7 +130,7 @@
           "error_dead_powerboard": "Fel Trasigt kretskort",
           "error_overcurrent": "Fel Överström",
           "error_pen_fault": "Fel Jordfel",
-          "error_temperature_too_high": "Error För hög temperatur",
+          "error_temperature_too_high": "Fel För hög temperatur",
           "offline": "Offline",
           "paused_due_to_equalizer": "Pausad av Equalizer",
           "ready_to_charge": "Redo för laddning",

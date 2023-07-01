@@ -135,22 +135,6 @@ sensor:
     - body
   scan_interval: 21600
 
-
-- platform: rest
-  name: To-do List Pool
-  unique_id: to_do_list_pool
-  method: GET
-  resource: 'https://api.todoist.com/sync/v9/projects/get_data'
-  params:
-    project_id: 2310299808
-  headers:
-    Authorization: !secret todoist_apikey_auth
-  value_template: '{{ value_json[''project''][''id''] }}'
-  json_attributes:
-    - project
-    - items
-  scan_interval: 30
-
 - platform: time_date
   display_options:
     - 'time'
@@ -212,31 +196,6 @@ sensor:
 
 - platform: nordpool_diff
   nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_021
-
-# pool eps one touch scraper
-- platform: command_line
-  name: Pool Ph Value
-  command: !secret pool_scrape_ph
-  unit_of_measurement: "Ph"
-  scan_interval: 30
-  unique_id: pool_ph_value
-- platform: command_line
-  name: Pool Redox Value
-  command: !secret pool_scrape_redox
-  unit_of_measurement: "mV"
-  scan_interval: 30
-  unique_id: pool_redox_value
-- platform: command_line
-  name: Pool Flow Value
-  command: !secret pool_scrape_flow
-  scan_interval: 30
-  unique_id: pool_flow_value
-  value_template: >
-    {% if value == "Flow Ok" %}
-      {{ true }}
-    {% else %}
-      {{ false }}
-    {% endif %}
 
 
 # Lots of power sensors based on powercalc for existing entities

@@ -108,7 +108,7 @@ browser_mod:
             - type: custom:decluttering-card
               template: light_button
               variables: 
-                - entity: light.hal
+                - entity: light.dimmer_hall
                 - title: Hal
             - type: custom:decluttering-card
               template: light_button

@@ -11,16 +11,17 @@ pool:
   variables:
     consider_on: >
       [[[
-        return false;
+        return entity.state === 'Open';
       ]]]
-    #   [[[
-    #     var state = entity === undefined || entity.state;
-    #     return state !== 'open';
-    #   ]]]
     circle_input: >
       [[[
-        return entity.state;
+        return states['sensor.heatpump_pool_water_temperature'].state / states['number.heatpump_pool_water_temperature_target'].state * 100;
       ]]]
+    circle_text: >
+      [[[
+        return states['sensor.heatpump_pool_water_temperature'].state;
+      ]]]
+    unit: "°C"
     icon: mdi:pool
   styles:
     custom_fields:
@@ -30,25 +31,12 @@ pool:
               let color = '';
               if (states['binary_sensor.pool_pump_active'].state === 'on') color = 'var(--blue)';
               if (states['sensor.heatpump_pool_speed'].state > 0) color = 'var(--orange)';
-              if (states['sensor.heatpump_pool_speed'].state > 50) color = 'var(--red)';
+              if (states['sensor.heatpump_pool_speed'].state > 79) color = 'var(--red)';
               return color;
             ]]]
-  # styles:
-    # custom_fields:
-    #   info:
-    #     - text-align: right
-  # custom_fields:
-    
-  # label: |
-  #   [[[
-  #     if (entity.attributes.current_position <= variables.close_position)
-  #       return 'Dicht';
-  #     return 'Open';
-  #   ]]]
-  # state_display: >
-  #   [[[ if (variables.state === true) return 'Offline'; ]]]
+        - animation: '[[[ if (entity.state === "Moving") return "blink 2s ease infinite"; return "none"; ]]]'
   tap_action:
-    !include ../../dashboards/popups/pool.yaml
+    !include ../../dashboards/popups/pool_garden.yaml
 
 icon_fan:
   styles:

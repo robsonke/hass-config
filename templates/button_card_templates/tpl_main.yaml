@@ -2,215 +2,6 @@
 
 #################################################
 #                                               #
-#                     BASE                      #
-#                                               #
-#################################################
-
-base:
-  variables:
-    state: >
-      [[[ return entity === undefined || entity.state; ]]]
-    timeout: >
-      [[[ return entity === undefined || Date.now() - Date.parse(entity.last_changed); ]]]
-    consider_on: >
-      [[[
-        var state = entity === undefined || entity.state;
-        return (
-          state === 'on' ||
-          state === 'cool' ||
-          state === 'fan_only' ||
-          state === 'playing' ||
-          state === 'open' ||
-          state > 0
-        );
-      ]]]
-    unit: '%'
-  aspect_ratio: 1/1
-  show_state: true
-  show_icon: false
-  state_display: >
-    [[[ if (variables.state === true) return 'Onbekend'; ]]]
-  custom_fields:
-    icon: >
-      [[[ 
-        let icon = entity.attributes.icon;
-        if (variables.icon)
-          icon = variables.icon;
-        return `<ha-icon icon="${icon}"></ha-icon>`;
-      ]]]
-  styles:
-    grid:
-      - grid-template-areas: |
-          "icon  circle"
-          "n     n"
-          "s     s"
-      - grid-template-columns: repeat(2, 1fr)
-      - grid-template-rows: auto repeat(2, min-content)
-      - gap: 2%
-      - align-items: start
-    name:
-      - justify-self: start
-      - line-height: 115%
-    state:
-      - justify-self: start
-      - line-height: 115%
-    card:
-      - font-family: Sf Display
-      - border-radius: var(--custom-button-card-border-radius)
-      - -webkit-tap-highlight-color: rgba(0,0,0,0)
-      - transition: none
-      - padding: 10%
-      - --mdc-ripple-color: >
-          [[[
-            return variables.consider_on ?
-              'rgb(0, 0, 0)' :
-              'rgba(255, 255, 255, 0.3)';
-          ]]]
-      - --custom-circle-text-color: >
-          [[[
-            return variables.consider_on ?
-              'var(--custom-button-card-color-on)' :
-              'var(--custom-button-card-color-off)';
-          ]]]
-      - --custom-circle-stroke-color: >
-          [[[
-            return variables.consider_on ?
-              'var(--custom-button-card-color-on)' :
-              'var(--custom-button-card-color-off)';
-          ]]]
-      - color: >
-          [[[
-            return variables.consider_on ?
-              'var(--custom-button-card-color-on)' :
-              'var(--custom-button-card-color-off)';
-          ]]]
-      - background-color: >
-          [[[
-            return variables.consider_on ?
-              'rgba(255, 255, 255, 0.8)' :
-              'rgba(115, 115, 115, 0.4)';
-          ]]]
-  extra_styles: |
-    /* phone */
-    @media screen and (max-width: 1200px) {
-      #circle, #name, #state, #label, #info {
-        font-size: 1rem;
-      }
-    }
-
-#################################################
-#                                               #
-#                     SIMPLE                    #
-#                                               #
-#################################################
-
-simple:
-  template:
-    - base
-  styles:
-    grid:
-      - grid-template-areas: |
-          "icon  info"
-          "n     n"
-          "s     s"
-      - grid-template-rows: auto repeat(2, min-content)
-      - grid-template-columns: repeat(2, 1fr)
-      - gap: 2%
-      - align-items: start
-    custom_fields:
-      info:
-        - text-align: right
-  hold_action:
-    action: none
-
-#################################################
-#                                               #
-#                    SIDEBAR                    #
-#                                               #
-#################################################
-
-sidebar_template:
-  show_state: false
-  show_icon: false
-  tap_action:
-    action: none
-  name: |
-    [[[
-      if (entity) {
-        let attributes = '';
-        for (const [key, value] of Object.entries(entity.attributes)) {
-          value != false ? attributes += `<p>${value}</p>` : null;
-        }
-        return attributes;
-      }
-    ]]]
-  styles:
-    card:
-      - font-family: Sf Display
-      - border-radius: var(--custom-button-card-border-radius)
-      - -webkit-tap-highlight-color: rgba(0,0,0,0)
-      - color: var(--sidebar-font-color)
-  extra_styles: |
-    ha-icon.trash {
-      --mdc-icon-size: 16px;
-    }
-
-    #card {
-      padding: 0;
-    }
-
-    #container {
-      display: flex !important;
-    }
-
-    #name {
-      padding: 0 2.5vw 0 17px;
-      white-space: normal;
-      text-align: left;
-    }
-
-    .time {
-      text-align: center;
-      font-size: 7em;
-    }
-
-    .time-colon {
-      position: relative;
-    }
-    
-    /* portrait */
-    @media screen and (max-width: 1200px) {
-      .time {
-        font-size: calc(var(--sidebar-time-font-size) * 1.2 );
-        line-height: calc(var(--sidebar-time-line-height) * 1.2 );
-      }
-
-      p {
-        font-size: calc(var(--sidebar-font-size) * 0.8);
-        line-height: calc(var(--sidebar-line-height) * 0.8);
-      }
-    }
-
-    /* phone */
-    @media screen and (max-width: 800px) {
-      .time {
-        font-size: calc(var(--sidebar-time-font-size) * 2.6 );
-      }
-
-      p {
-        font-size: calc(var(--sidebar-font-size) * 2.6 );
-        line-height: calc(var(--sidebar-line-height) * 2.6 );
-        letter-spacing: 0.16vw;
-      }
-
-      #name {
-        padding: 0 0 0 1vw;
-      }
-
-    }
-
-#################################################
-#                                               #
 #                    CIRCLE                     #
 #                                               #
 #################################################
@@ -223,6 +14,7 @@ circle:
         const text = variables.circle_text || input;
         const radius = 20.5;
         const circumference = radius * 2 * Math.PI;
+        const unit = variables.unit;
         return `
           <svg viewBox="0 0 50 50">
             <style>
@@ -237,7 +29,7 @@ circle:
               }
             </style>
             <circle cx="25" cy="25" r="${radius}" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="none" />
-            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${text}<tspan font-size="10">${variables.unit}</tspan></text>
+            <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="14" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${text}<tspan font-size="10">${unit}</tspan></text>
           </svg>
         `;
       ]]]
@@ -294,7 +86,25 @@ light_group:
 
 irrigation:
   template:
-    - simple
+    - base
+    - circle
+  variables:
+    unit: 'm'
+    consider_on: >
+      [[[
+        return states['switch.irrigatie_zones'].state === 'on';
+      ]]]
+    circle_text: >
+      [[[
+        return states['sensor.irrigatie_zones_duur'].state;
+      ]]]
+  styles:
+    custom_fields:
+      icon:
+        - color: >
+            [[[
+              return variables.consider_on || states['input_boolean.irrigation_plan_enable'].state === 'on'  ? 'var(--blue)' : '';
+            ]]]
   hold_action:
     action: none
 
@@ -425,170 +235,6 @@ music:
       [[[
         return Math.round(entity.attributes['volume_level'] * 100);
       ]]]
-
-#################################################
-#                                               #
-#          DOOR_WINDOW_GROUP_BASE               #
-#                                               #
-#################################################
-
-door_window_group_base:
-  template:
-    - base
-    - circle
-  variables:
-    unit: ''
-  hold_action:
-    action: none
-  state_display: >
-    [[[ return variables.state; ]]]
-
-#################################################
-#                                               #
-#          DOOR_WINDOW_GROUP_DOWNSTAIRS         #
-#                                               #
-#################################################
-
-door_window_group_downstairs:
-  template:
-    - door_window_group_base
-  variables:
-    circle_input: >
-      [[[
-        const doorsOpen = states["sensor.open_windows_and_doors_downstairs"].state;
-        const allDoors = entity.attributes.entity_id.length;
-        return Math.round(doorsOpen / allDoors * 100);
-      ]]]
-    state: >
-      [[[ 
-        return states["sensor.open_windows_and_doors_downstairs"].state > 0 ? 'Open' : 'Gesloten';
-      ]]]
-    consider_on: >
-      [[[
-        return states["sensor.open_windows_and_doors_downstairs"].state > 0;
-      ]]]
-    circle_text: >
-      [[[
-        const doorsOpen = states["sensor.open_windows_and_doors_downstairs"].state;
-        const allDoors = entity.attributes.entity_id.length;
-        return `${doorsOpen}/${allDoors}`;
-      ]]]
-  tap_action:
-    !include ../../dashboards/popups/doors_downstairs.yaml
-  custom_fields:
-    icon: >
-      [[[ 
-        if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
-          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
-        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
-      ]]]
-
-#################################################
-#                                               #
-#            DOOR_WINDOW_GROUP_UPSTAIRS         #
-#                                               #
-#################################################
-
-door_window_group_upstairs:
-  template:
-    - door_window_group_base
-  variables:
-    circle_input: >
-      [[[
-        const doorsOpen = states["sensor.open_windows_and_doors_upstairs"].state;
-        const allDoors = entity.attributes.entity_id.length;
-        return Math.round(doorsOpen / allDoors * 100);
-      ]]]
-    state: >
-      [[[ 
-        return states["sensor.open_windows_and_doors_upstairs"].state > 0 ? 'Open' : 'Gesloten';
-      ]]]
-    consider_on: >
-      [[[
-        return states["sensor.open_windows_and_doors_upstairs"].state > 0;
-      ]]]
-    circle_text: >
-      [[[
-        const doorsOpen = states["sensor.open_windows_and_doors_upstairs"].state;
-        const allDoors = entity.attributes.entity_id.length;
-        return `${doorsOpen}/${allDoors}`;
-      ]]]
-  tap_action:
-    !include ../../dashboards/popups/doors_upstairs.yaml
-  custom_fields:
-    icon: >
-      [[[ 
-        if (states['sensor.open_windows_and_doors_upstairs'].state > 0)
-          return `<ha-icon icon="mdi:window-open-variant"></ha-icon>`;
-        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
-      ]]]
-
-#################################################
-#                                               #
-#            DOOR_WINDOW_GROUP_GARDEN         #
-#                                               #
-#################################################
-
-door_window_group_garden:
-  template:
-    - door_window_group_base
-  variables:
-    circle_input: >
-      [[[
-        const doorsOpen = states["sensor.open_windows_and_doors_garden"].state;
-        const allDoors = entity.attributes.entity_id.length;
-        return Math.round(doorsOpen / allDoors * 100);
-      ]]]
-    state: >
-      [[[ 
-        return states["sensor.open_windows_and_doors_garden"].state > 0 ? 'Open' : 'Gesloten';
-      ]]]
-    consider_on: >
-      [[[
-        return states["sensor.open_windows_and_doors_garden"].state > 0;
-      ]]]
-    circle_text: >
-      [[[
-        const doorsOpen = states["sensor.open_windows_and_doors_garden"].state;
-        const allDoors = entity.attributes.entity_id.length;
-        return `${doorsOpen}/${allDoors}`;
-      ]]]
-  tap_action:
-    !include ../../dashboards/popups/doors_garden.yaml
-  custom_fields:
-    icon: >
-      [[[ 
-        if (states['sensor.open_windows_and_doors_garden'].state > 0)
-          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
-        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
-      ]]]
-
-#################################################
-#                                               #
-#                 BASE_SIDEBAR                  #
-#                                               #
-#################################################
-
-base_sidebar:
-  show_name: true
-  styles:
-    card:
-      - font-family: Sf Display
-      - border-radius: var(--custom-button-card-border-radius)
-      - -webkit-tap-highlight-color: rgba(0,0,0,0)
-      - color: var(--sidebar-font-color)
-    name:
-      - justify-self: start
-      - align-self: left
-  triggers_update: sensor.time
-  extra_styles: |
-    #card {
-      padding: 1vw 1vw 0 1vw;
-    }
-    #container {
-      border: 1px solid;
-      border-radius: 8px;
-    }
 
 #################################################
 #                                               #

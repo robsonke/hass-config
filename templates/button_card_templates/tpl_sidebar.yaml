@@ -1,0 +1,115 @@
+
+#################################################
+#                                               #
+#                 BASE_SIDEBAR                  #
+#                                               #
+#################################################
+
+base_sidebar:
+  show_name: true
+  styles:
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - color: var(--sidebar-font-color)
+    name:
+      - justify-self: start
+      - align-self: left
+  triggers_update: sensor.time
+  extra_styles: |
+    #card {
+      padding: 1vw 1vw 0 1vw;
+      border-width: 0;
+    }
+    #container {
+      border: 1px solid;
+      border-radius: 8px;
+    }
+
+#################################################
+#                                               #
+#                    SIDEBAR                    #
+#                                               #
+#################################################
+
+sidebar_template:
+  show_state: false
+  show_icon: false
+  tap_action:
+    action: none
+  name: |
+    [[[
+      if (entity) {
+        let attributes = '';
+        for (const [key, value] of Object.entries(entity.attributes)) {
+          value != false ? attributes += `<p>${value}</p>` : null;
+        }
+        return attributes;
+      }
+    ]]]
+  styles:
+    card:
+      - font-family: Sf Display
+      - border-radius: var(--custom-button-card-border-radius)
+      - -webkit-tap-highlight-color: rgba(0,0,0,0)
+      - color: var(--sidebar-font-color)
+  extra_styles: |
+    ha-icon.trash {
+      --mdc-icon-size: 16px;
+    }
+
+    #card {
+      padding: 0;
+      border-width: 0;
+    }
+
+    #container {
+      display: flex !important;
+    }
+
+    #name {
+      padding: 0 2.5vw 0 17px;
+      white-space: normal;
+      text-align: left;
+    }
+
+    .time {
+      text-align: center;
+      font-size: 7em;
+    }
+
+    .time-colon {
+      position: relative;
+    }
+    
+    /* portrait */
+    @media screen and (max-width: 1200px) {
+      .time {
+        font-size: calc(var(--sidebar-time-font-size) * 1.2 );
+        line-height: calc(var(--sidebar-time-line-height) * 1.2 );
+      }
+
+      p {
+        font-size: calc(var(--sidebar-font-size) * 0.8);
+        line-height: calc(var(--sidebar-line-height) * 0.8);
+      }
+    }
+
+    /* phone */
+    @media screen and (max-width: 800px) {
+      .time {
+        font-size: calc(var(--sidebar-time-font-size) * 2.6 );
+      }
+
+      p {
+        font-size: calc(var(--sidebar-font-size) * 2.6 );
+        line-height: calc(var(--sidebar-line-height) * 2.6 );
+        letter-spacing: 0.16vw;
+      }
+
+      #name {
+        padding: 0 0 0 1vw;
+      }
+
+    }

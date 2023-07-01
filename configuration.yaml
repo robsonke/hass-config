@@ -12,6 +12,7 @@ homeassistant:
   packages: !include_dir_named packages
   name: Home
   country: NL
+  language: en
   latitude: !secret latitude_coordinate
   longitude: !secret longitude_coordinate
   elevation: 0

@@ -9,35 +9,6 @@
 # https://github.com/robsonke/hass-config
 #
 input_number:
-  # schema
-  irrigation_zone_terras_midden_duration:
-    name: Tijdsduur zone terras midden
-    icon: mdi:timer
-    min: 0
-    max: 60
-    step: 5
-    unit_of_measurement: "minutes"
-  irrigation_zone_terras_zijkant_duration:
-    name: Tijdsduur zone terras zijkant
-    icon: mdi:timer
-    min: 0
-    max: 60
-    step: 5
-    unit_of_measurement: "minutes"
-  irrigation_zone_achter_rechts_duration:
-    name: Tijdsduur zone achter rechts
-    icon: mdi:timer
-    min: 0
-    max: 60
-    step: 5
-    unit_of_measurement: "minutes"
-  irrigation_zone_achter_links_duration:
-    name: Tijdsduur zone achter links
-    icon: mdi:timer
-    min: 0
-    max: 60
-    step: 5
-    unit_of_measurement: "minutes"
 
   # Controls the hvac operation mode (cooling/heating/off)
   hvac_heating_limit:

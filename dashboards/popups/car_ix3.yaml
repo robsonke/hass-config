@@ -174,17 +174,26 @@ browser_mod:
             #     - entity: sensor.ix3_charging_energy_daily
             #       name: Verbruik laden vandaag (kWh)
             - type: custom:charger-card
-              customCardTheme: theme_default
               entity: sensor.ehhatdgg_status
               compact_view: false
               show_name: true
               show_leds: true
               show_status: true
               show_collapsibles: true
+              brand: easee
+              chargerImage: Anthracite
+              customCardTheme: theme_transp_white
               details:
                 name:
                   entity_id: sensor.ehhatdgg_status
                   attribute: name
+                location:
+                  entity_id: sensor.ehhatdgg_status
+                  attribute: site_name
+                status:
+                  entity_id: sensor.ehhatdgg_status
+                substatus:
+                  entity_id: sensor.ehhatdgg_reason_for_no_current
                 smartcharging:
                   entity_id: switch.ehhatdgg_smart_charging
                 group1:

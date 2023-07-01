@@ -7,6 +7,7 @@
       "auth_failure": "Kan ikke koble til Easee. Sjekk brukernavn og passord.",
       "connection_failure": "Kan ikke koble til Easee. Prøv igjen senere.",
       "no_sites": "Ingen lokasjon valgt",
+      "no_sites_in_account": "No sites found in this account.",
       "refused_failure": "Tilkobling til Easee ble avvist. Prøv igjen senere."
     },
     "step": {
@@ -113,12 +114,29 @@
       "easee_status": {
         "name": "Status",
         "state": {
+          "authenticating": "Authenticating",
+          "awaiting_authentication": "Waiting for authentication",
+          "awaiting_authorization": "Waiting for authorization",
+          "awaiting_load_balancing": "Waiting for load balancing",
+          "awaiting_scheduled_start": "Waiting for scheduled start",
+          "awaiting_smart_start": "Waiting for smart start",
           "awaiting_start": "Avventer start",
           "charging": "Lader",
           "completed": "Fullført",
+          "de_authorizing": "Closing authorization",
           "disconnected": "Frakoblet",
+          "erratic_ev": "Erratic EV",
           "error": "Feil",
-          "ready_to_charge": "Klar til lading"
+          "error_dead_powerboard": "Error Dead powerboard",
+          "error_overcurrent": "Error Overcurrent",
+          "error_pen_fault": "Error PEN fault",
+          "error_temperature_too_high": "Error Temperature too high",
+          "offline": "Offline",
+          "paused_due_to_equalizer": "Paused due to Equalizer",
+          "ready_to_charge": "Klar til lading",
+          "searching_for_master": "Searching for master",
+          "start_charging": "Start charging",
+          "stop_charging": "Stop charging"
         }
       },
       "energy_per_hour": {

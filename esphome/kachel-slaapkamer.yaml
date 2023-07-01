@@ -1,55 +1,25 @@
-substitutions:
-  devicename: kachel-slaapkamer
-  device_description: "Eurom Heater Slaapkamer"
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ip: !secret heater_slaapkamer_ip
-  api_key: !secret api_key
-
-esphome:
-  name: ${devicename}
-  platform: ESP8266
-  board: esp01_1m
-  # Two globals floats are written on a daily basis which should not have a too
-  # detrimental effect on the flash memory.
-  esp8266_restore_from_flash: true
-
 # INFO
 # https://community.home-assistant.io/t/eurom-e-convect-wifi/42390/46
 # https://esphome.io/components/tuya.html
 # https://esphome.io/components/climate/tuya.html
 # https://github.com/esphome/feature-requests/issues/470
 
+substitutions:
+  devicename: kachel-slaapkamer
+  device_description: "Eurom Heater Slaapkamer"
+  ip: !secret heater_slaapkamer_ip
+
+esphome:
+  name: ${devicename}
+  platform: ESP8266
+  board: esp01_1m
+  esp8266_restore_from_flash: true
+
+<<: !include .common.yaml
+
 # Enable logging.
 logger:
   baud_rate: 0
-
-wifi:
-  ssid: ${ssid}
-  password: ${password}
-  power_save_mode: none
-  manual_ip:
-    static_ip: ${ip}
-    gateway: 192.168.0.1
-    subnet: 255.255.255.0
-
-captive_portal:
-
-# Enable Home Assistant API
-api:
-  encryption:
-    key: ${api_key}
-  #password: ${password}
-
-ota:
-  password: ${password}
-
-web_server:
-  port: 80
-
-time:
-  - platform: sntp
-    id: my_time
 
 globals:
   - id: total_energy
@@ -67,7 +37,7 @@ uart:
 
 # Register the Tuya MCU connection
 tuya:
-  time_id: my_time
+  time_id: homeassistant_time
 
 climate:
   - platform: tuya

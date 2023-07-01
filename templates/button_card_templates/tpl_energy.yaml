@@ -17,17 +17,9 @@ climate:
       const temperature = Math.round(entity.state * 10) / 10;
       return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
       <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
-    graph:
-      card:
-        type: custom:apexcharts-card
-        config_templates: dashboard_button_chart
+
   styles:
     custom_fields:
-      graph:
-        - bottom: 5%
-        - left: 0%
-        - width: 100%
-        - position: absolute
       icon:
         - fill: "#9da0a2"
     state:
@@ -104,7 +96,12 @@ energy:
     - simple
   variables:
     consider_on: >
-      [[[ return false; ]]]
+      [[[
+        let phase1 = states['sensor.current_phase_1'].state;
+        let phase2 = states['sensor.current_phase_2'].state;
+        let phase3 = states['sensor.current_phase_3'].state;
+        return (phase1 > 25 || phase2 > 25 || phase3 > 25);
+      ]]]
   custom_fields:
     info: >
       [[[
@@ -133,6 +130,14 @@ energy:
               if (states['sensor.solaredge_modbus'].state/1000 > entity.state)
                 color = 'var(--green)';
               return color;
+            ]]]
+        - animation: >
+            [[[
+              let phase1 = states['sensor.current_phase_1'].state;
+              let phase2 = states['sensor.current_phase_2'].state;
+              let phase3 = states['sensor.current_phase_3'].state;
+              if (phase1 > 20 || phase2 > 20 || phase3 > 20) return 'blink 4s ease infinite';
+              return 'none';
             ]]]
   state_display: >
     [[[

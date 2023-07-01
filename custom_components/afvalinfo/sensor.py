@@ -73,7 +73,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     _LOGGER.debug("Setup Afvalinfo sensor")
 
     location = config.get(CONF_CITY).lower().strip()
@@ -104,6 +104,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         if "trash_type_tomorrow" in resourcesMinusTodayAndTomorrow:
             resourcesMinusTodayAndTomorrow.remove("trash_type_tomorrow")
 
+        # Check if resources contain cleanprofsgft or cleanprofsrestafval
+        if (
+            "cleanprofsgft" in resourcesMinusTodayAndTomorrow
+            or "cleanprofsrestafval" in resourcesMinusTodayAndTomorrow
+        ):
+            get_cleanprofs_data = True
+        else:
+            get_cleanprofs_data = False
+
         data = AfvalinfoData(
             location,
             postcode,
@@ -113,7 +122,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             diftar_code,
             get_whole_year,
             resourcesMinusTodayAndTomorrow,
+            get_cleanprofs_data,
         )
+
+        # Initial trigger for updating data
+        await data.async_update()
+
     except urllib.error.HTTPError as error:
         _LOGGER.error(error.reason)
         return False
@@ -174,7 +188,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             )
             entities.append(tomorrow)
 
-    add_entities(entities)
+    async_add_entities(entities)
 
 
 class AfvalinfoData(object):
@@ -188,6 +202,7 @@ class AfvalinfoData(object):
         diftar_code,
         get_whole_year,
         resources,
+        get_cleanprofs_data,
     ):
         self.data = None
         self.location = location
@@ -198,13 +213,13 @@ class AfvalinfoData(object):
         self.diftar_code = diftar_code
         self.get_whole_year = get_whole_year
         self.resources = resources
+        self.get_cleanprofs_data = get_cleanprofs_data
 
-        # To retrieve the data at startup
-        self.getDataFromAPI()
-
-    def getDataFromAPI(self):
-        _LOGGER.debug("Updating Waste collection dates")
-        self.data = TrashApiAfval().get_data(
+    # This will make sure that we can't execute it more often
+    # than the MIN_TIME_BETWEEN_UPDATES
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
+    async def async_update(self):
+        self.data = await TrashApiAfval().get_data(
             self.location,
             self.postcode,
             self.street_number,
@@ -213,11 +228,8 @@ class AfvalinfoData(object):
             self.diftar_code,
             self.get_whole_year,
             self.resources,
+            self.get_cleanprofs_data,
         )
-
-    @Throttle(MIN_TIME_BETWEEN_UPDATES)
-    def update(self):
-        self.getDataFromAPI()
 
 
 class AfvalinfoSensor(Entity):
@@ -289,11 +301,13 @@ class AfvalinfoSensor(Entity):
             ATTR_WHOLE_YEAR_DATES: self._whole_year_dates,
         }
 
-    @Throttle(
-        MIN_TIME_BETWEEN_UPDATES,
-    )
-    def update(self):
-        self.data.update()
+    # Run this every minute
+    @Throttle(timedelta(minutes=1))
+    async def async_update(self):
+        """We are calling this often,
+        but the @Throttle on the data.async_update
+        will limit the times it will be executed"""
+        await self.data.async_update()
         waste_array = self.data.data
         self._error = False
 
@@ -331,18 +345,22 @@ class AfvalinfoSensor(Entity):
                                 date.today() == collection_date
                             )
 
-                            if (
-                                self.type == "restafval"
-                                and "restafvaldiftardate" in waste_data
-                            ):
-                                self._last_collection_date = str(
-                                    datetime.strptime(
-                                        waste_data["restafvaldiftardate"], "%Y-%m-%d"
-                                    ).date()
-                                )
-                                self._total_collections_this_year = waste_data[
-                                    "restafvaldiftarcollections"
-                                ]
+                            # Get the diftar data
+                            if self.type == "restafval":
+                                for obj in waste_array:
+                                    if "restafvaldiftardate" in obj:
+                                        self._last_collection_date = str(
+                                            datetime.strptime(
+                                                obj["restafvaldiftardate"], "%Y-%m-%d"
+                                            ).date()
+                                        )
+                                        break
+                                for obj in waste_array:
+                                    if "restafvaldiftarcollections" in obj:
+                                        self._total_collections_this_year = obj[
+                                            "restafvaldiftarcollections"
+                                        ]
+                                        break
 
                             # Days until collection date
                             delta = collection_date - date.today()
@@ -356,6 +374,7 @@ class AfvalinfoSensor(Entity):
                                 and self.date_format.find("B") == -1
                             ):
                                 self._state = collection_date.strftime(self.date_format)
+                                break  # we have a result, break the loop
                             # else convert the named values to the locale names
                             else:
                                 edited_date_format = self.date_format.replace(
@@ -398,11 +417,4 @@ class AfvalinfoSensor(Entity):
                 raise ValueError()
         except ValueError:
             self._error = True
-            # self._state = None
-            # self._days_until_collection_date = None
-            # self._year_month_day_date = None
-            # self._is_collection_date_today = False
-            # self._last_collection_date = None
-            # self._total_collections_this_year = None
-            # self._whole_year_dates = None
             self._last_update = datetime.today().strftime("%d-%m-%Y %H:%M")

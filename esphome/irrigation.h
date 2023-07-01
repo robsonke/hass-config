@@ -1,75 +1,60 @@
+/*
+ * A set of helpers that make the integration of ESPHome Sprinkler
+ * with the relays and the display easier and shorter.
+ */
+#pragma once
 #include "esphome.h"
 
-// Declare functions before calling them.
-bool scheduled_runtime(std::string);
-std::string update_next_runtime(std::string);
+namespace esphome {
 
-bool scheduled_runtime(std::string time) {
-  // Retrieve the current time.
-  auto time_now = id(homeassistant_time).now();
-  int time_hour = time_now.hour;
-  int time_minute = time_now.minute;
-
-  // Split the hour and minutes.
-  int next_hour = atoi(time.substr(0,2).c_str());
-  int next_minute = atoi(time.substr(3,2).c_str());
-
-  //ESP_LOGD("scheduled_runtime()", "now: %i:%i", next_hour, next_minute);
-  return (time_hour == next_hour && time_minute == next_minute);
+/*
+ * Toggle valve - start valve if inactive or shutdown controller
+ */
+void toggle(int valve, switch_::Switch *relay, sprinkler::Sprinkler *sprinkler) {
+  if (!id(relay).state) {
+    id(sprinkler).start_single_valve(valve - 1);
+  } else {
+    id(sprinkler).shutdown();
+  }
 }
 
-std::string update_next_runtime(std::string time_list) {
-  // Initialize variables.
-  std::vector<std::string> times;
-  std::vector<std::string> next_time;
-  char * token;
-
-  // Split the list of run times into an array.
-  token = strtok(&time_list[0], ",");
-  while (token != NULL) {
-    times.push_back(token);
-    token = strtok(NULL, ",");
+/*
+ * Prevent starting single valve program when button state change was triggered
+ * by the controller
+ *
+ * Useful when turning valve on by push of a button button,
+ * that is also used to indicate that the valve is on.
+ */
+void conditional_on(int valve, switch_::Switch *relay, sprinkler::Sprinkler *sprinkler) {
+  if (!id(relay).state) {
+    id(sprinkler).start_single_valve(valve - 1);
   }
-
-  // Stop now if the list does not contain more than one time.
-  if (times.size() <= 1) {
-    return time_list;
-  }
-
-  // Retrieve the current time.
-  auto time_now = id(homeassistant_time).now();
-  int time_hour = time_now.hour;
-  int time_minute = time_now.minute;
-
-  // Initialize variables.
-  int next_hour = 0;
-  int next_minute = 0;
-  int index = 0;
-  int loop_count = 0;
-  int time_count = times.size()-1;
-
-  // Compare the list of times with the current time, and return the next in the list.
-  //ESP_LOGD("update_next_runtime", "now: %i:%i", hour, minute);
-  for (std::string time : times) {
-    // Retrieve the next scheduled time from the list.
-    next_hour = atoi(time.substr(0,2).c_str());
-    next_minute = atoi(time.substr(3,2).c_str());
-
-    //ESP_LOGD("update_next_runtime", "next_hour: %s", time.c_str());
-    if (time_hour < next_hour || (time_hour == next_hour && time_minute < next_minute)) {
-      // Return this time if the next hour is greater than the current hour.
-      return times[loop_count].c_str();
-      break;
-    // When we reach the end of our schedule for the day, return the first time of tomorrow.
-    } else if (time_count == loop_count) {
-      return times[0].c_str();
-      break;
-    }
-
-    // Increment the loop counter and array index.
-    loop_count += 1;
-    index += 2;
-  }
-
-  return "unknown";
 }
+
+/*
+ * Prevent shutting down the conroller when button state change was triggered by
+ * the controller
+ *
+ * Useful when turning valve off by push of a button button,
+ * that is also used to indicate that the valve is on.
+ */
+void conditional_off(switch_::Switch *relay, sprinkler::Sprinkler *sprinkler) {
+  if (id(relay).state) {
+    id(sprinkler).shutdown();
+  }
+}
+
+/*
+ * Format remaining time of the curent valve as a string (minute:second)
+ */
+std::string remaining_time(sprinkler::Sprinkler *sprinkler) {
+  uint32_t remaining_time = id(sprinkler).time_remaining_active_valve().value_or(0);
+  if (remaining_time == 0) {
+    return "";
+  }
+  char result[12];
+  sprintf(result, "%02d:%02d", (int)(remaining_time / 60),
+          (int)(remaining_time % 60));
+  return result;
+}
+}  // namespace esphome

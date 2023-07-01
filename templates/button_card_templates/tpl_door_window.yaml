@@ -1,0 +1,137 @@
+
+#################################################
+#                                               #
+#          DOOR_WINDOW_GROUP_BASE               #
+#                                               #
+#################################################
+
+door_window_group_base:
+  template:
+    - base
+    - circle
+  variables:
+    unit: ''
+  hold_action:
+    action: none
+  state_display: >
+    [[[ return variables.state; ]]]
+
+#################################################
+#                                               #
+#          DOOR_WINDOW_GROUP_DOWNSTAIRS         #
+#                                               #
+#################################################
+
+door_window_group_downstairs:
+  template:
+    - door_window_group_base
+  variables:
+    circle_input: >
+      [[[
+        const doorsOpen = states["sensor.open_windows_and_doors_downstairs"].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return Math.round(doorsOpen / allDoors * 100);
+      ]]]
+    state: >
+      [[[ 
+        return states["sensor.open_windows_and_doors_downstairs"].state > 0 ? 'Open' : 'Gesloten';
+      ]]]
+    consider_on: >
+      [[[
+        return states["sensor.open_windows_and_doors_downstairs"].state > 0;
+      ]]]
+    circle_text: >
+      [[[
+        const doorsOpen = states["sensor.open_windows_and_doors_downstairs"].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return `${doorsOpen}/${allDoors}`;
+      ]]]
+  tap_action:
+    !include ../../dashboards/popups/doors_downstairs.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
+          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]
+
+#################################################
+#                                               #
+#            DOOR_WINDOW_GROUP_UPSTAIRS         #
+#                                               #
+#################################################
+
+door_window_group_upstairs:
+  template:
+    - door_window_group_base
+  variables:
+    circle_input: >
+      [[[
+        const doorsOpen = states["sensor.open_windows_and_doors_upstairs"].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return Math.round(doorsOpen / allDoors * 100);
+      ]]]
+    state: >
+      [[[ 
+        return states["sensor.open_windows_and_doors_upstairs"].state > 0 ? 'Open' : 'Gesloten';
+      ]]]
+    consider_on: >
+      [[[
+        return states["sensor.open_windows_and_doors_upstairs"].state > 0;
+      ]]]
+    circle_text: >
+      [[[
+        const doorsOpen = states["sensor.open_windows_and_doors_upstairs"].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return `${doorsOpen}/${allDoors}`;
+      ]]]
+  tap_action:
+    !include ../../dashboards/popups/doors_upstairs.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_upstairs'].state > 0)
+          return `<ha-icon icon="mdi:window-open-variant"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]
+
+#################################################
+#                                               #
+#            DOOR_WINDOW_GROUP_GARDEN           #
+#                                               #
+#################################################
+
+door_window_group_garden:
+  template:
+    - door_window_group_base
+  variables:
+    circle_input: >
+      [[[
+        const doorsOpen = states["sensor.open_windows_and_doors_garden"].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return Math.round(doorsOpen / allDoors * 100);
+      ]]]
+    state: >
+      [[[ 
+        return states["sensor.open_windows_and_doors_garden"].state > 0 ? 'Open' : 'Gesloten';
+      ]]]
+    consider_on: >
+      [[[
+        return states["sensor.open_windows_and_doors_garden"].state > 0;
+      ]]]
+    circle_text: >
+      [[[
+        const doorsOpen = states["sensor.open_windows_and_doors_garden"].state;
+        const allDoors = entity.attributes.entity_id.length;
+        return `${doorsOpen}/${allDoors}`;
+      ]]]
+  tap_action:
+    !include ../../dashboards/popups/doors_garden.yaml
+  custom_fields:
+    icon: >
+      [[[ 
+        if (states['sensor.open_windows_and_doors_garden'].state > 0)
+          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
+        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+      ]]]

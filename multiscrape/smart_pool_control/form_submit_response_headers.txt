@@ -1,1 +1,0 @@
-Headers({'server': 'nginx/1.18.0 (Ubuntu)', 'date': 'Tue, 28 Mar 2023 18:27:29 GMT', 'content-type': 'text/html', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', 'content-encoding': 'gzip'})

@@ -7,6 +7,7 @@
       "auth_failure": "Verbindung zu Easee nicht möglich. Prüfen Sie Username und Passwort.",
       "connection_failure": "Verbindung zu Easee nicht möglich. Versuchen Sie es später erneut.",
       "no_sites": "Keine Standorte ausgewählt.",
+      "no_sites_in_account": "No sites found in this account.",
       "refused_failure": "Verbindung zu Easee abgelehnt. Versuchen Sie es später erneut."
     },
     "step": {
@@ -113,12 +114,29 @@
       "easee_status": {
         "name": "Status",
         "state": {
+          "authenticating": "Authenticating",
+          "awaiting_authentication": "Waiting for authentication",
+          "awaiting_authorization": "Waiting for authorization",
+          "awaiting_load_balancing": "Waiting for load balancing",
+          "awaiting_scheduled_start": "Waiting for scheduled start",
+          "awaiting_smart_start": "Waiting for smart start",
           "awaiting_start": "Wartet auf Start",
           "charging": "Lädt",
           "completed": "Abgeschlossen",
+          "de_authorizing": "Closing authorization",
           "disconnected": "Kein Fahrzeug verbunden",
+          "erratic_ev": "Erratic EV",
           "error": "Fehler",
-          "ready_to_charge": "Bereit zum Laden"
+          "error_dead_powerboard": "Error Dead powerboard",
+          "error_overcurrent": "Error Overcurrent",
+          "error_pen_fault": "Error PEN fault",
+          "error_temperature_too_high": "Error Temperature too high",
+          "offline": "Offline",
+          "paused_due_to_equalizer": "Paused due to Equalizer",
+          "ready_to_charge": "Bereit zum Laden",
+          "searching_for_master": "Searching for master",
+          "start_charging": "Start charging",
+          "stop_charging": "Stop charging"
         }
       },
       "energy_per_hour": {

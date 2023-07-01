@@ -1,0 +1,97 @@
+substitutions:
+  ip: !secret pool_aquadeck_ip
+
+esphome:
+  name: "pool-aquadeck-pump"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+<<: !include .common.yaml
+
+# Enable logging
+logger:
+
+switch:
+  # Wired to NO
+  - platform: gpio
+    pin:
+      number: GPIO13
+      inverted: true
+    id: pool_relay_cover_open
+    name: "Pool Deck open"
+    icon: "mdi:garage-open"
+    interlock: [pool_relay_cover_closed]
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+    - delay: 1000ms
+    - switch.turn_off: pool_relay_cover_open
+  - platform: gpio
+    pin:
+      number: GPIO18
+      inverted: true
+    id: pool_relay_cover_closed
+    name: "Pool Deck close"
+    icon: "mdi:garage"
+    interlock: [pool_relay_cover_open]
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+    - delay: 1000ms
+    - switch.turn_off: pool_relay_cover_closed
+  # Wired to NC instead of NO
+  - platform: gpio
+    pin:
+      number: GPIO19
+      inverted: true
+    id: pool_relay_cover_lock
+    name: "Pool Deck lock"
+    icon: "mdi:lock"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin:
+      number: GPIO21
+    id: pool_relay_pump
+    name: "Pool Pomp Switch"
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:heat-pump-outline"
+
+# binary sensor on 25 and 26
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO25
+      mode:
+        input: true
+        pullup: true
+    name: "Pool Deck Open"
+    id: pool_deck_open
+    device_class: window
+  - platform: gpio
+    pin:
+      number: GPIO26
+      mode:
+        input: true
+        pullup: true
+    name: "Pool Deck Closed"
+    id: pool_deck_closed
+    device_class: window
+
+cover:
+  - platform: feedback
+    name: "Pool Deck"
+    device_class: gate
+    assumed_state: true
+    has_built_in_endstop: true
+    open_action:
+      - switch.turn_on: pool_relay_cover_open
+    open_duration: '0:01:40'
+    open_endstop: pool_deck_open
+    close_action:
+      - switch.turn_on: pool_relay_cover_closed
+    close_duration: '0:01:35'
+    close_endstop: pool_deck_closed
+    stop_action:
+      - switch.turn_on: pool_relay_cover_closed
+  

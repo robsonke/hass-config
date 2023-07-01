@@ -3,6 +3,7 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Noa
+    timeout: 180000
     size: wide
     content:
       type: custom:frigate-card

@@ -39,7 +39,7 @@ cover:
       ]]]
     icon: >
       [[[
-        const fill_color = (entity.attributes.current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : 'var(--green)';
+        const fill_color = (entity.attributes.current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : 'var(--blue)';
         let common = `<svg viewBox="0 0 50 50">
             <g transform="matrix(0.00733309,0,0,-0.00934536,-0.00876259,42.68667)" fill="${fill_color}" stroke="none">
             <path d="M 95,4556 C 54,4538 12,4487 5,4447 2,4429 0,4290 2,4138 c 3,-314 3,-312 88,-355 41,-21 58,-23 207,-23 H 460 V 2311 862 L 281,858 C 118,855 99,853 74,834 23,796 5,763 5,705 5,647 23,614 74,576 l 27,-21 h 2459 2459 l 27,21 c 51,38 69,71 69,129 0,58 -18,91 -69,129 -25,19 -44,21 -207,24 l -179,4 v 1449 1449 h 163 c 149,0 166,2 207,23 87,44 85,37 85,382 0,291 -1,305 -21,331 -11,15 -33,37 -48,48 l -27,21 -2447,2 C 553,4569 120,4567 95,4556 Z M 4350,2310 V 860 H 2560 770 v 1450 1450 h 1790 1790 z" />`,
@@ -137,7 +137,7 @@ cover_group:
       [[[
         const initialValue = 0;
         let current_position = entity.attributes.entity_id.reduce((sum, e) => sum + states[e].attributes.current_position, initialValue) / 2;
-        const fill_color = (current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : 'var(--green)';
+        const fill_color = (current_position > variables.close_position) ? 'var(--custom-button-card-color-off)' : 'var(--blue)';
         let common = `<svg viewBox="0 0 50 50">
             <g transform="matrix(0.00733309,0,0,-0.00934536,-0.00876259,42.68667)" fill="${fill_color}" stroke="none">
             <path d="M 95,4556 C 54,4538 12,4487 5,4447 2,4429 0,4290 2,4138 c 3,-314 3,-312 88,-355 41,-21 58,-23 207,-23 H 460 V 2311 862 L 281,858 C 118,855 99,853 74,834 23,796 5,763 5,705 5,647 23,614 74,576 l 27,-21 h 2459 2459 l 27,21 c 51,38 69,71 69,129 0,58 -18,91 -69,129 -25,19 -44,21 -207,24 l -179,4 v 1449 1449 h 163 c 149,0 166,2 207,23 87,44 85,37 85,382 0,291 -1,305 -21,331 -11,15 -33,37 -48,48 l -27,21 -2447,2 C 553,4569 120,4567 95,4556 Z M 4350,2310 V 860 H 2560 770 v 1450 1450 h 1790 1790 z" />`,

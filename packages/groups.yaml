@@ -144,7 +144,7 @@ group:
     icon: mdi:lightbulb-group
     entities:
       - light.garden_light
-      - light.dimmer_cabinroof_level
+      - light.veranda_light
       - light.hue_lily_light_fence_1
       - light.hue_lily_light_fence_2
       - light.hue_lily_light_fence_3
@@ -186,12 +186,3 @@ group:
     entities:
       - cover.zijraam
       - cover.voorraam
-
-  irrigation_switches:
-    name: Irrigatie zones
-    icon: mdi:sprinkler-variant
-    entities:
-      - switch.irrigation_zone_achter_links
-      - switch.irrigation_zone_achter_rechts
-      - switch.irrigation_zone_terras_midden
-      - switch.irrigation_zone_terras_zijkant

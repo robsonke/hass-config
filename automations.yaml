@@ -407,21 +407,21 @@
       volume: 0.7
       volume_restore: 0.4
       googlehome_entity: media_player.office_googlehome
-      delay: 00:00:03
+      delay: '3'
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
   - service: script.googlehome_play_sound
     data:
       volume: 0.7
-      volume_restore: 0.4
+      volume_restore: 0.2
       googlehome_entity: media_player.bedroom_googlehome
-      delay: 00:00:03
+      delay: '3'
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
   - service: script.googlehome_play_sound
     data:
       volume: 0.7
       volume_restore: 0.4
       googlehome_entity: media_player.living_googlehome
-      delay: 00:00:03
+      delay: '3'
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
   - service: notify.all_phones
     data:
@@ -435,7 +435,7 @@
       volume: 0.7
       volume_restore: 0.4
       googlehome_entity: media_player.keuken_display
-      delay: 00:00:03
+      delay: '3'
       mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
@@ -540,9 +540,9 @@
       milliseconds: 0
   - service: light.turn_on
     data:
-      brightness_pct: 15
+      brightness_pct: 35
     target:
-      entity_id: light.dimmer_cabinroof_level
+      entity_id: light.veranda_light
   - service: light.turn_on
     data:
       kelvin: 2200
@@ -572,7 +572,7 @@
     data: {}
     target:
       entity_id:
-      - light.dimmer_cabinroof_level
+      - light.veranda_light
       - group.hue_lights_garden
       - light.woodshed_light
       - light.palm1_light
@@ -1654,7 +1654,7 @@
     target:
       entity_id:
       - light.garden_light
-      - light.dimmer_cabinroof_level
+      - light.veranda_light
   - service: notify.all_phones
     data:
       message: Er is een persoon gedetecteerd op een camera!
@@ -1675,7 +1675,7 @@
     target:
       entity_id:
       - light.garden_light
-      - light.dimmer_cabinroof_level
+      - light.veranda_light
   mode: single
 - id: '1629016952694'
   alias: Alarm - Notify why arming failed
@@ -2352,7 +2352,7 @@
     data: {}
     target:
       entity_id:
-      - light.dimmer_cabinroof_level
+      - light.veranda_light
   - service: light.turn_off
     data: {}
     target:
@@ -2434,109 +2434,6 @@
           data:
             persistent: true
             tag: persistent
-- id: '1653419188796'
-  alias: Irrigation - Always turn off after one hour
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - switch.irrigation_zone_achter_links
-    - switch.irrigation_zone_achter_rechts
-    - switch.irrigation_zone_terras_zijkant
-    - switch.irrigation_zone_terras_midden
-    to: 'on'
-    for:
-      hours: 1
-      minutes: 0
-      seconds: 0
-    from: 'off'
-  condition: []
-  action:
-  - service: switch.turn_off
-    target:
-      entity_id: '{{ trigger.entity_id }}
-
-        '
-  mode: single
-- id: '1653726752674'
-  alias: Irrigation - Reset duration inputs once done
-  description: Lets make sure the irrigation will not continue in 24 hours again.
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.zone_achter_rechts_resterende_tijd
-    to: '0'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    id: achter-rechts
-  - platform: state
-    entity_id:
-    - sensor.zone_achter_links_resterende_tijd
-    to: '0'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    id: achter-links
-  - platform: state
-    entity_id:
-    - sensor.zone_terras_midden_resterende_tijd
-    to: '0'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    id: terras-midden
-  - platform: state
-    entity_id:
-    - sensor.zone_terras_zijkant_resterende_tijd
-    to: '0'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    id: terras-zijkant
-  condition: []
-  action:
-  - if:
-    - condition: trigger
-      id: achter-rechts
-    then:
-    - service: input_number.set_value
-      data:
-        value: 0
-      target:
-        entity_id: input_number.irrigation_zone_achter_rechts_duration
-  - if:
-    - condition: trigger
-      id: achter-links
-    then:
-    - service: input_number.set_value
-      data:
-        value: 0
-      target:
-        entity_id: input_number.irrigation_zone_achter_links_duration
-  - if:
-    - condition: trigger
-      id: terras-midden
-    then:
-    - service: input_number.set_value
-      data:
-        value: 0
-      target:
-        entity_id: input_number.irrigation_zone_terras_midden_duration
-  - if:
-    - condition: trigger
-      id: terras-zijkant
-    then:
-    - service: input_number.set_value
-      data:
-        value: 0
-      target:
-        entity_id: input_number.irrigation_zone_terras_zijkant_duration
-  mode: single
 - id: '1655029746074'
   alias: Switch - Control office light hue switch
   description: ''
@@ -2662,10 +2559,6 @@
   description: Turn on the pool heatpump based on need and energy pricing and outdoor
     temperature
   trigger:
-  - platform: numeric_state
-    entity_id: sensor.energy_price_level
-    attribute: percentage
-    below: '100'
   - platform: state
     entity_id: sensor.today_maximum_temperature
   - platform: state
@@ -2675,17 +2568,10 @@
       hours: 0
       minutes: 10
       seconds: 0
-  condition:
-  - condition: numeric_state
-    entity_id: sensor.today_maximum_temperature
-    above: 14
-  - condition: state
-    entity_id: binary_sensor.pool_pump_active
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
+  - platform: state
+    entity_id:
+    - sensor.energy_price_level
+  condition: []
   action:
   - choose:
     - conditions:
@@ -2696,6 +2582,9 @@
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         above: 14
+      - condition: state
+        entity_id: binary_sensor.pool_pump_active
+        state: 'on'
       sequence:
       - service: switch.turn_on
         data: {}
@@ -2707,6 +2596,7 @@
       target:
         entity_id: switch.heatpump_pool_switch
   mode: single
+  max_exceeded: silent
   trace:
     stored_traces: 50
 - id: '1659881596095'
@@ -2849,7 +2739,7 @@
           }}'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
-        above: '26'
+        above: '24'
       - condition: not
         conditions:
         - condition: state
@@ -3303,28 +3193,6 @@
     stored_traces: 50
   mode: queued
   max: 4
-- id: '1674673558309'
-  alias: EMHass - Day Ahead optimisation
-  description: ''
-  trigger:
-  - platform: time
-    at: 05:30:00
-  condition: []
-  action:
-  - service: shell_command.dayahead_optim
-    data: {}
-  mode: single
-- id: '1674673634309'
-  alias: EMHass - publish data to EMHass
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /5
-  condition: []
-  action:
-  - service: shell_command.publish_data
-    data: {}
-  mode: single
 - id: '1676024605779'
   alias: Heating - Control heating Eva
   description: This turns on the infra red heating panel in Eva's room
@@ -3387,3 +3255,246 @@
         persistent: true
         tag: persistent
   mode: single
+- id: '1684057104240'
+  alias: Pool - Switch heating between smart and silent
+  description: Based on the target temperature and current temperature, move to silent
+    or smart mode.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.heatpump_pool_water_temperature
+  - platform: state
+    entity_id:
+    - number.heatpump_pool_water_temperature_target
+  - platform: time_pattern
+    minutes: /30
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ states.number.heatpump_pool_water_temperature_target.state
+          | int(default=0) - states.sensor.heatpump_pool_water_temperature.state |
+          int(default=0) > 0 }}'
+        alias: If we are about to get close to the target temperature
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.heatpump_pool_smartmode
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.heatpump_pool_smartmode
+  mode: single
+- id: '1684057174715'
+  alias: Pool - Alert when ph or redox values are not oke
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.pool_ph_value
+    - sensor.pool_redox_value
+    - binary_sensor.pool_pump_active
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition:
+  - condition: or
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.pool_ph_value
+      above: 8.5
+      below: 6
+    - condition: numeric_state
+      entity_id: sensor.pool_redox_value
+      above: 800
+      below: 500
+    - condition: state
+      entity_id: binary_sensor.pool_pump_active
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+    - condition: state
+      entity_id: sensor.pool_ph_value
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+    - condition: state
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+      entity_id: sensor.pool_redox_value
+      state: unavailable
+  - condition: state
+    entity_id: binary_sensor.pool_pump_active
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  action:
+  - service: notify.all_phones
+    data:
+      message: "\U0001F3CA De waardes of flow van het zwembad zijn niet in orde."
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1684059527700'
+  alias: Energy - Alert when one of the three phases is high
+  description: Keep an eye on using too much power for too long
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.current_phase_1
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    above: 25
+  - platform: numeric_state
+    entity_id: sensor.current_phase_2
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    above: 25
+  - platform: numeric_state
+    entity_id: sensor.current_phase_3
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    above: 25
+  condition: []
+  action:
+  - service: notify.all_phones
+    data:
+      message: ⚡ Een van de drie fases zit te lang boven de 25A.
+      data:
+        persistent: true
+        tag: persistent
+  mode: single
+- id: '1684664004500'
+  alias: Pool - Control the locking of the pool cover
+  description: When one of us is at home or the guest mode is enabled, keep the deck
+    unlocked. Otherwise locked.
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.rob_presence
+    - device_tracker.steffi_presence
+  - platform: state
+    entity_id:
+    - input_boolean.guest_mode
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.guest_mode
+          state: 'on'
+        - condition: numeric_state
+          entity_id: zone.home
+          above: 0
+        alias: Is somebody home or is the guest mode on and aren't we sleeping?
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: alarm_control_panel.alarmo
+          state: armed_night
+      sequence:
+      - service: lock.unlock
+        data: {}
+        target:
+          entity_id: lock.aquadeck_rol_dek
+    default:
+    - service: lock.lock
+      data: {}
+      target:
+        entity_id: lock.aquadeck_rol_dek
+  mode: single
+- id: '1684685043051'
+  alias: Pool - Control the filter pump
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - schedule.pool_filter_pump_schedule
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: schedule.pool_filter_pump_schedule
+        state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.pool_pomp_switch
+    - conditions:
+      - condition: state
+        entity_id: schedule.pool_filter_pump_schedule
+        state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.pool_pomp_switch
+  mode: single
+- id: '1686403235095'
+  alias: Irrigation - Start the sprinklers
+  description: If the schedule is enabled and we've reached the start time, kick the
+    esphome sprinkler instance
+  trigger:
+  - platform: time
+    at: input_datetime.irrigation_start_time
+  condition:
+  - condition: state
+    entity_id: input_boolean.irrigation_plan_enable
+    state: 'on'
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.irrigation_plan_enable
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.irrigation_main_switch
+  mode: single
+- id: '1687283263051'
+  alias: Light - Control bathroom ceiling light
+  description: Combination of Hue wall switch plus zigbee dimmer
+  use_blueprint:
+    path: robsonke/hue-wall-switch.yaml
+    input:
+      switch: sensor.hue_bathroom_switch_action
+      press_left:
+      - service: light.toggle
+        data:
+          transition: 2
+        target:
+          entity_id: light.dimmer_bathroom
+- id: '1687808190086'
+  alias: Test - dimmer
+  description: ''
+  use_blueprint:
+    path: robsonke/hue-wall-switch-v2.yaml
+    input:
+      switch: sensor.hue_guestroom_switch_action
+      press_left:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.dimmer_guestroom

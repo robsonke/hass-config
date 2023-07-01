@@ -79,6 +79,9 @@ views:
               div.name-state {
                 display: none;
               }
+              ha-card {
+                border-width: 0;
+              }
               :host([verynarrow]) div.attribute {
                 display: block;
               }
@@ -230,18 +233,12 @@ views:
               icon: "mdi:radiator"
               heating: >
                 [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Heating' && states['switch.climate_control'].state === 'on'
+                  return states['select.operation_mode'].state === 'heating' && states['switch.climate_control'].state === 'on'
                 ]]]
               cooling: >
                 [[[
-                  return states['sensor.altherma_operation_mode'].state === 'Cooling' && states['switch.climate_control'].state === 'on'
+                  return states['select.operation_mode'].state === 'cooling' && states['switch.climate_control'].state === 'on'
                 ]]]
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.downstairs_temperature
-                      color: 'var(--red)'
 
           - type: custom:button-card
             entity: group.music_downstairs
@@ -362,7 +359,7 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
-            entity: sensor.heatpump_pool_water_temperature
+            entity: sensor.pool_deck_status
             template: pool
             name: Zwembad
           - type: custom:button-card
@@ -376,15 +373,13 @@ views:
             hold_action:
               action: none
           - type: custom:button-card
-            entity: group.irrigation_switches
+            entity: switch.irrigatie_zones
             name: Beregening
             template:
               - irrigation
             group_expand: true
             tap_action:
-              !include popups/irrigation.yaml
-            hold_action:
-              action: none
+              !include popups/irrigation_garden.yaml
           - type: custom:button-card
             entity: group.doors_and_windows_garden
             name: Deuren
@@ -437,12 +432,6 @@ views:
                   heating = heating || states['switch.kasa_infrarood_eva'].state === 'on' || states['switch.infraroodpanel_noa'].state === 'on'
                   return heating;
                 ]]]
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: sensor.climate_sensor_masterbedroom_temperature
-                      color: 'var(--red)'
           - type: custom:button-card
             entity: group.doors_and_windows_upstairs
             name: Ramen
@@ -488,14 +477,6 @@ views:
                   && states['water_heater.domestic_hot_water_tank'].attributes['temperature'] - states['water_heater.domestic_hot_water_tank'].attributes['current_temperature'] > 5
                   && states['sensor.altherma_power_usage'].state > 1000
                 ]]] 
-            custom_fields:
-              graph:
-                card:
-                  series:
-                    - entity: water_heater.domestic_hot_water_tank
-                      attribute: 
-                        current_temperature
-                      color: 'var(--red)'
           - type: custom:button-card
             entity: sensor.net_power_consumption
             triggers_update:
@@ -523,15 +504,6 @@ views:
                   let water = Math.round(states['sensor.water_daily'].state*100)/100;
                   return `<span>${water} ${states['sensor.water_daily'].attributes['unit_of_measurement']}<br/>${entity.state} ${entity.attributes['unit_of_measurement']}</span>`;
                 ]]]
-              graph:
-                card:
-                  type: custom:apexcharts-card
-                  config_templates: dashboard_button_chart
-                  series:
-                    - entity: sensor.water_meter_current_usage
-                      group_by:
-                        func: avg
-                        duration: 10m
             styles:
               custom_fields:
                 icon:
@@ -540,11 +512,6 @@ views:
                         if (entity.state > 0)
                           return 'var(--blue)';
                       ]]]
-                graph:
-                  - bottom: 0%
-                  - left: 0%
-                  - width: 100%
-                  - position: absolute
               state:
                 - color: rgba(0, 0, 0, 0)
 
@@ -613,7 +580,7 @@ views:
             variables:
               notify: >
                 [[[
-                  return (entity.state === 'on' || states['sensor.stookwijzer'].state !== 'blauw') && states['sensor.stookwijzer'].state !== 'unavailable';
+                  return (entity.state === 'on' || states['sensor.stookwijzer'].state === 'rood') && states['sensor.stookwijzer'].state !== 'unavailable';
                 ]]]
           - type: custom:button-card
             template: footer

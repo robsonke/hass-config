@@ -12,6 +12,7 @@ advanced:
   homeassistant_legacy_entity_attributes: false
   legacy_api: false
   legacy_availability_payload: false
+  log_level: debug
 device_options:
   legacy: false
 devices:
@@ -59,6 +60,9 @@ devices:
     friendly_name: frontdoor_openclose
   '0x00178801063715e8':
     friendly_name: dimmer_switch_office
+    legacy: false
+    homeassistant: {}
+    optimistic: true
   '0xcc86ecfffee65446':
     friendly_name: kitchencabin_light
   '0x00158d0004a97335':
@@ -85,8 +89,6 @@ devices:
     friendly_name: motion_sensor_cats
   '0x00158d0006ffdb3f':
     friendly_name: sheddoor_openclose
-  '0x60a423fffe09143f':
-    friendly_name: switch_pool
   '0x001788010b0791d3':
     friendly_name: garden_lantern_light1
   '0x54ef4410000c32d5':
@@ -155,6 +157,22 @@ devices:
     friendly_name: pool_terrace_light2
   '0x001788010b408f59':
     friendly_name: hue_lily_light_tree_2
+  '0x001788010cc52e69':
+    friendly_name: hue_bathroom_switch
+  '0x385b44fffe0f1ea1':
+    friendly_name: dimmer_bathroom
+  '0x385b44fffe33ff18':
+    friendly_name: veranda_light
+  '0x001788010d9f4e51':
+    friendly_name: hue_guestroom_switch
+  '0x385b44fffe385244':
+    friendly_name: dimmer_guestroom
+  '0x385b44fffe2e14b0':
+    friendly_name: dimmer_hall
+  '0x001788010d9f5317':
+    friendly_name: hue_corridor_switch
+  '0x001788010cc568f7':
+    friendly_name: hue_hall_switch
 availability:
   active:
     timeout: 10

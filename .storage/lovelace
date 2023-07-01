@@ -515,7 +515,7 @@
                       "entity": "light.garden_light"
                     },
                     {
-                      "entity": "light.dimmer_cabinroof_level",
+                      "entity": "light.veranda_light",
                       "type": "custom:slider-entity-row",
                       "toggle": true,
                       "secondary_info": "brightness"
