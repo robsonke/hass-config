@@ -547,7 +547,7 @@
     data:
       kelvin: 2200
     target:
-      entity_id: group.hue_lights_garden
+      entity_id: light.hue_lights_garden
   mode: single
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights - morning
@@ -573,7 +573,7 @@
     target:
       entity_id:
       - light.veranda_light
-      - group.hue_lights_garden
+      - light.hue_lights_garden
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
@@ -2026,7 +2026,7 @@
     entity_id: input_boolean.guest_mode
     state: 'off'
   - condition: state
-    entity_id: group.lights_upstairs
+    entity_id: light.lights_upstairs
     state: 'on'
   action:
   - service: script.lights_off_upstairs
@@ -2381,7 +2381,7 @@
   - service: light.turn_off
     data: {}
     target:
-      entity_id: group.hue_lights_garden
+      entity_id: light.hue_lights_garden
   mode: single
 - id: '1645647196286'
   alias: Windows - Masterbedroom1 open and low temperature
@@ -3473,28 +3473,4 @@
     target:
       entity_id: switch.irrigation_main_switch
   mode: single
-- id: '1687283263051'
-  alias: Light - Control bathroom ceiling light
-  description: Combination of Hue wall switch plus zigbee dimmer
-  use_blueprint:
-    path: robsonke/hue-wall-switch.yaml
-    input:
-      switch: sensor.hue_bathroom_switch_action
-      press_left:
-      - service: light.toggle
-        data:
-          transition: 2
-        target:
-          entity_id: light.dimmer_bathroom
-- id: '1687808190086'
-  alias: Test - dimmer
-  description: ''
-  use_blueprint:
-    path: robsonke/hue-wall-switch-v2.yaml
-    input:
-      switch: sensor.hue_guestroom_switch_action
-      press_left:
-      - service: light.toggle
-        data: {}
-        target:
-          entity_id: light.dimmer_guestroom
+

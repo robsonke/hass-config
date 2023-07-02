@@ -15,7 +15,7 @@ browser_mod:
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - entity: light.overloop
+            - entity: light.dimmer_corridor
             - title: Overloop
 
         - type: divider
@@ -23,17 +23,17 @@ browser_mod:
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - entity: light.hoofdslaapkamer
+            - entity: light.dimmer_masterbed
             - title: Slaapkamer
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - entity: light.inloopkast
+            - entity: light.dimmer_mastercloset
             - title: Inloopkast
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - entity: light.douche
+            - entity: light.dimmer_masterbath
             - title: Douche
 
         - type: divider
@@ -42,7 +42,7 @@ browser_mod:
           template: light_button
           variables: 
             - title: Eva
-            - entity: light.eva
+            - entity: light.dimmer_eva
         - type: custom:decluttering-card
           template: light_button
           variables: 
@@ -52,9 +52,9 @@ browser_mod:
           template: light_button
           variables: 
             - title: Noa
-            - entity: light.slaapkamer_noa
+            - entity: light.dimmer_noa
         - type: custom:decluttering-card
           template: light_button
           variables: 
-            - entity: light.logeerkamer
+            - entity: light.dimmer_guestroom
             - title: Logeerkamer

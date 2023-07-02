@@ -1276,7 +1276,7 @@ views:
     filter:
       include:
       - entity_id: lock.voordeur_slot
-      - group: group.doors_and_windows
+      - group: binary_sensor.doors_and_windows
       - entity_id: input_boolean.guest_mode
     sort:
       method: last_changed

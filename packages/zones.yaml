@@ -24,3 +24,8 @@ zone:
     longitude: !secret work_steffi_longitude_coordinate
     radius: 75
     icon: mdi:briefcase
+
+homeassistant:
+  customize:
+    zone.home:
+      entity_picture: "/local/images/huis_langeweide_icon.png"

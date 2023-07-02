@@ -24,3 +24,15 @@ cover:
           - service: lock.lock
             target:
               entity_id: lock.nuki_voordeur_slot_lock
+
+  - platform: group
+    name: Screens
+    unique_id: covers_downstairs
+    entities:
+      - cover.zijraam
+      - cover.voorraam
+
+input_boolean:
+  enable_automatic_screens:
+    name: Enable Screens Automation
+    icon: mdi:projector-screen-variant-off-outline

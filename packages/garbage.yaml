@@ -1,0 +1,75 @@
+#   ____            _
+#  / ___| __ _ _ __| |__   __ _  __ _  ___
+# | |  _ / _` | '__| '_ \ / _` |/ _` |/ _ \
+# | |_| | (_| | |  | |_) | (_| | (_| |  __/
+#  \____|\__,_|_|  |_.__/ \__,_|\__, |\___|
+#                               |___/
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+sensor:
+  - platform: afvalinfo
+    resources:
+      - gft
+      - papier
+      - restafval
+      - trash_type_today
+      - trash_type_tomorrow
+    location: goes
+    postcode: 4481CP
+    streetnumber: 28
+    dateformat: "%d-%m-%Y"
+    locale: "nl"
+
+template:
+  - sensor:
+    - unique_id: paper_days_until_collection
+      state: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
+      attributes:
+        friendly_name: papier bak
+        short_name: papier
+        color: '#3182b7'
+        intstate: "{{ state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) }}"
+        text: |
+          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+          {% set stateInt = state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) %}
+          {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
+        short_text: |
+          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+          {% set stateInt = state_attr('sensor.afvalinfo_papier', 'days_until_collection_date') | int(default=0) %}
+          {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
+      icon: mdi:trash-can
+    - unique_id: gft_days_until_collection
+      state: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
+      attributes:
+        friendly_name: GFT bak
+        short_name: gft
+        color: 'green'
+        intstate: "{{ state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) }}"
+        text: |
+          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+          {% set stateInt = state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) %}
+          {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
+        short_text: |
+          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+          {% set stateInt = state_attr('sensor.afvalinfo_gft', 'days_until_collection_date') | int(default=0) %}
+          {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
+      icon: mdi:trash-can
+    - unique_id: rest_days_until_collection
+      state: "{{ state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) }}"
+      attributes:
+        friendly_name: grijze bak
+        short_name: rest
+        color: grey
+        intstate: "{{ state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) }}"
+        text: |
+          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+          {% set stateInt = state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) %}
+          {{ names[stateInt] if stateInt < names | length else 'Over %s dagen'%stateInt }}
+        short_text: |
+          {% set names = [ 'Vandaag', 'Morgen', 'Overmorgen' ] %}
+          {% set stateInt = state_attr('sensor.afvalinfo_restafval', 'days_until_collection_date') | int(default=0) %}
+          {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
+      icon: mdi:trash-can

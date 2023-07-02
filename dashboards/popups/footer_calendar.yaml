@@ -36,18 +36,3 @@ browser_mod:
               sortByStartTime: false
               showFullDayProgress: false
               fullDayEventText: ''
-        - type: vertical-stack
-          title: Todo
-          view_layout:
-            grid-area: todo
-          cards:
-            - type: 'custom:todoist-card'
-              entity: sensor.to_do_list_pool
-              show_header: true
-              show_completed: 5
-              show_item_add: true
-              use_quick_add: false
-              show_item_close: true
-              show_item_delete: false
-              only_today_overdue: false
-

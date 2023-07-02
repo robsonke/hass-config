@@ -60,22 +60,6 @@ lock:
       service: switch.turn_off
       target:
         entity_id: switch.pool_deck_lock
-
-sensor:
-  - platform: rest
-    name: To-do List Pool
-    unique_id: to_do_list_pool
-    method: GET
-    resource: 'https://api.todoist.com/sync/v9/projects/get_data'
-    params:
-      project_id: 2310299808
-    headers:
-      Authorization: !secret todoist_apikey_auth
-    value_template: '{{ value_json[''project''][''id''] }}'
-    json_attributes:
-      - project
-      - items
-    scan_interval: 30
   
 # pool eps one touch scrapers
 command_line:

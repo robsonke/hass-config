@@ -25,3 +25,11 @@ weather:
     visibility_unit: "km"
     wind_speed_unit: "km/h"
     pressure_unit: "hPa"
+
+template:
+  - sensor:
+    - name: "Today Maximum Temperature"
+      icon: mdi:thermometer
+      unique_id: today_maximum_temperature
+      state: >
+        {{ states.weather.openweathermap.attributes.forecast[0].temperature | float(default=20) }}

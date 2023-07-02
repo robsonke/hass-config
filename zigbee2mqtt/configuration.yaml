@@ -173,8 +173,42 @@ devices:
     friendly_name: hue_corridor_switch
   '0x001788010cc568f7':
     friendly_name: hue_hall_switch
+  '0x001788010d9f4e4f':
+    friendly_name: hue_corridor2_switch
+  '0x001788010cc568fd':
+    friendly_name: hue_eva_switch
+  '0x001788010d9f5316':
+    friendly_name: hue_noa_switch
+  '0x385b44fffe144ecb':
+    friendly_name: dimmer_corridor1
+  '0x385b44fffe3405ed':
+    friendly_name: dimmer_corridor2
+  '0x385b44fffe144dde':
+    friendly_name: dimmer_eva
+  '0x385b44fffe2ce244':
+    friendly_name: dimmer_noa
+  '0x385b44fffe2e024c':
+    friendly_name: dimmer_masterbed
+  '0x385b44fffe2cdebc':
+    friendly_name: dimmer_mastercloset
+  '0x385b44fffe2e0578':
+    friendly_name: dimmer_masterbath
+  '0x001788010d7cb9f9':
+    friendly_name: hue_tap_switch_master
 availability:
   active:
     timeout: 10
   passive:
     timeout: 1500
+groups:
+  '1':
+    friendly_name: dimmer_corridor
+    devices:
+      - 0x385b44fffe144ecb/1
+      - 0x385b44fffe3405ed/1
+  '2':
+    friendly_name: dimmer_master_closetbath
+    devices:
+      - 0x385b44fffe2cdebc/1
+      - 0x385b44fffe2e0578/1
+permit_join: true

@@ -209,7 +209,7 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
-            entity: group.lights_downstairs
+            entity: light.lights_downstairs
             name: Verlichting
             template:
               - light_group
@@ -241,7 +241,7 @@ views:
                 ]]]
 
           - type: custom:button-card
-            entity: group.music_downstairs
+            entity: media_player.music_downstairs
             name: Muziek
             triggers_update:
               - media_player.eetkamer
@@ -251,7 +251,7 @@ views:
             template:
               - sonos
           - type: custom:button-card
-            entity: group.doors_and_windows_downstairs
+            entity: binary_sensor.doors_and_windows_downstairs
             name: Deuren
             template:
               - door_window_group_downstairs
@@ -337,7 +337,7 @@ views:
             state_display: >
               [[[ return html`<span style="text-transform: capitalize">${entity.state} (${states['sensor.ix3_remaining_range_electric'].state} km)</span>`;  ]]]
           - type: custom:button-card
-            entity: group.covers_downstairs
+            entity: cover.covers_downstairs
             name: Screens
             group_expand: true
             template: cover_group
@@ -363,7 +363,7 @@ views:
             template: pool
             name: Zwembad
           - type: custom:button-card
-            entity: group.lights_garden
+            entity: light.lights_garden
             name: Tuin
             template:
               - light_group
@@ -381,7 +381,7 @@ views:
             tap_action:
               !include popups/irrigation_garden.yaml
           - type: custom:button-card
-            entity: group.doors_and_windows_garden
+            entity: binary_sensor.doors_and_windows_garden
             name: Deuren
             template:
               - door_window_group_garden
@@ -400,7 +400,7 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
-            entity: group.lights_upstairs
+            entity: light.lights_upstairs
             name: Verlichting
             template:
               - light_group
@@ -433,7 +433,7 @@ views:
                   return heating;
                 ]]]
           - type: custom:button-card
-            entity: group.doors_and_windows_upstairs
+            entity: binary_sensor.doors_and_windows_upstairs
             name: Ramen
             template:
               - door_window_group_upstairs

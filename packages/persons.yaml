@@ -19,3 +19,54 @@ person:
     user_id: 71e44d7d313b4695a8bf51705f7adfc3
     device_trackers:
       - device_tracker.steffi_presence
+
+notify:
+  - platform: group
+    name: all_phones
+    services:
+      - service: mobile_app_iphone_rob
+      - service: mobile_app_iphone_steffi
+
+device_tracker:
+  - platform: iphonedetect
+    consider_home: 60
+    scan_interval: 12
+    new_device_defaults:
+      track_new_devices: false
+    hosts:
+      iphonedetect_rob: !secret iphone_rob_ip
+      iphonedetect_steffi: !secret iphone_steffi_ip
+
+homeassistant:
+  customize_domain:
+    light:
+      assumed_state: false
+  customize:
+    person.rob:
+      entity_picture: "/local/images/rob_icon-mirror.png"
+    person.steffi:
+      entity_picture: "/local/images/steffi_icon.png"
+    device_tracker.rob_presence:
+      friendly_name: Combined Presence Rob
+    device_tracker.steffi_presence:
+      friendly_name: Combined Presence Steffi
+
+# not really person related config, but have to put it somewhere
+rest_command:
+  bed:
+    url: !secret auping_url
+    method: post
+    content_type: "application/json"
+    headers:
+      X-Key: !secret auping_key
+      accept: "application/json"
+    payload: '{"CBU":{{ cbu }},"motor_1":{"Action":{{ motor_1_action }},"TimeInMs": {{ motor_1_time }} },"motor_2":{"Action":{{ motor_2_action }},"TimeInMs":{{ motor_2_time }}},"motor_3":{"Action":{{ motor_3_action }},"TimeInMs": {{ motor_3_time }}}}'
+
+sensor:
+  - platform: history_stats
+    name: Cat door today
+    entity_id: binary_sensor.motion_sensor_cats_presence
+    state: "on"
+    type: count
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"

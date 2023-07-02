@@ -269,9 +269,9 @@ custom-dark:
       :host {
         --ha-card-border-width: 0;
       }
-    ha-header-bar$: |
-      header {
-        background: var(--tablet-popup-header-color) !important;
-        border-bottom: var(--tablet-popup-border-style);
-      }
+    ha-dialog>div.heading>ha-dialog-header {
+      font-family: var(--primary-font-family);
+      background-color: var(--tablet-popup-header-color);
+      border-bottom: var(--tablet-popup-border-style);
+    }
   

@@ -1,0 +1,48 @@
+#     _    _
+#    / \  | | __ _ _ __ _ __ ___
+#   / _ \ | |/ _` | '__| '_ ` _ \
+#  / ___ \| | (_| | |  | | | | | |
+# /_/   \_\_|\__,_|_|  |_| |_| |_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+input_boolean:
+  guest_mode:
+    name: Guest Mode
+    icon: mdi:account-group
+  alarm_active:
+    name: Alarm actief
+    icon: mdi:alarm-light
+
+template:
+  - sensor:
+    - unique_id: open_windows_and_doors_upstairs
+      attributes:
+        friendly_name: Open windows and doors upstairs
+      state: >
+        {{ expand('binary_sensor.doors_and_windows_upstairs') | selectattr('state', 'in', ['on']) | list | count }}
+    - unique_id: open_windows_and_doors_downstairs
+      attributes:
+        friendly_name: Open windows and doors downstairs
+      state: >
+        {{ expand('binary_sensor.doors_and_windows_downstairs') | selectattr('state', 'in', ['on']) | list | count }}
+    - unique_id: open_windows_and_doors_garden
+      attributes:
+        friendly_name: Open windows and doors garden
+      state: >
+        {{ expand('binary_sensor.doors_and_windows_garden') | selectattr('state', 'in', ['on']) | list | count }}
+    - unique_id: open_windows_and_doors
+      attributes:
+        friendly_name: Open windows and doors
+      state: >
+        {{ states('sensor.open_windows_and_doors_upstairs') | int(default=0) + states('sensor.open_windows_and_doors_downstairs') | int(default=0) + states('sensor.open_windows_and_doors_garden') | int(default=0) }}
+
+  - binary_sensor:
+    - unique_id: people_home_and_awake
+      attributes:
+        friendly_name: People home and awake
+      state: >
+        {{ ( states('zone.home') | int(default=0) > 0 or is_state('input_boolean.guest_mode', 'on') )
+            and is_state('alarm_control_panel.alarmo', 'disarmed') }}
