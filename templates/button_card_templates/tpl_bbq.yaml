@@ -1,0 +1,57 @@
+#################################################
+#                                               #
+#                      BBQ                      #
+#                                               #
+#################################################
+
+bbq:
+  template:
+    - circle
+  variables:
+    consider_on: >
+      [[[
+        return entity.state > 50;
+      ]]]
+    icon: mdi:grill
+    unit: "°C"
+    circle_input: >
+      [[[
+        return states['sensor.inkbird_ibt_2x_temperature_probe_1'].state / states['input_number.grill_alert_high'].state * 100;
+      ]]]
+    circle_text: >
+      [[[
+        let probe1 = entity.state;
+        if (probe1 === undefined || probe1 === 'unavailable' || probe1 > 700)
+          return '-';
+        return probe1;
+      ]]]
+  state_display: >
+    [[[
+      let probe1 = entity.state;
+      let probe2 = states['sensor.inkbird_ibt_2x_temperature_probe_2'].state;
+      // in case of an unavailable bluetooth connection or a disconnected probe...
+      if (probe1 === undefined || probe1 === 'unavailable' || probe1 > 700) probe1 = '-';
+      if (probe2 === undefined || probe2 === 'unavailable' || probe2 > 700) probe2 = '-';
+
+      let timer = '';
+      if (states['timer.bbq'].state === 'active') {
+        timer = `(🕓 ${states['timer.bbq'].attributes['remaining']})`;
+      }
+
+      return html`<span>${probe1}${variables.unit} / ${probe2}${variables.unit} ${timer}</span>`;
+    ]]]
+  styles:
+    custom_fields:
+      info:
+        - text-align: right
+        - color: >
+            [[[
+              let color = '';
+              if (states[entity].state > 50) color = 'var(--orange)';
+              if (states[entity].state > 100) color = 'var(--red)';
+              return color;
+            ]]]
+  tap_action:
+    !include ../../dashboards/popups/pp_bbq_garden.yaml
+
+

@@ -875,7 +875,7 @@
     value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
   - condition: template
     value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.presence_notify_of_events_in_frigate.attributes.last_triggered,
-      0) | int > 20 }}'
+      0) | int > 120 }}'
   - condition: or
     conditions:
     - condition: template
@@ -1205,11 +1205,13 @@
           entity_id: sensor.openweathermap_forecast_temperature
           above: '20'
         - condition: numeric_state
-          entity_id: sensor.openweathermap_forecast_cloud_coverage
+          entity_id: sensor.openweathermap_cloud_coverage
           below: '80'
+        alias: Warm and not too much clouds
       - condition: numeric_state
         entity_id: sensor.openweathermap_forecast_temperature
-        above: '22'
+        above: '24'
+      alias: Just hot or warm and not cloudy
     - condition: device
       device_id: eb69e1ad4596ef0df19b685a4e84e026
       domain: cover
@@ -3473,4 +3475,118 @@
     target:
       entity_id: switch.irrigation_main_switch
   mode: single
-
+- id: '1690629427860'
+  alias: Motion Lights - Control corridor lights
+  description: ''
+  use_blueprint:
+    path: robsonke/motion-illuminance-dimmable-nightmode.yaml
+    input:
+      motion_entity:
+      - binary_sensor.hue_motion_sensor_corridor1_occupancy
+      lux_entity: sensor.hue_motion_sensor_corridor1_illuminance_lux
+      lux_level: 70
+      light_target:
+        entity_id: light.dimmer_corridor
+      dim_time: 10
+      no_motion_wait_day: 240
+      day_brightness: 50
+- id: '1690717695663'
+  alias: BBQ - Timer notifications
+  description: Warns us in case of the bbq timer runs out
+  trigger:
+  - platform: state
+    entity_id:
+    - timer.bbq
+    from: active
+    to: idle
+    enabled: false
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.bbq
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_bbq_automations
+    state: 'on'
+  action:
+  - service: notify.all_phones
+    data:
+      message: ♨️ BBQ Timer is klaar.
+      data:
+        persistent: true
+        tag: persistent
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
+      message: Barbecue timer biep!
+      delay: 00:00:03
+  mode: single
+- id: '1690718896889'
+  alias: BBQ - Probe 1 alarm
+  description: Beeps when the bbq is on the wrong temperature, based on the range
+    set
+  trigger:
+  - platform: template
+    value_template: '{% if (states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
+      | int(-1) != -1 ) and states(''sensor.inkbird_ibt_2x_temperature_probe_1'')
+      < 5000 and (states(''sensor.inkbird_ibt_2x_temperature_probe_1'') | round |
+      int > states(''input_number.grill_alert_high'') | round | int or states(''sensor.inkbird_ibt_2x_temperature_probe_1'')
+      | round | int < states(''input_number.grill_alert_low'') | round | int) %} true
+      {% endif %}'
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_bbq_automations
+    state: 'on'
+  - condition: template
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_probe_1_alarm.attributes.last_triggered,
+      0) | int > 60 }}'
+  action:
+  - service: notify.all_phones
+    data:
+      message: '♨️ BBQ Temperatuur te hoog of laag: {{ states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
+        | round }}°C'
+      data:
+        persistent: true
+        tag: persistent
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
+      message: 'Let op: De barbecue temperatuur is {{ states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
+        | round }} graden!'
+      delay: 00:00:05
+  mode: single
+- id: '1690720476474'
+  alias: BBQ - Probe 2 alarm
+  description: Beeps when the bbq has reached the target temperature
+  trigger:
+  - platform: template
+    value_template: "{% if (states['sensor.inkbird_ibt_2x_temperature_probe_2'].state
+      | int(-1) != -1 ) \n      and states('sensor.inkbird_ibt_2x_temperature_probe_2')
+      < 5000\n      and states('sensor.inkbird_ibt_2x_temperature_probe_2') | round
+      | int >= states('input_number.grill_probe_2_target') | round | int \n    %}
+      true {% endif %}"
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_bbq_automations
+    state: 'on'
+  - condition: template
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_probe_2_alarm.attributes.last_triggered,
+      0) | int > 60 }}'
+  action:
+  - service: notify.all_phones
+    data:
+      message: "\U0001F356 Het vlees op de BBQ is nu {{ states['sensor.inkbird_ibt_2x_temperature_probe_2'].state
+        | round }}°C"
+      data:
+        persistent: true
+        tag: persistent
+  - service: script.sonos_say
+    data:
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
+      message: 'Let op: Het vlees op de barbecue is nu {{ states[''sensor.inkbird_ibt_2x_temperature_probe_2''].state
+        | round }} graden.'
+      delay: 00:00:05
+  mode: single

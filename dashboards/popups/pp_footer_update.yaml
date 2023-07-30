@@ -1,0 +1,35 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Update Info
+    size: wide
+    timeout: 60000
+    style: |-
+      --popup-padding-x: 24px;
+      --popup-padding-y: 20px;
+      --popup-border-radius: 1em;
+    content:
+      type: grid
+      columns: 1
+      square: false
+      cards:
+        - type: custom:button-card
+          entity: sensor.hass_version_installed
+          triggers_update:
+            - sensor.hass_version_latest
+            - sensor.hass_release_notes
+          template:
+            - updates_hass
+        - type: custom:auto-entities
+          card:
+            type: vertical-stack
+          card_param: cards
+          filter:
+            include:
+              - entity_id: update.*
+                state: 'on'
+                options:
+                  type: custom:mushroom-update-card
+                  entities:
+                    - this.entity_id

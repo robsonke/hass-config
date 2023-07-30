@@ -6,7 +6,6 @@
 
 pool:
   template:
-    - base
     - circle
   variables:
     consider_on: >
@@ -36,7 +35,7 @@ pool:
             ]]]
         - animation: '[[[ if (entity.state === "Moving") return "blink 2s ease infinite"; return "none"; ]]]'
   tap_action:
-    !include ../../dashboards/popups/pool_garden.yaml
+    !include ../../dashboards/popups/pp_pool_garden.yaml
 
 icon_fan:
   styles:

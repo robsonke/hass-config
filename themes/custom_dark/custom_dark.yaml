@@ -11,7 +11,7 @@ custom-dark:
   grid-card-gap: 1vw
   masonry-view-card-margin: 3px
   vertical-stack-card-margin: 0
-  
+
   blue: '#3182b7'
   green: 'green'
   red: '#e74c3c'
@@ -31,6 +31,7 @@ custom-dark:
 
   # mushrooms
   ha-card-border-radius: 6px
+
   # Layout
   mush-spacing: 8px
   # Elements
@@ -39,7 +40,7 @@ custom-dark:
   # Chips
   mush-chip-border-radius: 6px
   text-color: blue
-  
+
 
   modes:
     dark:
@@ -56,7 +57,7 @@ custom-dark:
       sidebar-background-color: var(--card-background-color)
       divider-color: rgba(225, 225, 225, 0.12)
 
-      #background-image: 
+      #background-image:
       lovelace-background: center / cover no-repeat fixed url('/local/background.png')
 
       # edited
@@ -105,7 +106,7 @@ custom-dark:
       primary-background-color: "#e5e5ea"
       secondary-background-color: rgba(255, 255, 255, 0.9)
       card-background-color: var(--secondary-background-color)
-      
+
       primary-color: '#03a9f4'
       table-row-background-color: var(--primary-background-color)
       table-row-alternative-background-color: var(--secondary-background-color)
@@ -115,7 +116,7 @@ custom-dark:
 
       #background-image: "center / cover no-repeat fixed url('/local/bg-light-blue.jpg')"
       lovelace-background: var(--background-image)
-      
+
       paper-dialog-background-color: rgba(55, 55, 55, 0.8)  # e.g., background of more-info
       paper-item-icon-color: "#333333"
       more-info-header-background: rgba(25, 25, 25, 0.5)
@@ -128,7 +129,7 @@ custom-dark:
       ha-card-background-color: var(--primary-background-color)
       ha-card-header-background-color: rgba(255, 255, 255, 0.9)
       sidebar-font-color: var(--custom-button-card-color-off)
-      
+
       custom-button-card-color-on: var(--primary-text-color)
       custom-button-card-color-off: var(--primary-text-color)
 
@@ -143,7 +144,7 @@ custom-dark:
       tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
       tablet-popup-button-padding: 0.1em 2em 1.8em 2em
       tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)
-      
+
 
 
     ####################################################
@@ -160,11 +161,15 @@ custom-dark:
       background: var(--lovelace-background);
       background-size: cover;
     }
-  
+
   card-mod-view-yaml: |
     .: |
       hui-view {
         background: none !important;
+      }
+      :host {
+        /* remove borders around ha-card */
+        --ha-card-border-width: 0;
       }
     #################################################
     #                                               #
@@ -252,6 +257,37 @@ custom-dark:
             padding-top: 4vw !important;
           }
         }
+    #################################################
+    #                                               #
+    #             SIDEBAR BOTTOM ICONS              #
+    #                                               #
+    #################################################
+    "grid-layout$hui-vertical-stack-card$hui-grid-card":
+      .: |
+        hui-grid-card {
+          display: flex;
+          flex: auto;
+          align-items: flex-end;
+        }
+        /* phone */
+        @media screen and (max-width: 800px) {
+          hui-grid-card {
+            position: absolute;
+            right: 4vw;
+            top: 3vw;
+          }
+        }
+      $: |
+        #root {
+          width: 100%;
+          padding: 0 15% 5% 15%;
+        }
+        /* phone */
+        @media screen and (max-width: 800px) {
+          #root {
+            padding: 0 0 0 30%;
+          }
+        }
   card-mod-card: |
     .header .card-header {
       font-family: SF Text;
@@ -264,6 +300,10 @@ custom-dark:
     .content .card-content {
       padding: var(--tablet-popup-content-padding);
     }
+    :host {
+      /* remove borders around ha-card */
+      --ha-card-border-width: 0;
+    }
   card-mod-more-info-yaml: |
     .: |
       :host {
@@ -274,4 +314,7 @@ custom-dark:
       background-color: var(--tablet-popup-header-color);
       border-bottom: var(--tablet-popup-border-style);
     }
-  
+    /* workaround for https://github.com/thomasloven/hass-browser_mod/issues/615 */
+    ha-dialog > div {
+      outline: none !important;
+    }

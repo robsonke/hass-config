@@ -1,0 +1,106 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Alarm
+    timeout: 60000
+    size: wide
+    style: |
+      --popup-max-width: 1200px;
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: auto auto
+        grid-template-rows: auto
+        grid-template-areas: |
+          "details camera"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "details"
+              "camera"
+      cards:
+        - type: vertical-stack
+          view_layout:
+            grid-area: details
+          cards:
+            - type: custom:alarmo-card
+              entity: alarm_control_panel.alarmo
+            - type: custom:auto-entities
+              card:
+                type: entities
+              filter:
+                include:
+                  - entity_id: lock.nuki_voordeur_slot_lock
+            - type: custom:auto-entities
+              card:
+                type: entities
+                title: Recent geopende deuren en ramen
+                show_header_toggle: false
+                card_mod:
+                  class: header
+                  style: |
+                    ha-card {
+                      margin: 0px !important;
+                    }
+              filter:
+                include:
+                  - domain: binary_sensor
+                    attributes:
+                      device_class: door
+                    options:
+                      secondary_info: last-changed
+                  - domain: binary_sensor
+                    attributes:
+                      device_class: window
+                    options:
+                      secondary_info: last-changed
+                exclude:
+                  - entity_id: binary_sensor.voordeur_slot
+              show_empty: false
+              unique: entity
+              sort:
+                method: last_changed
+                count: 5
+                reverse: true
+        # wrap in grid to avoid layout issues with swipe card
+        - type: grid
+          view_layout:
+            grid-area: camera
+          columns: 1
+          cards:
+            - type: custom:swipe-card
+              start_card: 1
+              parameters:
+                roundLengths: true
+                effect: coverflow
+                speed: 650
+                spaceBetween: 20
+                threshold: 7
+                coverflowEffect:
+                  rotate: 80
+                  depth: 300
+                loop: true
+                navigation:
+                  nextEl: ".swiper-button-next"
+                  prevEl: ".swiper-button-prev"
+              cards:
+                - type: 'custom:webrtc-camera'
+                  entity: camera.doorbell_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.reoveranda_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.bijkeuken_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.reoachterdeur_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.reoachtertuin_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.zwembad_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.eva_camera_webrtc
+                - type: 'custom:webrtc-camera'
+                  entity: camera.noa_camera_webrtc

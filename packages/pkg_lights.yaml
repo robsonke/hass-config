@@ -1,0 +1,100 @@
+#  _     _       _     _
+# | |   (_) __ _| |__ | |_ ___
+# | |   | |/ _` | '_ \| __/ __|
+# | |___| | (_| | | | | |_\__ \
+# |_____|_|\__, |_| |_|\__|___/
+#          |___/
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+input_boolean:
+  enable_automatic_lights:
+    name: Enable Lights Automation
+    icon: mdi:weather-sunset-down
+  enable_automatic_garden_lights:
+    name: Enable Garden Lights Automation
+    icon: mdi:weather-sunset-down
+
+light:
+  - platform: group
+    name: Woonkamer
+    unique_id: woonkamer
+    entities:
+      - light.livingback_light
+      - light.livingfront_light
+  - platform: group
+    name: Overloop
+    unique_id: overloop
+    entities:
+      - light.overloop_1
+      - light.overloop_2
+  - platform: group
+    name: Keuken
+    unique_id: keuken
+    entities:
+      - light.kitchen_light
+      - light.kitchencabin_light
+  - platform: group
+    name: Benedenverdieping
+    unique_id: lights_downstairs
+    entities:
+      - light.livingback_light
+      - light.livingfront_light
+      - light.zwave_light_couch_level
+      - light.zwave_light_corner_level
+      - light.ledstrip_tv
+      - light.dining_light
+      - light.boekenkast
+      - light.diningtable_light
+      - light.kitchen_light
+      - light.kitchencabin_light
+      - light.kitchendesk_light
+      - light.office_lights
+      - light.ledstrip_office
+
+  - platform: group
+    name: Bovenverdieping
+    unique_id: lights_upstairs
+    entities:
+      - light.dimmer_masterbath
+      - light.dimmer_bathroom
+      - light.dimmer_hall
+      - light.dimmer_masterbed
+      - light.dimmer_mastercloset
+      - light.dimmer_guestroom
+      - light.dimmer_corridor
+      - light.dimmer_noa
+      - light.dimmer_eva
+
+  - platform: group
+    name: Tuin
+    unique_id: lights_garden
+    entities:
+      - light.garden_light
+      - light.veranda_light
+      - light.hue_lily_light_fence_1
+      - light.hue_lily_light_fence_2
+      - light.hue_lily_light_fence_3
+      - light.hue_lily_light_tree_1
+      - light.hue_lily_light_tree_2
+      - light.woodshed_light
+      - light.palm1_light
+      - light.palm2_light
+      - light.pool_terrace_light1
+      - light.pool_terrace_light2
+
+  - platform: group
+    name: Tuin Hue
+    unique_id: hue_lights_garden
+    entities:
+      - light.hue_lily_light_fence_1
+      - light.hue_lily_light_fence_2
+      - light.hue_lily_light_fence_3
+      - light.hue_lily_light_tree_1
+      - light.hue_lily_light_tree_2
+      - light.palm1_light
+      - light.palm2_light
+      - light.pool_terrace_light1
+      - light.pool_terrace_light2

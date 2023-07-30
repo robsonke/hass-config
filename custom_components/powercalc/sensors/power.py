@@ -19,13 +19,18 @@ from homeassistant.const import (
     STATE_UNKNOWN,
     UnitOfPower,
 )
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, State, callback
+from homeassistant.core import (
+    CALLBACK_TYPE,
+    Event,
+    HomeAssistant,
+    State,
+    callback,
+)
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import start
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.event import (
-    Event,
     TrackTemplate,
     async_call_later,
     async_track_state_change_event,
@@ -50,11 +55,9 @@ from custom_components.powercalc.const import (
     CONF_FORCE_UPDATE_FREQUENCY,
     CONF_IGNORE_UNAVAILABLE_STATE,
     CONF_LINEAR,
-    CONF_MODE,
     CONF_MODEL,
     CONF_MULTIPLY_FACTOR,
     CONF_MULTIPLY_FACTOR_STANDBY,
-    CONF_PLAYBOOK,
     CONF_POWER,
     CONF_POWER_SENSOR_CATEGORY,
     CONF_POWER_SENSOR_ID,
@@ -85,6 +88,10 @@ from custom_components.powercalc.power_profile.power_profile import (
 )
 from custom_components.powercalc.strategy.factory import PowerCalculatorStrategyFactory
 from custom_components.powercalc.strategy.playbook import PlaybookStrategy
+from custom_components.powercalc.strategy.selector import detect_calculation_strategy
+from custom_components.powercalc.strategy.strategy_interface import (
+    PowerCalculationStrategyInterface,
+)
 
 from .abstract import (
     BaseEntity,
@@ -180,7 +187,7 @@ async def create_virtual_power_sensor(
             sensor_config.get(CONF_POWER_SENSOR_CATEGORY) or None
         )
 
-        strategy = select_calculation_strategy(sensor_config, power_profile)
+        strategy = detect_calculation_strategy(sensor_config, power_profile)
 
         calculation_strategy_factory: PowerCalculatorStrategyFactory = hass.data[
             DOMAIN
@@ -284,35 +291,6 @@ def is_manually_configured(sensor_config: ConfigType) -> bool:
     return False
 
 
-def select_calculation_strategy(
-    config: ConfigType,
-    power_profile: PowerProfile | None,
-) -> CalculationStrategy:
-    """Select the calculation strategy."""
-    config_mode = config.get(CONF_MODE)
-    if config_mode:
-        return CalculationStrategy(config_mode)
-
-    if config.get(CONF_LINEAR):
-        return CalculationStrategy.LINEAR
-
-    if config.get(CONF_FIXED):
-        return CalculationStrategy.FIXED
-
-    if config.get(CONF_PLAYBOOK):
-        return CalculationStrategy.PLAYBOOK
-
-    if config.get(CONF_WLED):
-        return CalculationStrategy.WLED
-
-    if power_profile:
-        return power_profile.calculation_strategy
-
-    raise UnsupportedStrategyError(
-        "Cannot select a strategy (LINEAR, FIXED or LUT, WLED), supply it in the config. See the readme",
-    )
-
-
 def is_fully_configured(config: ConfigType) -> bool:
     if config.get(CONF_FIXED):
         return True
@@ -390,25 +368,28 @@ class VirtualPowerSensor(SensorEntity, PowerSensor):
         ):
             self._ignore_unavailable_state = True
         self._standby_sensors: dict = hass.data[DOMAIN][DATA_STANDBY_POWER_SENSORS]
-        self._init_calculation_strategy(factory=calculation_strategy_factory)
-
-    def _init_calculation_strategy(
-        self,
-        factory: PowerCalculatorStrategyFactory,
-    ) -> None:
-        self._strategy_instance = factory.create(
-            self._sensor_config,
-            self._calculation_strategy,
-            self._power_profile,
-            self._source_entity,
-        )
+        self.calculation_strategy_factory = calculation_strategy_factory
+        self._strategy_instance: PowerCalculationStrategyInterface | None = None
 
     async def validate(self) -> None:
+        await self.ensure_strategy_instance()
+        assert self._strategy_instance is not None
         await self._strategy_instance.validate_config()
+
+    async def ensure_strategy_instance(self) -> None:
+        if self._strategy_instance is None:
+            self._strategy_instance = await self.calculation_strategy_factory.create(
+                self._sensor_config,
+                self._calculation_strategy,
+                self._power_profile,
+                self._source_entity,
+            )
 
     async def async_added_to_hass(self) -> None:
         """Register callbacks."""
         await super().async_added_to_hass()
+        await self.ensure_strategy_instance()
+        assert self._strategy_instance is not None
 
         async def appliance_state_listener(event: Event) -> None:
             """Handle for state changes for dependent sensors."""
@@ -547,8 +528,12 @@ class VirtualPowerSensor(SensorEntity, PowerSensor):
     async def calculate_power(self, state: State) -> Decimal | None:
         """Calculate power consumption using configured strategy."""
         entity_state = state
-        if state.entity_id != self._source_entity.entity_id:
-            entity_state = self.hass.states.get(self._source_entity.entity_id)
+        if (
+            state.entity_id != self._source_entity.entity_id
+            and (entity_state := self.hass.states.get(self._source_entity.entity_id))
+            is None
+        ):
+            return None
 
         unavailable_power = self._sensor_config.get(CONF_UNAVAILABLE_POWER)
         if entity_state.state == STATE_UNAVAILABLE and unavailable_power is not None:
@@ -562,6 +547,7 @@ class VirtualPowerSensor(SensorEntity, PowerSensor):
             self._standby_sensors[self.entity_id] = standby_power
             return standby_power
 
+        assert self._strategy_instance is not None
         power = await self._strategy_instance.calculate(entity_state)
         if power is None:
             return None
@@ -602,6 +588,7 @@ class VirtualPowerSensor(SensorEntity, PowerSensor):
 
     async def calculate_standby_power(self, state: State) -> Decimal:
         """Calculate the power of the device in OFF state."""
+        assert self._strategy_instance is not None
         sleep_power: ConfigType = self._sensor_config.get(CONF_SLEEP_POWER)  # type: ignore
         if sleep_power:
             delay = sleep_power.get(CONF_DELAY)
@@ -668,6 +655,7 @@ class VirtualPowerSensor(SensorEntity, PowerSensor):
 
     async def async_activate_playbook(self, playbook_id: str) -> None:
         """Active a playbook"""
+        assert self._strategy_instance is not None
         if not isinstance(self._strategy_instance, PlaybookStrategy):
             raise HomeAssistantError("supported only playbook enabled sensors")
 
@@ -675,6 +663,7 @@ class VirtualPowerSensor(SensorEntity, PowerSensor):
 
     async def async_stop_playbook(self) -> None:
         """Stop an active playbook"""
+        assert self._strategy_instance is not None
         if not isinstance(self._strategy_instance, PlaybookStrategy):
             raise HomeAssistantError("supported only playbook enabled sensors")
 

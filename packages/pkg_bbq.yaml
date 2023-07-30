@@ -1,0 +1,66 @@
+#  ____  ____   ___
+# | __ )| __ ) / _ \
+# |  _ \|  _ \| | | |
+# | |_) | |_) | |_| |
+# |____/|____/ \__\_\
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+# ranges for probes
+input_number:
+  grill_alert_low:
+      name: Grill Low Temperature
+      initial: 100
+      min: 80
+      max: 350
+      step: 5
+
+  grill_alert_high:
+      name: Grill High Temperature
+      initial: 250
+      min: 80
+      max: 350
+      step: 5
+
+  grill_probe_2_target:
+      name: Probe 2 Target Temperature
+      initial: 80
+      min: 50
+      max: 250
+      step: 2
+
+# a timer to use as a kookwekker
+timer:
+  bbq:
+    name: BBQ Timer
+    icon: mdi:grill
+    restore: true
+    duration: "00:30:00"
+
+# en/disable all automations for bbq beeps
+input_boolean:
+  enable_bbq_automations:
+    name: Enable BBQ Automations
+    icon: mdi:grill-outline
+
+sensor:
+  - platform: template
+    sensors:
+      target_alert_temp_probe_1:
+        friendly_name: "Grill Temp Alert"
+        value_template: >-
+          {% if (states.sensor.inkbird_ibt_2x_temperature_probe_1.state | int) < (states.input_number.grill_alert_low.state | int) or (states.sensor.inkbird_ibt_2x_temperature_probe_1.state | int)  > (states.input_number.grill_alert_high.state | int) %}
+            Alert
+          {% else %}
+            Normal
+          {% endif %}
+      target_alert_temp_probe_2:
+        friendly_name: "Probe 2 Target Alert"
+        value_template: >-
+          {% if (states.sensor.inkbird_ibt_2x_temperature_probe_2.state | int) >= (states.input_number.grill_probe_2_target.state | int) %}
+            Alert
+          {% else %}
+            Normal
+          {% endif %}

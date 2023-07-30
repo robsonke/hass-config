@@ -32,7 +32,7 @@ base:
     [[[ if (variables.state === true) return 'Onbekend'; ]]]
   custom_fields:
     icon: >
-      [[[ 
+      [[[
         let icon = entity.attributes.icon;
         if (variables.icon)
           icon = variables.icon;
@@ -54,6 +54,7 @@ base:
     state:
       - justify-self: start
       - line-height: 115%
+      - text-transform: capitalize
     card:
       - font-family: Sf Display
       - border-radius: var(--custom-button-card-border-radius)

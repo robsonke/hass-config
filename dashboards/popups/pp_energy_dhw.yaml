@@ -1,0 +1,98 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Warm water
+    size: wide
+    timeout: 60000
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 500px auto
+        grid-template-rows: auto
+        grid-template-areas: |
+          "details details2"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "details"
+              "details2"
+      cards:
+        - type: vertical-stack
+          view_layout:
+            grid-area: details
+          cards:
+            - type: vertical-stack
+              cards:
+                - type: 'custom:simple-thermostat'
+                  entity: water_heater.domestic_hot_water_tank
+                  layout:
+                    step: row
+                  step_size: 1
+                  decimals: 0
+                  service:
+                    domain: water_heater
+                    service: set_temperature
+                  header:
+                    name: Warm water
+                    icon: mdi:bathtub-outline
+                  hide:
+                    temperature: true
+                    state: true
+                  sensors:
+                    - entity: water_heater.domestic_hot_water_tank
+                      name: Temperature
+                      attribute: temperature
+                      unit: °
+                    - entity: water_heater.domestic_hot_water_tank
+                      name: Current Temperature
+                      attribute: current_temperature
+                      unit: °
+                    - entity: sensor.altherma_operation_mode
+                      name: Warmtepomp
+                    - entity: water_heater.domestic_hot_water_tank
+                      name: Current Mode
+                      attribute: operation_mode
+                    - entity: binary_sensor.hot_water_tank_state
+                      name: Status pomp
+                - type: entities
+                  entities:
+                    - entity: water_heater.domestic_hot_water_tank
+                - type: logbook
+                  title: Activiteit
+                  entities:
+                    - water_heater.domestic_hot_water_tank
+                  hours_to_show: 12
+        - type: vertical-stack
+          view_layout:
+            grid-area: details2
+          cards:
+            - type: history-graph
+              hours_to_show: 12
+              refresh_interval: 30
+              entities:
+                - sensor.altherma_operation_mode
+            - type: custom:apexcharts-card
+              config_templates: climate_chart
+              graph_span: 6h
+              series:
+                - entity: water_heater.domestic_hot_water_tank
+                  attribute: 
+                    current_temperature
+                  name: Water temperatuur
+                  color: '#e74c3c'
+                  type: area
+                  fill_raw: last
+                  group_by:
+                    func: avg
+                    duration: 10m
+                - entity: water_heater.domestic_hot_water_tank
+                  attribute: 
+                    temperature
+                  color: white
+                  name: Gewenste temperatuur
+                  stroke_width: 2
+                  curve: stepline

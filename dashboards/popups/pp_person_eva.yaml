@@ -1,0 +1,36 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Eva
+    timeout: 120000
+    size: wide
+    content:
+      type: custom:frigate-card
+      dimensions:
+        aspect_ratio_mode: unconstrained
+      view:
+        default: live
+      menu:
+        buttons:
+          frigate:
+            enabled: false
+          snapshots:
+            enabled: true
+          camera_ui:
+            enabled: false
+          fullscreen:
+            enabled: true
+        style: overlay
+        position: top
+      cameras:
+        - camera_entity: camera.evabed
+          live_provider: ha
+          frigate:
+            camera_name: Eva
+      media_viewer:
+        controls:
+          thumbnails:
+            mode: below
+          next_previous:
+            style: chevrons

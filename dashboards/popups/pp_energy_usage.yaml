@@ -1,0 +1,262 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Energie verbruik en kosten
+    size: wide
+    timeout: 120000
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 60% 40%
+        grid-template-rows: auto
+        grid-template-areas: |
+          "details details2"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "details2"
+              "details"
+      cards:
+        - type: vertical-stack
+          view_layout:
+            grid-area: details
+          cards:
+            - type: horizontal-stack
+              cards:
+                - type: gauge
+                  name: Energie verbruik
+                  unit: kW
+                  entity: sensor.net_power_consumption
+                  min: 0
+                  needle: true
+                  severity:
+                    green: 0
+                    yellow: 3
+                    red: 8
+                  max: 20
+                - type: gauge
+                  name: Energie productie
+                  unit: kW
+                  entity: sensor.solaredge_modbus
+                  min: 0
+                  needle: true
+                  severity:
+                    green: 0
+                    yellow: 3
+                    red: 6
+                  max: 10
+            - type: custom:auto-entities
+              title: Meest verbruikende apparaten
+              card:
+                type: entities
+              filter:
+                include:
+                  - domain: sensor
+                    attributes:
+                      device_class: power
+                exclude:
+                  - state: "off"
+                  - state: "unavailable"
+                  - integration: tibber
+                  - entity_id: sensor.all_powercalc_entities_power
+                  - entity_id: sensor.all_manual_lights_power
+                  - entity_id: sensor.tv_woonkamer_group_power
+                  - entity_id: sensor.sonos_tv_room_power
+                  - entity_id: sensor.garden_light_power
+                  - entity_id: sensor.air_quality_power
+                  - entity_id: sensor.quooker_power
+                  - entity_id: sensor.samsung_qn95aa_55_tv_power
+                  - entity_id: sensor.office_lights_power
+                  - entity_id: sensor.kitchen_light_power
+                  - entity_id: sensor.solaredge_current_power
+                  - entity_id: sensor.power_production_now
+                  - entity_id: sensor.shelly_plug_kachel_slaapkamer_power
+                  - entity_id: sensor.altherma_power_usage_secundary
+              sort:
+                method: state
+                count: 10
+                numeric: true
+                reverse: true
+
+            - type: 'custom:bar-card'
+              entities:
+                - sensor.current_phase_1
+                - sensor.current_phase_2
+                - sensor.current_phase_3
+              title: Fasen
+              direction: up
+              max: 25
+              height: 200px
+              stack: horizontal
+              severity:
+              - color: Red
+                from: 20
+                to: 35
+              - color: Orange
+                from: 15
+                to: 20
+              - color: Green
+                from: 0
+                to: 15
+
+            - type: energy-usage-graph
+            - type: energy-devices-graph
+            - type: entities
+              entities:
+                - entity: sensor.power_consumed
+                - entity: sensor.daily_consumption_energy
+                  name: Power Consumption Today
+                  icon: mdi:counter
+                - entity: sensor.solaredge_energy_today
+                  name: Power Production Today
+                - entity: sensor.monthly_consumption_energy
+                  name: Power Consumption this Month
+                - entity: sensor.solaredge_energy_this_month
+                  name: Power Production this Month
+                - entity: sensor.yearly_consumption_energy
+                  name: Power Consumption this Year
+                - entity: sensor.solaredge_energy_this_year
+                  name: Power Production this Year
+              state_color: false
+              title: Energie totalen
+            - type: custom:apexcharts-card
+              config_templates: energy_chart
+              all_series_config:
+                type: line
+                group_by:
+                  duration: 10min
+                  func: max
+              apex_config:
+                yaxis:
+                  logarithmic: true
+              series:
+                - entity: sensor.altherma_power_usage
+                  name: Altherma Primary
+                - entity: sensor.shelly_plug_s_7_meterkast2_power
+                  name: Meterkast2
+                - entity: sensor.vaatwasser_switch_current_consumption
+                  name: Vaatwasser
+                - entity: sensor.wasmachine_switch_current_consumption
+                  name: Wasmachine
+                - entity: sensor.winecooler_switch_current_consumption
+                  name: Wijnkoeler
+                - entity: sensor.shelly_plug_droger_power
+                  name: Droger
+                - entity: sensor.shelly_plug_office_power
+                  name: Kantoor
+                - entity: sensor.eurom_alutherm_power
+                  name: Verwarming slaapkamer
+                - entity: sensor.shelly_plug_badkamer_verwarming_power
+                  name: Verwarming Badkamer
+                - entity: sensor.shelly_plug_douche_verwarming_power
+                  name: Verwarming Douche
+                - entity: sensor.shelly_plug_s_6_meterkast1_power
+                  name: Meterkast1
+                - entity: sensor.shelly_plug_s_8_fridge1_power
+                  name: Vriezer Schuur
+                - entity: sensor.infrarood_eva_current_consumption
+                  name: Verwarming Logeerkamer
+                - entity: sensor.infraroodpanel_noa_current_consumption
+                  name: Verwarming Eva
+                - entity: sensor.all_light_power
+                - entity: sensor.all_housekeeping_entities_power
+                - entity: sensor.all_manual_lights_power
+                - entity: sensor.all_media_power
+                - entity: sensor.ehhatdgg_power
+                - entity: sensor.shelly_plug_koelkast_power
+
+
+        - type: vertical-stack
+          view_layout:
+            grid-area: details2
+          cards:
+            - type: entities
+              title: Tarieven vandaag en morgen
+              entities:
+                - entity: sensor.average_price_today
+                  name: Gemiddeld kWh prijs vandaag
+                - entity: sensor.average_price_tomorrow
+                  name: Gemiddeld kWh prijs morgen
+            - type: custom:apexcharts-card
+              experimental:
+                color_threshold: true
+              graph_span: 1d
+              span:
+                start: day
+              series:
+                - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+                  data_generator: |
+                    return entity.attributes.raw_today.map((entry) => {
+                      let value = (entry.value + 0.12599) * 1.21;
+                      return [new Date(entry.start), value];
+                    });
+                  type: column
+                  float_precision: 2
+                  show:
+                    extremas: true
+                  color_threshold:
+                    - value: 0
+                      color: blue
+                    - value: 0.15
+                      color: green
+                    - value: 0.35
+                      color: darkorange
+                    - value: 0.40
+                      color: red
+                    - value: 0.50
+                      color: darkred
+                    - value: 0.60
+                      color: black
+              now:
+                show: true
+                color: '#ff0000'
+              yaxis:
+                - min: 0
+                  decimals: 2
+            - type: custom:apexcharts-card
+              experimental:
+                color_threshold: true
+              graph_span: 1d
+              span:
+                start: day
+                offset: +1d
+              series:
+                - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+                  data_generator: |
+                    let hour = new Date().getHours();
+                    if (hour >= 13) {
+                      return entity.attributes.raw_tomorrow.map((entry) => {
+                        let value = (entry.value + 0.12599) * 1.21;
+                        return [new Date(entry.start), value];
+                      });
+                    }
+                  type: column
+                  float_precision: 2
+                  show:
+                    extremas: true
+                  color_threshold:
+                    - value: 0
+                      color: blue
+                    - value: 0.15
+                      color: green
+                    - value: 0.35
+                      color: darkorange
+                    - value: 0.40
+                      color: red
+                    - value: 0.50
+                      color: darkred
+                    - value: 0.60
+                      color: black
+              yaxis:
+                - min: 0
+                  decimals: 2
+            - type: energy-sources-table
+            - type: energy-date-selection
+            - type: energy-distribution
+              link_dashboard: true
+              view_layout:
+                position: sidebar

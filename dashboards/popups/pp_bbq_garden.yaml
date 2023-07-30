@@ -1,0 +1,173 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: BBQ
+    timeout: 120000
+    size: wide
+    style: |
+      --popup-max-width: 1200px;
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: 1fr 1fr
+        grid-template-rows: auto
+        grid-template-areas: |
+          "temperature graph"
+        mediaquery:
+          "(max-width: 800px)":
+            grid-template-columns: auto
+            grid-template-rows: auto
+            grid-template-areas: |
+              "temperature"
+              "graph"
+      cards:
+        - type: vertical-stack
+          view_layout:
+            grid-area: temperature
+          cards:
+            - type: horizontal-stack
+              cards:
+                - type: vertical-stack
+                  cards:
+                    - type: gauge
+                      name: BBQ Temperatuur
+                      entity: sensor.inkbird_ibt_2x_temperature_probe_1
+                      needle: true
+                      min: 0
+                      max: 400
+                      severity:
+                        green: 70
+                        yellow: 130
+                        red: 200
+                    - type: glance
+                      entities:
+                        - entity: sensor.target_alert_temp_probe_1
+                      show_name: false
+                      show_icon: false
+                - type: vertical-stack
+                  cards:
+                    - type: gauge
+                      name: Vlees Temperatuur
+                      entity: sensor.inkbird_ibt_2x_temperature_probe_2
+                      needle: true
+                      min: 0
+                      max: 120
+                      severity:
+                        green: 0
+                        yellow: 70
+                        red: 100
+                    - type: glance
+                      entities:
+                        - entity: sensor.target_alert_temp_probe_2
+                      show_name: false
+                      show_icon: false
+
+            - type: vertical-stack
+              cards:
+                - type: entities
+                  title: Kookwekker
+                  show_header_toggle: false
+                  entities:
+                    - type: custom:numberbox-card
+                      entity: timer.bbq
+                      icon: mdi:clock
+                      service: timer.start
+                      param: duration
+                      state: duration
+                      min: 60
+                      max: 10800
+                      step: 60
+                      unit: time
+                    - type: custom:timer-bar-card
+                      entity: timer.bbq
+                      mushroom:
+                      bar_direction: rtl
+                      invert: true
+
+            - type: vertical-stack
+              cards:
+                - type: entities
+                  title: BBQ Targets
+                  show_header_toggle: false
+                  entities:
+                    - entity: input_number.grill_alert_low
+                      name: Minimaal
+                    - entity: input_number.grill_alert_high
+                      name: Maximaal
+
+            - type: vertical-stack
+              cards:
+                - type: entities
+                  title: Vlees Targets
+                  show_header_toggle: false
+                  entities:
+                    - entity: input_number.grill_probe_2_target
+                      name: Vlees
+
+            - type: vertical-stack
+              cards:
+                - type: entities
+                  title: Notificaties
+                  show_header_toggle: false
+                  entities:
+                    - entity: input_boolean.enable_bbq_automations
+                      name: Alle notificaties?
+                    - entity: automation.bbq_timer_notifications
+                      tap_action:
+                        action: toggle
+                    - entity: automation.bbq_probe_1_alarm
+                      tap_action:
+                        action: toggle
+                    - entity: automation.bbq_probe_2_alarm
+                      tap_action:
+                        action: toggle
+
+        - type: vertical-stack
+          view_layout:
+            grid-area: graph
+          cards:
+            - type: custom:apexcharts-card
+              experimental:
+                color_threshold: true
+              layout: minimal
+              locale: nl
+              graph_span: 2h
+              header:
+                show: true
+                show_states: true
+                colorize_states: true
+              series:
+                - entity: sensor.inkbird_ibt_2x_temperature_probe_1
+                  name: BBQ
+                  type: line
+                  header_actions:
+                    tap_action:
+                      action: more-info
+                  float_precision: 2
+                  color_threshold:
+                    - value: 0
+                      color: blue
+                    - value: 80
+                      color: darkorange
+                    - value: 180
+                      color: darkred
+                - entity: sensor.inkbird_ibt_2x_temperature_probe_2
+                  name: Vlees
+                  type: line
+                  header_actions:
+                    tap_action:
+                      action: more-info
+                  float_precision: 2
+                  color_threshold:
+                    - value: 0
+                      color: blue
+                    - value: 80
+                      color: darkorange
+                    - value: 180
+                      color: darkred
+              yaxis:
+                - min: 0
+                  max: 600
+                  decimals: 0

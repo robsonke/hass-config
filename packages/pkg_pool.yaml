@@ -1,0 +1,105 @@
+#  ____             _
+# |  _ \ ___   ___ | |
+# | |_) / _ \ / _ \| |
+# |  __/ (_) | (_) | |
+# |_|   \___/ \___/|_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+template:
+  - binary_sensor:
+    - unique_id: pool_pump_active
+      attributes:
+        friendly_name: Pool Pump Active
+      # disabled for now, scraper not reliable, replace with flow sensor in future
+      # state: >
+      #   {{ states.sensor.shelly_em3_zwembad_channel_b_power.state | float > 20 and states.sensor.pool_flow_value.state }}
+      state: >
+        {{ states.sensor.shelly_em3_zwembad_channel_b_power.state | float > 20 }}
+
+  - sensor:
+    - name: "Pool Pump Frequency Level"
+      icon: mdi:fan-chevron-down
+      unique_id: pool_pump_frequency_level
+      state: >
+        {% set pumpPower = states.sensor.shelly_em3_zwembad_channel_b_power.state | float %}
+        {% if pumpPower > 800 %}
+          FULL (3)
+        {% elif pumpPower > 680 and pumpPower < 775 %}
+          NORMAL (2)
+        {% elif pumpPower > 520 and pumpPower < 620 %}
+          LOW (1)
+        {% else %}
+          OFF
+        {% endif %}
+  
+  - sensor:
+    - name: "Pool Deck Status"
+      icon: mdi:fit-to-screen
+      unique_id: pool_deck_status
+      state: >
+        {% if is_state('binary_sensor.pool_deck_open', 'on') %}
+          Open
+        {% elif is_state('binary_sensor.pool_deck_closed', 'on') %}
+          Closed
+        {% else %}
+          Moving
+        {% endif %}
+
+lock:
+  - platform: template
+    unique_id: aquadeck_rol_dek
+    name: Aquadeck rol dek
+    value_template: "{{ is_state('switch.pool_deck_lock', 'on') }}"
+    lock:
+      service: switch.turn_on
+      target:
+        entity_id: switch.pool_deck_lock
+    unlock:
+      service: switch.turn_off
+      target:
+        entity_id: switch.pool_deck_lock
+  
+# pool eps one touch scrapers
+command_line:
+  - sensor:
+      command: !secret pool_scrape_ph
+      name: Pool Ph Value
+      unit_of_measurement: "Ph"
+      scan_interval: 120
+      command_timeout: 60
+      unique_id: pool_ph_value
+  - sensor:
+      name: Pool Redox Value
+      command: !secret pool_scrape_redox
+      unit_of_measurement: "mV"
+      scan_interval: 120
+      command_timeout: 60
+      unique_id: pool_redox_value
+  - sensor:
+      name: Pool Flow Value
+      command: !secret pool_scrape_flow
+      scan_interval: 120
+      command_timeout: 60
+      unique_id: pool_flow_value
+      value_template: >
+        {% if value == "Flow Ok" %}
+          {{ true }}
+        {% else %}
+          {{ false }}
+        {% endif %}
+  - sensor:
+      command: !secret pool_scrape_target_ph
+      name: Pool Ph Target Value
+      unit_of_measurement: "Ph"
+      scan_interval: 3600
+      command_timeout: 60
+      unique_id: pool_ph_target_value
+  - sensor:
+      name: Pool Redox Target Value
+      command: !secret pool_scrape_target_redox
+      unit_of_measurement: "mV"
+      scan_interval: 3600
+      command_timeout: 60
+      unique_id: pool_redox_target_value

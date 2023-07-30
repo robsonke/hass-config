@@ -1,0 +1,528 @@
+#  ____
+# |  _ \ _____      _____ _ __
+# | |_) / _ \ \ /\ / / _ \ '__|
+# |  __/ (_) \ V  V /  __/ |
+# |_|   \___/ \_/\_/ \___|_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+homeassistant:
+  customize:
+    sensor.shelly_plug_office_energy_usage:
+      last_reset: '1970-01-01T00:00:00+00:00'
+    sensor.shelly_plug_douche_verwarming_energy_usage:
+      last_reset: '1970-01-01T00:00:00+00:00'
+    sensor.shelly_plug_badkamer_verwarming_energy_usage:
+      last_reset: '1970-01-01T00:00:00+00:00'
+
+solaredge_modbus:
+  name: 'SolarEdge Modbus'
+  host: 192.168.0.175
+  port: 502
+  scan_interval: 5
+  read_meter1: false
+
+sensor:
+  - platform: rest
+    name: Tibber prices
+    unique_id: tibber_prices
+    resource: https://api.tibber.com/v1-beta/gql
+    method: POST
+    scan_interval: 60
+    payload: '{ "query": "{ viewer { homes { currentSubscription { priceInfo { today { total startsAt } tomorrow { total startsAt }}}}}}" }'
+    json_attributes_path: "$.data.viewer.homes[0].currentSubscription.priceInfo"
+    json_attributes:
+      - today
+      - tomorrow
+    value_template: Ok
+    headers:
+      Authorization: !secret tibber_access_token
+      Content-Type: application/json
+      User-Agent: REST
+  - platform: nordpool_diff
+    nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_021
+  - platform: group
+    name: Meter readings
+    type: last
+    unique_id: meter_readings
+    entities:
+      - sensor.power_consumption
+      - sensor.power_consumption_phase_l1
+      - sensor.power_consumption_phase_l2
+      - sensor.power_consumption_phase_l3
+      - sensor.gas_consumption
+      - sensor.hourly_gas_consumption
+      - sensor.power_tariff
+      - sensor.short_power_failure_count
+      - sensor.long_power_failure_count
+      - sensor.power_production
+      - sensor.power_production_phase_l1
+      - sensor.power_production_phase_l2
+      - sensor.power_production_phase_l3
+
+  - platform: integration
+    source: sensor.shelly_plug_office_power
+    name: Shelly Plug Office Energy Usage
+    unique_id: shelly_plug_office_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_droger_power
+    name: Shelly Plug Droger Energy Usage
+    unique_id: shelly_plug_droger_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_douche_verwarming_power
+    name: Shelly Plug Douche Verwarming Energy Usage
+    unique_id: shelly_plug_douche_verwarming_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_badkamer_verwarming_power
+    name: Shelly Plug Badkamer Verwarming Energy Usage
+    unique_id: shelly_plug_badkamer_verwarming_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_kachel_slaapkamer_power
+    name: Shelly Plug Slaapkamer Verwarming Energy Usage
+    unique_id: shelly_plug_slaapkamer_verwarming_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_s_6_meterkast1_power
+    name: Shelly Plug Meterkast1 Energy Usage
+    unique_id: shelly_plug_meterkast1_energy_usage
+    method: trapezoidal
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_s_7_meterkast2_power
+    name: Shelly Plug Meterkast2 Energy Usage
+    unique_id: shelly_plug_meterkast2_energy_usage
+    method: trapezoidal
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_s_8_fridge1_power
+    name: Shelly Plug Vriezer Schuur Energy Usage
+    unique_id: shelly_plug_vriezer_schuur_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.shelly_plug_koelkast_power
+    name: Shelly Plug Koelkast Energy Usage
+    unique_id: shelly_plug_koelkast_energy_usage
+    method: left
+    unit_prefix: k
+    round: 2
+
+powercalc:
+  create_utility_meters: true
+  create_domain_groups:
+    - light
+    - media_player
+  sensors:
+    - create_group: All Powercalc Entities
+      entities:
+        - create_group: All Housekeeping Entities
+          entities:
+            - entity_id: vacuum.sjorsje
+              fixed:
+                states_power:
+                  charging: 28
+                  docked: >
+                    {%- if is_state('vacuum.sjorsje', 'docked') and states('sensor.sjorsje_battery_level') | int(default=0) < 100 %} 28 {%- else %} 3.6 {%- endif %}
+                  paused: 0
+                  cleaning: 0
+            # Fake power entities
+            - name: Quooker
+              unique_id: quooker
+              daily_fixed_energy:
+                value: 10
+                unit_of_measurement: W
+            - name: Air Quality
+              unique_id: air_quality
+              daily_fixed_energy:
+                value: 20
+                unit_of_measurement: W
+        - create_group: All Media
+          # this is also part of sensor.all_media_player_power automatically
+          entities:
+            # See https://support.sonos.com/s/article/256?language=en_US
+            - entity_id: media_player.living_room
+              name: Sonos Woonkamer
+              fixed:
+                states_power:
+                  playing: 12
+                  paused: 2.2
+                  idle: 2.2
+            - entity_id: media_player.eetkamer
+              name: Sonos Eetkamer
+              fixed:
+                states_power:
+                  playing: 12
+                  paused: 2.2
+                  idle: 2.2
+            - create_group: TV Woonkamer Group
+              entities:
+              - entity_id: media_player.tv_room
+                name: Sonos TV
+                fixed:
+                  # Sonos Beam Gen 2
+                  # 6,3W
+                  power: 6.3
+                  states_power:
+                    # 9W
+                    playing: 9
+              - entity_id: media_player.samsung_qn95aa_55_tv
+                standby_power: 0.5
+                fixed:
+                  states_power:
+                    power: 103
+                    "on": 103
+                    idle: 103
+                    paused: 103
+                    playing: 103
+            - entity_id: media_player.samsung_7_series_43
+              standby_power: 0.5
+              fixed:
+                states_power:
+                  power: 115
+                  "on": 115
+                  idle: 115
+                  paused: 115
+                  playing: 115
+        # Most of the lights are auto discovered
+        - create_group: All Manual Lights
+          entities:
+            - entity_id: light.office_lights
+              linear:
+                min_power: 0.5
+                # 6 * 5.5W
+                max_power: 33
+            - entity_id: light.kitchencabin_light
+              linear:
+                # 2 * 5.5W
+                min_power: 0.5
+                max_power: 11
+            - entity_id: light.kitchen_light
+              linear:
+                # 5 * 5.5W
+                min_power: 0.5
+                max_power: 27.5
+            - entity_id: light.kitchendesk_light
+              linear:
+                # 5 * 8W
+                min_power: 0.5
+                max_power: 40
+
+            - entity_id: light.dining_light
+              linear:
+                # 5 * 5.5W
+                min_power: 0.5
+                max_power: 27.5
+            - entity_id: light.diningtable_light
+              linear:
+                # 2 * 9W
+                min_power: 0.5
+                max_power: 18
+            # Living Room
+            - entity_id: light.livingback_light
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.livingfront_light
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.zwave_light_corner_level
+              linear:
+                # 3 * 3.8W
+                min_power: 0.5
+                max_power: 11.4
+            - entity_id: light.zwave_light_couch_level
+              linear:
+                # 3 * 5W
+                min_power: 0.5
+                max_power: 15
+            # Hall and upstairs
+            - entity_id: light.hal
+              linear:
+                # 5 * 5.5W
+                min_power: 0.5
+                max_power: 27.5
+            - entity_id: light.overloop
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.logeerkamer
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.eva
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.slaapkamer_noa
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.badkamer
+              linear:
+                # 5 * 5.5W
+                min_power: 0.5
+                max_power: 27.5
+            - entity_id: light.hoofdslaapkamer
+              linear:
+                # 5 * 5.5W
+                min_power: 0.5
+                max_power: 27.5
+            - entity_id: light.inloopkast
+              linear:
+                # 4 * 5.5W
+                min_power: 0.5
+                max_power: 22
+            - entity_id: light.douche
+              linear:
+                # 2 * 5.5W
+                min_power: 0.5
+                max_power: 11
+            # Garden
+            - entity_id: light.garden_lantern_light1
+              linear:
+                # 1 * 7W
+                min_power: 0.5
+                max_power: 7
+            - entity_id: light.garden_lantern_light2
+              linear:
+                # 1 * 7W
+                min_power: 0.5
+                max_power: 7
+            - entity_id: light.garden_lantern_light3
+              linear:
+                # 1 * 7W
+                min_power: 0.5
+                max_power: 7
+            - entity_id: light.garden_light
+              linear:
+                # 4 * cubes (12W)
+                # 2 * wall (5W)
+                min_power: 0.5
+                max_power: 58
+
+
+utility_meter:
+  daily_energy_offpeak:
+    source: sensor.energy_consumed_tariff_1
+    cycle: daily
+  daily_energy_peak:
+    source: sensor.energy_consumed_tariff_2
+    cycle: daily
+  monthly_energy_offpeak:
+    source: sensor.energy_consumed_tariff_1
+    cycle: monthly
+  monthly_energy_peak:
+    source: sensor.energy_consumed_tariff_2
+    cycle: monthly
+  yearly_energy_offpeak:
+    source: sensor.energy_consumed_tariff_1
+    cycle: yearly
+  yearly_energy_peak:
+    source: sensor.energy_consumed_tariff_2
+    cycle: yearly
+
+  shelly_plug_douche_verwarming_energy_daily:
+    source: sensor.shelly_plug_douche_verwarming_energy_usage
+    cycle: daily
+  shelly_plug_badkamer_verwarming_energy_daily:
+    source: sensor.shelly_plug_badkamer_verwarming_energy_usage
+    cycle: daily
+  eurom_alutherm_energy_daily:
+    source: sensor.eurom_alutherm_energy
+    cycle: daily
+
+template:
+  - sensor:
+    - unique_id: daily_consumption_energy
+      attributes:
+        friendly_name: "Daily Consumption Energy"
+      unit_of_measurement: kWh
+      device_class: energy
+      state_class: total_increasing
+      state: "{{ states('sensor.daily_energy_offpeak')|float + states('sensor.daily_energy_peak')|float }}"
+    - unique_id: monthly_consumption_energy
+      attributes:
+        friendly_name: "Monthly Consumption Energy"
+      unit_of_measurement: kWh
+      device_class: energy
+      state_class: total_increasing
+      state: "{{ states('sensor.monthly_energy_offpeak')|float + states('sensor.monthly_energy_peak')|float }}"
+    - unique_id: yearly_consumption_energy
+      attributes:
+        friendly_name: "Yearly Consumption Energy"
+      unit_of_measurement: kWh
+      device_class: energy
+      state_class: total_increasing
+      state: "{{ states('sensor.yearly_energy_offpeak')|float + states('sensor.yearly_energy_peak')|float }}"
+    - unique_id: net_power_consumption
+      attributes:
+        friendly_name: "Net Power Consumption"
+        icon: "mdi:home-lightning-bolt-outline"
+      unit_of_measurement: kW
+      device_class: power
+      state_class: measurement
+      state: "{{ states('sensor.solaredge_modbus')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
+    # same sensor but with other unit of measurement
+    - unique_id: power_consumption_watt
+      attributes:
+        friendly_name: Power Consumption Watt
+      unit_of_measurement: 'W'
+      state: "{{ states('sensor.power_consumption') | float(default=0) * 1000 | round(0) }}"
+    # convert the uptime one to a real value
+    - unique_id: ha_uptime
+      attributes:
+        friendly_name: 'HA uptime minutes'
+      icon: mdi:arrow-up-circle-outline
+      state: >
+        {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'), 0)) / 60 }}
+
+    - name: "Current Price Electricity"
+      unique_id: current_price_electricity
+      unit_of_measurement: "EUR/kWh"
+      attributes:
+        excl_tax: >
+          {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) }}
+        incl_tax: >
+          {{ (states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.12599) * 1.21 }}
+        avg_price: >
+          {{ (state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + 0.12599) * 1.21 }}
+      state: >
+        {{ (states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.12599) * 1.21 }}
+
+    - name: "Electricity Cost Today"
+      unique_id: electricity_cost_today
+      unit_of_measurement: "EUR"
+      state: >
+        {{ states.sensor.accumulated_cost_langeweide.state | float - states.sensor.accumulated_reward_langeweide.state | float }}
+
+    - name: "Energy Price Level"
+      unique_id: energy_price_level
+      attributes:
+        percentage: >
+          {{ states('sensor.current_price_electricity') | float(default=0.3) / state_attr('sensor.current_price_electricity','avg_price') | float(default=0.3) * 100 }}
+      state: >
+        {% set percentage = states('sensor.current_price_electricity') | float(default=0.3) / state_attr('sensor.current_price_electricity','avg_price') | float(default=0.3) * 100 %}
+        {# In case it's less then 20 cents, we still consider it cheap #}
+        {% if states('sensor.current_price_electricity') | float(default=0.3) < 0.1 %}
+          {{ "very_cheap" }}
+        {% elif percentage <= 60 %}
+          {{ "very_cheap" }}
+        {% elif percentage <= 90 and percentage > 60 %}
+          {{ "cheap" }}
+        {% elif percentage <= 115 and percentage > 90 %}
+          {{ "normal" }}
+        {% elif percentage <= 140 and percentage > 115 %}
+          {{ "expensive" }}
+        {% elif percentage > 140 %}
+          {{ "very_expensive" }}
+        {% else %}
+          {{ "normal" }}
+        {% endif %}
+
+    - name: Cheapest 8 Hours 24h
+      unique_id: cheapest_8_hours_24h
+      attributes:
+        friendly_name: Cheapest 8 Hours 24h
+      state: >-
+        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+        {%- set cheap_hours = namespace(number=8) %}
+        {% for i in range(0, 23) %}
+          {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+        {%- endfor -%}
+        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+          {% if sorted_hour_price_dict[i].0 == now().hour %}
+            {% set ns.cheapest_hour = true %}
+          {% else %}
+            {% set ns.cheapest_hour = false %}
+          {% endif %}
+        {%- endfor -%}
+        {{ ns.cheapest_hour }}
+    - name: Cheapest 12 Hours 24h
+      unique_id: cheapest_12_hours_24h
+      attributes:
+        friendly_name: Cheapest 12 Hours 24h
+      state: >-
+        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+        {%- set cheap_hours = namespace(number=12) %}
+        {% for i in range(0, 23) %}
+          {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+        {%- endfor -%}
+        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+          {% if sorted_hour_price_dict[i].0 == now().hour %}
+            {% set ns.cheapest_hour = true %}
+          {% else %}
+            {% set ns.cheapest_hour = false %}
+          {% endif %}
+        {%- endfor -%}
+        {{ ns.cheapest_hour }}
+    - name: Cheapest 16 Hours 24h
+      unique_id: cheapest_16_hours_24h
+      attributes:
+        friendly_name: Cheapest 16 Hours 24h
+      state: >-
+        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+        {%- set cheap_hours = namespace(number=16) %}
+        {% for i in range(0, 23) %}
+          {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+        {%- endfor -%}
+        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+          {% if sorted_hour_price_dict[i].0 == now().hour %}
+            {% set ns.cheapest_hour = true %}
+          {% else %}
+            {% set ns.cheapest_hour = false %}
+          {% endif %}
+        {%- endfor -%}
+        {{ ns.cheapest_hour }}
+    - name: Average price today
+      unique_id: average_price_today
+      icon: mdi:lightning-bolt
+      attributes:
+        friendly_name: Average price today
+      state: >-
+        {{ (((states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | count) + 0.12599) * 1.21) | round(2, 'floor') }}
+    - name: Average price tomorrow
+      unique_id: average_price_tomorrow
+      icon: mdi:lightning-bolt
+      attributes:
+        friendly_name: Average price tomorrow
+      state: >-
+        {% set sumTomorrow = states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | sum(attribute='value') | float(default=0) %}
+        {% set countTomorrow = states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | count %}
+        {% if countTomorrow == 0 %}
+          {{ "-" }}
+        {% else %}
+          {{ (((sumTomorrow / countTomorrow) + 0.12599) * 1.21) | round(2, 'floor') }}
+        {% endif %}
+

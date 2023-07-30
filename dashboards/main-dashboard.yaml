@@ -10,12 +10,12 @@ views:
     layout:
       margin: 0
       grid-gap: calc(var(--grid-card-gap) * 1)
-      grid-template-columns: repeat(4, 1fr) 0
+      grid-template-columns: 420px repeat(3, 1fr) 0
       grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
       grid-template-areas: |
         "sidebar  .        .          .        ."
         "sidebar  home     downstairs upstairs ."
-        "sidebar  garden   energy     people   ."
+        "sidebar  garden1   garden2     energy   ."
         "sidebar  footer   footer     footer   ."
       mediaquery:
         '(max-width: 800px)':
@@ -27,10 +27,10 @@ views:
             ".  sidebar    ."
             ".  footer     ."
             ".  home       ."
-            ".  people     ."
+            ".  garden1    ."
+            ".  garden2    ."
             ".  downstairs ."
             ".  upstairs   ."
-            ".  garden     ."
             ".  energy     ."
             ".  .          ."
         '(max-width: 1200px)':
@@ -40,7 +40,7 @@ views:
           grid-template-areas: |
             "sidebar  .        .          .        ."
             "sidebar  home     downstairs upstairs ."
-            "sidebar  garden   energy     people   ."
+            "sidebar  garden1   garden2     energy   ."
             "sidebar  footer   footer     footer   ."
             "sidebar  .        .          .        ."
 
@@ -79,6 +79,9 @@ views:
               div.name-state {
                 display: none;
               }
+              div.info {
+                flex-grow: 0;
+              }
               ha-card {
                 border-width: 0;
               }
@@ -91,12 +94,12 @@ views:
                 align-items: normal;
               }
             tap_action:
-              !include popups/sidebar_weather.yaml
+              !include popups/pp_sidebar_weather.yaml
           - type: custom:button-card
             entity: person.rob
             name: Rob
             tap_action:
-              !include popups/person_rob.yaml
+              !include popups/pp_person_rob.yaml
             hold_action:
               action: none
             template: person
@@ -104,7 +107,7 @@ views:
             entity: person.steffi
             name: Steffi
             tap_action:
-              !include popups/person_steffi.yaml
+              !include popups/pp_person_steffi.yaml
             hold_action:
               action: none
             template: person
@@ -112,7 +115,7 @@ views:
             entity: camera.evabed
             name: Eva
             tap_action:
-              !include popups/person_eva.yaml
+              !include popups/pp_person_eva.yaml
             hold_action:
               action: none
             template: person_kid
@@ -120,15 +123,17 @@ views:
             entity: camera.noabed
             name: Noa
             tap_action:
-              !include popups/person_noa.yaml
+              !include popups/pp_person_noa.yaml
             hold_action:
               action: none
             template: person_kid
+          - type: custom:gap-card
+            height: 20
 
-          - type: custom:button-card
-            entity: alarm_control_panel.alarmo
-            template: sidebar_alarm
-            name: Alarm
+          # - type: custom:button-card
+          #   entity: alarm_control_panel.alarmo
+          #   template: sidebar_alarm
+          #   name: Alarm
           - type: custom:button-card
             entity: input_boolean.night_mode
             template: sidebar_button
@@ -139,6 +144,8 @@ views:
             template: sidebar_button
             confirmation:
               text: '[[[ return `Guest Mode - Zeker weten?` ]]]'
+          - type: custom:gap-card
+            height: 20
           - type: custom:button-card
             entity: vacuum.sjorsje
             template: sidebar_button
@@ -158,7 +165,8 @@ views:
                       return 'var(--green)'
                     ]]]
                 - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
-
+          - type: custom:gap-card
+            height: 20
           - type: custom:mushroom-chips-card
             card_mod:
               style: |
@@ -175,7 +183,7 @@ views:
                 content: |+
                   {{ state_attr('sensor.template_rest_days_until_collection', 'text') }}
                 tap_action:
-                  !include popups/sidebar_trash.yaml
+                  !include popups/pp_sidebar_trash.yaml
               - type: template
                 entity: sensor.template_gft_days_until_collection
                 icon: mdi:trash-can
@@ -183,7 +191,7 @@ views:
                 content: |+
                   {{ state_attr('sensor.template_gft_days_until_collection', 'text') }}
                 tap_action:
-                  !include popups/sidebar_trash.yaml
+                  !include popups/pp_sidebar_trash.yaml
               - type: template
                 entity: sensor.template_paper_days_until_collection
                 icon: mdi:trash-can
@@ -191,9 +199,56 @@ views:
                 content: |+
                   {{ state_attr('sensor.template_paper_days_until_collection', 'text') }}
                 tap_action:
-                  !include popups/sidebar_trash.yaml
-            
-          
+                  !include popups/pp_sidebar_trash.yaml
+          - type: custom:gap-card
+            height: 10
+
+          #################################################
+          #                                               #
+          #           Sidebar Footer Icons                #
+          #                                               #
+          #################################################
+          - type: grid
+            columns: 3
+            cards:
+              - type: custom:button-card
+                template: footer
+                name: >
+                  <ha-icon icon="mdi:repeat-off"></ha-icon>
+                tap_action:
+                  !include popups/pp_footer_update.yaml
+                triggers_update:
+                  - sensor.all_updates
+                variables:
+                  notify: >
+                    [[[
+                      return parseInt(states['sensor.all_updates'].state);
+                    ]]]
+              - type: custom:button-card
+                template: footer
+                name: >
+                  <ha-icon icon="mdi:cog"></ha-icon>
+                tap_action:
+                  !include popups/pp_footer_system.yaml
+                variables:
+                  notify: >
+                    [[[
+                      return parseInt(states['sensor.unavailable_entities'].attributes['count']);
+                    ]]]
+              - type: custom:button-card
+                entity: binary_sensor.stookalert_zeeland
+                template: footer
+                name: >
+                  <ha-icon icon="mdi:fire"></ha-icon>
+                tap_action:
+                  !include popups/pp_footer_stookalert.yaml
+                variables:
+                  notify: >
+                    [[[
+                      return (entity.state === 'on' || states['sensor.stookwijzer'].state === 'rood') && states['sensor.stookwijzer'].state !== 'unavailable';
+                    ]]]
+
+
 
 
       #################################################
@@ -215,7 +270,7 @@ views:
               - light_group
             group_expand: true
             tap_action:
-              !include popups/light_downstairs.yaml
+              !include popups/pp_light_downstairs.yaml
             hold_action:
               action: none
           - type: custom:button-card
@@ -226,7 +281,7 @@ views:
               - icon_temp
             triggers_update: climate.warmtepomp
             tap_action:
-              !include popups/energy_heating.yaml
+              !include popups/pp_energy_heating.yaml
             hold_action:
               action: none
             variables:
@@ -256,7 +311,7 @@ views:
             template:
               - door_window_group_downstairs
             group_expand: true
-          
+
 
       #################################################
       #                                               #
@@ -276,7 +331,7 @@ views:
               - simple
             name: Alarm
             tap_action:
-              !include popups/alarm.yaml
+              !include popups/pp_alarm.yaml
             styles:
               custom_fields:
                 icon:
@@ -292,10 +347,9 @@ views:
           - type: custom:button-card
             entity: device_tracker.ix3
             template:
-              - base
               - circle
             tap_action:
-              !include popups/car_ix3.yaml
+              !include popups/pp_car_ix3.yaml
             name: BMW iX3
             triggers_update:
               - binary_sensor.ix3_connection_status
@@ -335,7 +389,7 @@ views:
                   return states['binary_sensor.ix3_charging_status'].state == 'on';
                 ]]]
             state_display: >
-              [[[ return html`<span style="text-transform: capitalize">${entity.state} (${states['sensor.ix3_remaining_range_electric'].state} km)</span>`;  ]]]
+              [[[ return html`<span>${entity.state} (${states['sensor.ix3_remaining_range_electric'].state} km)</span>`;  ]]]
           - type: custom:button-card
             entity: cover.covers_downstairs
             name: Screens
@@ -355,7 +409,7 @@ views:
       - type: grid
         title: Tuin
         view_layout:
-          grid-area: garden
+          grid-area: garden1
         columns: 2
         cards:
           - type: custom:button-card
@@ -369,7 +423,7 @@ views:
               - light_group
             group_expand: true
             tap_action:
-              !include popups/light_garden.yaml
+              !include popups/pp_light_garden.yaml
             hold_action:
               action: none
           - type: custom:button-card
@@ -379,13 +433,39 @@ views:
               - irrigation
             group_expand: true
             tap_action:
-              !include popups/irrigation_garden.yaml
+              !include popups/pp_irrigation_garden.yaml
           - type: custom:button-card
             entity: binary_sensor.doors_and_windows_garden
             name: Deuren
             template:
               - door_window_group_garden
             group_expand: true
+      - type: grid
+        title: " "
+        view_layout:
+          grid-area: garden2
+        columns: 2
+        cards:
+          - type: custom:button-card
+            entity: binary_sensor.motion_sensor_cats_presence
+            template: cats
+            name: Boris&Puk
+            styles:
+              label:
+                - color: gray
+                - font-size: 11px
+            show_label: true
+          - type: custom:button-card
+            entity: sensor.inkbird_ibt_2x_temperature_probe_1
+            triggers_update:
+              - timer.bbq
+              - sensor.inkbird_ibt_2x_temperature_probe_2
+              - input_number.grill_alert_low
+              - input_number.grill_alert_high
+              - input_number.grill_probe_2_target
+            template: bbq
+            name: BBQ
+            show_label: true
 
       #################################################
       #                                               #
@@ -406,7 +486,7 @@ views:
               - light_group
             group_expand: true
             tap_action:
-              !include popups/light_upstairs.yaml
+              !include popups/pp_light_upstairs.yaml
             hold_action:
               action: none
           - type: custom:button-card
@@ -421,7 +501,7 @@ views:
               - switch.infraroodpanel_eva
               - climate.eurom_alutherm_baseboard_heater
             tap_action:
-              !include popups/climate_upstairs.yaml
+              !include popups/pp_climate_upstairs.yaml
             hold_action:
               action: none
             variables:
@@ -467,7 +547,7 @@ views:
               - dhw
             triggers_update: water_heater.domestic_hot_water_tank
             tap_action:
-              !include popups/energy_dhw.yaml
+              !include popups/pp_energy_dhw.yaml
             hold_action:
               action: none
             variables:
@@ -476,7 +556,7 @@ views:
                   return states['water_heater.domestic_hot_water_tank'].attributes['operation_mode'] === 'on'
                   && states['water_heater.domestic_hot_water_tank'].attributes['temperature'] - states['water_heater.domestic_hot_water_tank'].attributes['current_temperature'] > 5
                   && states['sensor.altherma_power_usage'].state > 1000
-                ]]] 
+                ]]]
           - type: custom:button-card
             entity: sensor.net_power_consumption
             triggers_update:
@@ -488,7 +568,7 @@ views:
             template:
               - energy
             tap_action:
-              !include popups/energy_usage.yaml
+              !include popups/pp_energy_usage.yaml
 
           - type: custom:button-card
             entity: sensor.water_meter_current_usage
@@ -497,7 +577,7 @@ views:
             template:
               - simple
             tap_action:
-              !include popups/energy_water.yaml
+              !include popups/pp_energy_water.yaml
             custom_fields:
               info: >
                 [[[
@@ -517,76 +597,59 @@ views:
 
       #################################################
       #                                               #
-      #                  People                       #
-      #                                               #
-      #################################################
-
-      - type: grid
-        title: Wij
-        view_layout:
-          grid-area: people
-        columns: 2
-        cards:
-          - type: custom:button-card
-            entity: binary_sensor.motion_sensor_cats_presence
-            template: cats
-            name: Boris&Puk
-            styles:
-              label:
-                - color: gray
-                - font-size: 11px
-            show_label: true
-
-      #################################################
-      #                                               #
       #                  Footer                       #
       #                                               #
       #################################################
-      - type: horizontal-stack
-        view_layout:
-          grid-area: footer
-        cards:
-          - type: custom:button-card
-            template: footer
-            name: >
-              <ha-icon icon="mdi:repeat-off"></ha-icon> Updates
-            tap_action:
-              !include popups/footer_update.yaml
-            triggers_update:
-              - sensor.all_updates
-            variables:
-              notify: >
-                [[[
-                  return parseInt(states['sensor.all_updates'].state);
-                ]]]
-          - type: custom:button-card
-            template: footer
-            name: >
-              <ha-icon icon="mdi:cog"></ha-icon> System
-            tap_action:
-              !include popups/footer_system.yaml
-            variables:
-              notify: >
-                [[[
-                  return parseInt(states['sensor.unavailable_entities'].attributes['count']);
-                ]]]
-          - type: custom:button-card
-            entity: binary_sensor.stookalert_zeeland
-            template: footer
-            name: >
-              <ha-icon icon="mdi:fire"></ha-icon> Stook Alert
-            tap_action:
-              !include popups/footer_stookalert.yaml
-            variables:
-              notify: >
-                [[[
-                  return (entity.state === 'on' || states['sensor.stookwijzer'].state === 'rood') && states['sensor.stookwijzer'].state !== 'unavailable';
-                ]]]
-          - type: custom:button-card
-            template: footer
-            name: >
-              <ha-icon icon="mdi:calendar-clock"></ha-icon> Kalender
-            tap_action:
-              !include popups/footer_calendar.yaml
-            hold_action:
-              action: none
+      # - type: horizontal-stack
+      #   view_layout:
+      #     grid-area: footer
+      #   cards:
+      #     - type: custom:button-card
+      #       template: footer
+      #       name: >
+      #         <ha-icon icon="mdi:repeat-off"></ha-icon> Updates
+      #       tap_action:
+      #         !include popups/pp_footer_update.yaml
+      #       triggers_update:
+      #         - sensor.all_updates
+      #       variables:
+      #         notify: >
+      #           [[[
+      #             return parseInt(states['sensor.all_updates'].state);
+      #           ]]]
+      #     - type: custom:button-card
+      #       template: footer
+      #       name: >
+      #         <ha-icon icon="mdi:cog"></ha-icon> System
+      #       tap_action:
+      #         !include popups/pp_footer_system.yaml
+      #       variables:
+      #         notify: >
+      #           [[[
+      #             return parseInt(states['sensor.unavailable_entities'].attributes['count']);
+      #           ]]]
+      #     - type: custom:button-card
+      #       entity: binary_sensor.stookalert_zeeland
+      #       template: footer
+      #       name: >
+      #         <ha-icon icon="mdi:fire"></ha-icon> Stoken
+      #       tap_action:
+      #         !include popups/pp_footer_stookalert.yaml
+      #       variables:
+      #         notify: >
+      #           [[[
+      #             return (entity.state === 'on' || states['sensor.stookwijzer'].state === 'rood') && states['sensor.stookwijzer'].state !== 'unavailable';
+      #           ]]]
+          # - type: custom:button-card
+          #   template: footer
+          #   name: >
+          #     <ha-icon icon="mdi:calendar-clock"></ha-icon> Kalender
+          #   tap_action:
+          #     !include popups/pp_footer_calendar.yaml
+          #   extra_styles: |
+          #     /* hide calendar on phone */
+          #     @media screen and (max-width: 800px) {
+          #       ha-card {
+          #         display: none;
+          #       }
+          #     }

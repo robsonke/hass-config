@@ -195,6 +195,12 @@ devices:
     friendly_name: dimmer_masterbath
   '0x001788010d7cb9f9':
     friendly_name: hue_tap_switch_master
+  '0x60a423fffe09143f':
+    friendly_name: garden_socket
+  '0x001788010cd8154e':
+    friendly_name: hue_motion_sensor_corridor1
+  '0x001788010cd81cef':
+    friendly_name: hue_motion_sensor_shed
 availability:
   active:
     timeout: 10
@@ -211,4 +217,10 @@ groups:
     devices:
       - 0x385b44fffe2cdebc/1
       - 0x385b44fffe2e0578/1
+  '3':
+    friendly_name: ledstrip_book
+    devices:
+      - 0x7cb03eaa0a007cb8/3
+      - 0x7cb03eaa0a0063d2/3
+      - 0x7cb03eaa0a007c56/3
 permit_join: true

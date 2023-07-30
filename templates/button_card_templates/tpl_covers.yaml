@@ -49,7 +49,7 @@ cover:
             path0  = `<path d="m 1152,1580 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`;
         if (entity.attributes.current_position <= variables.close_position) {
           return `${common}${path75}${path50}${path25}${path0}</g></svg>`;
-        } 
+        }
         if (entity.attributes.current_position <= variables.quarter1_position) {
           return `${common}${path75}${path50}${path25}</g></svg>`;
         }
@@ -90,7 +90,7 @@ cover:
           return (variables.close_position == null) ? 20 : variables.close_position;
         ]]]
   tap_action:
-    !include ../../dashboards/popups/covers.yaml
+    !include ../../dashboards/popups/pp_covers.yaml
 
 
 #################################################
@@ -147,7 +147,7 @@ cover_group:
             path0  = `<path d="m 1152,1580 c -96,-59 -96,-201 0,-260 33,-20 54,-20 1408,-20 1354,0 1375,0 1408,20 96,59 96,201 0,260 -33,20 -54,20 -1408,20 -1354,0 -1375,0 -1408,-20 z" />`;
         if (current_position <= variables.close_position) {
           return `${common}${path75}${path50}${path25}${path0}</g></svg>`;
-        } 
+        }
         if (current_position <= variables.quarter1_position) {
           return `${common}${path75}${path50}${path25}</g></svg>`;
         }
@@ -190,4 +190,4 @@ cover_group:
           return (variables.close_position == null) ? 20 : variables.close_position;
         ]]]
   tap_action:
-    !include ../../dashboards/popups/covers.yaml
+    !include ../../dashboards/popups/pp_covers.yaml

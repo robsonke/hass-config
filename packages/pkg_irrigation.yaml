@@ -1,0 +1,44 @@
+#  ___           _             _   _
+# |_ _|_ __ _ __(_) __ _  __ _| |_(_) ___  _ __
+#  | || '__| '__| |/ _` |/ _` | __| |/ _ \| '_ \
+#  | || |  | |  | | (_| | (_| | |_| | (_) | | | |
+# |___|_|  |_|  |_|\__, |\__,_|\__|_|\___/|_| |_|
+#                  |___/
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+switch:
+  - platform: group
+    unique_id: irrigation_switches
+    name: Irrigatie zones
+    entities:
+      - switch.irrigation_zone_achter_links
+      - switch.irrigation_zone_achter_rechts
+      - switch.irrigation_zone_terras_midden
+      - switch.irrigation_zone_terras_zijkant
+
+sensor:
+  - platform: group
+    unique_id: irrigation_zones_duration
+    name: Irrigatie Zones Duur
+    unit_of_measurement: min
+    type: sum
+    entities:
+      - number.sproeiduur_zone_terras_midden
+      - number.sproeiduur_zone_terras_zijkant
+      - number.sproeiduur_zone_achter_links
+      - number.sproeiduur_zone_achter_rechts
+
+input_datetime:
+  irrigation_start_time:
+    name: Irrigatie Start Tijd
+    has_date: false
+    has_time: true
+    icon: mdi:clock-outline
+    initial: 04:00
+
+input_boolean:
+  irrigation_plan_enable: 
+    name: Irrigatie Actief
+    icon: mdi:play-box-lock-open
