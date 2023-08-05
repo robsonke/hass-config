@@ -108,6 +108,23 @@ binary_sensor:
     host: 1.1.1.1
     scan_interval: 10
 
+  # monitor addons
+  - platform: group
+    unique_id: important_addons
+    name: "Important Addons"
+    device_class: running
+    entities:
+      - binary_sensor.zigbee2mqtt_running
+      - binary_sensor.esphome_running
+      - binary_sensor.amcrest2mqtt_running
+      - binary_sensor.mariadb_running
+      - binary_sensor.mosquitto_broker_running
+      - binary_sensor.a_better_presence_running
+      - binary_sensor.frigate_nvr_running
+      - binary_sensor.z_wave_js_to_mqtt_running
+      - binary_sensor.home_assistant_addon_ecowitt2mqtt_running
+      - binary_sensor.appdaemon_running
+
   - platform: group
     unique_id: doors_and_windows_upstairs
     name: All doors and windows upstairs

@@ -201,6 +201,17 @@ devices:
     friendly_name: hue_motion_sensor_corridor1
   '0x001788010cd81cef':
     friendly_name: hue_motion_sensor_shed
+  '0x540f57fffefc3267':
+    friendly_name: switch_sonoff_shed
+    state_action: false
+  '0x001788010cd8e833':
+    friendly_name: hue_motion_sensor_shower
+  '0x385b44fffe1457af':
+    friendly_name: toilet_upstairs_light
+  '0x00158d0007ec9289':
+    friendly_name: toiletdoorupstairs_openclose
+  '0x00158d0007e7531d':
+    friendly_name: motion_sensor_toiletupstairs
 availability:
   active:
     timeout: 10

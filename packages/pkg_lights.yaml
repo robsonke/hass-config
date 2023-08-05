@@ -45,6 +45,7 @@ light:
       - light.zwave_light_couch_level
       - light.zwave_light_corner_level
       - light.ledstrip_tv
+      - light.toilet_downstairs
       - light.dining_light
       - light.boekenkast
       - light.diningtable_light
@@ -67,6 +68,7 @@ light:
       - light.dimmer_corridor
       - light.dimmer_noa
       - light.dimmer_eva
+      - light.toilet_upstairs_light
 
   - platform: group
     name: Tuin

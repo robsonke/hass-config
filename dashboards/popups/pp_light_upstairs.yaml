@@ -14,25 +14,30 @@ browser_mod:
       entities:
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - entity: light.dimmer_corridor
             - title: Overloop
+        - type: custom:decluttering-card
+          template: light_button
+          variables:
+            - entity: light.toilet_upstairs_light
+            - title: Toilet
 
         - type: divider
 
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - entity: light.dimmer_masterbed
             - title: Slaapkamer
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - entity: light.dimmer_mastercloset
             - title: Inloopkast
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - entity: light.dimmer_masterbath
             - title: Douche
 
@@ -40,21 +45,21 @@ browser_mod:
 
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - title: Eva
             - entity: light.dimmer_eva
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - entity: light.dimmer_bathroom
             - title: Badkamer
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - title: Noa
             - entity: light.dimmer_noa
         - type: custom:decluttering-card
           template: light_button
-          variables: 
+          variables:
             - entity: light.dimmer_guestroom
             - title: Logeerkamer

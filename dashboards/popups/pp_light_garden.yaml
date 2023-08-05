@@ -27,38 +27,44 @@ browser_mod:
           entities:
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
+                - entity: light.shed_light
+                - title: Schuur
+            - type: divider
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
                 - entity: light.garden_light
                 - title: Wandlampen
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.woodshed_light
                 - title: Houthok
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.veranda_light
                 - title: Veranda
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.pool_terrace_light1
                 - title: Zwembad hoek 1
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.pool_terrace_light2
                 - title: Zwembad hoek 2
 
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.palm1_light
                 - title: Palm 1
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.palm2_light
                 - title: Palm 2
 
@@ -68,17 +74,17 @@ browser_mod:
           entities:
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.garden_lantern_light1
                 - title: Lantaarn 1
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.garden_lantern_light2
                 - title: Lantaarn 2
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.garden_lantern_light3
                 - title: Lantaarn 3
             - type: custom:decluttering-card
@@ -88,22 +94,22 @@ browser_mod:
                 - title: Hek 1
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.hue_lily_light_fence_2
                 - title: Hek 2
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.hue_lily_light_fence_3
                 - title: Hek 3
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.hue_lily_light_tree_1
                 - title: Boom Eva
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.hue_lily_light_tree_2
                 - title: Boom Noa
 

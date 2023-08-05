@@ -39,6 +39,11 @@ browser_mod:
                   name: Offline belangrijke entities
                   attribute: count
                   icon: mdi:alert-circle
+                - type: attribute
+                  entity: binary_sensor.important_addons
+                  name: Offline Addons
+                  attribute: count
+                  icon: mdi:alert-circle
                 - entity: sensor.uptime
                   name: Uptime
                   icon: mdi:update

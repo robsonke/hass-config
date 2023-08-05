@@ -233,7 +233,8 @@ views:
                 variables:
                   notify: >
                     [[[
-                      return parseInt(states['sensor.unavailable_entities'].attributes['count']);
+                      return parseInt(states['sensor.unavailable_entities'].attributes['count'])
+                        + (states['binary_sensor.important_addons'].state === 'on' ? 1 : 0);
                     ]]]
               - type: custom:button-card
                 entity: binary_sensor.stookalert_zeeland

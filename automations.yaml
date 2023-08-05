@@ -3590,3 +3590,86 @@
         | round }} graden.'
       delay: 00:00:05
   mode: single
+- id: '1690914761794'
+  alias: Motion Lights - Control shed lights
+  description: Turn on the light in the shed once entering and turn off after a while
+  use_blueprint:
+    path: robsonke/motion-illuminance-dimmable-nightmode.yaml
+    input:
+      motion_entity:
+      - binary_sensor.hue_motion_sensor_shed_occupancy
+      lux_entity: sensor.hue_motion_sensor_shed_illuminance_lux
+      lux_level: 250
+      dim_time: 0
+      no_motion_wait_day: 600
+      day_brightness: 100
+      light_target:
+        entity_id:
+        - light.shed_light
+      night_time_start_helper: '22:00:00'
+      night_time_end_helper: 07:00:00
+      night_brightness: 100
+- id: '1690920817114'
+  alias: Motion Lights - Control shower & closet light
+  description: ''
+  use_blueprint:
+    path: robsonke/motion-illuminance-dimmable-nightmode.yaml
+    input:
+      motion_entity:
+      - binary_sensor.hue_motion_sensor_shower_occupancy
+      lux_entity: sensor.hue_motion_sensor_shower_illuminance_lux
+      lux_level: 250
+      light_target:
+        entity_id: light.dimmer_master_closetbath
+      dim_time: 10
+      no_motion_wait_day: 600
+      no_motion_wait_night: 30
+      night_time_start_helper: '22:00:00'
+      night_time_end_helper: 06:00:00
+      night_brightness: 30
+- id: '1691040868878'
+  alias: Motion Lights - Control the toilet light downstairs
+  description: ''
+  use_blueprint:
+    path: robsonke/toilet-light-control.yaml
+    input:
+      motion_entity: binary_sensor.motion_sensor_toiletdownstairs_presence
+      door_entity: binary_sensor.toiletdoordownstairs_openclose
+      light_target: light.toilet_downstairs
+      no_motion_wait: 20
+      night_brightness: 40
+- id: '1691085645048'
+  alias: Motion Lights - Control the toilet light upstairs
+  description: ''
+  use_blueprint:
+    path: robsonke/toilet-light-control.yaml
+    input:
+      motion_entity: binary_sensor.motion_sensor_toiletupstairs_occupancy
+      door_entity: binary_sensor.toiletdoorupstairs_openclose_contact
+      light_target: light.toilet_upstairs_light
+      no_motion_wait: 5
+- id: '1691091811857'
+  alias: System - Alert when addons are down
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.important_addons
+    from: 'on'
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: binary_sensor.important_addons
+    state: 'off'
+  action:
+  - service: notify.mobile_app_iphone_rob
+    data:
+      message: \U0001F4A1 Let op, er zijn addons down
+      data:
+        persistent: true
+        tag: persistent
+  mode: single

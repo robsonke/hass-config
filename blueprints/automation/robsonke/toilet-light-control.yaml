@@ -1,0 +1,179 @@
+blueprint:
+  name: Toilet light control
+  description: Turn on a light when motion is detected or when the door opens. And turn off once closing again.
+    There are also two timers, on for daytime and one for nighttime.
+  domain: automation
+  input:
+    motion_entity:
+      name: Motion Sensor
+      selector:
+        entity:
+          domain:
+          - binary_sensor
+          device_class:
+          - motion
+          multiple: false
+    door_entity:
+      name: Door Sensor
+      selector:
+        entity:
+          domain:
+          - binary_sensor
+          device_class:
+          - door
+          multiple: false
+    light_target:
+      name: Light
+      selector:
+        entity:
+          multiple: false
+          domain:
+          - light
+    no_motion_wait:
+      name: Wait time
+      description: Time to leave the light on after last motion is detected.
+      default: 10
+      selector:
+        number:
+          min: 0.0
+          max: 30.0
+          unit_of_measurement: minutes
+          step: 1.0
+          mode: slider
+    night_time_start_helper:
+      name: Night time helper (Start)
+      description: When should it be considered night time?
+      default: '22:00:00'
+      selector:
+        time: {}
+    night_time_end_helper:
+      name: Night time helper (End)
+      description: When should it be considered day time?
+      default: 08:00:00
+      selector:
+        time: {}
+    day_brightness:
+      name: Day brightness
+      description: Brightness, in daytime mode
+      default: 60
+      selector:
+        number:
+          min: 1.0
+          max: 100.0
+          step: 1.0
+          mode: slider
+    night_brightness:
+      name: Night brightness
+      description: Brightness, in night mode
+      default: 30
+      selector:
+        number:
+          min: 1.0
+          max: 100.0
+          step: 1.0
+          mode: slider
+  source_url: https://gist.github.com/robsonke/ec8c7d40bbacff15fbec97bed355d5f0
+mode: single
+max_exceeded: silent
+trace:
+  stored_traces: 50
+variables:
+  local_night_end: !input night_time_end_helper
+  local_night_start: !input night_time_start_helper
+  local_no_motion_wait: !input no_motion_wait
+  local_motion_entity: !input motion_entity
+  local_door_entity: !input door_entity
+  local_light_target: !input light_target
+  local_day_brightness: !input day_brightness
+  local_night_brightness: !input night_brightness
+  local_current_brightness: >-
+    {% if today_at(local_night_end) < now() or now() < today_at(local_night_start)  %}
+    {{ local_day_brightness }}
+    {% else %} {{ local_night_brightness }} {% endif %}
+trigger:
+  # no more motion for a while
+  - platform: state
+    entity_id: !input motion_entity
+    from: 'on'
+    to: 'off'
+    for:
+      hours: 0
+      minutes: '{{ local_no_motion_wait }}'
+      seconds: 0
+  # there's motion!
+  - platform: state
+    entity_id: !input motion_entity
+    from: 'off'
+    to: 'on'
+  # the door is closed
+  - platform: state
+    entity_id: !input door_entity
+    from: 'on'
+    to: 'off'
+  # the door is opened
+  - platform: state
+    entity_id: !input door_entity
+    from: 'off'
+    to: 'on'
+condition: []
+action:
+  - choose:
+    - conditions:
+      - condition: state
+        alias: "Is the light currently off?"
+        entity_id: !input light_target
+        state: "off"
+      sequence:
+        - service: light.turn_on
+          alias: "Lets turn the light on with the brightness based on the time"
+          data:
+            brightness_pct: '{{ local_current_brightness }}'
+          target:
+            entity_id: !input light_target
+        - delay:
+            seconds: 15
+          alias: "Just wait a bit, in case the light wasn't on for more than 15 seconds, it's probably somebody opening and closing doors"
+        - wait_for_trigger:
+            - platform: state
+              alias: "Wait till there's no motion for the time we configured as wait time"
+              entity_id: !input motion_entity
+              from: 'on'
+              for:
+                hours: 0
+                minutes: '{{ local_no_motion_wait }}'
+                seconds: 0
+            - platform: state
+              alias: "Or continue when the door closes"
+              entity_id: !input door_entity
+              from: "on"
+              to: "off"
+          continue_on_timeout: true
+        - service: light.turn_off
+          target:
+            entity_id: !input light_target
+          data:
+            transition: 10
+    # this is a fallback situation, in case the light doesn't go off
+    - conditions:
+      - condition: state
+        alias: "Is the light currently on for at least 15 seconds?"
+        entity_id: !input light_target
+        state: "on"
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 15
+      - condition: state
+        alias: "And is there no movement for a while?"
+        entity_id: !input motion_entity
+        state: "off"
+        for:
+          hours: 0
+          minutes: '{{ local_no_motion_wait }}'
+          seconds: 0
+      sequence:
+        - service: light.turn_off
+          target:
+            entity_id: !input light_target
+          data:
+            transition: 10
