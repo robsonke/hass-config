@@ -39,17 +39,17 @@ template:
       state: >
         {% set wind = states('sensor.kloetinge_wind_speed')|float %}
         {% set wind_round = wind|round(1) %}
-        {% if wind <= 1 %}0 Bft, Windstil
-        {% elif wind <= 5 %}1 Bft, Zwak: flauwe wind
-        {% elif wind <= 11 %}2 Bft, Zwak
-        {% elif wind <= 20 %}3 Bft, Matig: lichte bries
-        {% elif wind <= 28 %}4 Bft, Matig: flauwe bries
-        {% elif wind <= 39 %}5 Bft, Vrij krachtig
-        {% elif wind <= 50 %}6 Bft, Krachtig
-        {% elif wind <= 62 %}7 Bft, Hard
-        {% elif wind <= 75 %}8 Bft, Stormachting
-        {% elif wind <= 89 %}9 Bft, Storm
-        {% elif wind <= 103 %}10 Bft, Zware storm
-        {% elif wind <= 117 %}11 Bft, Zeer zware storm
-        {% else %} > 117 %}12 Bft, Orkaan
+        {% if wind <= 1 %}0 Bft
+        {% elif wind <= 5 %}1 Bft
+        {% elif wind <= 11 %}2 Bft
+        {% elif wind <= 20 %}3 Bft
+        {% elif wind <= 28 %}4 Bft
+        {% elif wind <= 39 %}5 Bft
+        {% elif wind <= 50 %}6 Bft
+        {% elif wind <= 62 %}7 Bft
+        {% elif wind <= 75 %}8 Bft
+        {% elif wind <= 89 %}9 Bft
+        {% elif wind <= 103 %}10 Bft
+        {% elif wind <= 117 %}11 Bft
+        {% else %} > 117 %}12 Bft
         {%- endif %}
