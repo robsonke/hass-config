@@ -1,0 +1,130 @@
+
+#################################################
+#                                               #
+#                    WEATHER                    #
+#                                               #
+#################################################
+
+weather:
+  show_name: false
+  card_size: 2
+  show_entity_picture: true
+  show_icon: false
+  show_state: false
+  state:
+  - value: cloudy
+    entity_picture: /local/images/weather/animated/cloudy.svg
+  - value: sunny
+    entity_picture: /local/images/weather/animated/clear-day.svg
+  - value: rainy
+    entity_picture: /local/images/weather/animated/rainy-2.svg
+  - value: snowy
+    entity_picture: /local/images/weather/animated/snowy-2.svg
+  - value: clear-night
+    entity_picture: /local/images/weather/animated/clear-night.svg
+  - value: hail
+    entity_picture: /local/images/weather/animated/hail.svg
+  - value: lightning
+    entity_picture: /local/images/weather/animated/scattered-thunderstorms.svg
+  - value: lightning-rainy
+    entity_picture: /local/images/weather/animated/thunderstorms.svg
+  - value: partlycloudy
+    entity_picture: /local/images/weather/animated/cloudy-2-day.svg
+  - value: pouring
+    entity_picture: /local/images/weather/animated/rainy-3.svg
+  - value: snowy-rainy
+    entity_picture: /local/images/weather/animated/rain-and-snow-mix.svg
+  - value: windy
+    entity_picture: /local/images/weather/animated/wind.svg
+  - value: windy-variant
+    entity_picture: /local/images/weather/animated/wind.svg
+  - value: exeptional
+    entity_picture: /local/images/weather/animated/severe-thunderstorm.svg
+  styles:
+    card:
+      - height: 6vw
+    grid:
+      - position: relative
+    icon:
+      - position: absolute
+      - left: 1vw
+      - top: 0
+      - height: 100px
+      - width: 100px
+    custom_fields:
+      current:
+        - position: absolute
+        - left: 7vw
+        - top: 0
+        - font-size: 28px
+        - line-height: 28px
+      forecast:
+        - position: absolute
+        - left: 7.4vw
+        - top: 2.5vw
+        - font-size: 12px
+        - line-height: 18px
+      rain:
+        - position: absolute
+        - left: 17vw
+        - top: 0
+        - font-size: 12px
+        - line-height: 12px
+      wind:
+        - position: absolute
+        - left: 17vw
+        - top: 1.5vw
+        - font-size: 12px
+        - line-height: 12px
+      humid:
+        - position: absolute
+        - left: 17vw
+        - top: 3vw
+        - font-size: 12px
+        - line-height: 12px
+  custom_fields:
+    current: |
+      [[[
+        return `${entity.attributes.temperature}°`;
+      ]]]
+    forecast: |
+      [[[
+        return `${entity.attributes.forecast[0].templow}°/${entity.attributes.forecast[0].temperature}°`;
+      ]]]
+    rain: |
+      [[[
+        return `<img src="/local/images/weather/static/rain-and-sleet-mix.svg" width="20" height="20" style="vertical-align: -45%">
+          ${(states['sensor.daily_rain_piezo'].state || 0)} mm`
+      ]]]
+    wind: |
+      [[[
+        var degree = 45;
+        var angle = entity.attributes.wind_bearing + 22.5;
+        var direction = (angle >= 0 * degree && angle < 1 * degree) ? "N" :
+          (angle >= 1 * degree && angle < 2 * degree) ? "NO" :
+          (angle >= 2 * degree && angle < 3 * degree) ? "O" :
+          (angle >= 3 * degree && angle < 4 * degree) ? "ZO" :
+          (angle >= 4 * degree && angle < 5 * degree) ? "Z" :
+          (angle >= 5 * degree && angle < 6 * degree) ? "W" :
+          (angle >= 6 * degree && angle < 7 * degree) ? "NW" : "N";
+        return `<img src="/local/images/weather/static/wind.svg" width="20" height="20" style="vertical-align: -45%"> ${direction} ${states['sensor.wind_force'].state || 0}`
+      ]]]
+    humid: |
+      [[[
+        return `<img src="/local/images/weather/static/fog.svg" width="20" height="20" style="vertical-align: -45%"> ${entity.attributes.humidity || 0}%`
+      ]]]
+    # sun: |
+    #   [[[
+    #     var options = { hour: 'numeric', minute: 'numeric' };
+    #     var sunrise_date = new Date(states['sun.sun'].attributes.next_rising);
+    #     var sunrise_time = sunrise_date.toLocaleDateString("nl-NL", options).split(",")[1];
+    #     var sunset_date = new Date(states['sun.sun'].attributes.next_setting);
+    #     var sunset_time = sunset_date.toLocaleDateString("nl-NL", options).split(",")[1];
+    #     var time = states['sun.sun'].state === 'below_horizon' ? sunrise_time : sunset_time;
+    #     var img = states['sun.sun'].state === 'below_horizon' ? '/local/images/weather/static/clear-day.svg' : '/local/images/weather/static/clear-night.svg';
+    #     return `<img src="${img}" width="20" height="20" style="vertical-align: -25%" /> ${time}`
+    #   ]]]
+    # state: |
+    #   [[[
+    #     return states['weather.weather_langeweide_ecowitt'].state;
+    #   ]]]

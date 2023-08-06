@@ -122,6 +122,10 @@ variables:
   local_motion_dim_time: !input dim_time
   local_day_brightness: !input day_brightness
   local_night_brightness: !input night_brightness
+  local_current_brightness: >-
+    {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
+    {{ local_day_brightness }}
+    {% else %} {{ local_night_brightness }} {% endif %}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -132,26 +136,15 @@ condition:
   entity_id: !input lux_entity
   below: !input lux_level
 action:
-- choose:
-  - conditions:
-    - condition: time
-      after: !input night_time_end_helper
-      before: !input night_time_start_helper
-    sequence:
-    - service: light.turn_on
-      target: !input light_target
-      data:
-        brightness_pct: !input day_brightness
-  default:
-  - service: light.turn_on
-    target: !input light_target
-    data:
-      brightness_pct: !input night_brightness
+- service: light.turn_on
+  target: !input light_target
+  data:
+    brightness_pct: '{{ local_current_brightness }}'
 - wait_for_trigger:
     platform: state
     entity_id: !input motion_entity
     from: 'on'
-- delay: ' {% if today_at(local_night_end) < now() or now() < today_at(local_night_start)  %}
+- delay: ' {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
     {{ local_motion_delay_day - local_motion_dim_time }}
     {% else %} {{ local_motion_delay_night - local_motion_dim_time }} {% endif %} '
 - service: light.turn_off

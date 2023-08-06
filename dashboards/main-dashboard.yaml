@@ -72,29 +72,34 @@ views:
               action: call-service
               service: script.reload_frontend
             template: sidebar_template
-          - type: weather-forecast
+          # - type: weather-forecast
+          #   entity: weather.weather_langeweide_ecowitt
+          #   show_forecast: false
+          #   style: |
+          #     div.name-state {
+          #       display: none;
+          #     }
+          #     div.info {
+          #       flex-grow: 0;
+          #     }
+          #     ha-card {
+          #       border-width: 0;
+          #     }
+          #     :host([verynarrow]) div.attribute {
+          #       display: block;
+          #     }
+          #     :host([veryVeryNarrow]) div.content {
+          #       flex-flow: row nowrap;
+          #       justify-content: space-around;
+          #       align-items: normal;
+          #     }
+          #   tap_action:
+          #     !include popups/pp_sidebar_weather.yaml
+          - type: custom:button-card
             entity: weather.weather_langeweide_ecowitt
-            show_forecast: false
-            style: |
-              div.name-state {
-                display: none;
-              }
-              div.info {
-                flex-grow: 0;
-              }
-              ha-card {
-                border-width: 0;
-              }
-              :host([verynarrow]) div.attribute {
-                display: block;
-              }
-              :host([veryVeryNarrow]) div.content {
-                flex-flow: row nowrap;
-                justify-content: space-around;
-                align-items: normal;
-              }
             tap_action:
               !include popups/pp_sidebar_weather.yaml
+            template: weather
           - type: custom:button-card
             entity: person.rob
             name: Rob
@@ -214,7 +219,7 @@ views:
               - type: custom:button-card
                 template: footer
                 name: >
-                  <ha-icon icon="mdi:repeat-off"></ha-icon>
+                  <ha-state-icon icon="mdi:repeat-off"></ha-state-icon>
                 tap_action:
                   !include popups/pp_footer_update.yaml
                 triggers_update:
@@ -227,7 +232,7 @@ views:
               - type: custom:button-card
                 template: footer
                 name: >
-                  <ha-icon icon="mdi:cog"></ha-icon>
+                  <ha-state-icon icon="mdi:cog"></ha-state-icon>
                 tap_action:
                   !include popups/pp_footer_system.yaml
                 variables:
@@ -240,7 +245,7 @@ views:
                 entity: binary_sensor.stookalert_zeeland
                 template: footer
                 name: >
-                  <ha-icon icon="mdi:fire"></ha-icon>
+                  <ha-state-icon icon="mdi:fire"></ha-state-icon>
                 tap_action:
                   !include popups/pp_footer_stookalert.yaml
                 variables:
@@ -595,62 +600,3 @@ views:
                       ]]]
               state:
                 - color: rgba(0, 0, 0, 0)
-
-      #################################################
-      #                                               #
-      #                  Footer                       #
-      #                                               #
-      #################################################
-      # - type: horizontal-stack
-      #   view_layout:
-      #     grid-area: footer
-      #   cards:
-      #     - type: custom:button-card
-      #       template: footer
-      #       name: >
-      #         <ha-icon icon="mdi:repeat-off"></ha-icon> Updates
-      #       tap_action:
-      #         !include popups/pp_footer_update.yaml
-      #       triggers_update:
-      #         - sensor.all_updates
-      #       variables:
-      #         notify: >
-      #           [[[
-      #             return parseInt(states['sensor.all_updates'].state);
-      #           ]]]
-      #     - type: custom:button-card
-      #       template: footer
-      #       name: >
-      #         <ha-icon icon="mdi:cog"></ha-icon> System
-      #       tap_action:
-      #         !include popups/pp_footer_system.yaml
-      #       variables:
-      #         notify: >
-      #           [[[
-      #             return parseInt(states['sensor.unavailable_entities'].attributes['count']);
-      #           ]]]
-      #     - type: custom:button-card
-      #       entity: binary_sensor.stookalert_zeeland
-      #       template: footer
-      #       name: >
-      #         <ha-icon icon="mdi:fire"></ha-icon> Stoken
-      #       tap_action:
-      #         !include popups/pp_footer_stookalert.yaml
-      #       variables:
-      #         notify: >
-      #           [[[
-      #             return (entity.state === 'on' || states['sensor.stookwijzer'].state === 'rood') && states['sensor.stookwijzer'].state !== 'unavailable';
-      #           ]]]
-          # - type: custom:button-card
-          #   template: footer
-          #   name: >
-          #     <ha-icon icon="mdi:calendar-clock"></ha-icon> Kalender
-          #   tap_action:
-          #     !include popups/pp_footer_calendar.yaml
-          #   extra_styles: |
-          #     /* hide calendar on phone */
-          #     @media screen and (max-width: 800px) {
-          #       ha-card {
-          #         display: none;
-          #       }
-          #     }

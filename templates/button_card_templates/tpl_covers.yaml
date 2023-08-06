@@ -35,7 +35,7 @@ cover:
       [[[
         let coverage = states['sensor.openweathermap_cloud_coverage'].state;
         let temp = Math.round(states['sensor.openweathermap_forecast_temperature'].state*10)/10;
-        return `<span><ha-icon icon="mdi:cloud-outline" style="width: 1rem;"></ha-icon> ${coverage}%<br/><ha-icon icon="mdi:thermometer" style="width: 1rem;"></ha-icon> ${temp} °C</span>`;
+        return `<span><ha-state-icon icon="mdi:cloud-outline" style="width: 1rem;"></ha-state-icon> ${coverage}%<br/><ha-state-icon icon="mdi:thermometer" style="width: 1rem;"></ha-state-icon> ${temp} °C</span>`;
       ]]]
     icon: >
       [[[
@@ -131,7 +131,7 @@ cover_group:
       [[[
         let coverage = states['sensor.openweathermap_cloud_coverage'].state;
         let temp = Math.round(states['sensor.openweathermap_forecast_temperature'].state*10)/10;
-        return `<span><ha-icon icon="mdi:cloud-outline" style="width: 1rem;"></ha-icon> ${coverage}%<br/><ha-icon icon="mdi:thermometer" style="width: 1rem;"></ha-icon> ${temp} °C</span>`;
+        return `<span><ha-state-icon icon="mdi:cloud-outline" style="width: 1rem;"></ha-state-icon> ${coverage}%<br/><ha-state-icon icon="mdi:thermometer" style="width: 1rem;"></ha-state-icon> ${temp} °C</span>`;
       ]]]
     icon: >
       [[[

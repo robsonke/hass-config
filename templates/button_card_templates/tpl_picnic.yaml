@@ -19,7 +19,7 @@ picnic:
   custom_fields:
     info: >
       [[[
-        return `<span><ha-icon icon="mdi:cart-arrow-down" style="width: 1rem;"></ha-icon> ${states['sensor.picnic_cart_items_count'].state}<br/><ha-icon icon="mdi:currency-eur" style="width: 1rem;"></ha-icon> ${states['sensor.picnic_cart_total_price'].state}</span>`;
+        return `<span><ha-state-icon icon="mdi:cart-arrow-down" style="width: 1rem;"></ha-state-icon> ${states['sensor.picnic_cart_items_count'].state}<br/><ha-state-icon icon="mdi:currency-eur" style="width: 1rem;"></ha-state-icon> ${states['sensor.picnic_cart_total_price'].state}</span>`;
       ]]]
   state_display: >
     [[[

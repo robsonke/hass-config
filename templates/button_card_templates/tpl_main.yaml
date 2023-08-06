@@ -183,7 +183,7 @@ sonos:
       [[[
         // find first media player playing and get its entity picture
         const playing = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'playing');
-        const defaultIcon = `<ha-icon icon="${entity.attributes.icon}" style="width: 100%; height: 100%;"></ha-icon>`;
+        const defaultIcon = `<ha-state-icon icon="${entity.attributes.icon}" style="width: 100%; height: 100%;"></ha-state-icon>`;
         if (playing.length > 0) {
           const entity_picture = playing[0] === undefined || playing[0].attributes.entity_picture;
           return entity_picture === null ? defaultIcon :
@@ -267,7 +267,7 @@ person:
     icon: >
       [[[
         let icon = entity.state === "home" ? `mdi:home` : `mdi:exit-to-app`;
-        return `<ha-icon icon="${icon}" style="width: 1rem;"></ha-icon>`
+        return `<ha-state-icon icon="${icon}" style="width: 1rem;"></ha-state-icon>`
       ]]]
 
 person_kid:

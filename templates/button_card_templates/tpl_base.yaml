@@ -36,7 +36,7 @@ base:
         let icon = entity.attributes.icon;
         if (variables.icon)
           icon = variables.icon;
-        return `<ha-icon icon="${icon}"></ha-icon>`;
+        return `<ha-state-icon icon="${icon}"></ha-state-icon>`;
       ]]]
   styles:
     grid:

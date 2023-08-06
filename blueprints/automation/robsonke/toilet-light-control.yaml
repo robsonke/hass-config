@@ -87,7 +87,7 @@ variables:
   local_day_brightness: !input day_brightness
   local_night_brightness: !input night_brightness
   local_current_brightness: >-
-    {% if today_at(local_night_end) < now() or now() < today_at(local_night_start)  %}
+    {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
     {{ local_day_brightness }}
     {% else %} {{ local_night_brightness }} {% endif %}
 trigger:

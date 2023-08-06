@@ -114,11 +114,11 @@ energy:
         if (level === 'normal') color = 'var(--yellow)';
         if (level === 'expensive') color = 'var(--orange)';
         if (level === 'very_expensive') color = 'var(--red)';
-        
-        return `<span><ha-icon icon="mdi:transmission-tower-export" style="width: 1rem"></ha-icon> ${today} kWh<br/>
-          <ha-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-icon> <span style="color: ${color}">${price}</span><br/>
-          <ha-icon icon="mdi:sigma" style="width: 1rem"></ha-icon> ${Math.round(states['sensor.electricity_cost_today'].state * 100) / 100}<br/>
-          <ha-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-icon> ${Math.round(states['sensor.monthly_cost_langeweide'].state * 100) / 100}
+
+        return `<span><ha-state-icon icon="mdi:transmission-tower-export" style="width: 1rem"></ha-state-icon> ${today} kWh<br/>
+          <ha-state-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-state-icon> <span style="color: ${color}">${price}</span><br/>
+          <ha-state-icon icon="mdi:sigma" style="width: 1rem"></ha-state-icon> ${Math.round(states['sensor.electricity_cost_today'].state * 100) / 100}<br/>
+          <ha-state-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-state-icon> ${Math.round(states['sensor.monthly_cost_langeweide'].state * 100) / 100}
           </span>`;
       ]]]
   styles:

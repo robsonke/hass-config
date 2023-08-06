@@ -51,8 +51,8 @@ door_window_group_downstairs:
     icon: >
       [[[
         if (states['sensor.open_windows_and_doors_downstairs'].state > 0)
-          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
-        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+          return `<ha-state-icon icon="mdi:door-open"></ha-state-icon>`;
+        return `<ha-state-icon icon="${entity.attributes.icon}"></ha-state-icon>`;
       ]]]
 
 #################################################
@@ -91,8 +91,8 @@ door_window_group_upstairs:
     icon: >
       [[[
         if (states['sensor.open_windows_and_doors_upstairs'].state > 0)
-          return `<ha-icon icon="mdi:window-open-variant"></ha-icon>`;
-        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+          return `<ha-state-icon icon="mdi:window-open-variant"></ha-state-icon>`;
+        return `<ha-state-icon icon="${entity.attributes.icon}"></ha-state-icon>`;
       ]]]
 
 #################################################
@@ -131,6 +131,6 @@ door_window_group_garden:
     icon: >
       [[[
         if (states['sensor.open_windows_and_doors_garden'].state > 0)
-          return `<ha-icon icon="mdi:door-open"></ha-icon>`;
-        return `<ha-icon icon="${entity.attributes.icon}"></ha-icon>`;
+          return `<ha-state-icon icon="mdi:door-open"></ha-state-icon>`;
+        return `<ha-state-icon icon="${entity.attributes.icon}"></ha-state-icon>`;
       ]]]

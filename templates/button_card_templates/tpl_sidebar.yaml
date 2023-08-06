@@ -55,7 +55,7 @@ sidebar_template:
       - -webkit-tap-highlight-color: rgba(0,0,0,0)
       - color: var(--sidebar-font-color)
   extra_styles: |
-    ha-icon.trash {
+    ha-state-icon.trash {
       --mdc-icon-size: 16px;
     }
 

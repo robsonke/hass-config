@@ -300,7 +300,7 @@ template:
                 <b>{{ state_attr(entity.entity_id, 'friendly_name') }}</b>
                 {%- endif %}
                 {{ state_attr(entity.entity_id, 'installed_version') }} &#10142; {{ state_attr(entity.entity_id, 'latest_version') }}
-                <ha-icon-button onclick="cardTools.hass.callService('browser_mod', 'close_popup', {}); cardTools.moreInfo('{{ entity.entity_id }}')"><ha-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-icon></ha-icon-button>
+                <ha-icon-button onclick="cardTools.hass.callService('browser_mod', 'close_popup', {}); cardTools.moreInfo('{{ entity.entity_id }}')"><ha-state-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-state-icon></ha-icon-button>
               </li>
             {%- endif %}
           {%- endfor %}

@@ -137,6 +137,10 @@ devices:
     friendly_name: dimmer_switch_spare
   '0x00158d0007103985':
     friendly_name: cabindoor_openclose
+    debounce: 1
+    homeassistant: {}
+    legacy: false
+    optimistic: true
   '0x00158d0007ec9128':
     friendly_name: door_terrace_openclose
   '0x8cf681fffe109d41':
@@ -210,13 +214,22 @@ devices:
     friendly_name: toilet_upstairs_light
   '0x00158d0007ec9289':
     friendly_name: toiletdoorupstairs_openclose
+    homeassistant: {}
+    legacy: false
+    optimistic: true
+    retain: true
   '0x00158d0007e7531d':
     friendly_name: motion_sensor_toiletupstairs
+    homeassistant: {}
+    legacy: false
+    optimistic: true
+    retain: true
+    occupancy_timeout: 30
 availability:
   active:
     timeout: 10
   passive:
-    timeout: 1500
+    timeout: 720
 groups:
   '1':
     friendly_name: dimmer_corridor

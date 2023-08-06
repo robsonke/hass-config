@@ -23,7 +23,7 @@ updates:
     #ripple {
       display: none;
     }
-    ha-icon {
+    ha-state-icon {
       width: 1.5em;
       vertical-align: 18%;
       opacity: 0.5;
@@ -80,7 +80,7 @@ updates_hass:
           `<ul></ul>` :
           release_notes.replace(links, '<a href="#" onclick="window.open(\'$1\')"');
         return `
-          <ha-icon icon="mdi:home-assistant"></ha-icon> <span class="title">Home Assistant ${installed}</span><br>
+          <ha-state-icon icon="mdi:home-assistant"></ha-state-icon> <span class="title">Home Assistant ${installed}</span><br>
           <p class="subtitle">${subtitle}</p>
           ${output}
         `;

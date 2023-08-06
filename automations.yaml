@@ -219,10 +219,12 @@
       data:
         persistent: true
         tag: persistent
-  - service: tts.google_translate_say
-    entity_id: media_player.keuken_display
+  - service: script.sonos_say
     data:
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
       message: Het alarm is uitgeschakeld
+      delay: 00:00:03
   mode: single
 - id: mailbox_notification
   alias: Mail - Alert when mail in the mailbox
@@ -430,13 +432,6 @@
         persistent: true
         tag: persistent
         image: http://admin:qg4Y7DhhCTNJnCtuAZp_zJM@192.168.0.246/cgi-bin/snapshot.cgi
-  - service: script.googlehome_play_sound
-    data:
-      volume: 0.7
-      volume_restore: 0.4
-      googlehome_entity: media_player.keuken_display
-      delay: '3'
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -834,14 +829,13 @@
     state: 'off'
     entity_id: input_boolean.guest_mode
   action:
-  - service: script.googlehome_say
+  - service: script.sonos_say
     data_template:
-      volume: 0.5
-      volume_restore: 0.4
-      googlehome_entity: media_player.keuken_display
-      delay: 3
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
         komt er aan!
+      delay: 00:00:03
   - delay: '2'
   - service: script.googlehome_say
     data_template:
@@ -1143,10 +1137,12 @@
       entity_id: sensor.open_windows_and_doors_downstairs
       state: '0'
   action:
-  - service: tts.google_translate_say
-    entity_id: media_player.keuken_display
+  - service: script.sonos_say
     data_template:
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
       message: Let op, er staan beneden nog ramen of deuren open!
+      delay: 00:00:03
   mode: single
 - id: '1621192941666'
   alias: Doors - Alert when frontdoor is open too long
@@ -1697,9 +1693,11 @@
       data:
         persistent: true
         tag: persistent
-  - service: tts.google_translate_say
-    entity_id: media_player.keuken_display
+  - service: script.sonos_say
     data:
+      sonos_entity: media_player.eetkamer
+      volume: 0.3
+      delay: 00:00:03
       message: "Alarm kan niet geactiveerd worden omdat: {% for entity_id in trigger.event.data.sensors
         %}\n  - {{ state_attr(entity_id, 'friendly_name') }} staat {{ states(entity_id)
         }}\n{% endfor %}\n"
@@ -2219,15 +2217,6 @@
     target:
       entity_id: light.toilet_downstairs
   mode: restart
-- id: '1642757425557'
-  alias: Cast - Cast to Google Hub
-  description: Doesn't work well right now, also button-cards are an issue
-  use_blueprint:
-    path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
-    input:
-      dashboard: lovelace
-      player: media_player.keuken_display
-      view: hub
 - id: '1643267142475'
   alias: Presence - Send message if cooker is still enabled and we left the house
   description: ''
@@ -3489,7 +3478,9 @@
         entity_id: light.dimmer_corridor
       dim_time: 10
       no_motion_wait_day: 240
-      day_brightness: 50
+      day_brightness: 40
+      night_brightness: 25
+      no_motion_wait_night: 90
 - id: '1690717695663'
   alias: BBQ - Timer notifications
   description: Warns us in case of the bbq timer runs out
@@ -3648,6 +3639,7 @@
       door_entity: binary_sensor.toiletdoorupstairs_openclose_contact
       light_target: light.toilet_upstairs_light
       no_motion_wait: 5
+      night_brightness: 33
 - id: '1691091811857'
   alias: System - Alert when addons are down
   description: ''

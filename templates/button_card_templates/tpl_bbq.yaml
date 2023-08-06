@@ -35,10 +35,10 @@ bbq:
 
       let timer = '';
       if (states['timer.bbq'].state === 'active') {
-        timer = `(🕓 ${states['timer.bbq'].attributes['remaining']})`;
+        timer = ` (🕓 ${states['timer.bbq'].attributes['remaining']})`;
       }
-
-      return html`<span>${probe1}${variables.unit} / ${probe2}${variables.unit} ${timer}</span>`;
+      let probe2Text = (probe2 !== '-') ? ` / ${probe2}${variables.unit}` : '';
+      return html`<span>${probe1}${variables.unit} ${probe2Text}${timer}</span>`;
     ]]]
   styles:
     custom_fields:
