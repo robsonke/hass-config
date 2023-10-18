@@ -76,11 +76,11 @@ input_number:
 homeassistant:
   customize:
     sensor.altherma_energy_usage:
-      device_class: power
+      device_class: energy
       state_class: total_increasing
       unit_of_measurement: kWh
     sensor.altherma_energy_usage_secundary:
-      device_class: power
+      device_class: energy
       state_class: total_increasing
       unit_of_measurement: kWh
 
@@ -207,8 +207,8 @@ template:
       unit_of_measurement: 'COP'
       state_class: measurement
       state: >
-        {% if is_state('sensor.altherma_operation_mode', 'Heating') %} 
-        {{ 
+        {% if is_state('sensor.altherma_operation_mode', 'Heating') %}
+        {{
           ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.template_altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) )
             /
           (states('sensor.altherma_inv_primary_current') | float * states('sensor.altherma_voltage_n_phase') | float / 1000))
@@ -221,7 +221,7 @@ template:
       unit_of_measurement: 'COP'
       state_class: measurement
       state: >
-        {% if is_state('sensor.altherma_operation_mode', 'Heating') %} 
+        {% if is_state('sensor.altherma_operation_mode', 'Heating') %}
         {{ ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.template_altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) ) / (states('sensor.altherma_inv_secundary_current') | float / 3 * states('sensor.altherma_voltage_n_phase') | float / 1000)) |round(2) }}
         {% else %} 0 {%endif%}
 

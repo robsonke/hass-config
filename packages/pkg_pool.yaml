@@ -12,18 +12,15 @@ template:
     - unique_id: pool_pump_active
       attributes:
         friendly_name: Pool Pump Active
-      # disabled for now, scraper not reliable, replace with flow sensor in future
-      # state: >
-      #   {{ states.sensor.shelly_em3_zwembad_channel_b_power.state | float > 20 and states.sensor.pool_flow_value.state }}
       state: >
-        {{ states.sensor.shelly_em3_zwembad_channel_b_power.state | float > 20 }}
+        {{ states('sensor.shelly_em3_zwembad_channel_b_power') | float > 20 }}
 
   - sensor:
     - name: "Pool Pump Frequency Level"
       icon: mdi:fan-chevron-down
       unique_id: pool_pump_frequency_level
       state: >
-        {% set pumpPower = states.sensor.shelly_em3_zwembad_channel_b_power.state | float %}
+        {% set pumpPower = states('sensor.shelly_em3_zwembad_channel_b_power') | float %}
         {% if pumpPower > 800 %}
           FULL (3)
         {% elif pumpPower > 680 and pumpPower < 775 %}
@@ -33,7 +30,7 @@ template:
         {% else %}
           OFF
         {% endif %}
-  
+
   - sensor:
     - name: "Pool Deck Status"
       icon: mdi:fit-to-screen
@@ -60,7 +57,7 @@ lock:
       service: switch.turn_off
       target:
         entity_id: switch.pool_deck_lock
-  
+
 # pool eps one touch scrapers
 command_line:
   - sensor:
@@ -77,18 +74,18 @@ command_line:
       scan_interval: 120
       command_timeout: 60
       unique_id: pool_redox_value
-  - sensor:
-      name: Pool Flow Value
-      command: !secret pool_scrape_flow
-      scan_interval: 120
-      command_timeout: 60
-      unique_id: pool_flow_value
-      value_template: >
-        {% if value == "Flow Ok" %}
-          {{ true }}
-        {% else %}
-          {{ false }}
-        {% endif %}
+  # - sensor:
+  #     name: Pool Flow Value
+  #     command: !secret pool_scrape_flow
+  #     scan_interval: 120
+  #     command_timeout: 60
+  #     unique_id: pool_flow_value
+  #     value_template: >
+  #       {% if value == "Flow Ok" %}
+  #         {{ true }}
+  #       {% else %}
+  #         {{ false }}
+  #       {% endif %}
   - sensor:
       command: !secret pool_scrape_target_ph
       name: Pool Ph Target Value

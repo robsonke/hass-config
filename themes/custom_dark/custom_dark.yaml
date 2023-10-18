@@ -78,7 +78,8 @@ custom-dark:
       # custom variables
       ha-card-background-color: rgba(34,38,39,0.9)
       ha-card-header-background-color: rgba(48,52,52,0.8)
-      sidebar-font-color: rgba(255, 255, 255, 0.3)
+      sidebar-font-color: var(--primary-text-color)
+      sidebar-border-color: rgba(255, 255, 255, 0.3)
 
       custom-button-card-color-on: rgba(0, 0, 0, 0.6)
       custom-button-card-color-off: rgba(255, 255, 255, 0.3)
@@ -309,12 +310,22 @@ custom-dark:
       :host {
         --ha-card-border-width: 0;
       }
-    ha-dialog>div.heading>ha-dialog-header {
-      font-family: var(--primary-font-family);
-      background-color: var(--tablet-popup-header-color);
-      border-bottom: var(--tablet-popup-border-style);
-    }
-    /* workaround for https://github.com/thomasloven/hass-browser_mod/issues/615 */
-    ha-dialog > div {
-      outline: none !important;
-    }
+      ha-dialog {
+        --vertical-align-dialog: var(--tablet-popup-align-dialog) !important;
+        --dialog-surface-margin-top: var(--tablet-popup-margin-top) !important;
+      }
+      ha-dialog > div:focus {
+        outline: none;
+      }
+      ha-dialog > div.content > div.container {
+        padding: 0 !important;
+      }
+      ha-dialog-header {
+        font-family: var(--primary-font-family);
+        background-color: var(--tablet-popup-header-color);
+        border-bottom: var(--tablet-popup-border-style);
+      }
+    ha-dialog$: |
+      div.mdc-dialog__surface {
+        background-color: var(--popup-background-color) !important;
+      }

@@ -568,7 +568,7 @@ views:
             triggers_update:
               - sensor.daily_consumption_energy
               - sensor.energy_price_level
-              - sensor.solaredge_modbus
+              - sensor.solaredgemb_dc_power
               - sensor.electricity_cost_today
             name: Energie verbruik
             template:

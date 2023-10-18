@@ -12,21 +12,21 @@
 input_number:
   grill_alert_low:
       name: Grill Low Temperature
-      initial: 100
+      #initial: 100
       min: 80
       max: 350
       step: 5
 
   grill_alert_high:
       name: Grill High Temperature
-      initial: 250
+      #initial: 250
       min: 80
       max: 350
       step: 5
 
   grill_probe_2_target:
       name: Probe 2 Target Temperature
-      initial: 80
+      #initial: 80
       min: 50
       max: 250
       step: 2
@@ -44,6 +44,7 @@ input_boolean:
   enable_bbq_automations:
     name: Enable BBQ Automations
     icon: mdi:grill-outline
+    initial: true
 
 sensor:
   - platform: template
@@ -51,7 +52,7 @@ sensor:
       target_alert_temp_probe_1:
         friendly_name: "Grill Temp Alert"
         value_template: >-
-          {% if (states.sensor.inkbird_ibt_2x_temperature_probe_1.state | int) < (states.input_number.grill_alert_low.state | int) or (states.sensor.inkbird_ibt_2x_temperature_probe_1.state | int)  > (states.input_number.grill_alert_high.state | int) %}
+          {% if (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int) < (states('input_number.grill_alert_low') | int) or (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int)  > (states('input_number.grill_alert_high') | int) %}
             Alert
           {% else %}
             Normal
@@ -59,7 +60,7 @@ sensor:
       target_alert_temp_probe_2:
         friendly_name: "Probe 2 Target Alert"
         value_template: >-
-          {% if (states.sensor.inkbird_ibt_2x_temperature_probe_2.state | int) >= (states.input_number.grill_probe_2_target.state | int) %}
+          {% if (states('sensor.inkbird_ibt_2x_temperature_probe_2') | int) >= (states('input_number.grill_probe_2_target') | int) %}
             Alert
           {% else %}
             Normal

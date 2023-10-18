@@ -9,9 +9,6 @@
 #
 
 counter:
-  error_counter:
-    name: Errors
-    icon: mdi:alert
   watermeter_consumption_counter:
     name: Watermeter Consumption Counter
     icon: mdi:water-pump

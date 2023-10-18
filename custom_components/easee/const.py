@@ -1,4 +1,6 @@
 """Easee Charger constants."""
+from pyeasee import ChargerStreamData, EqualizerStreamData
+
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (
@@ -10,11 +12,10 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.helpers.entity import EntityCategory
-from pyeasee import ChargerStreamData, EqualizerStreamData
 
 DOMAIN = "easee"
 TIMEOUT = 30
-VERSION = "0.9.54"
+VERSION = "0.9.55"
 MIN_HA_VERSION = "2023.4.0"
 CONF_MONITORED_SITES = "monitored_sites"
 MANUFACTURER = "Easee"
@@ -22,6 +23,7 @@ MODEL_EQUALIZER = "Equalizer"
 MODEL_CHARGING_ROBOT = "Charging Robot"
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.SWITCH]
 LISTENER_FN_CLOSE = "update_listener_close_fn"
+EASEE_PRODUCT_CODES = {1: "Easee Home", 100: "Easee Charge", 2: "Charge Lite"}
 
 chargerObservations = {
     ChargerStreamData.config_phaseMode.value,

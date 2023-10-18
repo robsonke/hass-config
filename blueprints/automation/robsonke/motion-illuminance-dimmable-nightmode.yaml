@@ -91,6 +91,18 @@ blueprint:
       default: 08:00:00
       selector:
         time: {}
+    sleep_time_start_helper:
+      name: Sleep time helper (Start)
+      description: From when do we want to keep the lights off and let the kids sleep?
+      default: '23:30:00'
+      selector:
+        time: {}
+    sleep_time_end_helper:
+      name: Sleep time helper (End)
+      description: Till when do we want to keep the lights off and let the kids sleep?
+      default: 06:00:00
+      selector:
+        time: {}
     day_brightness:
       name: Day brightness
       description: Brightness, in daytime mode
@@ -117,6 +129,8 @@ max_exceeded: silent
 variables:
   local_night_end: !input night_time_end_helper
   local_night_start: !input night_time_start_helper
+  local_sleep_start: !input sleep_time_start_helper
+  local_sleep_end: !input sleep_time_end_helper
   local_motion_delay_day: !input no_motion_wait_day
   local_motion_delay_night: !input no_motion_wait_night
   local_motion_dim_time: !input dim_time
@@ -132,9 +146,12 @@ trigger:
   from: 'off'
   to: 'on'
 condition:
-  condition: numeric_state
-  entity_id: !input lux_entity
-  below: !input lux_level
+  - condition: numeric_state
+    entity_id: !input lux_entity
+    below: !input lux_level
+  - condition: template
+    value_template: >
+      {{ today_at(local_sleep_end) < now() and now() < today_at(local_sleep_start) }}
 action:
 - service: light.turn_on
   target: !input light_target

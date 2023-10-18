@@ -25,20 +25,22 @@ browser_mod:
           view_layout:
             grid-area: details
           cards:
-            - type: 'custom:simple-thermostat'
+            - type: custom:more-info-card
               entity: climate.warmtepomp
-              version: 3
-              layout:
-                step: row
-              header: false
-              sensors: false
-              style: |
-                div.mode-title {
-                  display: none;
-                }
-                .modes.heading {
-                  grid-template-columns: auto !important;
-                }
+            # - type: 'custom:simple-thermostat'
+            #   entity: climate.warmtepomp
+            #   version: 3
+            #   layout:
+            #     step: row
+            #   header: false
+            #   sensors: false
+            #   style: |
+            #     div.mode-title {
+            #       display: none;
+            #     }
+            #     .modes.heading {
+            #       grid-template-columns: auto !important;
+            #     }
             - type: entities
               entities:
                 - entity: switch.climate_control
@@ -62,7 +64,7 @@ browser_mod:
                 - entity: sensor.altherma_cop2
                   name: Altherma COP - experimental
 
-            
+
         - type: vertical-stack
           view_layout:
             grid-area: details2
@@ -92,7 +94,7 @@ browser_mod:
                     duration: 1h
                 - entity: sensor.climate_sensor_office_temperature
                   name: Kantoor
-                  color: '#e74c3c' 
+                  color: '#e74c3c'
                   type: area
                   fill_raw: last
                   group_by:

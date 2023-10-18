@@ -6,7 +6,6 @@ browser_mod:
     timeout: 60000
     content:
       type: vertical-stack
-      title: Afval
       cards:
         - type: custom:atomic-calendar-revive
           enableModeChange: true

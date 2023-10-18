@@ -17,9 +17,9 @@ selector = ""
 if value == "ph":
   selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(1) > div > div.card-body > div > div.col > a > div"
 elif value == "redox":
-  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(2) > div > div.card-body > div > div.col > a > div"
-elif value == "flow":
-  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(4) > div > div.card-body > div > div.col > a > div"
+  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(2) > div > div.card-body > div > div.col > a"
+#elif value == "flow":
+#  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(4) > div > div.card-body > div > div.col > a > div"
 elif value == "ph-target":
   selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(1) > div > div.card-body > p"
 elif value == "redox-target":
@@ -29,7 +29,7 @@ elif value == "redox-target":
 with requests.session() as s:
   req = s.get(login_url).text
   #html = BeautifulSoup(req, "html.parser")
-  
+
   s.get(login_url)
   token = s.cookies['csrftoken']
 

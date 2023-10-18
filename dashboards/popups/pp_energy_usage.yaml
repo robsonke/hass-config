@@ -41,7 +41,7 @@ browser_mod:
                 - type: gauge
                   name: Energie productie
                   unit: kW
-                  entity: sensor.solaredge_modbus
+                  entity: sensor.solaredgemb_dc_power
                   min: 0
                   needle: true
                   severity:

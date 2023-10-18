@@ -18,11 +18,21 @@ influxdb:
   default_measurement: state
   precision: s
 
+
+# TODO remove:
+# - automation.system_count_error_in_system_log
+# - counter.error_counter
+
 logbook:
   exclude:
     domains:
       - script
       - sun
+    entity_globs:
+      - sensor.browser_*
+    entities:
+      - automation.system_count_error_in_system_log
+      - counter.error_counter
 
 recorder:
   db_url: !secret mysql_db_url
@@ -33,3 +43,20 @@ recorder:
       - sun
     entity_globs:
       - sensor.browser_*
+    entities:
+      - automation.system_count_error_in_system_log
+      - counter.error_counter
+    event_types:
+      - call_service
+
+# Find the 10 biggest entities:
+# SELECT states_meta.entity_id as Entity, count(states.metadata_id) as Count FROM states
+# INNER JOIN states_meta ON states.metadata_id = states_meta.metadata_id
+# GROUP BY states.metadata_id ORDER BY count(states.metadata_id) DESC LIMIT 10;
+
+# Select  Count(statistics.id) As cnt, statistics_meta.statistic_id
+# From  statistics Inner Join  statistics_meta On statistics.metadata_id = statistics_meta.id
+# Group By  statistics_meta.statistic_id
+# Order By cnt Desc Limit 20;
+
+# Select Count(*) As cnt, entity_id  From states Group By entity_id Order by cnt Desc Limit 20;

@@ -27,25 +27,25 @@ browser_mod:
           entities:
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.kitchen_light
                 - title: Keuken
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.kitchencabin_light
                 - title: Keukenkast
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.kitchendesk_light
                 - title: Kookeiland
-            
+
             - type: divider
 
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - title: Achter
                 - entity: light.livingback_light
             - type: custom:decluttering-card
@@ -55,14 +55,14 @@ browser_mod:
                 - entity: light.livingfront_light
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - title: Bank
-                - entity: light.zwave_light_couch_level
+                - entity: light.socket2_light_couch
             - type: custom:decluttering-card
               template: light_button
               variables:
                 - title: Hoeklamp
-                - entity: light.zwave_light_corner_level
+                - entity: light.socket1_light_corner
             - type: custom:decluttering-card
               template: light_button
               variables:
@@ -76,17 +76,17 @@ browser_mod:
           entities:
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.dining_light
                 - title: Eetkamer
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.diningtable_light
                 - title: Eettafel
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.boekenkast
                 - title: Boekenkast
 
@@ -94,12 +94,12 @@ browser_mod:
 
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.office_lights
                 - title: Kantoor
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.ledstrip_office
                 - title: Led Bureau
 
@@ -107,11 +107,11 @@ browser_mod:
 
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - entity: light.dimmer_hall
                 - title: Hal
             - type: custom:decluttering-card
               template: light_button
-              variables: 
+              variables:
                 - title: Toilet
                 - entity: light.toilet_downstairs

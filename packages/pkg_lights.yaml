@@ -42,8 +42,8 @@ light:
     entities:
       - light.livingback_light
       - light.livingfront_light
-      - light.zwave_light_couch_level
-      - light.zwave_light_corner_level
+      - light.socket2_light_couch
+      - light.socket1_light_corner
       - light.ledstrip_tv
       - light.toilet_downstairs
       - light.dining_light

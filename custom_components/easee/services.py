@@ -1,13 +1,14 @@
-""" easee services."""
+"""easee services."""
+from datetime import timedelta
 import logging
+
+from pyeasee.exceptions import BadRequestException, ForbiddenServiceException
+import voluptuous as vol
 
 from homeassistant.const import CONF_DEVICE_ID
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers import device_registry as dr
-from homeassistant.util import dt
-from pyeasee.exceptions import BadRequestException, ForbiddenServiceException
-import voluptuous as vol
+from homeassistant.helpers import config_validation as cv, device_registry as dr
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
 
@@ -21,6 +22,9 @@ CIRCUIT_ID = "circuit_id"
 ATTR_CHARGEPLAN_START_DATETIME = "start_datetime"
 ATTR_CHARGEPLAN_STOP_DATETIME = "stop_datetime"
 ATTR_CHARGEPLAN_REPEAT = "repeat"
+ATTR_CHARGEPLAN_DAY = "day"
+ATTR_CHARGEPLAN_START_TIME = "start_time"
+ATTR_CHARGEPLAN_STOP_TIME = "stop_time"
 ATTR_SET_CURRENT = "current"
 ATTR_SET_CURRENTP1 = "currentP1"
 ATTR_SET_CURRENTP2 = "currentP2"
@@ -41,6 +45,7 @@ ACTION_REBOOT = "reboot"
 ACTION_UPDATE_FIRMWARE = "update_firmware"
 ACTION_OVERRIDE_SCHEDULE = "override_schedule"
 ACTION_DELETE_BASIC_CHARGE_PLAN = "delete_basic_charge_plan"
+ACTION_DELETE_WEEKLY_CHARGE_PLAN = "delete_weekly_charge_plan"
 ACTIONS = {
     ACTION_START,
     ACTION_STOP,
@@ -51,6 +56,7 @@ ACTIONS = {
     ACTION_UPDATE_FIRMWARE,
     ACTION_OVERRIDE_SCHEDULE,
     ACTION_DELETE_BASIC_CHARGE_PLAN,
+    ACTION_DELETE_WEEKLY_CHARGE_PLAN,
 }
 
 MIN_CURRENT = 0
@@ -64,7 +70,7 @@ def has_at_least_one(keys):
     """Ensure that at least one key is present."""
 
     def fkey(obj):
-        for k in obj.keys():
+        for k in obj:
             if k in keys:
                 return obj
         raise vol.Invalid(f"Must contain one of {keys}")
@@ -118,6 +124,17 @@ ext_basic_chargeplan = {
 SERVICE_CHARGER_SET_BASIC_CHARGEPLAN_SCHEMA = vol.All(
     target_schema2,
     exclusive_schema2.extend(ext_basic_chargeplan),
+)
+
+ext_weekly_chargeplan = {
+    vol.Required(ATTR_CHARGEPLAN_DAY, default=0): cv.positive_int,
+    vol.Optional(ATTR_CHARGEPLAN_START_TIME): cv.time,
+    vol.Optional(ATTR_CHARGEPLAN_STOP_TIME): cv.time,
+}
+
+SERVICE_CHARGER_SET_WEEKLY_CHARGEPLAN_SCHEMA = vol.All(
+    target_schema2,
+    exclusive_schema2.extend(ext_weekly_chargeplan),
 )
 
 ext_circuit_current = {
@@ -186,6 +203,11 @@ SERVICE_MAP = {
         "function_call": "set_basic_charge_plan",
         "schema": SERVICE_CHARGER_SET_BASIC_CHARGEPLAN_SCHEMA,
     },
+    "set_weekly_charge_plan": {
+        "handler": "charger_set_weekly_schedule",
+        "function_call": "set_weekly_charge_plan",
+        "schema": SERVICE_CHARGER_SET_WEEKLY_CHARGEPLAN_SCHEMA,
+    },
     "set_circuit_dynamic_limit": {
         "handler": "circuit_execute_set_current",
         "function_call": "set_dynamic_current",
@@ -249,8 +271,8 @@ SERVICE_MAP = {
 }
 
 
-async def async_setup_services(hass):
-    """Setup services for Easee."""
+async def async_setup_services(hass):  # noqa: C901
+    """Set up services for Easee."""
     controller = hass.data[DOMAIN]["controller"]
     chargers = controller.get_chargers()
 
@@ -266,7 +288,7 @@ async def async_setup_services(hass):
         return charger_id
 
     async def async_get_charger(call):
-        if CONF_DEVICE_ID in call.data.keys():
+        if CONF_DEVICE_ID in call.data:
             charger_id = await async_convert_device_id_to_charger_id(call)
         else:
             charger_id = call.data[CHARGER_ID]
@@ -274,7 +296,7 @@ async def async_setup_services(hass):
         return charger
 
     async def async_get_circuit_id(call):
-        if CIRCUIT_ID in call.data.keys():
+        if CIRCUIT_ID in call.data:
             return int(call.data[CIRCUIT_ID])
         charger = await async_get_charger(call)
         return charger.circuit.id
@@ -377,13 +399,80 @@ async def async_setup_services(hass):
         if charger:
             function_name = SERVICE_MAP[call.service]
             function_call = getattr(charger, function_name["function_call"])
-            stop_d = None if stop_datetime is None else dt.as_utc(stop_datetime)
+            stop_d = None if stop_datetime is None else dt_util.as_utc(stop_datetime)
             try:
                 return await function_call(
                     schedule_id,
-                    dt.as_utc(start_datetime),
+                    dt_util.as_utc(start_datetime),
                     stop_d,
                     repeat,
+                )
+            except BadRequestException as ex:
+                _LOGGER.error(
+                    "Bad request: [%s] - Invalid parameters or command not allowed now: %s",
+                    str(call.service),
+                    ex,
+                )
+                return
+            except ForbiddenServiceException as ex:
+                _LOGGER.error(
+                    "Forbidden : [%s] - Check your access privileges: %s",
+                    str(call.service),
+                    ex,
+                )
+                return
+            except Exception as ex:  # pylint: disable=broad-except
+                _LOGGER.error(
+                    "Failed to execute service: %s : %s with data %s",
+                    str(call.service),
+                    ex,
+                    str(call.data),
+                )
+                return
+
+        raise HomeAssistantError("Could not find charger.")
+
+    async def charger_set_weekly_schedule(call):
+        """Execute a set schedule call to Easee charging station."""
+        charger = await async_get_charger(call)
+        start_time = call.data.get(ATTR_CHARGEPLAN_START_TIME)
+        stop_time = call.data.get(ATTR_CHARGEPLAN_STOP_TIME)
+        day = call.data.get(ATTR_CHARGEPLAN_DAY)
+
+        _LOGGER.debug("execute_service: %s %s", str(call.service), str(call.data))
+
+        if charger:
+            function_name = SERVICE_MAP[call.service]
+            function_call = getattr(charger, function_name["function_call"])
+            now_dt = dt_util.now()
+            now_wd = now_dt.weekday()
+            now_td = timedelta(days=(now_wd - day))
+            now_dt = now_dt - now_td
+            start_dt = dt_util.as_utc(
+                now_dt.replace(
+                    hour=start_time.hour,
+                    minute=start_time.minute,
+                    second=0,
+                    microsecond=0,
+                )
+            )
+            stop_dt = dt_util.as_utc(
+                now_dt.replace(
+                    hour=stop_time.hour,
+                    minute=stop_time.minute,
+                    second=0,
+                    microsecond=0,
+                )
+            )
+            start_t = start_dt.strftime("%H:%M")
+            stop_t = stop_dt.strftime("%H:%M")
+            day = start_dt.weekday()
+
+            try:
+                return await function_call(
+                    day,
+                    start_t,
+                    stop_t,
                 )
             except BadRequestException as ex:
                 _LOGGER.error(
@@ -609,7 +698,7 @@ async def async_setup_services(hass):
         raise HomeAssistantError("Could not find charger")
 
     async def charger_execute_set_access(call):
-        """Execute a service to set access level on a charger"""
+        """Execute a service to set access level on a charger."""
         access_level = call.data.get(ACCESS_LEVEL)
         charger = await async_get_charger(call)
 

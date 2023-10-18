@@ -1,25 +1,37 @@
 - id: '1614892184464'
   name: Sleep well
   entities:
-    light.zwave_light_corner_level:
+    light.socket1_light_corner:
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
       supported_color_modes:
       - brightness
-      icon: mdi:floor-lamp
-      friendly_name: Hoeklamp
-      supported_features: 32
-      assumed_state: false
       color_mode: brightness
       brightness: 77
+      friendly_name: socket1_light_corner
+      supported_features: 44
+      assumed_state: false
       state: 'on'
-    light.zwave_light_couch_level:
+    light.socket2_light_couch:
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
       supported_color_modes:
       - brightness
-      icon: mdi:floor-lamp
-      friendly_name: Lamp bank
-      supported_features: 32
-      assumed_state: false
       color_mode: brightness
       brightness: 77
+      friendly_name: socket2_light_couch
+      supported_features: 44
+      assumed_state: false
       state: 'on'
     light.dining_light:
       effect_list:
@@ -31,11 +43,11 @@
       - stop_effect
       supported_color_modes:
       - brightness
-      friendly_name: Eetkamer verlichting
-      supported_features: 45
-      assumed_state: false
       color_mode: brightness
       brightness: 102
+      friendly_name: Eetkamer verlichting
+      supported_features: 44
+      assumed_state: false
       state: 'on'
     light.office_lights:
       effect_list:
@@ -48,10 +60,14 @@
       supported_color_modes:
       - brightness
       friendly_name: Kantoor verlichting
-      supported_features: 45
+      supported_features: 44
       assumed_state: false
-      state: 'off'
+      color_mode: brightness
+      brightness: 76
+      state: 'on'
     light.ledstrip_office:
+      min_color_temp_kelvin: 1501
+      max_color_temp_kelvin: 8000
       min_mireds: 125
       max_mireds: 666
       effect_list:
@@ -64,11 +80,8 @@
       supported_color_modes:
       - color_temp
       - xy
-      friendly_name: Ledstrip kantoor
-      supported_features: 63
-      assumed_state: false
       color_mode: xy
-      brightness: 152
+      brightness: 151
       hs_color:
       - 338.27
       - 72.549
@@ -79,6 +92,9 @@
       xy_color:
       - 0.553
       - 0.258
+      friendly_name: Ledstrip kantoor
+      supported_features: 44
+      assumed_state: false
       state: 'on'
     light.keuken:
       effect_list:
@@ -90,16 +106,15 @@
       - stop_effect
       supported_color_modes:
       - brightness
+      color_mode: brightness
+      brightness: 115
       entity_id:
       - light.kitchen_light
-      - light.kitchendesk_light
       - light.kitchencabin_light
       icon: mdi:lightbulb-group
       friendly_name: Keuken
       supported_features: 44
       assumed_state: false
-      color_mode: brightness
-      brightness: 115
       state: 'on'
     light.woonkamer:
       effect_list:
@@ -111,6 +126,8 @@
       - stop_effect
       supported_color_modes:
       - brightness
+      color_mode: brightness
+      brightness: 89
       entity_id:
       - light.livingback_light
       - light.livingfront_light
@@ -118,32 +135,25 @@
       friendly_name: Woonkamer
       supported_features: 44
       assumed_state: false
-      color_mode: brightness
-      brightness: 89
       state: 'on'
     light.boekenkast:
+      min_color_temp_kelvin: 1501
+      max_color_temp_kelvin: 8000
       min_mireds: 125
       max_mireds: 666
       effect_list:
       - blink
       - breathe
+      - okay
       - channel_change
       - finish_effect
-      - okay
       - stop_effect
       supported_color_modes:
       - color_temp
       - xy
-      entity_id:
-      - light.ledstrip_book1
-      - light.ledstrip_book2
-      - light.ledstrip_book3
-      icon: mdi:led-strip-variant
-      friendly_name: Boekenkast
-      supported_features: 44
-      assumed_state: false
       color_mode: color_temp
       brightness: 1
+      color_temp_kelvin: 2702
       color_temp: 370
       hs_color:
       - 28.391
@@ -155,8 +165,14 @@
       xy_color:
       - 0.526
       - 0.387
+      icon: mdi:led-strip-variant
+      friendly_name: Boekenkast
+      supported_features: 44
+      assumed_state: false
       state: 'on'
     light.ledstrip_tv:
+      min_color_temp_kelvin: 1501
+      max_color_temp_kelvin: 8000
       min_mireds: 125
       max_mireds: 666
       effect_list:
@@ -169,11 +185,8 @@
       supported_color_modes:
       - color_temp
       - xy
-      friendly_name: Ledstrip TV
-      supported_features: 63
-      assumed_state: false
       color_mode: xy
-      brightness: 149
+      brightness: 148
       hs_color:
       - 43.226
       - 36.471
@@ -184,6 +197,9 @@
       xy_color:
       - 0.405
       - 0.396
+      friendly_name: Ledstrip TV
+      supported_features: 44
+      assumed_state: false
       state: 'on'
   icon: mdi:bed
   metadata: {}

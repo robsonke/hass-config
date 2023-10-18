@@ -225,6 +225,10 @@ devices:
     optimistic: true
     retain: true
     occupancy_timeout: 30
+  '0x00158d00075be992':
+    friendly_name: socket2_light_couch
+  '0x00158d00075b481d':
+    friendly_name: socket1_light_corner
 availability:
   active:
     timeout: 10

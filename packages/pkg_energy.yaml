@@ -17,12 +17,12 @@ homeassistant:
     sensor.shelly_plug_badkamer_verwarming_energy_usage:
       last_reset: '1970-01-01T00:00:00+00:00'
 
-solaredge_modbus:
-  name: 'SolarEdge Modbus'
-  host: 192.168.0.175
-  port: 502
-  scan_interval: 5
-  read_meter1: false
+# solaredge_modbus:
+#   name: 'SolarEdge Modbus'
+#   host: 192.168.0.175
+#   port: 502
+#   scan_interval: 30
+#   read_meter1: false
 
 sensor:
   - platform: rest
@@ -247,12 +247,12 @@ powercalc:
                 # 4 * 5.5W
                 min_power: 0.5
                 max_power: 22
-            - entity_id: light.zwave_light_corner_level
+            - entity_id: light.socket1_light_corner
               linear:
                 # 3 * 3.8W
                 min_power: 0.5
                 max_power: 11.4
-            - entity_id: light.zwave_light_couch_level
+            - entity_id: light.socket2_light_couch
               linear:
                 # 3 * 5W
                 min_power: 0.5
@@ -387,7 +387,7 @@ template:
       unit_of_measurement: kW
       device_class: power
       state_class: measurement
-      state: "{{ states('sensor.solaredge_modbus')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
+      state: "{{ states('sensor.solaredgemb_dc_power')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
     # same sensor but with other unit of measurement
     - unique_id: power_consumption_watt
       attributes:
@@ -419,7 +419,7 @@ template:
       unique_id: electricity_cost_today
       unit_of_measurement: "EUR"
       state: >
-        {{ states.sensor.accumulated_cost_langeweide.state | float - states.sensor.accumulated_reward_langeweide.state | float }}
+        {{ states('sensor.accumulated_cost_langeweide') | float - states('sensor.accumulated_reward_langeweide') | float }}
 
     - name: "Energy Price Level"
       unique_id: energy_price_level
@@ -453,7 +453,7 @@ template:
         {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
         {%- set cheap_hours = namespace(number=8) %}
         {% for i in range(0, 23) %}
-          {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
         {%- endfor -%}
         {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
         {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
@@ -473,7 +473,7 @@ template:
         {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
         {%- set cheap_hours = namespace(number=12) %}
         {% for i in range(0, 23) %}
-          {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
         {%- endfor -%}
         {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
         {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
@@ -493,7 +493,7 @@ template:
         {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
         {%- set cheap_hours = namespace(number=16) %}
         {% for i in range(0, 23) %}
-          {% set ns.hour_price = ns.hour_price + [(i, states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today[i].value)] %}
+          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
         {%- endfor -%}
         {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
         {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
@@ -511,15 +511,15 @@ template:
       attributes:
         friendly_name: Average price today
       state: >-
-        {{ (((states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | sum(attribute='value') / states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_today | count) + 0.12599) * 1.21) | round(2, 'floor') }}
+        {{ (((state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | sum(attribute='value') / state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | count) + 0.12599) * 1.21) | round(2, 'floor') }}
     - name: Average price tomorrow
       unique_id: average_price_tomorrow
       icon: mdi:lightning-bolt
       attributes:
         friendly_name: Average price tomorrow
       state: >-
-        {% set sumTomorrow = states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | sum(attribute='value') | float(default=0) %}
-        {% set countTomorrow = states.sensor.nordpool_kwh_nl_eur_3_10_021.attributes.raw_tomorrow | count %}
+        {% set sumTomorrow = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_tomorrow') | sum(attribute='value') | float(default=0) %}
+        {% set countTomorrow = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_tomorrow') | count %}
         {% if countTomorrow == 0 %}
           {{ "-" }}
         {% else %}

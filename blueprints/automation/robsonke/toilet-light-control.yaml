@@ -147,6 +147,8 @@ action:
               entity_id: !input door_entity
               from: "on"
               to: "off"
+          timeout:
+            minutes: '{{ local_no_motion_wait }}'
           continue_on_timeout: true
         - service: light.turn_off
           target:

@@ -10,7 +10,7 @@ pool:
   variables:
     consider_on: >
       [[[
-        return entity.state === 'Open';
+        return entity.state === 'Open' && states['sensor.pool_pump_frequency_level'].state !== 'OFF';
       ]]]
     circle_input: >
       [[[
@@ -18,6 +18,7 @@ pool:
       ]]]
     circle_text: >
       [[[
+        if (states['sensor.heatpump_pool_water_temperature'].state === 'unavailable') return '-';
         return states['sensor.heatpump_pool_water_temperature'].state;
       ]]]
     unit: "°C"

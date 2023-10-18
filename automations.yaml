@@ -6,7 +6,7 @@
     input:
       time: '10:00:00'
       actions:
-      - service: notify.mobile_app_iphone_rob
+      - service: notify.mobile_app_iphone_rob2
         data:
           message: "\U0001F50B Low battery warning for {{sensors|replace(\"_\",\"
             \")}}"
@@ -280,7 +280,7 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: light.zwave_light_couch_level
+      entity_id: light.socket2_light_couch
       state: 'off'
     - condition: time
       after: '14:00'
@@ -404,34 +404,73 @@
     from: 'off'
     to: 'on'
   action:
-  - service: script.googlehome_play_sound
-    data:
-      volume: 0.7
-      volume_restore: 0.4
-      googlehome_entity: media_player.office_googlehome
-      delay: '3'
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-  - service: script.googlehome_play_sound
-    data:
-      volume: 0.7
-      volume_restore: 0.2
-      googlehome_entity: media_player.bedroom_googlehome
-      delay: '3'
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-  - service: script.googlehome_play_sound
-    data:
-      volume: 0.7
-      volume_restore: 0.4
-      googlehome_entity: media_player.living_googlehome
-      delay: '3'
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-  - service: notify.all_phones
-    data:
-      message: "\U0001F514 Ding Dong!"
+  - parallel:
+    - service: script.googlehome_play_sound
       data:
-        persistent: true
-        tag: persistent
-        image: http://admin:qg4Y7DhhCTNJnCtuAZp_zJM@192.168.0.246/cgi-bin/snapshot.cgi
+        volume: 0.7
+        volume_restore: 0.4
+        googlehome_entity: media_player.office_googlehome
+        delay: '3'
+        mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+    - service: script.googlehome_play_sound
+      data:
+        volume: 0.7
+        volume_restore: 0.2
+        googlehome_entity: media_player.bedroom_googlehome
+        delay: '3'
+        mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+    - service: script.googlehome_play_sound
+      data:
+        volume: 0.7
+        volume_restore: 0.4
+        googlehome_entity: media_player.living_googlehome
+        delay: '3'
+        mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+    - service: notify.all_phones
+      data:
+        message: "\U0001F514 Ding Dong!"
+        data:
+          persistent: true
+          tag: persistent
+          image: http://admin:qg4Y7DhhCTNJnCtuAZp_zJM@192.168.0.246/cgi-bin/snapshot.cgi
+    - service: browser_mod.popup
+      data:
+        title: Voordeur Camera
+        timeout: 30000
+        size: wide
+        content:
+          type: custom:frigate-card
+          dimensions:
+            aspect_ratio_mode: unconstrained
+          entities:
+          - entity: binary_sensor.doorbell_lw_doorbell
+          - entity: binary_sensor.doorbell_lw_motion
+          menu:
+            buttons:
+              frigate:
+                enabled: false
+              image:
+                enabled: false
+              camera_ui:
+                enabled: false
+            style: overlay
+            position: top
+          view:
+            default: live
+          live:
+            controls:
+              thumbnails:
+                mode: below
+                media: snapshots
+          cameras:
+          - camera_entity: camera.doorbell
+            live_provider: ha
+            frigate:
+              camera_name: Voordeur
+          media_viewer:
+            controls:
+              next_previous:
+                style: chevrons
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -612,10 +651,28 @@
     - condition: time
       before: 05:00
   action:
-  - service: script.sleep_well
-  - service: alarm_control_panel.alarm_arm_night
-    target:
-      entity_id: alarm_control_panel.alarmo
+  - parallel:
+    - service: script.sleep_well
+      data: {}
+    - service: alarm_control_panel.alarm_arm_night
+      target:
+        entity_id: alarm_control_panel.alarmo
+      data: {}
+    - sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: 30
+        target:
+          entity_id: light.dimmer_hall
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 15
+          milliseconds: 0
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.dimmer_hall
   mode: single
 - id: lights_turn_off_bedtime_auto
   alias: Lights - Turn off lights automatically - bedtime
@@ -627,7 +684,7 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: light.zwave_light_couch_level
+      entity_id: light.socket2_light_couch
       state: 'on'
     - condition: time
       after: '23:03'
@@ -996,47 +1053,6 @@
         entity_id: media_player.office_googlehome
         data_template:
           message: De vaatwasser is klaar
-- id: '1620153875064'
-  alias: Alarm - Reset night mode when home
-  description: In the early morning disable the night mode again - disabled, the door
-    should do this
-  trigger:
-  - platform: time
-    at: '10:00'
-  - platform: state
-    entity_id: binary_sensor.hallwaydoor_openclose_sensor
-    from: 'off'
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 10
-      milliseconds: 0
-  condition:
-  - condition: and
-    conditions:
-    - condition: or
-      conditions:
-      - condition: time
-        after: 07:00
-      - condition: state
-        entity_id: binary_sensor.hallwaydoor_openclose_sensor
-        state: 'on'
-    - condition: device
-      device_id: 29fa064f108236608f9f0d8f063dbc17
-      domain: alarm_control_panel
-      entity_id: alarm_control_panel.alarmo
-      type: is_armed_night
-  action:
-  - service: alarm_control_panel.alarm_disarm
-    data:
-      code: automation
-    target:
-      entity_id: alarm_control_panel.alarmo
-  - service: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.night_mode
-  mode: single
 - id: '1620203713941'
   alias: Locks - Auto lock the doors
   description: We didn't enable the Guest mode and we both left, lock the doors if
@@ -1382,7 +1398,7 @@
     entity_id: device_tracker.steffi_presence
     state: home
   - condition: state
-    entity_id: light.zwave_light_couch_level
+    entity_id: light.socket2_light_couch
     state: 'off'
   - condition: state
     entity_id: binary_sensor.hallwaydoor_openclose_sensor
@@ -1392,26 +1408,6 @@
   - service: alarm_control_panel.alarm_arm_night
     target:
       entity_id: alarm_control_panel.alarmo
-  mode: single
-- id: '1624807756444'
-  alias: Car - Alert when fully charged
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.ix3_remaining_battery_percent
-    to: '100'
-    for: 00:00:30
-  condition:
-  - condition: state
-    entity_id: binary_sensor.ix3_connection_status
-    state: 'on'
-  action:
-  - service: notify.all_phones
-    data:
-      message: "\U0001F697 De auto is weer volledig opgeladen"
-      data:
-        persistent: true
-        tag: persistent
   mode: single
 - id: '1625051357630'
   alias: Presence - Disable detection because we are both home
@@ -1441,27 +1437,6 @@
       - switch.evabed_detect
       - switch.noabed_detect
       - switch.zwembad_detect
-  mode: single
-- id: '1625685392220'
-  alias: Car - Alert when full and still plugged in
-  description: Time to remove the cable
-  trigger:
-  - platform: state
-    entity_id: sensor.ix3_remaining_battery_percent
-    to: '100'
-    for: 01:00:00
-  condition:
-  - condition: state
-    entity_id: binary_sensor.ix3_connection_status
-    state: 'on'
-  action:
-  - service: notify.all_phones
-    data:
-      message: "\U0001F697 De auto is al een uurtje opgeladen maar de stekker zit
-        er nog in"
-      data:
-        persistent: true
-        tag: persistent
   mode: single
 - id: '1625685710817'
   alias: Car - Lock the doors when open too long
@@ -1823,8 +1798,8 @@
       - light.livingback_light
       - light.kitchen_light
       - light.dining_light
-      - light.zwave_light_couch_level
-      - light.zwave_light_corner_level
+      - light.socket2_light_couch
+      - light.socket1_light_corner
     data:
       brightness_pct: 30
   mode: single
@@ -1851,7 +1826,7 @@
     - condition: or
       conditions:
       - condition: state
-        entity_id: light.zwave_light_corner_level
+        entity_id: light.socket1_light_corner
         state: 'on'
       - condition: state
         entity_id: light.kitchendesk_light
@@ -1902,42 +1877,6 @@
       data:
         persistent: true
         tag: persistent
-  mode: single
-- id: '1636140398636'
-  alias: Garden - Turn off fountain
-  description: Lets cool down during the night
-  trigger:
-  - platform: time
-    at: '23:00'
-  condition:
-  - condition: device
-    type: is_on
-    device_id: 22419e692ce37ce9f67caf3e62da99e4
-    entity_id: switch.pool_fountain
-    domain: switch
-  action:
-  - service: switch.turn_off
-    data: {}
-    target:
-      entity_id: switch.pool_fountain
-  mode: single
-- id: '1636140450532'
-  alias: Garden - Turn on fountain
-  description: Lets float in daytime
-  trigger:
-  - platform: time
-    at: 07:00
-  condition:
-  - condition: device
-    type: is_off
-    device_id: 22419e692ce37ce9f67caf3e62da99e4
-    entity_id: switch.pool_fountain
-    domain: switch
-  action:
-  - service: switch.turn_on
-    data: {}
-    target:
-      entity_id: switch.pool_fountain
   mode: single
 - id: '1636140714636'
   alias: Car - Alert when car windows open too long
@@ -2046,9 +1985,15 @@
     before: 05:00
   action:
   - service: script.sleep_well
+    data: {}
   - service: alarm_control_panel.alarm_arm_night
     target:
       entity_id: alarm_control_panel.alarmo
+    data: {}
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.night_mode
   mode: single
 - id: '1639684695002'
   alias: Alarm - Silence alarm by notification
@@ -2070,21 +2015,6 @@
     target:
       entity_id: alarm_control_panel.alarmo
   mode: single
-- id: '1640431186550'
-  alias: System - Count error in system log
-  description: ''
-  trigger:
-  - platform: event
-    event_type: system_log_event
-    event_data:
-      level: ERROR
-  condition: []
-  action:
-  - service: counter.increment
-    target:
-      entity_id: counter.error_counter
-    data: {}
-  mode: queued
 - id: '1641574319382'
   alias: Energy - Count Water Usage
   description: Count Water Usage through Esphome sensor
@@ -2140,83 +2070,6 @@
       window_sensor: binary_sensor.window_noaroom_openclose_contact
       price_level_sensor: sensor.energy_price_level
       price_level_percentage: 110
-- id: '1642502861762'
-  alias: Heating - Control heating guestroom
-  description: Enable the heating when Steffi works and few extra days
-  use_blueprint:
-    path: robsonke/heating.yaml
-    input:
-      heating: switch.kasa_infrarood_slaapkamer
-      temp_sensor: sensor.climate_sensor_eva_temperature
-      min_temp: 17
-      set_temp: 18
-      time_after: 07:00:00
-      time_before: '17:30:00'
-      run_on_monday: true
-      run_on_tuesday: true
-      run_on_wednesday: false
-      run_on_thursday: true
-      run_on_friday: false
-      run_on_saturday: true
-      run_on_sunday: false
-      window_sensor: binary_sensor.window_eva_openclose_sensor
-      price_level_sensor: sensor.energy_price_level
-      price_level_percentage: 110
-- id: '1642624564993'
-  alias: Lights - Turn on lights when toilet door opens
-  description: Check for an opening door or motion in toilet
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.toiletdoordownstairs_openclose
-    from: 'off'
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.motion_sensor_toiletdownstairs_presence
-    from: 'off'
-    to: 'on'
-  condition:
-  - condition: device
-    type: is_off
-    device_id: 53ec925ec7a298678226212147f4562a
-    entity_id: light.toilet_downstairs
-    domain: light
-  action:
-  - service: light.turn_on
-    data: {}
-    target:
-      device_id: 9518a5204c475eb1705f22684321c62c
-  mode: single
-- id: '1642625248443'
-  alias: Lights - Turn off lights when toilet visit is over
-  description: 'When there''s no more movement or '
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.motion_sensor_toiletdownstairs_presence
-    from: 'on'
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 20
-      seconds: 0
-  - platform: state
-    entity_id: binary_sensor.toiletdoordownstairs_openclose
-    from: 'on'
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: light.toilet_downstairs
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 15
-  action:
-  - service: light.turn_off
-    data:
-      transition: 10
-    target:
-      entity_id: light.toilet_downstairs
-  mode: restart
 - id: '1643267142475'
   alias: Presence - Send message if cooker is still enabled and we left the house
   description: ''
@@ -3473,7 +3326,7 @@
       motion_entity:
       - binary_sensor.hue_motion_sensor_corridor1_occupancy
       lux_entity: sensor.hue_motion_sensor_corridor1_illuminance_lux
-      lux_level: 70
+      lux_level: 10
       light_target:
         entity_id: light.dimmer_corridor
       dim_time: 10
@@ -3481,6 +3334,7 @@
       day_brightness: 40
       night_brightness: 25
       no_motion_wait_night: 90
+      night_time_end_helper: 08:00:00
 - id: '1690717695663'
   alias: BBQ - Timer notifications
   description: Warns us in case of the bbq timer runs out
@@ -3614,10 +3468,12 @@
         entity_id: light.dimmer_master_closetbath
       dim_time: 10
       no_motion_wait_day: 600
-      no_motion_wait_night: 30
       night_time_start_helper: '22:00:00'
       night_time_end_helper: 06:00:00
       night_brightness: 30
+      no_motion_wait_night: 60
+      sleep_time_end_helper: 00:01:00
+      sleep_time_start_helper: '23:59:00'
 - id: '1691040868878'
   alias: Motion Lights - Control the toilet light downstairs
   description: ''
@@ -3665,3 +3521,20 @@
         persistent: true
         tag: persistent
   mode: single
+- id: '1691828355364'
+  alias: Windows - Eva open and low temperature
+  description: ''
+  use_blueprint:
+    path: robsonke/window-open-temperature.yaml
+    input:
+      temp_sensor: sensor.climate_sensor_eva_temperature
+      window_sensor: binary_sensor.window_eva_openclose_sensor
+      min_temp: 15
+      actions:
+      - service: notify.all_phones
+        data:
+          message: "\U0001F3E0 Het raam bij Eva staat open en het begint nu wel een
+            beetje fris te worden."
+          data:
+            persistent: true
+            tag: persistent

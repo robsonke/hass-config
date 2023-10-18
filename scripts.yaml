@@ -85,8 +85,8 @@ sleep_well:
   - service: light.turn_off
     target:
       entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
+      - light.socket1_light_corner
+      - light.socket2_light_couch
       - light.diningtable_light
     data:
       transition: 2
@@ -140,8 +140,8 @@ lights_on_away:
     data: {}
     target:
       entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
+      - light.socket1_light_corner
+      - light.socket2_light_couch
   - delay:
       hours: 0
       minutes: 0
@@ -166,8 +166,8 @@ lights_on_home:
     data: {}
     target:
       entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
+      - light.socket1_light_corner
+      - light.socket2_light_couch
       - light.keuken
   - delay: '1'
   - service: light.turn_on
@@ -189,8 +189,8 @@ lights_down_stairs_off:
   - service: light.turn_off
     target:
       entity_id:
-      - light.zwave_light_corner_level
-      - light.zwave_light_couch_level
+      - light.socket1_light_corner
+      - light.socket2_light_couch
       - light.diningtable_light
     data:
       transition: 2
@@ -216,11 +216,16 @@ reload_frontend:
   alias: Reload frontend
   sequence:
   - service: template.reload
+    data: {}
   - service: browser_mod.javascript
     data:
       code: lovelace_reload();
+  - service: shell_command.refresh_lovelace
+    data: {}
   - service: frontend.reload_themes
+    data: {}
   - service: browser_mod.refresh
+    data: {}
   mode: single
   icon: mdi:restart
 lights_off_upstairs:
@@ -241,11 +246,11 @@ play_sonos_playlist:
       option: '{{ playlist }}'
   - service: media_player.shuffle_set
     data_template:
-      entity_id: '{{ states.input_select.sonos_master.state }}'
+      entity_id: '{{ states("input_select.sonos_master") }}'
       shuffle: '{{shuffle}}'
   - service: media_player.select_source
     data_template:
-      entity_id: '{{ states.input_select.sonos_master.state }}'
+      entity_id: '{{ states("input_select.sonos_master") }}'
       source: '{{ states.input_select.sonos_playlist.state }}'
 googlehome_play_sound:
   alias: Google Home Play MP3
