@@ -1,8 +1,5 @@
 button_card_templates: !include_dir_merge_named ../templates/button_card_templates
-apexcharts_card_templates: !include ../templates/apexcharts_card_templates.yaml
 decluttering_templates: !include ../templates/decluttering_templates.yaml
-
-wallpanel: !include ./wallpanel.yaml
 
 views:
   - type: custom:grid-layout
@@ -239,7 +236,7 @@ views:
                   notify: >
                     [[[
                       return parseInt(states['sensor.unavailable_entities'].attributes['count'])
-                        + (states['binary_sensor.important_addons'].state === 'on' ? 1 : 0);
+                        + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
                     ]]]
               - type: custom:button-card
                 entity: binary_sensor.stookalert_zeeland
@@ -453,7 +450,7 @@ views:
         columns: 2
         cards:
           - type: custom:button-card
-            entity: binary_sensor.motion_sensor_cats_presence
+            entity: binary_sensor.motion_sensor_cats_occupancy
             template: cats
             name: Boris&Puk
             styles:
@@ -570,7 +567,7 @@ views:
               - sensor.energy_price_level
               - sensor.solaredgemb_dc_power
               - sensor.electricity_cost_today
-            name: Energie verbruik
+            name: Energie
             template:
               - energy
             tap_action:
@@ -579,7 +576,7 @@ views:
           - type: custom:button-card
             entity: sensor.water_meter_current_usage
             triggers_update: sensor.water_daily
-            name: Water verbruik
+            name: Water
             template:
               - simple
             tap_action:

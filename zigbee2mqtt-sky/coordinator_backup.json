@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "format": "zigpy/open-coordinator-backup",
+    "version": 1,
+    "source": "zigbee-herdsman@0.22.1",
+    "internal": {
+      "date": "2023-11-11T09:20:37.292Z",
+      "ezspVersion": 12
+    }
+  },
+  "stack_specific": {
+    "ezsp": {
+      "hashed_tclk": "e46f5233568b700127dc412c92be711c"
+    }
+  },
+  "coordinator_ieee": "e0798dfffe168f27",
+  "pan_id": "09d1",
+  "extended_pan_id": "9d1ab927f1f9c185",
+  "nwk_update_id": 0,
+  "security_level": 5,
+  "channel": 20,
+  "channel_mask": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+  ],
+  "network_key": {
+    "key": "341b07869f7a4b32b631dd9111f28be7",
+    "sequence_number": 0,
+    "frame_counter": 4158
+  },
+  "devices": []
+}

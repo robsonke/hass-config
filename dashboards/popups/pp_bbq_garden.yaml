@@ -128,46 +128,18 @@ browser_mod:
           view_layout:
             grid-area: graph
           cards:
-            - type: custom:apexcharts-card
-              experimental:
-                color_threshold: true
-              layout: minimal
-              locale: nl
-              graph_span: 2h
-              header:
-                show: true
-                show_states: true
-                colorize_states: true
-              series:
+            - type: custom:mini-graph-card
+              entities:
                 - entity: sensor.inkbird_ibt_2x_temperature_probe_1
                   name: BBQ
-                  type: line
-                  header_actions:
-                    tap_action:
-                      action: more-info
-                  float_precision: 2
-                  color_threshold:
-                    - value: 0
-                      color: blue
-                    - value: 80
-                      color: darkorange
-                    - value: 180
-                      color: darkred
                 - entity: sensor.inkbird_ibt_2x_temperature_probe_2
                   name: Vlees
-                  type: line
-                  header_actions:
-                    tap_action:
-                      action: more-info
-                  float_precision: 2
-                  color_threshold:
-                    - value: 0
-                      color: blue
-                    - value: 80
-                      color: darkorange
-                    - value: 180
-                      color: darkred
-              yaxis:
-                - min: 0
-                  max: 600
-                  decimals: 0
+              show:
+                labels: true
+              color_thresholds:
+                - value: 150
+                  color: "#f39c12"
+                - value: 200
+                  color: "#d35400"
+                - value: 250
+                  color: "#c0392b"

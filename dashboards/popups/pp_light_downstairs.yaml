@@ -95,7 +95,7 @@ browser_mod:
             - type: custom:decluttering-card
               template: light_button
               variables:
-                - entity: light.office_lights
+                - entity: light.office_light
                 - title: Kantoor
             - type: custom:decluttering-card
               template: light_button
@@ -114,4 +114,4 @@ browser_mod:
               template: light_button
               variables:
                 - title: Toilet
-                - entity: light.toilet_downstairs
+                - entity: light.toilet_downstairs_light

@@ -65,7 +65,7 @@ browser_mod:
                 - entity: binary_sensor.doorbell_lw_doorbell
                   name: Doorbell ding
                   secondary_info: last-changed
-                - binary_sensor.frontdoor_openclose_sensor
+                - binary_sensor.frontdoor_openclose_contact
                 - entity: binary_sensor.doorbell_lw_motion
                   name: Last motion
                   secondary_info: last-changed
@@ -77,19 +77,19 @@ browser_mod:
                 include:
                   - type: section
                     label: Buitendeuren
-                  - entity_id: binary_sensor.backdoor_openclose_sensor
+                  - entity_id: binary_sensor.backdoor_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.frontdoor_openclose_sensor
+                  - entity_id: binary_sensor.frontdoor_openclose_contact
                     options:
                       secondary_info: last-changed
                   - entity_id: binary_sensor.door_terrace_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.sheddoor_openclose_sensor
+                  - entity_id: binary_sensor.sheddoor_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.sheddoor_back_openclose_sensor
+                  - entity_id: binary_sensor.sheddoor_back_openclose_contact
                     options:
                       secondary_info: last-changed
                   - entity_id: binary_sensor.cabindoor_openclose_contact
@@ -97,26 +97,26 @@ browser_mod:
                       secondary_info: last-changed
                   - type: section
                     label: Kiep/kantel ramen
-                  - entity_id: binary_sensor.windowdoor_ground_1_openclose_sensor
+                  - entity_id: binary_sensor.windowdoor_ground_1_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.windowdoor_ground_2_openclose_sensor
+                  - entity_id: binary_sensor.windowdoor_ground_2_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.windowdoor_ground_3_openclose_sensor
+                  - entity_id: binary_sensor.windowdoor_ground_3_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.windowdoor_ground_4_openclose_sensor
+                  - entity_id: binary_sensor.windowdoor_ground_4_openclose_contact
                     options:
                       secondary_info: last-changed
                   - type: section
                     label: Overig
-                  - entity_id: binary_sensor.window_office_openclose_sensor
+                  - entity_id: binary_sensor.window_office_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.door_hallcloset_openclose_sensor
+                  - entity_id: binary_sensor.door_hallcloset_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.toiletdoordownstairs_openclose
+                  - entity_id: binary_sensor.toiletdoordownstairs_openclose_contact
                     options:
                       secondary_info: last-changed

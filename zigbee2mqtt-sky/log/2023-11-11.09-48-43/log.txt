@@ -1,0 +1,13 @@
+debug 2023-11-11 09:48:43: Loaded state from file /config/zigbee2mqtt-sky/state.json
+info  2023-11-11 09:48:43: Logging to console and directory: '/config/zigbee2mqtt-sky/log/2023-11-11.09-48-43' filename: log.txt
+info  2023-11-11 09:48:43: Starting Zigbee2MQTT version 1.33.2-dev (commit #c8dcd71)
+info  2023-11-11 09:48:43: Starting zigbee-herdsman (0.22.1)
+debug 2023-11-11 09:48:43: Using zigbee-herdsman with settings: '{"adapter":{"concurrent":null,"delay":null,"disableLED":false},"backupPath":"/config/zigbee2mqtt-sky/coordinator_backup.json","databaseBackupPath":"/config/zigbee2mqtt-sky/database.db.backup","databasePath":"/config/zigbee2mqtt-sky/database.db","network":{"channelList":[11],"extendedPanID":[157,26,185,39,241,249,193,133],"networkKey":"HIDDEN","panID":2513},"serialPort":{"adapter":"ezsp","path":"tcp://core-silabs-multiprotocol:9999"}}'
+error 2023-11-11 09:48:51: Error while starting zigbee-herdsman
+error 2023-11-11 09:48:51: Failed to start zigbee
+error 2023-11-11 09:48:51: Check https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html for possible solutions
+error 2023-11-11 09:48:51: Exiting...
+error 2023-11-11 09:48:51: Error: Failure send version:{"type":"Buffer","data":[0,0,0,4]}
+    at /app/node_modules/zigbee-herdsman/src/adapter/ezsp/driver/ezsp.ts:562:23
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at Queue.executeNext (/app/node_modules/zigbee-herdsman/src/utils/queue.ts:32:32)

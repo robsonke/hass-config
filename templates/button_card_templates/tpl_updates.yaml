@@ -71,7 +71,7 @@ updates_hass:
         // states
         let installed = entity.state;
         let latest = states["sensor.hass_version_latest"].state;
-        let release_notes = marked.parse(states["sensor.hass_release_notes"].attributes.body);
+        let release_notes = (states["sensor.hass_release_notes"].attributes.body) ? marked.parse(states["sensor.hass_release_notes"].attributes.body) : '';
         // return
         let subtitle = installed == latest ?
           `Geen update` :

@@ -6,7 +6,7 @@
     input:
       time: '10:00:00'
       actions:
-      - service: notify.mobile_app_iphone_rob2
+      - service: notify.mobile_app_iphone_rob
         data:
           message: "\U0001F50B Low battery warning for {{sensors|replace(\"_\",\"
             \")}}"
@@ -274,7 +274,7 @@
     low
   trigger:
   - platform: numeric_state
-    entity_id: sensor.lightlevel_living
+    entity_id: sensor.light_sensor_living_illuminance_lux
     below: '30'
   condition:
   - condition: and
@@ -315,7 +315,8 @@
     low
   trigger:
   - platform: numeric_state
-    entity_id: sensor.lightlevel_living
+    entity_id:
+    - sensor.light_sensor_living_illuminance_lux
     below: '30'
     for:
       hours: 0
@@ -518,7 +519,7 @@
       - condition: or
         conditions:
         - condition: numeric_state
-          entity_id: sensor.lightlevel_living
+          entity_id: sensor.light_sensor_living_illuminance_lux
           below: '10'
         - condition: numeric_state
           entity_id: sun.sun
@@ -552,6 +553,16 @@
       brightness_pct: 6
     target:
       entity_id: light.woodshed_light
+  - service: light.turn_on
+    data:
+      brightness_pct: 50
+    target:
+      entity_id: light.socket3_light_spare1
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.socket4_light_spare2
   - service: light.turn_on
     data:
       brightness_pct: 50
@@ -611,6 +622,8 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
+      - light.socket3_light_spare1
+      - light.socket4_light_spare2
   - delay:
       hours: 0
       minutes: 0
@@ -711,25 +724,28 @@
   alias: Lights - Turn on lights when closet door opens
   trigger:
   - platform: state
-    entity_id: binary_sensor.door_hallcloset_openclose_sensor
+    entity_id: binary_sensor.door_hallcloset_openclose_contact
     from: 'off'
     to: 'on'
   action:
   - service: light.turn_on
-    entity_id: light.hallcloset
+    data: {}
+    target:
+      entity_id: light.hallcloset_light
   - wait_for_trigger:
     - platform: state
-      entity_id: binary_sensor.door_hallcloset_openclose_sensor
+      entity_id: binary_sensor.door_hallcloset_openclose_contact
       from: 'on'
       to: 'off'
   - service: light.turn_off
+    data: {}
     target:
-      entity_id: light.hallcloset
+      entity_id: light.hallcloset_light
 - id: lights_kitchen_turn_on_when_awake_morning
   alias: Lights - Turn on lights when hallway door opens in the early morning
   trigger:
   - platform: state
-    entity_id: binary_sensor.hallwaydoor_openclose_sensor
+    entity_id: binary_sensor.hallwaydoor_openclose_contact
     from: 'off'
     to: 'on'
   condition:
@@ -766,7 +782,7 @@
         target:
           entity_id: media_player.eetkamer
   - condition: numeric_state
-    entity_id: sensor.lightlevel_living
+    entity_id: sensor.light_sensor_living_illuminance_lux
     below: '60'
   - service: light.turn_on
     data:
@@ -1165,7 +1181,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.frontdoor_openclose_sensor
+    entity_id: binary_sensor.frontdoor_openclose_contact
     for: '1800'
     from: 'off'
     to: 'on'
@@ -1401,7 +1417,7 @@
     entity_id: light.socket2_light_couch
     state: 'off'
   - condition: state
-    entity_id: binary_sensor.hallwaydoor_openclose_sensor
+    entity_id: binary_sensor.hallwaydoor_openclose_contact
     state: 'off'
   action:
   - service: script.sleep_well
@@ -1525,7 +1541,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.backdoor_openclose_sensor
+    entity_id: binary_sensor.backdoor_openclose_contact
     for: '1800'
     from: 'off'
     to: 'on'
@@ -1543,11 +1559,11 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.sheddoor_openclose_sensor
+    entity_id: binary_sensor.sheddoor_openclose_contact
     from: 'off'
     to: 'on'
   - platform: state
-    entity_id: binary_sensor.sheddoor_back_openclose_sensor
+    entity_id: binary_sensor.sheddoor_back_openclose_contact
     from: 'off'
     to: 'on'
   - platform: state
@@ -1682,7 +1698,7 @@
   description: Enable on Thursday when we're away or leaving the house
   trigger:
   - platform: time
-    at: 08:00:00
+    at: '13:30:00'
   - platform: state
     entity_id:
     - zone.home
@@ -1692,7 +1708,7 @@
     weekday:
     - thu
     before: '18:30'
-    after: 07:00:00
+    after: '13:00:00'
   - condition: state
     entity_id: zone.home
     state: '0'
@@ -1711,7 +1727,7 @@
     code: automation
   - service: notify.all_phones
     data:
-      message: Guest modus aangezet en alarm uit voor Maartje of Jeanet
+      message: Guest modus aangezet en alarm uit voor Maartje
       data:
         persistent: true
         tag: persistent
@@ -1748,11 +1764,17 @@
       entity_id: light.livingfront_light
       state: 'off'
     - condition: numeric_state
-      entity_id: sensor.lightlevel_living
+      entity_id: sensor.light_sensor_living_illuminance_lux
       below: '30'
   action:
   - service: script.lights_on_home
     data: {}
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.livingback_light
+      - light.dining_light
   mode: single
 - id: '1635280472840'
   alias: Lights - Turn off lights when dark - leaving
@@ -1790,7 +1812,7 @@
       - light.kitchendesk_light
       - light.diningtable_light
       - light.livingfront_light
-      - light.office_lights
+      - light.office_light
     data: {}
   - service: light.turn_on
     target:
@@ -1808,7 +1830,7 @@
   description: Turn off lights in the morning or during the day after a darker period
   trigger:
   - platform: numeric_state
-    entity_id: sensor.lightlevel_living
+    entity_id: sensor.light_sensor_living_illuminance_lux
     above: '60'
     for:
       hours: 0
@@ -1944,7 +1966,7 @@
     input:
       target_lights:
         entity_id:
-        - light.office_lights
+        - light.office_light
         - light.livingback_light
         - light.livingfront_light
         - light.dining_light
@@ -2056,7 +2078,7 @@
     input:
       heating: switch.infraroodpanel_noa
       temp_sensor: sensor.climate_sensor_noa_temperature
-      min_temp: 19
+      min_temp: 17
       set_temp: 18
       time_after: 09:00:00
       time_before: '18:00:00'
@@ -2110,8 +2132,8 @@
     - sensor.energy_price_level
   - platform: state
     entity_id:
-    - binary_sensor.window_masterbed_1_openclose_sensor
-    - binary_sensor.window_masterbed_2_openclose_sensor
+    - binary_sensor.window_masterbed_1_openclose_contact
+    - binary_sensor.window_masterbed_2_openclose_contact
   condition: []
   action:
   - choose:
@@ -2125,12 +2147,12 @@
       - type: is_not_open
         condition: device
         device_id: e495b09d382329f43540381dedb31f15
-        entity_id: binary_sensor.window_masterbed_1_openclose_sensor
+        entity_id: binary_sensor.window_masterbed_1_openclose_contact
         domain: binary_sensor
       - type: is_not_open
         condition: device
         device_id: 83daade23505c1645165605bc56c49d1
-        entity_id: binary_sensor.window_masterbed_2_openclose_sensor
+        entity_id: binary_sensor.window_masterbed_2_openclose_contact
         domain: binary_sensor
       - condition: state
         entity_id: sensor.cheapest_16_hours_24h
@@ -2204,6 +2226,8 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
+      - light.socket3_light_spare1
+      - light.socket4_light_spare2
   - delay:
       hours: 0
       minutes: 0
@@ -2234,7 +2258,7 @@
     path: robsonke/window-open-temperature.yaml
     input:
       temp_sensor: sensor.climate_sensor_masterbedroom_temperature
-      window_sensor: binary_sensor.window_masterbed_1_openclose_sensor
+      window_sensor: binary_sensor.window_masterbed_1_openclose_contact
       min_temp: 15
       actions:
       - service: notify.all_phones
@@ -2251,7 +2275,7 @@
     path: robsonke/window-open-temperature.yaml
     input:
       temp_sensor: sensor.climate_sensor_masterbedroom_temperature
-      window_sensor: binary_sensor.window_masterbed_2_openclose_sensor
+      window_sensor: binary_sensor.window_masterbed_2_openclose_contact
       min_temp: 15
       actions:
       - service: notify.all_phones
@@ -2289,25 +2313,25 @@
       - service: light.toggle
         data: {}
         target:
-          entity_id: light.office_lights
+          entity_id: light.office_light
       action_off_press:
       - service: light.toggle
         data: {}
         target:
-          entity_id: light.office_lights
+          entity_id: light.office_light
       action_up_press:
       - service: light.turn_on
         data_template:
-          entity_id: light.office_lights
-          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+          entity_id: light.office_light
+          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
             | int %} {{ [bri+20, 249] | min }}
 
             '
       action_down_press:
       - service: light.turn_on
         data_template:
-          entity_id: light.office_lights
-          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+          entity_id: light.office_light
+          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
             | int %} {{ [bri-20, 249] | min }}
 
             '
@@ -2315,25 +2339,25 @@
       - service: light.toggle
         data: {}
         target:
-          entity_id: light.office_lights
+          entity_id: light.office_light
       action_off_hold:
       - service: light.toggle
         data: {}
         target:
-          entity_id: light.office_lights
+          entity_id: light.office_light
       action_up_hold:
       - service: light.turn_on
         data_template:
-          entity_id: light.office_lights
-          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+          entity_id: light.office_light
+          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
             | int %} {{ [bri+20, 249] | min }}
 
             '
       action_down_hold:
       - service: light.turn_off
         data_template:
-          entity_id: light.office_lights
-          brightness: '{% set bri = state_attr(''light.office_lights'', ''brightness'')
+          entity_id: light.office_light
+          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
             | int %} {{ [bri-20, 249] | min }}
 
             '
@@ -2963,14 +2987,11 @@
     entity_id:
     - binary_sensor.master_bedroom_tank_full
     to: 'on'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.master_bedroom_tank_full
-    state: 'on'
     for:
-      hours: 0
-      minutes: 1
+      hours: 1
+      minutes: 0
       seconds: 0
+  condition: []
   action:
   - service: notify.all_phones
     data_template:
@@ -2992,8 +3013,8 @@
     - sensor.energy_price_level
   - platform: state
     entity_id:
-    - binary_sensor.window_masterbed_1_openclose_sensor
-    - binary_sensor.window_masterbed_2_openclose_sensor
+    - binary_sensor.window_masterbed_1_openclose_contact
+    - binary_sensor.window_masterbed_2_openclose_contact
   condition: []
   action:
   - choose:
@@ -3007,12 +3028,12 @@
       - type: is_not_open
         condition: device
         device_id: e495b09d382329f43540381dedb31f15
-        entity_id: binary_sensor.window_masterbed_1_openclose_sensor
+        entity_id: binary_sensor.window_masterbed_1_openclose_contact
         domain: binary_sensor
       - type: is_not_open
         condition: device
         device_id: 83daade23505c1645165605bc56c49d1
-        entity_id: binary_sensor.window_masterbed_2_openclose_sensor
+        entity_id: binary_sensor.window_masterbed_2_openclose_contact
         domain: binary_sensor
       - condition: state
         entity_id: sensor.cheapest_16_hours_24h
@@ -3056,7 +3077,7 @@
       run_on_friday: true
       run_on_saturday: true
       run_on_sunday: true
-      window_sensor: binary_sensor.window_eva_openclose_sensor
+      window_sensor: binary_sensor.window_eva_openclose_contact
       price_level_sensor: sensor.energy_price_level
       price_level_percentage: 110
 - id: '1677612384420'
@@ -3480,9 +3501,9 @@
   use_blueprint:
     path: robsonke/toilet-light-control.yaml
     input:
-      motion_entity: binary_sensor.motion_sensor_toiletdownstairs_presence
-      door_entity: binary_sensor.toiletdoordownstairs_openclose
-      light_target: light.toilet_downstairs
+      motion_entity: binary_sensor.motion_sensor_toiletdownstairs_occupancy
+      door_entity: binary_sensor.toiletdoordownstairs_openclose_contact
+      light_target: light.toilet_downstairs_light
       no_motion_wait: 20
       night_brightness: 40
 - id: '1691085645048'
@@ -3528,7 +3549,7 @@
     path: robsonke/window-open-temperature.yaml
     input:
       temp_sensor: sensor.climate_sensor_eva_temperature
-      window_sensor: binary_sensor.window_eva_openclose_sensor
+      window_sensor: binary_sensor.window_eva_openclose_contact
       min_temp: 15
       actions:
       - service: notify.all_phones

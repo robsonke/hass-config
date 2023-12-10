@@ -71,7 +71,7 @@ light_group:
   variables:
     circle_input: >
       [[[
-        const lightsOn = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state.state === 'on').length;
+        const lightsOn = entity.attributes.entity_id.map(entity_id => states[entity_id]).filter(state => state ? state.state === 'on' : false).length;
         const allLights = entity.attributes.entity_id.length;
         return Math.round(lightsOn / allLights * 100);
       ]]]

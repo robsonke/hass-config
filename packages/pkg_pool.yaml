@@ -20,7 +20,7 @@ template:
       icon: mdi:fan-chevron-down
       unique_id: pool_pump_frequency_level
       state: >
-        {% set pumpPower = states('sensor.shelly_em3_zwembad_channel_b_power') | float %}
+        {% set pumpPower = states('sensor.shelly_em3_zwembad_channel_b_power') | float(default=0) %}
         {% if pumpPower > 800 %}
           FULL (3)
         {% elif pumpPower > 680 and pumpPower < 775 %}

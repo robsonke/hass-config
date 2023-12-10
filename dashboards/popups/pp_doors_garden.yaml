@@ -13,10 +13,10 @@ browser_mod:
         include:
           - type: section
             label: Schuurdeuren
-          - entity_id: binary_sensor.sheddoor_openclose_sensor
+          - entity_id: binary_sensor.sheddoor_openclose_contact
             options:
               secondary_info: last-changed
-          - entity_id: binary_sensor.sheddoor_back_openclose_sensor
+          - entity_id: binary_sensor.sheddoor_back_openclose_contact
             options:
               secondary_info: last-changed
           - entity_id: binary_sensor.cabindoor_openclose_contact

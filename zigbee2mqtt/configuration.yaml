@@ -115,8 +115,6 @@ devices:
     friendly_name: window_guestroom_openclose
   '0x00158d00053d6c24':
     friendly_name: window_noaroom_openclose
-  '0x00158d000533c62a':
-    friendly_name: climate_sensor_eva
   '0x00158d00053fdd47':
     friendly_name: window_masterbed_2_openclose
   '0x00158d00052d5574':
@@ -147,8 +145,6 @@ devices:
     friendly_name: switch_alarm_activity
   '0x00158d0007e66b1b':
     friendly_name: climate_sensor_guestroom
-  '0x00158d0007088b7f':
-    friendly_name: climate_sensor_noa
   '0x84b4dbfffe0de05b':
     friendly_name: woodshed_light
   '0x001788010c5ba9c2':
@@ -218,17 +214,14 @@ devices:
     legacy: false
     optimistic: true
     retain: true
-  '0x00158d0007e7531d':
-    friendly_name: motion_sensor_toiletupstairs
-    homeassistant: {}
-    legacy: false
-    optimistic: true
-    retain: true
-    occupancy_timeout: 30
   '0x00158d00075be992':
     friendly_name: socket2_light_couch
   '0x00158d00075b481d':
     friendly_name: socket1_light_corner
+  '0x00158d00075affaa':
+    friendly_name: socket4_light_spare2
+  '0x00158d00075b0030':
+    friendly_name: socket3_light_spare1
 availability:
   active:
     timeout: 10

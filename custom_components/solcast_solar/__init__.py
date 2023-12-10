@@ -55,91 +55,18 @@ SERVICE_QUERY_SCHEMA: Final = vol.All(
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up solcast parameters."""
 
+    optdamp = {}
     try:
         #if something goes wrong ever with the damp factors just create a blank 1.0
-        optdamp = {
-            "0": entry.options["damp00"],
-            "1": entry.options["damp01"],
-            "2": entry.options["damp02"],
-            "3": entry.options["damp03"],
-            "4": entry.options["damp04"],
-            "5": entry.options["damp05"],
-            "6": entry.options["damp06"],
-            "7": entry.options["damp07"],
-            "8": entry.options["damp08"],
-            "9": entry.options["damp09"],
-            "10": entry.options["damp10"],
-            "11": entry.options["damp11"],
-            "12": entry.options["damp12"],
-            "13": entry.options["damp13"],
-            "14": entry.options["damp14"],
-            "15": entry.options["damp15"],
-            "16": entry.options["damp16"],
-            "17": entry.options["damp17"],
-            "18": entry.options["damp18"],
-            "19": entry.options["damp19"],
-            "20": entry.options["damp20"],
-            "21": entry.options["damp21"],
-            "22": entry.options["damp22"],
-            "23": entry.options["damp23"]
-        }
+        for a in range(0,24):
+            optdamp[str(a)] = entry.options[f"damp{str(a).zfill(2)}"]
     except Exception as ex:
         new = {**entry.options}
-        new["damp00"] = 1.0
-        new["damp01"] = 1.0
-        new["damp02"] = 1.0
-        new["damp03"] = 1.0
-        new["damp04"] = 1.0
-        new["damp05"] = 1.0
-        new["damp06"] = 1.0
-        new["damp07"] = 1.0
-        new["damp08"] = 1.0
-        new["damp09"] = 1.0
-        new["damp10"] = 1.0
-        new["damp11"] = 1.0
-        new["damp12"] = 1.0
-        new["damp13"] = 1.0
-        new["damp14"] = 1.0
-        new["damp15"] = 1.0
-        new["damp16"] = 1.0
-        new["damp17"] = 1.0
-        new["damp18"] = 1.0
-        new["damp19"] = 1.0
-        new["damp20"] = 1.0
-        new["damp21"] = 1.0
-        new["damp22"] = 1.0
-        new["damp23"] = 1.0
-
+        for a in range(0,24):
+            new[f"damp{str(a).zfill(2)}"] = 1.0
         entry.options = {**new}
-
-        optdamp = {
-            "0": entry.options["damp00"],
-            "1": entry.options["damp01"],
-            "2": entry.options["damp02"],
-            "3": entry.options["damp03"],
-            "4": entry.options["damp04"],
-            "5": entry.options["damp05"],
-            "6": entry.options["damp06"],
-            "7": entry.options["damp07"],
-            "8": entry.options["damp08"],
-            "9": entry.options["damp09"],
-            "10": entry.options["damp10"],
-            "11": entry.options["damp11"],
-            "12": entry.options["damp12"],
-            "13": entry.options["damp13"],
-            "14": entry.options["damp14"],
-            "15": entry.options["damp15"],
-            "16": entry.options["damp16"],
-            "17": entry.options["damp17"],
-            "18": entry.options["damp18"],
-            "19": entry.options["damp19"],
-            "20": entry.options["damp20"],
-            "21": entry.options["damp21"],
-            "22": entry.options["damp22"],
-            "23": entry.options["damp23"]
-        }
-
-    
+        for a in range(0,24):
+            optdamp[str(a)] = 1.0
 
     options = ConnectionOptions(
         entry.options[CONF_API_KEY],
@@ -178,8 +105,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(async_update_options))
-
-    
 
     _LOGGER.info(f"SOLCAST - Solcast API data UTC times are converted to {hass.config.time_zone}")
 
@@ -299,30 +224,8 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     #power factor for each hour
     if config_entry.version == 4:
         new = {**config_entry.options}
-        new["damp00"] = 1.0
-        new["damp01"] = 1.0
-        new["damp02"] = 1.0
-        new["damp03"] = 1.0
-        new["damp04"] = 1.0
-        new["damp05"] = 1.0
-        new["damp06"] = 1.0
-        new["damp07"] = 1.0
-        new["damp08"] = 1.0
-        new["damp09"] = 1.0
-        new["damp10"] = 1.0
-        new["damp11"] = 1.0
-        new["damp12"] = 1.0
-        new["damp13"] = 1.0
-        new["damp14"] = 1.0
-        new["damp15"] = 1.0
-        new["damp16"] = 1.0
-        new["damp17"] = 1.0
-        new["damp18"] = 1.0
-        new["damp19"] = 1.0
-        new["damp20"] = 1.0
-        new["damp21"] = 1.0
-        new["damp22"] = 1.0
-        new["damp23"] = 1.0
+        for a in range(0,24):
+            new[f"damp{str(a).zfill(2)}"] = 1.0
 
         config_entry.options = {**new}
 

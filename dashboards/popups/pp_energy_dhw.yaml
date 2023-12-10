@@ -27,6 +27,14 @@ browser_mod:
           cards:
             - type: vertical-stack
               cards:
+                - type: tile
+                  entity: water_heater.domestic_hot_water_tank
+                  features:
+                    - type: "water-heater-operation-modes"
+                      operation_modes:
+                        - "on"
+                        - performance
+                        - "off"
                 - type: 'custom:simple-thermostat'
                   entity: water_heater.domestic_hot_water_tank
                   layout:
@@ -75,24 +83,27 @@ browser_mod:
               refresh_interval: 30
               entities:
                 - sensor.altherma_operation_mode
-            - type: custom:apexcharts-card
-              config_templates: climate_chart
-              graph_span: 6h
-              series:
+
+            - type: custom:mini-graph-card
+              entities:
                 - entity: water_heater.domestic_hot_water_tank
-                  attribute: 
-                    current_temperature
+                  attribute: current_temperature
                   name: Water temperatuur
                   color: '#e74c3c'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 10m
                 - entity: water_heater.domestic_hot_water_tank
-                  attribute: 
+                  attribute:
                     temperature
                   color: white
                   name: Gewenste temperatuur
-                  stroke_width: 2
-                  curve: stepline
+              show:
+                labels: true
+              hour24: true
+              hours_to_show: 6
+              line_width: 2
+              color_thresholds:
+                - value: 30
+                  color: "#f39c12"
+                - value: 40
+                  color: "#d35400"
+                - value: 50
+                  color: "#c0392b"

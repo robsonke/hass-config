@@ -205,7 +205,7 @@ powercalc:
         # Most of the lights are auto discovered
         - create_group: All Manual Lights
           entities:
-            - entity_id: light.office_lights
+            - entity_id: light.office_light
               linear:
                 min_power: 0.5
                 # 6 * 5.5W

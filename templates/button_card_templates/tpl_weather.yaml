@@ -95,7 +95,7 @@ weather:
       ]]]
     forecast: |
       [[[
-        return `${entity.attributes.forecast[0].templow}°/${entity.attributes.forecast[0].temperature}°`;
+        return `${states['sensor.weather_forecast_langeweide_daily'].attributes.forecast[0].templow}°/${states['sensor.weather_forecast_langeweide_daily'].attributes.forecast[0].temperature}°`;
       ]]]
     rain: |
       [[[

@@ -45,14 +45,14 @@ light:
       - light.socket2_light_couch
       - light.socket1_light_corner
       - light.ledstrip_tv
-      - light.toilet_downstairs
+      - light.toilet_downstairs_light
       - light.dining_light
       - light.boekenkast
       - light.diningtable_light
       - light.kitchen_light
       - light.kitchencabin_light
       - light.kitchendesk_light
-      - light.office_lights
+      - light.office_light
       - light.ledstrip_office
 
   - platform: group

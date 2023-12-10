@@ -16,7 +16,7 @@ from homeassistant.helpers.entity import EntityCategory
 DOMAIN = "easee"
 TIMEOUT = 30
 VERSION = "0.9.55"
-MIN_HA_VERSION = "2023.4.0"
+MIN_HA_VERSION = "2023.11.0"
 CONF_MONITORED_SITES = "monitored_sites"
 MANUFACTURER = "Easee"
 MODEL_EQUALIZER = "Equalizer"
@@ -41,6 +41,7 @@ chargerObservations = {
     ChargerStreamData.state_reasonForNoCurrent.value,
     ChargerStreamData.state_lockCablePermanently.value,
     ChargerStreamData.state_smartCharging.value,
+    ChargerStreamData.config_smartButtonEnabled.value,
     ChargerStreamData.state_cableLocked.value,
     ChargerStreamData.state_chargerOpMode.value,
     ChargerStreamData.state_totalPower.value,
@@ -185,6 +186,19 @@ OPTIONAL_EASEE_ENTITIES = {
         "device_class": None,
         "icon": "mdi:auto-fix",
         "switch_func": "smart_charging",
+        "enabled_default": True,
+        "entity_category": EntityCategory.CONFIG,
+    },
+    "enable_smart_button": {
+        "type": "switch",
+        "key": "config.smartButtonEnabled",
+        "attrs": [],
+        "units": None,
+        "convert_units_func": None,
+        "translation_key": "smart_button",
+        "device_class": None,
+        "icon": "mdi:gesture-tap-button",
+        "switch_func": "smartButtonEnabled",
         "enabled_default": True,
         "entity_category": EntityCategory.CONFIG,
     },
@@ -877,6 +891,8 @@ EASEE_EQ_ENTITIES = {
     },
 }
 
+# When adding or modifying this dict remember to update state,
+# device_triggers and device_conditions in en.json
 EASEE_STATUS = {
     1: "disconnected",
     2: "awaiting_start",

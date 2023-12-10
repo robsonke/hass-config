@@ -31,6 +31,7 @@ MIN_HA_MAJ_VER = 2023
 MIN_HA_MIN_VER = 7
 __min_ha_version__ = f"{MIN_HA_MAJ_VER}.{MIN_HA_MIN_VER}.0"
 
+DATA_CFG = "cfg"
 DATA_CFG_YAML = "cfg_yaml"
 DATA_OPTIONS = "options"
 LOCAL_LOGO_PATH = "local_logo_path"
@@ -88,9 +89,6 @@ RESULT_WRONG_APIKEY = "wrong_api_key"
 
 SERVICE_SELECT_PICTURE_MODE = "select_picture_mode"
 SERVICE_SET_ART_MODE = "set_art_mode"
-
-SERVICE_TURN_OFF = "turn_off"
-SERVICE_TURN_ON = "turn_on"
 
 SIGNAL_CONFIG_ENTITY = f"{DOMAIN}_config"
 

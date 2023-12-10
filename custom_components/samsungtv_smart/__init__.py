@@ -56,6 +56,7 @@ from .const import (
     CONF_UPDATE_CUSTOM_PING_URL,
     CONF_UPDATE_METHOD,
     CONF_WS_NAME,
+    DATA_CFG,
     DATA_CFG_YAML,
     DATA_OPTIONS,
     DEFAULT_PORT,
@@ -82,6 +83,8 @@ DEVICE_INFO = {
     ATTR_DEVICE_MODEL: "modelName",
     ATTR_DEVICE_OS: "OS",
 }
+
+SAMSMART_PLATFORM = [Platform.MEDIA_PLAYER, Platform.REMOTE]
 
 SAMSMART_SCHEMA = {
     vol.Optional(CONF_SOURCE_LIST, default=DEFAULT_SOURCE_LIST): cv.string,
@@ -533,11 +536,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _migrate_options_format(hass, entry)
 
     # setup entry
-    entry.async_on_unload(entry.add_update_listener(_update_listener))
-    hass.data.setdefault(DOMAIN, {}).setdefault(entry.entry_id, {})
-    hass.data[DOMAIN][entry.entry_id][DATA_OPTIONS] = entry.options.copy()
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
 
-    await hass.config_entries.async_forward_entry_setups(entry, [Platform.MEDIA_PLAYER])
+    add_conf = None
+    config = entry.data.copy()
+    if entry.entry_id in hass.data[DOMAIN]:
+        add_conf = hass.data[DOMAIN][entry.entry_id].get(DATA_CFG_YAML, {})
+        for attr, value in add_conf.items():
+            if value:
+                config[attr] = value
+
+    # setup entry
+    hass.data[DOMAIN][entry.entry_id] = {
+        DATA_CFG: config,
+        DATA_OPTIONS: entry.options.copy(),
+    }
+    if add_conf:
+        hass.data[DOMAIN][entry.entry_id][DATA_CFG_YAML] = add_conf
+    entry.async_on_unload(entry.add_update_listener(_update_listener))
+
+    await hass.config_entries.async_forward_entry_setups(entry, SAMSMART_PLATFORM)
 
     return True
 
@@ -545,8 +564,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if unload_ok := await hass.config_entries.async_unload_platforms(
-        entry, [Platform.MEDIA_PLAYER]
+        entry, SAMSMART_PLATFORM
     ):
+        hass.data[DOMAIN][entry.entry_id].pop(DATA_CFG)
         hass.data[DOMAIN][entry.entry_id].pop(DATA_OPTIONS)
         if not hass.data[DOMAIN][entry.entry_id]:
             hass.data[DOMAIN].pop(entry.entry_id)

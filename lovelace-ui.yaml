@@ -62,7 +62,7 @@ views:
           - border-radius: 50%
           - opacity: 0.8
         type: custom:button-card
-      - entity: binary_sensor.motion_sensor_cats_presence
+      - entity: binary_sensor.motion_sensor_cats_occupancy
         icon: mdi:cat
         name: Boris&Puk
         show_label: true
@@ -109,13 +109,13 @@ views:
         type: custom:auto-entities
       type: horizontal-stack
     - cards:
-      - entity: binary_sensor.backdoor_openclose_sensor
+      - entity: binary_sensor.backdoor_openclose_contact
         show_name: true
         styles:
           card:
           - height: 110px
         type: custom:button-card
-      - entity: binary_sensor.frontdoor_openclose_sensor
+      - entity: binary_sensor.frontdoor_openclose_contact
         label: "[[[\n  var state = states['lock.nuki_voordeur_slot_lock'].state;\n\
           \  return (state == 'unlocked' ? 'ontgrendeld' : 'vergrendeld');\n]]]\n"
         show_label: true
@@ -127,7 +127,7 @@ views:
           - color: gray
           - font-size: 11px
         type: custom:button-card
-      - entity: binary_sensor.sheddoor_openclose_sensor
+      - entity: binary_sensor.sheddoor_openclose_contact
         show_name: true
         styles:
           card:
@@ -226,13 +226,13 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.toilet_downstairs
+      - entity: light.toilet_downstairs_light
         name: Toilet
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
       - type: divider
-      - entity: light.office_lights
+      - entity: light.office_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -315,7 +315,7 @@ views:
       - entity: binary_sensor.doorbell_lw_doorbell
         name: Doorbell ding
         secondary_info: last-changed
-      - binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.frontdoor_openclose_contact
       - entity: binary_sensor.doorbell_lw_motion
         name: Last motion
         secondary_info: last-changed
@@ -502,36 +502,36 @@ views:
 - cards:
   - cards:
     - cards:
-      - entity: binary_sensor.backdoor_openclose_sensor
+      - entity: binary_sensor.backdoor_openclose_contact
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.frontdoor_openclose_sensor
+      - entity: binary_sensor.frontdoor_openclose_contact
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.sheddoor_openclose_sensor
+      - entity: binary_sensor.sheddoor_openclose_contact
         show_name: true
         type: custom:button-card
       title: Deuren
       type: horizontal-stack
     - cards:
-      - entity: binary_sensor.windowdoor_ground_1_openclose_sensor
+      - entity: binary_sensor.windowdoor_ground_1_openclose_contact
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.windowdoor_ground_2_openclose_sensor
+      - entity: binary_sensor.windowdoor_ground_2_openclose_contact
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.windowdoor_ground_3_openclose_sensor
+      - entity: binary_sensor.windowdoor_ground_3_openclose_contact
         show_name: true
         type: custom:button-card
       type: horizontal-stack
     - cards:
-      - entity: binary_sensor.windowdoor_ground_4_openclose_sensor
+      - entity: binary_sensor.windowdoor_ground_4_openclose_contact
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.window_office_openclose_sensor
+      - entity: binary_sensor.window_office_openclose_contact
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.door_hallcloset_openclose_sensor
+      - entity: binary_sensor.door_hallcloset_openclose_contact
         show_name: true
         type: custom:button-card
       type: horizontal-stack
@@ -540,28 +540,28 @@ views:
         type: entities
       filter:
         include:
-        - entity_id: binary_sensor.backdoor_openclose_sensor
+        - entity_id: binary_sensor.backdoor_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.frontdoor_openclose_sensor
+        - entity_id: binary_sensor.frontdoor_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.sheddoor_openclose_sensor
+        - entity_id: binary_sensor.sheddoor_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.windowdoor_ground_1_openclose_sensor
+        - entity_id: binary_sensor.windowdoor_ground_1_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.windowdoor_ground_2_openclose_sensor
+        - entity_id: binary_sensor.windowdoor_ground_2_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.windowdoor_ground_3_openclose_sensor
+        - entity_id: binary_sensor.windowdoor_ground_3_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.windowdoor_ground_4_openclose_sensor
+        - entity_id: binary_sensor.windowdoor_ground_4_openclose_contact
           options:
             secondary_info: last-changed
-        - entity_id: binary_sensor.window_office_openclose_sensor
+        - entity_id: binary_sensor.window_office_openclose_contact
           options:
             secondary_info: last-changed
       sort:
@@ -643,7 +643,7 @@ views:
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
-      - entity: light.office_lights
+      - entity: light.office_light
         secondary_info: brightness
         toggle: true
         type: custom:slider-entity-row
@@ -707,7 +707,7 @@ views:
       - entity: binary_sensor.doorbell_lw_doorbell
         name: Doorbell ding
         secondary_info: last-changed
-      - binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.frontdoor_openclose_contact
       - entity: binary_sensor.doorbell_lw_motion
         name: Last motion
         secondary_info: last-changed
@@ -854,7 +854,7 @@ views:
         name: Master links
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.window_masterbed_2_openclose_sensor
+      - entity: binary_sensor.window_masterbed_2_openclose_contact
         name: Master rechts
         show_name: true
         type: custom:button-card
@@ -869,7 +869,7 @@ views:
         name: Zolderkamer
         show_name: true
         type: custom:button-card
-      - entity: binary_sensor.window_guestroom_openclose_sensor
+      - entity: binary_sensor.window_guestroom_openclose_contact
         name: Logeerkamer
         show_name: true
         type: custom:button-card

@@ -70,7 +70,7 @@ browser_mod:
                   - entity_id: sensor.air_quality_power
                   - entity_id: sensor.quooker_power
                   - entity_id: sensor.samsung_qn95aa_55_tv_power
-                  - entity_id: sensor.office_lights_power
+                  - entity_id: sensor.office_light_power
                   - entity_id: sensor.kitchen_light_power
                   - entity_id: sensor.solaredge_current_power
                   - entity_id: sensor.power_production_now
@@ -123,17 +123,9 @@ browser_mod:
                   name: Power Production this Year
               state_color: false
               title: Energie totalen
-            - type: custom:apexcharts-card
-              config_templates: energy_chart
-              all_series_config:
-                type: line
-                group_by:
-                  duration: 10min
-                  func: max
-              apex_config:
-                yaxis:
-                  logarithmic: true
-              series:
+
+            - type: custom:mini-graph-card
+              entities:
                 - entity: sensor.altherma_power_usage
                   name: Altherma Primary
                 - entity: sensor.shelly_plug_s_7_meterkast2_power
@@ -168,7 +160,15 @@ browser_mod:
                 - entity: sensor.all_media_power
                 - entity: sensor.ehhatdgg_power
                 - entity: sensor.shelly_plug_koelkast_power
-
+              show:
+                labels: true
+              hour24: true
+              hours_to_show: 24
+              show_points: false
+              line_width: 2
+              points_per_hour: 10
+              logarithmic: true
+              height: 300
 
         - type: vertical-stack
           view_layout:
@@ -181,79 +181,170 @@ browser_mod:
                   name: Gemiddeld kWh prijs vandaag
                 - entity: sensor.average_price_tomorrow
                   name: Gemiddeld kWh prijs morgen
-            - type: custom:apexcharts-card
-              experimental:
-                color_threshold: true
-              graph_span: 1d
-              span:
-                start: day
-              series:
+
+            - type: custom:plotly-graph
+              time_offset: 1.1d
+              refresh_interval: 10
+              hours_to_show: 48
+              layout:
+                # xaxis:
+                #   rangeselector:
+                #     'y': 1.4
+                #     buttons:
+                #       - count: 7
+                #         step: day
+                #       - count: 12
+                #         step: day
+                yaxis:
+                  rangemode: tozero
+                  tickformat: .1f
+                yaxis2:
+                  rangemode: tozero
+                  tickformat: .2f
+                  fixrange: true
+                yaxis9:
+                  visible: false
+                  fixedrange: true
+              round: 2
+              default: null
+              entities:
+                - entity: sensor.net_power_consumption
+                  name: Energy verbruik
+                  type: bar
+                  marker:
+                    color: rgba(165,165,0,1)
+                  texttemplate: ' %{y:.2f} Eur/kWh'
+                  statistic: state
+                  period: hour
+                  # filters:
+                  #   - fn: |-
+                  #       (params) => {
+                  #         const ys = [];
+                  #         ys.push(0);
+                  #         for (let i = 1; i < params.statistics.length; i++){
+                  #           ys.push(params.statistics[i].state-params.statistics[i-1].state);
+                  #         }
+                  #         return { ys };
+                  #       }
                 - entity: sensor.nordpool_kwh_nl_eur_3_10_021
-                  data_generator: |
-                    return entity.attributes.raw_today.map((entry) => {
-                      let value = (entry.value + 0.12599) * 1.21;
-                      return [new Date(entry.start), value];
-                    });
-                  type: column
-                  float_precision: 2
-                  show:
-                    extremas: true
-                  color_threshold:
-                    - value: 0
-                      color: blue
-                    - value: 0.15
-                      color: green
-                    - value: 0.35
-                      color: darkorange
-                    - value: 0.40
-                      color: red
-                    - value: 0.50
-                      color: darkred
-                    - value: 0.60
-                      color: black
-              now:
-                show: true
-                color: '#ff0000'
-              yaxis:
-                - min: 0
-                  decimals: 2
-            - type: custom:apexcharts-card
-              experimental:
-                color_threshold: true
-              graph_span: 1d
-              span:
-                start: day
-                offset: +1d
-              series:
+                  name: Electricity price
+                  yaxis: y2
+                  unit_of_measurement: Eur/kWh
+                  line:
+                    color: rgba(255, 165, 0, 1)
+                    width: 3
+                  filters:
+                    - store_var: electricity_price
+                    - add: 0.12599
+                    - multiply: 1.21
+                    - exponential_moving_average:
+                        alpha: 1
+                  show_value: true
+                  texttemplate: ' %{y:.2f} Eur/kWh'
                 - entity: sensor.nordpool_kwh_nl_eur_3_10_021
-                  data_generator: |
-                    let hour = new Date().getHours();
-                    if (hour >= 13) {
-                      return entity.attributes.raw_tomorrow.map((entry) => {
-                        let value = (entry.value + 0.12599) * 1.21;
-                        return [new Date(entry.start), value];
-                      });
-                    }
-                  type: column
-                  float_precision: 2
-                  show:
-                    extremas: true
-                  color_threshold:
-                    - value: 0
-                      color: blue
-                    - value: 0.15
-                      color: green
-                    - value: 0.35
-                      color: darkorange
-                    - value: 0.40
-                      color: red
-                    - value: 0.50
-                      color: darkred
-                    - value: 0.60
-                      color: black
-              yaxis:
-                - min: 0
-                  decimals: 2
+                  yaxis: y2
+                  name: Future price
+                  fill: tozeroy
+                  fillcolor: rgba(255, 165, 0,.1)
+                  line:
+                    color: rgba(255, 165, 0, 1)
+                    width: 1
+                    dash: dot
+                  filters:
+                    - fn: |-
+                        ({ meta, vars }) => ({
+                          xs: [vars.electricity_price.xs.slice(-24)[0],...meta.raw_today.concat(...meta.raw_tomorrow).map(({ start }) => new Date(start))],
+                          ys: [vars.electricity_price.ys.slice(-24)[0],...meta.raw_today.concat(...meta.raw_tomorrow).map(({ value }) => value)],
+                        })
+                    - add: 0.12599
+                    - multiply: 1.21
+                    - exponential_moving_average:
+                        alpha: 1
+                - entity: ''
+                  name: Now
+                  yaxis: y9
+                  showlegend: false
+                  line:
+                    width: 1
+                    dash: dot
+                    color: deepskyblue
+                  x: $fn () => [Date.now(), Date.now()]
+                  'y': $fn () => [0,1]
+
+
+            # - type: custom:apexcharts-card
+            #   experimental:
+            #     color_threshold: true
+            #   graph_span: 1d
+            #   span:
+            #     start: day
+            #   series:
+            #     - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+            #       data_generator: |
+            #         return entity.attributes.raw_today.map((entry) => {
+            #           let value = (entry.value + 0.12599) * 1.21;
+            #           return [new Date(entry.start), value];
+            #         });
+            #       type: column
+            #       float_precision: 2
+            #       show:
+            #         extremas: true
+            #       color_threshold:
+            #         - value: 0
+            #           color: blue
+            #         - value: 0.15
+            #           color: green
+            #         - value: 0.35
+            #           color: darkorange
+            #         - value: 0.40
+            #           color: red
+            #         - value: 0.50
+            #           color: darkred
+            #         - value: 0.60
+            #           color: black
+            #   now:
+            #     show: true
+            #     color: '#ff0000'
+            #   yaxis:
+            #     - min: 0
+            #       decimals: 2
+            # - type: custom:apexcharts-card
+            #   experimental:
+            #     color_threshold: true
+            #   graph_span: 1d
+            #   span:
+            #     start: day
+            #     offset: +1d
+            #   series:
+            #     - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+            #       data_generator: |
+            #         let hour = new Date().getHours();
+            #         if (hour >= 13) {
+            #           return entity.attributes.raw_tomorrow.map((entry) => {
+            #             let value = (entry.value + 0.12599) * 1.21;
+            #             return [new Date(entry.start), value];
+            #           });
+            #         }
+            #       type: column
+            #       float_precision: 2
+            #       show:
+            #         extremas: true
+            #       color_threshold:
+            #         - value: 0
+            #           color: blue
+            #         - value: 0.15
+            #           color: green
+            #         - value: 0.35
+            #           color: darkorange
+            #         - value: 0.40
+            #           color: red
+            #         - value: 0.50
+            #           color: darkred
+            #         - value: 0.60
+            #           color: black
+            #   yaxis:
+            #     - min: 0
+            #       decimals: 2
             - type: energy-sources-table
             - type: energy-date-selection
             - type: energy-distribution

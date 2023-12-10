@@ -62,7 +62,7 @@ homekit:
         - light.hal
         - light.keuken
         - light.kitchendesk_light
-        - light.office_lights
+        - light.office_light
         - light.socket1_light_corner
         - light.socket2_light_couch
         - light.dining_light
@@ -99,15 +99,6 @@ frontend:
     - /hacsfiles/lovelace-card-mod/card-mod.js
 
 binary_sensor:
-  - platform: ping
-    host: !secret tvliving_host
-    name: samsungtv_livingroom_status
-
-  # check internet connection
-  - platform: ping
-    name: internet_ping
-    host: 1.1.1.1
-    scan_interval: 10
 
   # monitor addons
   - platform: group
@@ -132,51 +123,51 @@ binary_sensor:
     device_class: opening
     entities:
       - binary_sensor.window_noaroom_openclose_contact
-      - binary_sensor.window_eva_openclose_sensor
-      - binary_sensor.window_masterbed_1_openclose_sensor
-      - binary_sensor.window_masterbed_2_openclose_sensor
-      - binary_sensor.window_guestroom_openclose_sensor
+      - binary_sensor.window_eva_openclose_contact
+      - binary_sensor.window_masterbed_1_openclose_contact
+      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_guestroom_openclose_contact
   - platform: group
     unique_id: doors_and_windows_garden
     name: All doors and windows garden
     device_class: opening
     entities:
-      - binary_sensor.sheddoor_openclose_sensor
-      - binary_sensor.sheddoor_back_openclose_sensor
+      - binary_sensor.sheddoor_openclose_contact
+      - binary_sensor.sheddoor_back_openclose_contact
       - binary_sensor.cabindoor_openclose_contact
   - platform: group
     unique_id: doors_and_windows
     name: All doors and windows
     device_class: opening
     entities:
-      - binary_sensor.backdoor_openclose_sensor
-      - binary_sensor.frontdoor_openclose_sensor
-      - binary_sensor.sheddoor_openclose_sensor
-      - binary_sensor.sheddoor_back_openclose_sensor
-      - binary_sensor.windowdoor_ground_1_openclose_sensor
-      - binary_sensor.windowdoor_ground_2_openclose_sensor
-      - binary_sensor.windowdoor_ground_3_openclose_sensor
-      - binary_sensor.windowdoor_ground_4_openclose_sensor
-      - binary_sensor.window_office_openclose_sensor
-      - binary_sensor.door_hallcloset_openclose_sensor
-      - binary_sensor.window_noaroom_openclose_sensor
-      - binary_sensor.window_eva_openclose_sensor
-      - binary_sensor.window_masterbed_1_openclose_sensor
-      - binary_sensor.window_masterbed_2_openclose_sensor
-      - binary_sensor.window_guestroom_openclose_sensor
+      - binary_sensor.backdoor_openclose_contact
+      - binary_sensor.frontdoor_openclose_contact
+      - binary_sensor.sheddoor_openclose_contact
+      - binary_sensor.sheddoor_back_openclose_contact
+      - binary_sensor.windowdoor_ground_1_openclose_contact
+      - binary_sensor.windowdoor_ground_2_openclose_contact
+      - binary_sensor.windowdoor_ground_3_openclose_contact
+      - binary_sensor.windowdoor_ground_4_openclose_contact
+      - binary_sensor.window_office_openclose_contact
+      - binary_sensor.door_hallcloset_openclose_contact
+      - binary_sensor.window_noaroom_openclose_contact
+      - binary_sensor.window_eva_openclose_contact
+      - binary_sensor.window_masterbed_1_openclose_contact
+      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_guestroom_openclose_contact
   - platform: group
     unique_id: doors_and_windows_downstairs
     name: All doors and windows downstairs
     device_class: opening
     entities:
-      - binary_sensor.backdoor_openclose_sensor
-      - binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.backdoor_openclose_contact
+      - binary_sensor.frontdoor_openclose_contact
       - binary_sensor.door_terrace_openclose_contact
-      - binary_sensor.windowdoor_ground_1_openclose_sensor
-      - binary_sensor.windowdoor_ground_2_openclose_sensor
-      - binary_sensor.windowdoor_ground_3_openclose_sensor
-      - binary_sensor.windowdoor_ground_4_openclose_sensor
-      - binary_sensor.window_office_openclose_sensor
+      - binary_sensor.windowdoor_ground_1_openclose_contact
+      - binary_sensor.windowdoor_ground_2_openclose_contact
+      - binary_sensor.windowdoor_ground_3_openclose_contact
+      - binary_sensor.windowdoor_ground_4_openclose_contact
+      - binary_sensor.window_office_openclose_contact
 
 group:
   # https://www.home-assistant.io/integrations/group/#old-style-groups
@@ -186,24 +177,24 @@ group:
   monitored_entities:
     name: Monitored Entities
     entities:
-      - binary_sensor.backdoor_openclose_sensor
-      - binary_sensor.frontdoor_openclose_sensor
+      - binary_sensor.backdoor_openclose_contact
+      - binary_sensor.frontdoor_openclose_contact
       - binary_sensor.door_terrace_openclose_contact
-      - binary_sensor.windowdoor_ground_1_openclose_sensor
-      - binary_sensor.windowdoor_ground_2_openclose_sensor
-      - binary_sensor.windowdoor_ground_3_openclose_sensor
-      - binary_sensor.windowdoor_ground_4_openclose_sensor
+      - binary_sensor.windowdoor_ground_1_openclose_contact
+      - binary_sensor.windowdoor_ground_2_openclose_contact
+      - binary_sensor.windowdoor_ground_3_openclose_contact
+      - binary_sensor.windowdoor_ground_4_openclose_contact
       - sensor.light_sensor_garden
-      - binary_sensor.hallwaydoor_openclose_sensor
-      - binary_sensor.window_eva_openclose_sensor
-      - binary_sensor.window_noaroom_openclose_sensor
+      - binary_sensor.hallwaydoor_openclose_contact
+      - binary_sensor.window_eva_openclose_contact
+      - binary_sensor.window_noaroom_openclose_contact
       - sensor.climate_sensor_eva_temperature
       - sensor.climate_sensor_noa_temperature
       - sensor.climate_sensor_guestroom_temperature
       - sensor.climate_sensor_masterbedroom_temperature
-      - binary_sensor.motion_sensor_toiletdownstairs_presence
+      - binary_sensor.motion_sensor_toiletdownstairs_occupancy
       - binary_sensor.toiletdoorupstairs_openclose_contact
-      - binary_sensor.toiletdoordownstairs_openclose
+      - binary_sensor.toiletdoordownstairs_openclose_contact
       - binary_sensor.motion_sensor_toiletupstairs_occupancy
       - binary_sensor.hue_motion_sensor_corridor1_occupancy
       - binary_sensor.hue_motion_sensor_shed_occupancy
@@ -212,9 +203,9 @@ group:
       - sensor.energy_consumed_tariff_2
       - sensor.climate_sensor_kitchen_temperature
       - sensor.climate_sensor_living_temperature
-      - binary_sensor.window_masterbed_1_openclose_sensor
-      - binary_sensor.window_masterbed_2_openclose_sensor
-      - binary_sensor.window_guestroom_openclose_sensor
+      - binary_sensor.window_masterbed_1_openclose_contact
+      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_guestroom_openclose_contact
 
   ignored_entities:
     entities:
@@ -250,17 +241,16 @@ template:
           </b>
 
   # important entities
-  - trigger:
-    - platform: time_pattern
-      minutes: "*"
-    sensor:
+  - sensor:
     - unique_id: unavailable_entities
       attributes:
+        last_update: “{{now()}}”
         friendly_name: "Unavailable Entities"
+        names: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
         count: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
       state_class: measurement
       unit_of_measurement: entities
-      state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
+      state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
 
   # all unavailable entities
   - trigger:
@@ -270,9 +260,18 @@ template:
       - unique_id: all_unavailable_entities
         unit_of_measurement: entities
         state: >
-          {% if state_attr('sensor.all_unavailable_entities','entities') | lower not in ['unknown','unavailable','none'] %}
-            {{ state_attr('sensor.all_unavailable_entities','entities') | count }}
-          {% endif %}
+          {% set ignore_time = 15 %}
+          {% set unavail = namespace(value=0) %}
+          {% set entities = states|rejectattr('domain','eq','group')
+            |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+            |rejectattr('state', 'equalto', '')
+            |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
+          {% for item in entities %}
+            {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
+              {% set unavail.value = unavail.value + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ unavail.value }}
         attributes:
           friendly_name: "All Unavailable Entities"
           entities: >

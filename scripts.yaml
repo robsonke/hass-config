@@ -101,7 +101,7 @@ sleep_well:
     target:
       entity_id:
       - light.dining_light
-      - light.office_lights
+      - light.office_light
       - light.ledstrip_office
       - light.keuken
       - light.woonkamer

@@ -19,6 +19,3 @@ browser_mod:
               name: Niveau
             - entity: binary_sensor.stookalert_zeeland
               name: Stook alert
-        - type: iframe
-          url: https://www.stookwijzer.nu/widget
-          aspect_ratio: 75%

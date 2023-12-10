@@ -25,9 +25,23 @@ browser_mod:
           view_layout:
             grid-area: thermostat
           cards:
-            - type: custom:more-info-card
-              entity: humidifier.master_bedroom
-              title: Luchtonvochtiger
+            - type: vertical-stack
+              title: Slaapkamer
+              cards:
+                - type: thermostat
+                  entity: climate.eurom_alutherm_baseboard_heater
+                  features:
+                    - type: "climate-hvac-modes"
+                      hvac_modes:
+                        - heat
+                        - "off"
+                - type: entities
+                  show_header_toggle: false
+                  entities:
+                    - entity: sensor.eurom_alutherm_power
+                      name: Verbruik
+                    - entity: sensor.eurom_alutherm_energy_daily
+                      name: Verbruik vandaag (kWh)
             - type: entities
               show_header_toggle: false
               entities:
@@ -84,117 +98,34 @@ browser_mod:
                 entities:
                   - entity: sensor.shelly_plug_douche_verwarming_power
 
-            - type: entities
-              show_header_toggle: false
-              entities:
-                - entity: switch.shelly_plug_kachel_slaapkamer
-            # - type: conditional
-            #   conditions:
-            #     - entity: switch.shelly_plug_kachel_slaapkamer
-            #       state_not: "off"
-            #   card:
-            - type: vertical-stack
-              title: Slaapkamer
-              cards:
-                - type: entities
-                  show_header_toggle: false
-                  entities:
-                    - entity: select.eurom_alutherm_capacity
-                      name: Verwarm mode slaapkamer
-                    - entity: sensor.eurom_alutherm_power
-                      name: Verbruik
-                    - entity: sensor.eurom_alutherm_energy_daily
-                      name: Verbruik vandaag (kWh)
-                - type: custom:simple-thermostat
-                  entity: climate.eurom_alutherm_baseboard_heater
-                  version: 3
-                  layout:
-                    step: row
-                  header: false
-                  sensors: false
-                  style: |
-                    div.mode-title {
-                      display: none;
-                    }
-                    .modes.heading {
-                      grid-template-columns: auto !important;
-                    }
-
         - type: vertical-stack
           view_layout:
             grid-area: climate
           cards:
-            - type: custom:apexcharts-card
-              view_layout:
-                grid-area: temp
-              config_templates: climate_chart
-              series:
+            - type: humidifier
+              entity: humidifier.master_bedroom
+              title: Luchtontvochtiger
+              features:
+                - type: "humidifier-toggle"
+                - type: "humidifier-modes"
+                  style: "dropdown"
+                  modes:
+                    - Set
+                    - Smart
+                    - Continuous
+                    - Dry
+            - type: statistics-graph
+              title: Temperatuur
+              period: hour
+              days_to_show: 1
+              stat_types: mean
+              chart_type: line
+              entities:
                 - entity: sensor.climate_sensor_masterbedroom_temperature
                   name: Master
-                  color: '#e74c3c'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
                 - entity: sensor.climate_sensor_eva_temperature
                   name: Eva
-                  color: '#e74c3c'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
                 - entity: sensor.climate_sensor_noa_temperature
                   name: Noa
-                  color: '#e74c3c'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
                 - entity: sensor.climate_sensor_guestroom_temperature
-                  name: Logeerkamer
-                  color: '#e74c3c'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
-            - type: custom:apexcharts-card
-              view_layout:
-                grid-area: temp
-              config_templates: climate_chart
-              series:
-                - entity: sensor.climate_sensor_masterbedroom_humidity
-                  name: Master
-                  color: 'blue'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
-                - entity: sensor.climate_sensor_eva_humidity
-                  name: Eva
-                  color: 'blue'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
-                - entity: sensor.climate_sensor_noa_humidity
-                  name: Noa
-                  color: 'blue'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
-                - entity: sensor.climate_sensor_guestroom_humidity
-                  name: Logeerkamer
-                  color: 'blue'
-                  type: area
-                  fill_raw: last
-                  group_by:
-                    func: avg
-                    duration: 1h
+                  name: Loge

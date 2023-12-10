@@ -49,7 +49,7 @@
       supported_features: 44
       assumed_state: false
       state: 'on'
-    light.office_lights:
+    light.office_light:
       effect_list:
       - blink
       - breathe

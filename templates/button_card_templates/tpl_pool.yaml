@@ -10,7 +10,7 @@ pool:
   variables:
     consider_on: >
       [[[
-        return entity.state === 'Open' && states['sensor.pool_pump_frequency_level'].state !== 'OFF';
+        return entity.state === 'Open' && states['sensor.pool_pump_frequency_level'].state !== 'OFF' && states['sensor.pool_pump_frequency_level'].state !== 'unavailable';
       ]]]
     circle_input: >
       [[[

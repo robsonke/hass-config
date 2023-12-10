@@ -8,21 +8,6 @@
 # https://github.com/robsonke/hass-config
 #
 
-influxdb:
-  host: a0d7b954-influxdb
-  port: 8086
-  database: !secret influxdb_username
-  username: !secret influxdb_username
-  password: !secret influxdb_password
-  max_retries: 3
-  default_measurement: state
-  precision: s
-
-
-# TODO remove:
-# - automation.system_count_error_in_system_log
-# - counter.error_counter
-
 logbook:
   exclude:
     domains:
@@ -30,22 +15,15 @@ logbook:
       - sun
     entity_globs:
       - sensor.browser_*
-    entities:
-      - automation.system_count_error_in_system_log
-      - counter.error_counter
 
 recorder:
   db_url: !secret mysql_db_url
-  purge_keep_days: 14
   commit_interval: 10
   exclude:
     domains:
       - sun
     entity_globs:
       - sensor.browser_*
-    entities:
-      - automation.system_count_error_in_system_log
-      - counter.error_counter
     event_types:
       - call_service
 

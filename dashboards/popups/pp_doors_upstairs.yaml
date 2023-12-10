@@ -13,21 +13,21 @@ browser_mod:
         include:
           - type: section
             label: Master bedroom
-          - entity_id: binary_sensor.window_masterbed_1_openclose_sensor
+          - entity_id: binary_sensor.window_masterbed_1_openclose_contact
             options:
               secondary_info: last-changed
-          - entity_id: binary_sensor.window_masterbed_2_openclose_sensor
+          - entity_id: binary_sensor.window_masterbed_2_openclose_contact
             options:
               secondary_info: last-changed
           - type: section
             label: Overig
-          - entity_id: binary_sensor.window_eva_openclose_sensor
+          - entity_id: binary_sensor.window_eva_openclose_contact
             options:
               secondary_info: last-changed
           - entity_id: binary_sensor.window_noaroom_openclose_contact
             options:
               secondary_info: last-changed
-          - entity_id: binary_sensor.window_guestroom_openclose_sensor
+          - entity_id: binary_sensor.window_guestroom_openclose_contact
             options:
               secondary_info: last-changed
 

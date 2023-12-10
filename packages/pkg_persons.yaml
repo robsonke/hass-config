@@ -1,5 +1,5 @@
-#  ____                               
-# |  _ \ ___ _ __ ___  ___  _ __  ___ 
+#  ____
+# |  _ \ ___ _ __ ___  ___  _ __  ___
 # | |_) / _ \ '__/ __|/ _ \| '_ \/ __|
 # |  __/  __/ |  \__ \ (_) | | | \__ \
 # |_|   \___|_|  |___/\___/|_| |_|___/
@@ -65,7 +65,7 @@ rest_command:
 sensor:
   - platform: history_stats
     name: Cat door today
-    entity_id: binary_sensor.motion_sensor_cats_presence
+    entity_id: binary_sensor.motion_sensor_cats_occupancy
     state: "on"
     type: count
     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
