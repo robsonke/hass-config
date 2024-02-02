@@ -1,6 +1,11 @@
 button_card_templates: !include_dir_merge_named ../templates/button_card_templates
 decluttering_templates: !include ../templates/decluttering_templates.yaml
 
+wallpanel:
+  enabled: true
+  hide_toolbar: true
+  idle_time: 0
+
 views:
   - type: custom:grid-layout
     path: 0
@@ -69,104 +74,83 @@ views:
               action: call-service
               service: script.reload_frontend
             template: sidebar_template
-          # - type: weather-forecast
-          #   entity: weather.weather_langeweide_ecowitt
-          #   show_forecast: false
-          #   style: |
-          #     div.name-state {
-          #       display: none;
-          #     }
-          #     div.info {
-          #       flex-grow: 0;
-          #     }
-          #     ha-card {
-          #       border-width: 0;
-          #     }
-          #     :host([verynarrow]) div.attribute {
-          #       display: block;
-          #     }
-          #     :host([veryVeryNarrow]) div.content {
-          #       flex-flow: row nowrap;
-          #       justify-content: space-around;
-          #       align-items: normal;
-          #     }
-          #   tap_action:
-          #     !include popups/pp_sidebar_weather.yaml
           - type: custom:button-card
             entity: weather.weather_langeweide_ecowitt
             tap_action:
               !include popups/pp_sidebar_weather.yaml
             template: weather
-          - type: custom:button-card
-            entity: person.rob
-            name: Rob
-            tap_action:
-              !include popups/pp_person_rob.yaml
-            hold_action:
-              action: none
-            template: person
-          - type: custom:button-card
-            entity: person.steffi
-            name: Steffi
-            tap_action:
-              !include popups/pp_person_steffi.yaml
-            hold_action:
-              action: none
-            template: person
-          - type: custom:button-card
-            entity: camera.evabed
-            name: Eva
-            tap_action:
-              !include popups/pp_person_eva.yaml
-            hold_action:
-              action: none
-            template: person_kid
-          - type: custom:button-card
-            entity: camera.noabed
-            name: Noa
-            tap_action:
-              !include popups/pp_person_noa.yaml
-            hold_action:
-              action: none
-            template: person_kid
-          - type: custom:gap-card
-            height: 20
 
-          # - type: custom:button-card
-          #   entity: alarm_control_panel.alarmo
-          #   template: sidebar_alarm
-          #   name: Alarm
-          - type: custom:button-card
-            entity: input_boolean.night_mode
-            template: sidebar_button
-            confirmation:
-              text: '[[[ return `Nacht Mode - Zeker weten?` ]]]'
-          - type: custom:button-card
-            entity: input_boolean.guest_mode
-            template: sidebar_button
-            confirmation:
-              text: '[[[ return `Guest Mode - Zeker weten?` ]]]'
           - type: custom:gap-card
-            height: 20
-          - type: custom:button-card
-            entity: vacuum.sjorsje
-            template: sidebar_button
+            height: 40
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: person.rob
+                show_entity_picture: true
+                tap_action:
+                  !include popups/pp_person_rob.yaml
+                icon_tap_action:
+                  !include popups/pp_person_rob.yaml
+              - type: tile
+                entity: person.steffi
+                show_entity_picture: true
+                tap_action:
+                  !include popups/pp_person_steffi.yaml
+                icon_tap_action:
+                  !include popups/pp_person_steffi.yaml
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: camera.evabed
+                show_entity_picture: true
+                hide_state: true
+                tap_action:
+                  !include popups/pp_person_eva.yaml
+                icon_tap_action:
+                  !include popups/pp_person_eva.yaml
+              - type: tile
+                entity: camera.noabed
+                show_entity_picture: true
+                hide_state: true
+                tap_action:
+                  !include popups/pp_person_noa.yaml
+                icon_tap_action:
+                  !include popups/pp_person_noa.yaml
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: vacuum.sjorsje
+              - type: tile
+                entity: input_boolean.guest_mode
+
+          - type: custom:gap-card
+            height: 40
+          - type: tile
+            entity: alarm_control_panel.alarmo
+            # card_mod:
+            #   style:
+            #     hui-card-features$:
+            #       hui-alarm-modes-card-feature$:
+            #         ha-control-select$: |
+            #           #option-armed_away {
+            #             --control-select-color: var(--orange);
+            #           }
+            #           #option-armed_night {
+            #             --control-select-color: var(--orange);
+            #           }
+            #           #option-disarmed {
+            #             --control-select-color: var(--green);
+            #           }
             tap_action:
-              action: more-info
-            styles:
-              grid:
-                - grid-template-areas: >
-                    "i n s"
-                - grid-template-columns: 20% 2fr 3fr
-                - grid-template-rows: 30px
-              icon:
-                - color: >
-                    [[[
-                      if (entity.attributes['bin_full'] || (entity.attributes['battery_level'] < 30 && entity.attributes['status'] !== 'Charging'))
-                        return 'var(--red)';
-                      return 'var(--green)'
-                    ]]]
-                - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
+              !include popups/pp_alarm.yaml
+            features:
+              - type: alarm-modes
+                modes:
+                  - armed_night
+                  - armed_away
+                  - disarmed
+
           - type: custom:gap-card
             height: 20
           - type: custom:mushroom-chips-card
@@ -307,7 +291,7 @@ views:
               - media_player.living_room
               - media_player.zithoek
             template:
-              - sonos
+              - sonos_downstairs
           - type: custom:button-card
             entity: binary_sensor.doors_and_windows_downstairs
             name: Deuren
@@ -521,14 +505,21 @@ views:
             template:
               - door_window_group_upstairs
             group_expand: true
+          # - type: custom:button-card
+          #   entity: media_player.slaapkamer_sonos
+          #   name: Muziek
+          #   icon: mdi:speaker
+          #   template:
+          #     - music
+          #   tap_action:
+          #     action: more-info
           - type: custom:button-card
-            entity: media_player.bedroom_googlehome
+            entity: media_player.music_upstairs
             name: Muziek
-            icon: mdi:speaker
+            triggers_update:
+              - media_player.slaapkamer_sonos
             template:
-              - music
-            tap_action:
-              action: more-info
+              - sonos_upstairs
 
       #################################################
       #                                               #

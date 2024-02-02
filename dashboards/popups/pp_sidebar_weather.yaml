@@ -74,28 +74,6 @@ browser_mod:
                 - value: 8
                   color: darkred
 
-            # - type: custom:apexcharts-card
-            #   experimental:
-            #     color_threshold: true
-            #   graph_span: 1d
-            #   header:
-            #     show: true
-            #     show_states: true
-            #     colorize_states: true
-            #   series:
-            #     - entity: sensor.rate_rain_piezo
-            #       type: column
-            #       header_actions:
-            #         tap_action:
-            #           action: more-info
-            #       float_precision: 2
-            #       color_threshold:
-            #         - value: 0
-            #           color: blue
-            #         - value: 3
-            #           color: darkorange
-            #         - value: 8
-            #           color: darkred
               yaxis:
                 - min: 0
                   decimals: 0

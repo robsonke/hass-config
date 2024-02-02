@@ -191,6 +191,10 @@ sonos:
         }
         return defaultIcon;
       ]]]
+
+sonos_downstairs:
+  template:
+    - sonos
   tap_action:
     action: fire-dom-event
     browser_mod:
@@ -206,6 +210,30 @@ sonos:
             - media_player.eetkamer
             - media_player.living_room
             - media_player.office
+          background: cover
+          card_mod:
+            style: |
+              ha-card.type-custom-sonos-card {
+                --sns-button-icon-color: var(--primary-color);
+                --sns-player-background: transparant;
+                --sns-card-primary-text-color: #fff;
+              }
+sonos_upstairs:
+  template:
+    - sonos
+  tap_action:
+    action: fire-dom-event
+    browser_mod:
+      service: browser_mod.popup
+      data:
+        #size: wide
+        timeout: 60000
+        title: Sonos - Muziek
+        content:
+          type: "custom:sonos-card"
+          name: "Sonos"
+          entities:
+            - media_player.slaapkamer_sonos
           background: cover
           card_mod:
             style: |
@@ -231,99 +259,6 @@ music:
       [[[
         return Math.round(entity.attributes['volume_level'] * 100);
       ]]]
-
-#################################################
-#                                               #
-#                    PERSON                     #
-#                                               #
-#################################################
-
-person:
-  template:
-    - base_sidebar
-  show_entity_picture: true
-  show_icon: false
-  show_state: true
-  styles:
-    grid:
-      - grid-template-areas: >
-          "i n s icon"
-      - grid-template-columns: 20% 2fr 2fr 1fr
-      - grid-template-rows: 30px
-    name:
-      - justify-self: start
-      - align-self: left
-    entity_picture:
-      - width: 50%
-      - border-radius: 100%
-      - opacity: 0.8
-  state:
-    - value: not_home
-      styles:
-        entity_picture:
-          - opacity: 0.4
-          - filter: grayscale(100%)
-  custom_fields:
-    icon: >
-      [[[
-        let icon = entity.state === "home" ? `mdi:home` : `mdi:exit-to-app`;
-        return `<ha-state-icon icon="${icon}" style="width: 1rem;"></ha-state-icon>`
-      ]]]
-
-person_kid:
-  template:
-    - person
-  show_state: false
-  custom_fields:
-    icon: >
-      [[[
-        return ``
-      ]]]
-
-#################################################
-#                                               #
-#               SIDEBAR                         #
-#                                               #
-#################################################
-
-sidebar_button:
-  template:
-    - base_sidebar
-  show_entity_picture: false
-  show_icon: true
-  show_state: true
-  styles:
-    grid:
-      - grid-template-areas: >
-          "i n s"
-      - grid-template-columns: 20% 3fr 1fr
-      - grid-template-rows: 30px
-    state:
-      - place-self: end
-      - margin-right: 10px
-      - margin-bottom: 4px
-
-sidebar_alarm:
-  template:
-    - sidebar_button
-  tap_action:
-    !include ../../dashboards/popups/pp_alarm.yaml
-  styles:
-    grid:
-      - grid-template-areas: >
-          "i n s"
-      - grid-template-columns: 20% 2fr 3fr
-      - grid-template-rows: 30px
-    icon:
-      - color: >
-          [[[
-            if (entity.state === 'disarmed') return 'var(--green)';
-            if (entity.state === 'arming') return 'var(--yellow)';
-            if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'var(--orange)';
-            if (entity.state === 'triggered') return 'var(--red)';
-            return 'var(--green)'
-          ]]]
-      - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
 
 
 #################################################

@@ -27,7 +27,7 @@ devices:
   '0x7cb03eaa0a006f53':
     friendly_name: ledstrip_office
   '0x04cf8cdf3c775d4c':
-    friendly_name: light_sensor_office
+    friendly_name: light_sensor_garden
   '0x00158d00053e0096':
     friendly_name: climate_sensor_office
   '0x00158d00053e9699':
@@ -58,11 +58,6 @@ devices:
     friendly_name: light_sensor_living
   '0x00158d0004773528':
     friendly_name: frontdoor_openclose
-  '0x00178801063715e8':
-    friendly_name: dimmer_switch_office
-    legacy: false
-    homeassistant: {}
-    optimistic: true
   '0xcc86ecfffee65446':
     friendly_name: kitchencabin_light
   '0x00158d0004a97335':
@@ -91,8 +86,6 @@ devices:
     friendly_name: sheddoor_openclose
   '0x001788010b0791d3':
     friendly_name: garden_lantern_light1
-  '0x54ef4410000c32d5':
-    friendly_name: light_sensor_garden
   '0xcc86ecfffee977d3':
     friendly_name: garden_light
   '0x001788010b83a9b7':
@@ -129,10 +122,6 @@ devices:
     friendly_name: diningtable_light
   '0x0017880109c472f8':
     friendly_name: hue_lily_light_fence_3
-  '0x0017880106eae95d':
-    friendly_name: dimmer_switch_kitchen
-  '0x0017880106eaddfe':
-    friendly_name: dimmer_switch_spare
   '0x00158d0007103985':
     friendly_name: cabindoor_openclose
     debounce: 1
@@ -222,6 +211,10 @@ devices:
     friendly_name: socket4_light_spare2
   '0x00158d00075b0030':
     friendly_name: socket3_light_spare1
+  '0x60b647fffe7b8ee2':
+    friendly_name: bedroom_sonos_light
+  '0xf082c0fffe25c2e7':
+    friendly_name: office_light_switch
 availability:
   active:
     timeout: 10

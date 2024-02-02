@@ -38,18 +38,18 @@
 				"name": "Textiel"
 			},
 			"afvalinfo_trash_type_today": {
-				"name": "Afval voor vandaag"
+				"name": "Afvaltype vandaag"
 			},
 			"afvalinfo_trash_type_tomorrow": {
-				"name": "Afval voor morgen"
+				"name": "Afvaltype morgen"
 			}
 		}
 	},
 	"config": {
 		"step": {
 			"user": {
-				"title": "Voeg nieuwe Afval info toe",
-				"description": "Voeg een nieuwe afval info toe",
+				"title": "Afvalinfo",
+				"description": "Voeg nieuwe locatie toe",
 				"data": {
 					"location": "Gemeente",
 					"postcode": "Postcode",
@@ -81,7 +81,7 @@
 				"cleanprofsrestafval": "Cleanprofs Restafval",
 				"gft": "GFT",
 				"grofvuil": "Grofvuil",
-				"kca": "Klein chemisch afval",
+				"kca": "KCA",
 				"kerstboom": "Kerstboom",
 				"papier": "Papier",
 				"pbd": "PBD",

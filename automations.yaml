@@ -478,8 +478,9 @@
     garden
   trigger:
   - platform: numeric_state
-    entity_id: sensor.light_sensor_garden
-    below: '10'
+    entity_id:
+    - sensor.light_sensor_garden_illuminance_lux
+    below: 8
   - platform: time
     at: 07:00
   - platform: numeric_state
@@ -501,7 +502,9 @@
       - condition: state
         entity_id: light.hue_lily_light_fence_1
         state: 'off'
-    - condition: and
+    - alias: In the morning it should be dark enough and not just turned off by the
+        other automation
+      condition: and
       conditions:
       - condition: time
         after: 06:15
@@ -520,13 +523,11 @@
         conditions:
         - condition: numeric_state
           entity_id: sensor.light_sensor_living_illuminance_lux
-          below: '10'
+          below: 8
         - condition: numeric_state
           entity_id: sun.sun
           attribute: elevation
           below: '-4'
-      alias: In the morning it should be dark enough and not just turned off by the
-        other automation
   - condition: state
     entity_id: light.hue_lily_light_fence_1
     state: 'off'
@@ -553,16 +554,6 @@
       brightness_pct: 6
     target:
       entity_id: light.woodshed_light
-  - service: light.turn_on
-    data:
-      brightness_pct: 50
-    target:
-      entity_id: light.socket3_light_spare1
-  - service: light.turn_on
-    data:
-      brightness_pct: 100
-    target:
-      entity_id: light.socket4_light_spare2
   - service: light.turn_on
     data:
       brightness_pct: 50
@@ -601,7 +592,8 @@
   - platform: time
     at: 09:00
   - platform: numeric_state
-    entity_id: sensor.light_sensor_garden
+    entity_id:
+    - sensor.light_sensor_garden_illuminance_lux
     above: 5
     for:
       hours: 0
@@ -622,8 +614,6 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
-      - light.socket3_light_spare1
-      - light.socket4_light_spare2
   - delay:
       hours: 0
       minutes: 0
@@ -653,9 +643,10 @@
     music, tv, etc. And turn on the alarm
   trigger:
   - platform: state
-    entity_id: input_boolean.night_mode
-    from: 'off'
-    to: 'on'
+    entity_id:
+    - alarm_control_panel.alarmo
+    from: disarmed
+    to: armed_night
   condition:
   - condition: or
     conditions:
@@ -666,10 +657,6 @@
   action:
   - parallel:
     - service: script.sleep_well
-      data: {}
-    - service: alarm_control_panel.alarm_arm_night
-      target:
-        entity_id: alarm_control_panel.alarmo
       data: {}
     - sequence:
       - service: light.turn_on
@@ -686,6 +673,7 @@
         data: {}
         target:
           entity_id: light.dimmer_hall
+      alias: Turn on hall light shortly
   mode: single
 - id: lights_turn_off_bedtime_auto
   alias: Lights - Turn off lights automatically - bedtime
@@ -753,11 +741,11 @@
     after: 04:00
     before: '11:00:00'
   - condition: state
-    entity_id: input_boolean.night_mode
-    state: 'on'
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
     for:
       hours: 0
-      minutes: 1
+      minutes: 10
       seconds: 0
   action:
   - service: alarm_control_panel.alarm_disarm
@@ -765,10 +753,6 @@
       code: automation
     target:
       entity_id: alarm_control_panel.alarmo
-  - service: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.night_mode
-    data: {}
   - choose:
     - conditions:
       - condition: time
@@ -1109,13 +1093,14 @@
     entity_id:
     - zone.home
     to: '1'
-  - platform: state
-    entity_id: input_boolean.night_mode
-    from: 'off'
-    to: 'on'
   - platform: numeric_state
     entity_id: zone.home
     below: '2'
+  - platform: state
+    entity_id:
+    - alarm_control_panel.alarmo
+    from: disarmed
+    to: armed_night
   condition: []
   action:
   - service: switch.turn_on
@@ -1135,13 +1120,11 @@
   description: Deactivate Frigate object detection
   trigger:
   - platform: state
-    entity_id: input_boolean.night_mode
-    from: 'on'
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: input_boolean.night_mode
-    state: 'off'
+    entity_id:
+    - alarm_control_panel.alarmo
+    from: armed_night
+    to: disarmed
+  condition: []
   action:
   - service: switch.turn_off
     target:
@@ -1153,15 +1136,17 @@
       - switch.evabed_detect
       - switch.noabed_detect
       - switch.zwembad_detect
+    data: {}
   mode: single
 - id: '1621192167984'
   alias: Night - Check for open windows and doors
   description: ''
   trigger:
   - platform: state
-    entity_id: input_boolean.night_mode
-    from: 'off'
-    to: 'on'
+    entity_id:
+    - alarm_control_panel.alarmo
+    from: disarmed
+    to: armed_night
   condition:
   - condition: not
     conditions:
@@ -1405,8 +1390,8 @@
     at: 00:30
   condition:
   - condition: state
-    entity_id: input_boolean.night_mode
-    state: 'off'
+    entity_id: alarm_control_panel.alarmo
+    state: disarmed
   - condition: state
     entity_id: device_tracker.rob_presence
     state: home
@@ -1421,9 +1406,11 @@
     state: 'off'
   action:
   - service: script.sleep_well
+    data: {}
   - service: alarm_control_panel.alarm_arm_night
     target:
       entity_id: alarm_control_panel.alarmo
+    data: {}
   mode: single
 - id: '1625051357630'
   alias: Presence - Disable detection because we are both home
@@ -1769,12 +1756,6 @@
   action:
   - service: script.lights_on_home
     data: {}
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id:
-      - light.livingback_light
-      - light.dining_light
   mode: single
 - id: '1635280472840'
   alias: Lights - Turn off lights when dark - leaving
@@ -2012,10 +1993,6 @@
     target:
       entity_id: alarm_control_panel.alarmo
     data: {}
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.night_mode
   mode: single
 - id: '1639684695002'
   alias: Alarm - Silence alarm by notification
@@ -2226,8 +2203,6 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
-      - light.socket3_light_spare1
-      - light.socket4_light_spare2
   - delay:
       hours: 0
       minutes: 0
@@ -2238,6 +2213,7 @@
       brightness_pct: 30
     target:
       entity_id:
+      - light.garden_lantern_light1
       - light.garden_lantern_light2
       - light.garden_lantern_light3
       - light.garden_light
@@ -2361,18 +2337,6 @@
             | int %} {{ [bri-20, 249] | min }}
 
             '
-- id: '1657445203959'
-  alias: System - Restart amcrest addon
-  description: ''
-  trigger:
-  - platform: time
-    at: 01:00:00
-  condition: []
-  action:
-  - service: hassio.addon_restart
-    data:
-      addon: c0d67ef2_amcrest2mqtt
-  mode: single
 - id: '1659861088978'
   alias: Screens - Close screens zijraam on warm sunny days
   description: In case it's warm and sunny, close the screens in the morning but the
@@ -2523,20 +2487,6 @@
   trace:
     stored_traces: 10
   mode: single
-- id: '1661801771945'
-  alias: System - Refresh wall tablet
-  description: After a restart or frontend changes, force a refresh
-  trigger:
-  - platform: event
-    event_type: lovelace_updated
-  - platform: homeassistant
-    event: start
-  condition: []
-  action:
-  - service: browser_mod.refresh
-    data:
-      browser_id: 65b403f4-fb734e3d
-  mode: single
 - id: '1661977922126'
   alias: HVAC - Control Operation Mode downstairs
   description: 'Set the HVAC mode (heat/cool/off) for the heat pump. By default off,
@@ -2629,31 +2579,6 @@
           entity_id: select.operation_mode
   trace:
     stored_traces: 20
-- id: '1662038485202'
-  alias: System - Control the wallpanel screensaver mode during the night
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - input_boolean.night_mode
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: input_boolean.night_mode
-        state: 'on'
-      sequence:
-      - service: input_boolean.turn_on
-        data: {}
-        target:
-          entity_id: input_boolean.wallpanel_screensaver_enabled
-    default:
-    - service: input_boolean.turn_off
-      data: {}
-      target:
-        entity_id: input_boolean.wallpanel_screensaver_enabled
-  mode: single
 - id: '1662889733680'
   alias: Screens - Disable the automatic control of the screens in case of a manual
     action
@@ -2778,7 +2703,7 @@
             | float -1 }}'
         target:
           entity_id: climate.warmtepomp
-        alias: Heat - Set temperature to 18 degrees during the night
+        alias: Heat - Set temperature to 1 degree less during the night
     - conditions:
       - condition: state
         entity_id: schedule.hvac_schedule
@@ -2843,7 +2768,7 @@
       - condition: or
         conditions:
         - condition: state
-          entity_id: sensor.cheapest_12_hours_24h
+          entity_id: sensor.cheapest_16_hours_24h
           state: 'True'
           alias: Is this one of the cheapest hours of the day
         - condition: numeric_state
@@ -3559,3 +3484,107 @@
           data:
             persistent: true
             tag: persistent
+- id: '1706294943705'
+  alias: Music - Control sonos bedroom
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: button_4_press_release
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: dial_rotate_right_step
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: dial_rotate_left_step
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: dial_rotate_left_fast
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: dial_rotate_left_slow
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: dial_rotate_right_fast
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: dial_rotate_right_slow
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.to_state.state == "button_4_press_release" }}'
+        alias: Button pressed
+      sequence:
+      - alias: If sonos plays, stop, otherwise play radio 2
+        choose:
+        - conditions:
+          - condition: state
+            entity_id: media_player.slaapkamer_sonos
+            state: playing
+            alias: Is sonos playing
+          sequence:
+          - service: media_player.media_stop
+            target:
+              entity_id: media_player.slaapkamer_sonos
+            data: {}
+            alias: Stop playing
+        default:
+        - alias: Play radio 2 on sonos
+          service: media_player.play_media
+          metadata: {}
+          data:
+            media_content_id: x-rincon-mp3radio://icecast.omroep.nl/radio2-bb-aac
+            media_content_type: music
+            metadata:
+              title: NPO Radio 2
+              thumbnail: https://upload.wikimedia.org/wikipedia/commons/b/b3/NPO_Radio_2_logo.png
+              media_class: music
+            extra:
+              thumb: https://upload.wikimedia.org/wikipedia/commons/b/b3/NPO_Radio_2_logo.png
+              title: NPO Radio 2
+          target:
+            entity_id: media_player.slaapkamer_sonos
+    - conditions:
+      - condition: and
+        alias: Is sonos playing and did we turn the knob to the left
+        conditions:
+        - condition: template
+          value_template: '{{ trigger.to_state.state == "dial_rotate_left_step" or
+            trigger.to_state.state == "dial_rotate_left_fast" or trigger.to_state.state
+            == "dial_rotate_left_slow" }}'
+        - condition: state
+          entity_id: media_player.slaapkamer_sonos
+          state: playing
+      sequence:
+      - service: media_player.volume_set
+        data_template:
+          volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
+            - 0.03}}'
+        entity_id: media_player.slaapkamer_sonos
+    - conditions:
+      - condition: and
+        alias: Is sonos playing and did we turn the knob to the right
+        conditions:
+        - condition: template
+          value_template: '{{ trigger.to_state.state == "dial_rotate_right_step" or
+            trigger.to_state.state == "dial_rotate_right_fast" or trigger.to_state.state
+            == "dial_rotate_right_slow" }}'
+        - condition: state
+          entity_id: media_player.slaapkamer_sonos
+          state: playing
+      sequence:
+      - service: media_player.volume_set
+        data_template:
+          volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
+            + 0.03}}'
+        entity_id: media_player.slaapkamer_sonos
+  mode: single

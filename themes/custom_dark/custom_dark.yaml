@@ -96,6 +96,11 @@ custom-dark:
       tablet-popup-button-padding: 0.1em 2em 1.8em 2em
       tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)
 
+      # tiles
+      state-alarm_control_panel-disarmed-color: var(--green)
+      state-alarm_control_panel-armed_away-color: var(--orange)
+      state-alarm_control_panel-armed_night-color: var(--orange)
+
     light:
       # default light mode
       primary-text-color: "#464a47"
@@ -145,6 +150,11 @@ custom-dark:
       tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
       tablet-popup-button-padding: 0.1em 2em 1.8em 2em
       tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)
+
+      # tiles
+      state-alarm_control_panel-disarmed-color: var(--green)
+      state-alarm_control_panel-armed_away-color: var(--orange)
+      state-alarm_control_panel-armed_night-color: var(--orange)
 
 
 

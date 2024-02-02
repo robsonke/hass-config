@@ -140,25 +140,7 @@ lights_on_away:
     data: {}
     target:
       entity_id:
-      - light.socket1_light_corner
-      - light.socket2_light_couch
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 10
-      milliseconds: 0
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id:
-      - light.dining_light
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id:
-      - light.boekenkast
-      - light.ledstrip_tv
-      - light.ledstrip_office
+      - light.benedenverdieping_afwezig
 lights_on_home:
   alias: Lights on - home
   sequence:
@@ -166,22 +148,7 @@ lights_on_home:
     data: {}
     target:
       entity_id:
-      - light.socket1_light_corner
-      - light.socket2_light_couch
-      - light.keuken
-  - delay: '1'
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id:
-      - light.ledstrip_office
-      - light.livingfront_light
-  - service: light.turn_on
-    data:
-      entity_id:
-      - light.boekenkast
-      - light.ledstrip_tv
-      - light.ledstrip_office
+      - light.benedenverdieping_aanwezig
   mode: single
 lights_down_stairs_off:
   alias: Lights off - downstairs
@@ -211,6 +178,7 @@ lights_down_stairs_off:
       - light.kitchendesk_light
       - light.boekenkast
       - light.ledstrip_tv
+      - light.diningtable_light
   mode: single
 reload_frontend:
   alias: Reload frontend

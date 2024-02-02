@@ -35,7 +35,9 @@ bbq:
 
       let timer = '';
       if (states['timer.bbq'].state === 'active') {
-        timer = ` (🕓 ${states['timer.bbq'].attributes['remaining']})`;
+        let finishAt = Date.parse(states['timer.bbq'].attributes['finishes_at']);
+        let minutesLeft = Math.round((finishAt - Date.now()) / 1000 / 60);
+        timer = ` (🕓 ${minutesLeft} min)`;
       }
       let probe2Text = (probe2 !== '-') ? ` / ${probe2}${variables.unit}` : '';
       return html`<span>${probe1}${variables.unit} ${probe2Text}${timer}</span>`;

@@ -16,10 +16,9 @@ from homeassistant.components.climate.const import (
     PRESET_ECO,
     PRESET_NONE,
     PRESET_SLEEP,
-    SUPPORT_FAN_MODE,
-    SUPPORT_PRESET_MODE,
-    SUPPORT_SWING_MODE,
-    SUPPORT_TARGET_TEMPERATURE,
+    PRESET_AWAY,
+    PRESET_COMFORT,
+    ClimateEntityFeature,
     SWING_BOTH,
     SWING_HORIZONTAL,
     SWING_OFF,
@@ -28,7 +27,7 @@ from homeassistant.components.climate.const import (
     HVACMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, PRECISION_HALVES, TEMP_CELSIUS
+from homeassistant.const import ATTR_TEMPERATURE, PRECISION_HALVES, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -68,7 +67,7 @@ FAN_MODES: Final = [
 
 SWING_MODES: Final = [SWING_OFF, SWING_HORIZONTAL, SWING_VERTICAL, SWING_BOTH]
 
-PRESET_MODES: Final = [PRESET_NONE, PRESET_ECO, PRESET_BOOST, PRESET_SLEEP]
+PRESET_MODES: Final = [PRESET_NONE, PRESET_ECO, PRESET_BOOST, PRESET_SLEEP, PRESET_AWAY, PRESET_COMFORT]
 
 _FAN_SPEEDS = {
     FAN_AUTO: 102,
@@ -128,13 +127,13 @@ class AirConditionerEntity(ApplianceEntity, ClimateEntity):
     _attr_max_temp = MAX_TARGET_TEMPERATURE
     _attr_min_temp = MIN_TARGET_TEMPERATURE
     _attr_precision = PRECISION_HALVES
-    _attr_temperature_unit = TEMP_CELSIUS
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
 
     _attr_supported_features = (
-        SUPPORT_TARGET_TEMPERATURE
-        | SUPPORT_FAN_MODE
-        | SUPPORT_SWING_MODE
-        | SUPPORT_PRESET_MODE
+        ClimateEntityFeature.TARGET_TEMPERATURE
+        | ClimateEntityFeature.FAN_MODE
+        | ClimateEntityFeature.SWING_MODE
+        | ClimateEntityFeature.PRESET_MODE
     )
 
     _name_suffix = ""
@@ -165,6 +164,10 @@ class AirConditionerEntity(ApplianceEntity, ClimateEntity):
             return PRESET_ECO
         if self.airconditioner().comfort_sleep:
             return PRESET_SLEEP
+        if self.airconditioner().frost_protect:
+            return PRESET_AWAY
+        if self.airconditioner().comfort_mode:
+            return PRESET_COMFORT
         return PRESET_NONE
 
     def _swing_mode(self) -> str:
@@ -213,7 +216,7 @@ class AirConditionerEntity(ApplianceEntity, ClimateEntity):
     def set_temperature(self, **kwargs) -> None:
         """Set new target temperature."""
         if kwargs.get(ATTR_TEMPERATURE):
-            self.apply("current_temperature", kwargs.get(ATTR_TEMPERATURE))
+            self.apply("target_temperature", kwargs.get(ATTR_TEMPERATURE))
         if kwargs.get(ATTR_HVAC_MODE):
             self.set_hvac_mode(kwargs.get(ATTR_HVAC_MODE))
         if kwargs.get(ATTR_SWING_MODE):
@@ -236,10 +239,14 @@ class AirConditionerEntity(ApplianceEntity, ClimateEntity):
 
     def set_preset_mode(self, preset_mode: str) -> None:
         if preset_mode == PRESET_BOOST:
-            self.apply(turbo=True, eco_mode=False, comfort_sleep=False)
+            self.apply(turbo=True, eco_mode=False, comfort_sleep=False, frost_protect=False, comfort_mode=False)
         elif preset_mode == PRESET_ECO:
-            self.apply(turbo=False, eco_mode=True, comfort_sleep=False)
+            self.apply(turbo=False, eco_mode=True, comfort_sleep=False, frost_protect=False, comfort_mode=False)
         elif preset_mode == PRESET_SLEEP:
-            self.apply(turbo=False, eco_mode=False, comfort_sleep=True)
+            self.apply(turbo=False, eco_mode=False, comfort_sleep=True, frost_protect=False, comfort_mode=False)
+        elif preset_mode == PRESET_AWAY:
+            self.apply(turbo=False, eco_mode=False, comfort_sleep=False, frost_protect=True, comfort_mode=False)
+        elif preset_mode == PRESET_SLEEP:
+            self.apply(turbo=False, eco_mode=False, comfort_sleep=False, frost_protect=False, comfort_mode=True)
         else:
-            self.apply(turbo=False, eco_mode=False, comfort_sleep=False)
+            self.apply(turbo=False, eco_mode=False, comfort_sleep=False, frost_protect=False, comfort_mode=False)

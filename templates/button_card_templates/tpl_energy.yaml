@@ -93,7 +93,7 @@ dhw:
 
 energy:
   template:
-    - simple
+    - circle
   variables:
     consider_on: >
       [[[
@@ -102,25 +102,37 @@ energy:
         let phase3 = states['sensor.current_phase_3'].state;
         return (phase1 > 25 || phase2 > 25 || phase3 > 25);
       ]]]
-  custom_fields:
-    info: >
+    unit: '€'
+    circle_text: >
       [[[
-        let today = Math.round(states['sensor.daily_consumption_energy'].state);
-        let price = Math.round(states['sensor.current_price_electricity'].attributes.incl_tax * 100) / 100;
-        let level = states['sensor.energy_price_level'].state;
-        let color = 'var(--green)';
-        if (level === 'very_cheap') color = 'var(--blue)';
-        if (level === 'cheap') color = 'var(--green)';
-        if (level === 'normal') color = 'var(--yellow)';
-        if (level === 'expensive') color = 'var(--orange)';
-        if (level === 'very_expensive') color = 'var(--red)';
-
-        return `<span><ha-state-icon icon="mdi:transmission-tower-export" style="width: 1rem"></ha-state-icon> ${today} kWh<br/>
-          <ha-state-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-state-icon> <span style="color: ${color}">${price}</span><br/>
-          <ha-state-icon icon="mdi:sigma" style="width: 1rem"></ha-state-icon> ${Math.round(states['sensor.electricity_cost_today'].state * 100) / 100}<br/>
-          <ha-state-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-state-icon> ${Math.round(states['sensor.monthly_cost_langeweide'].state * 100) / 100}
-          </span>`;
+        return Math.round(states['sensor.current_price_electricity'].attributes.incl_tax * 100) / 100;
       ]]]
+    circle_input: >
+      [[[
+        // consider 50 cent as the highest price (hopefully)
+        return states['sensor.current_price_electricity'].attributes.incl_tax / 0.5 * 100
+      ]]]
+  #custom_fields:
+    # circle: >
+    #   [[[
+    #     let today = Math.round(states['sensor.daily_consumption_energy'].state);
+    #     let price = Math.round(states['sensor.current_price_electricity'].attributes.incl_tax * 100) / 100;
+    #     let level = states['sensor.energy_price_level'].state;
+    #     let color = 'var(--green)';
+    #     if (level === 'very_cheap') color = 'var(--blue)';
+    #     if (level === 'cheap') color = 'var(--green)';
+    #     if (level === 'normal') color = 'var(--yellow)';
+    #     if (level === 'expensive') color = 'var(--orange)';
+    #     if (level === 'very_expensive') color = 'var(--red)';
+
+    #     return `<span style="color: ${color}">€ ${price}</span>`;
+    #     //return `<ha-state-icon icon="mdi:currency-eur" style="width: 2rem; color: ${color}"></ha-state-icon> <span style="color: ${color}">${price}</span><br/></span>`;
+    #   ]]]
+  # return `<span><ha-state-icon icon="mdi:transmission-tower-export" style="width: 1rem"></ha-state-icon> ${today} kWh<br/>
+  #   <ha-state-icon icon="mdi:currency-eur" style="width: 1rem; color: ${color}"></ha-state-icon> <span style="color: ${color}">${price}</span><br/>
+  #   <ha-state-icon icon="mdi:sigma" style="width: 1rem"></ha-state-icon> ${Math.round(states['sensor.electricity_cost_today'].state * 100) / 100}<br/>
+  #   <ha-state-icon icon="mdi:calendar-clock" style="width: 1rem"></ha-state-icon> ${Math.round(states['sensor.monthly_cost_langeweide'].state * 100) / 100}
+  #   </span>`;
   styles:
     custom_fields:
       icon:

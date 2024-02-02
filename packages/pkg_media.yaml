@@ -18,3 +18,8 @@ media_player:
       - media_player.eetkamer
       - media_player.zithoek
       - media_player.sonos_roam
+  - platform: group
+    name: Muziek boven
+    unique_id: music_upstairs
+    entities:
+      - media_player.slaapkamer_sonos

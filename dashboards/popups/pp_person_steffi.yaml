@@ -44,7 +44,7 @@ browser_mod:
               entities:
                 - device_tracker.steffi_presence
                 - device_tracker.iphone_steffi
-                - device_tracker.steffi_berks_life360
+                - device_tracker.icloud_iphone_steffi
                 - device_tracker.iphonedetect_steffi
             - type: glance
               show_state: false
@@ -56,8 +56,8 @@ browser_mod:
                     state-badge {
                       color: {{ '#3182b7' if is_state(config.entity, 'home') else '#3c3f3f' }};
                     }
-                - entity: device_tracker.steffi_berks_life360
-                  name: Life360
+                - entity: device_tracker.icloud_iphone_steffi
+                  name: iCloud
                   icon: mdi:account
                   style: *state
                 - entity: device_tracker.iphone_steffi

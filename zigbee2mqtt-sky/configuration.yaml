@@ -70,5 +70,5 @@ devices:
     legacy: false
     optimistic: true
   '0x84fd27fffecf2bce':
-    friendly_name: '0x84fd27fffecf2bce'
+    friendly_name: range_extender_extra
 availability: true

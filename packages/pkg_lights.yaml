@@ -69,6 +69,7 @@ light:
       - light.dimmer_noa
       - light.dimmer_eva
       - light.toilet_upstairs_light
+      - light.bedroom_sonos_light
 
   - platform: group
     name: Tuin
@@ -100,3 +101,27 @@ light:
       - light.palm2_light
       - light.pool_terrace_light1
       - light.pool_terrace_light2
+
+  - platform: group
+    name: Benedenverdieping aanwezig
+    unique_id: lights_downstairs_present
+    entities:
+      - light.livingfront_light
+      - light.socket2_light_couch
+      - light.socket1_light_corner
+      - light.ledstrip_tv
+      - light.dining_light
+      - light.boekenkast
+      - light.kitchen_light
+      - light.kitchencabin_light
+      - light.ledstrip_office
+  - platform: group
+    name: Benedenverdieping afwezig
+    unique_id: lights_downstairs_away
+    entities:
+      - light.socket2_light_couch
+      - light.socket1_light_corner
+      - light.ledstrip_tv
+      - light.dining_light
+      - light.boekenkast
+      - light.ledstrip_office
