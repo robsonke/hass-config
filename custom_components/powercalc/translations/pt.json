@@ -21,6 +21,7 @@
         "step": {
             "daily_energy": {
                 "data": {
+                    "create_utility_meters": "Create utility meters",
                     "name": "Nome",
                     "on_time": "Na hora",
                     "start_time": "Hora de início",
@@ -53,20 +54,26 @@
             "group": {
                 "data": {
                     "area": "Área",
+                    "create_energy_sensor": "Create energy sensor",
                     "create_utility_meters": "Criar medidores de utilidade",
+                    "device": "Device",
                     "group_energy_entities": "Entidades de energia adicionais",
                     "group_member_sensors": "Membros do sensor powercalc",
                     "group_power_entities": "Entidades de potência adicionais",
                     "hide_members": "Ocultar membros",
+                    "include_non_powercalc_sensors": "Include non powercalc sensors",
                     "name": "Nome",
                     "sub_groups": "Subgrupos",
                     "unique_id": "ID único"
                 },
                 "data_description": {
                     "area": "Adiciona todos os sensores powercalc à área especificada",
+                    "create_energy_sensor": "Whether powercalc needs to create a kWh sensor",
+                    "device": "Add the group entities powercalc creates to an existing device",
                     "group_energy_entities": "Sensores de energia adicionais (kWh) da sua instalação HA para incluir",
                     "group_member_sensors": "Sensores Powercalc para incluir no grupo",
                     "group_power_entities": "Sensores de potência adicionais (W) da sua instalação HA para incluir",
+                    "include_non_powercalc_sensors": "Control whether to include non powercalc sensors when using the area option",
                     "sub_groups": "Todos os sensores que contêm os subgrupos selecionados também serão adicionados a este grupo"
                 },
                 "title": "Criar um sensor de grupo"
@@ -113,12 +120,14 @@
                 "data": {
                     "autostart": "Iniciar automaticamente",
                     "playbooks": "Gravações",
-                    "repeat": "Repetir"
+                    "repeat": "Repetir",
+                    "states_trigger": "State trigger"
                 },
                 "data_description": {
                     "autostart": "Indicar para iniciar uma determinada sequência quando o HA inicia. Ex: 'program1'",
                     "playbooks": "Introduza uma sequência em cada linha. Exemplo\n\nprogram1: washing_machine/program1.csv",
-                    "repeat": "Alternar se pretende que a sequência reinicie e repita após terminar"
+                    "repeat": "Alternar se pretende que a sequência reinicie e repita após terminar",
+                    "states_trigger": "Trigger a playbook based on a state change. Example\n\nplaying: program1"
                 },
                 "title": "Configuração de Sequência"
             },
@@ -128,13 +137,17 @@
                     "energy_integration_method": "Método de integração de energia",
                     "ignore_unavailable_state": "Ignorar para estado indisponível",
                     "multiply_factor": "Factor de multiplicação",
-                    "unavailable_power": "Potência indisponível"
+                    "multiply_factor_standby": "Multiply factor standby",
+                    "unavailable_power": "Potência indisponível",
+                    "utility_meter_tariffs": "Utility meter tariffs"
                 },
                 "data_description": {
                     "calculation_enabled_condition": "A estratégia de cálculo defenida só será executada se este template retornar 'true' ou 1, caso contrário retornará 0",
                     "ignore_unavailable_state": "Ligue esta opção para que o sensor de potência continue disponível mesmo que a entidade fonte fique indisponível",
                     "multiply_factor": "Multiplica a potência calculada por este valor. Pode ser útil para grupos de luzes",
-                    "unavailable_power": "Potência em W para considerar quando a entidade fonte está em estado indisponível"
+                    "multiply_factor_standby": "Whether to also apply multiplication factor to standby power",
+                    "unavailable_power": "Potência em W para considerar quando a entidade fonte está em estado indisponível",
+                    "utility_meter_tariffs": "A list of supported tariffs, leave empty if only a single tariff is needed."
                 },
                 "description": "As opções abaixo são para configurações avançadas de powercalc. A maioria dos utilizadores não usará estas opções e podem ser ignoradas.",
                 "title": "Opções avançadas"
@@ -143,11 +156,13 @@
                 "data": {
                     "create_utility_meters": "Criar medidores de utilidade",
                     "entity_id": "ID do sensor de potência",
-                    "name": "Nome"
+                    "name": "Nome",
+                    "device": "Device"
                 },
                 "data_description": {
                     "create_utility_meters": "Deixar o powercalc criar medidores de utilidade, que reiniciam diariamente, de hora a hora, etc.",
-                    "name": "Nome base para a energia e medidor de utilidade. O nome completo da entidade será definido de acordo com a definição de 'energy_sensor_naming'."
+                    "name": "Nome base para a energia e medidor de utilidade. O nome completo da entidade será definido de acordo com a definição de 'energy_sensor_naming'.",
+                    "device": "Add the created energy sensor to an specific device"
                 },
                 "description": "As definições especificadas só podem ser configuradas globalmente",
                 "title": "Criar um sensor de energia a partir de um sensor de potência existente"
@@ -171,6 +186,18 @@
                     "virtual_power": "Potência virtual (manual)"
                 },
                 "title": "Escolha seu tipo de sensor"
+            },
+            "utility_meter_options": {
+                "title": "Utility meter options",
+                "description": "Define the settings for utility meter creation here",
+                "data": {
+                    "utility_meter_types": "Cycles",
+                    "utility_meter_tariffs": "Tariffs"
+                },
+                "data_description": {
+                    "utility_meter_types": "Create utility meters for specified cycles",
+                    "utility_meter_tariffs": "A list of supported tariffs, leave empty if only a single tariff is needed."
+                }
             },
             "virtual_power": {
                 "data": {
@@ -229,6 +256,7 @@
                     "calibrate": "Valores de calibração",
                     "create_energy_sensor": "Criar sensor de energia",
                     "create_utility_meters": "Criar medidores de utilidade",
+                    "device": "Device",
                     "energy_integration_method": "Método de cálculo de integração de energia",
                     "gamma_curve": "Curva gama",
                     "group_energy_entities": "Entidades de energia adicionais",
@@ -236,9 +264,11 @@
                     "group_power_entities": "Entidades de potência adicionais",
                     "hide_members": "Ocultar membros",
                     "ignore_unavailable_state": "Ignorar estado indisponível",
+                    "include_non_powercalc_sensors": "Include non powercalc sensors",
                     "max_power": "Potência máxima",
                     "min_power": "Potência mínima",
                     "multiply_factor": "Factor de multiplicação",
+                    "multiply_factor_standby": "Multiply factor standby",
                     "name": "Nome",
                     "on_time": "Na hora",
                     "playbooks": "Gravações",
@@ -247,10 +277,12 @@
                     "repeat": "Repetir",
                     "standby_power": "Energia em espera",
                     "states_power": "Potência dos Estados",
+                    "states_trigger": "State trigger",
                     "sub_groups": "Subgrupos",
                     "unavailable_power": "Potência indisponível",
                     "unit_of_measurement": "Unidade de medida",
                     "update_frequency": "Frequência de atualização",
+                    "utility_meter_tariffs": "Utility meter tariffs",
                     "value": "Valor",
                     "value_template": "Modelo de valor"
                 },
@@ -260,17 +292,22 @@
                     "autostart": "Instruir para iniciar uma Sequência automaticamente quando o HA iniciar. Ex: 'program1'",
                     "calculation_enabled_condition": "A estratégia de cálculo defenida só será executada se este template retornar true ou 1, caso contrário retornará 0",
                     "calibrate": "Coloque um valor de calibração em cada linha. Exemplo\n\n1: 20",
+                    "device": "Add the group entities powercalc creates to an existing device",
                     "group_energy_entities": "Sensores de energia adicionais (kWh) da sua instalação HA para incluir",
                     "group_member_sensors": "Sensores Powercalc a incluir no grupo",
                     "group_power_entities": "Sensores de potência adicionais (W) da sua instalação HA para incluir",
                     "ignore_unavailable_state": "Ligue esta opção para o sensor continuar disponível mesmo que a entidade fonte fique indisponível",
+                    "include_non_powercalc_sensors": "Control whether to include non powercalc sensors when using the area option",
                     "multiply_factor": "Multiplica a potência calculada por este factor. Pode ser útil para grupos de luzes",
+                    "multiply_factor_standby": "Whether to also apply multiplication factor to standby power",
                     "playbooks": "Introduza uma Sequência em cada linha. Examplo\n\nprogram1: washing_machine/program1.csv",
                     "power_template": "O modelo será avaliado para obter o valor da potência em W",
                     "repeat": "Ligar se pretende continuar a repetir a Sequência após terminar",
                     "states_power": "Um par 'estado: ptência' em cada linha, veja o exemplo acima",
+                    "states_trigger": "Trigger a playbook based on a state change. Example\n\nplaying: program1",
                     "sub_groups": "Todos os sensores que contêm os subgrupos selecionados também serão adicionados a este grupo",
-                    "unavailable_power": "Potência em W a considerar quando a entidade fonte está em estado indisponível"
+                    "unavailable_power": "Potência em W a considerar quando a entidade fonte está em estado indisponível",
+                    "utility_meter_tariffs": "A list of supported tariffs, leave empty if only a single tariff is needed."
                 }
             }
         }
@@ -306,6 +343,24 @@
             },
             "name": "Calibrar medidor de utilidade"
         },
+        "change_gui_config": {
+            "description": "Batch change configuration of all Powercalc config entries",
+            "fields": {
+                "field": {
+                    "description": "The field you'd like to change",
+                    "name": "Value"
+                },
+                "value": {
+                    "description": "The value to set.",
+                    "name": "Value"
+                }
+            },
+            "name": "Calibrate utility meter"
+        },
+        "get_active_playbook": {
+            "description": "Get current running playbook",
+            "name": "Get active playbook"
+        },
         "increase_daily_energy": {
             "description": "Aumenta o valor do sensor por um valor.",
             "fields": {
@@ -323,6 +378,16 @@
         "stop_playbook": {
             "description": "Parar Sequência activa.",
             "name": "Parar Sequência"
+        },
+        "switch_sub_profile": {
+            "description": "Some profiles in the library has different sub profiles. This service allows you to switch to another one.",
+            "fields": {
+                "profile": {
+                    "name": "Sub profile",
+                    "description": "Define one of the possible sub profiles"
+                }
+            },
+            "name": "Switch to another sub profile"
         }
     }
 }

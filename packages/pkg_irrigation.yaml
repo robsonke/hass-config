@@ -22,7 +22,7 @@ sensor:
   - platform: group
     unique_id: irrigation_zones_duration
     name: Irrigatie Zones Duur
-    unit_of_measurement: min
+    unit_of_measurement: Minutes
     type: sum
     entities:
       - number.sproeiduur_zone_terras_midden

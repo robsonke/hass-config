@@ -194,6 +194,7 @@ number:
   - id: irrigation_zone_terras_midden_duration
     platform: template
     name: "Sproeiduur Zone terras midden"
+    unit_of_measurement: "Minutes"
     min_value: 1
     max_value: 60
     step: 1.0
@@ -207,6 +208,7 @@ number:
   - id: irrigation_zone_terras_zijkant_duration
     platform: template
     name: "Sproeiduur Zone terras zijkant"
+    unit_of_measurement: "Minutes"
     min_value: 1
     max_value: 60
     step: 1.0
@@ -220,6 +222,7 @@ number:
   - id: irrigation_zone_achter_rechts_duration
     platform: template
     name: "Sproeiduur Zone achter rechts"
+    unit_of_measurement: "Minutes"
     min_value: 1
     max_value: 60
     step: 1.0
@@ -233,6 +236,7 @@ number:
   - id: irrigation_zone_achter_links_duration
     platform: template
     name: "Sproeiduur Zone achter links"
+    unit_of_measurement: "Minutes"
     min_value: 1
     max_value: 60
     step: 1.0

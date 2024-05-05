@@ -29,10 +29,10 @@ views:
             ".  sidebar    ."
             ".  footer     ."
             ".  home       ."
-            ".  garden1    ."
-            ".  garden2    ."
             ".  downstairs ."
             ".  upstairs   ."
+            ".  garden1    ."
+            ".  garden2    ."
             ".  energy     ."
             ".  .          ."
         '(max-width: 1200px)':
@@ -128,20 +128,6 @@ views:
             height: 40
           - type: tile
             entity: alarm_control_panel.alarmo
-            # card_mod:
-            #   style:
-            #     hui-card-features$:
-            #       hui-alarm-modes-card-feature$:
-            #         ha-control-select$: |
-            #           #option-armed_away {
-            #             --control-select-color: var(--orange);
-            #           }
-            #           #option-armed_night {
-            #             --control-select-color: var(--orange);
-            #           }
-            #           #option-disarmed {
-            #             --control-select-color: var(--green);
-            #           }
             tap_action:
               !include popups/pp_alarm.yaml
             features:
@@ -289,7 +275,6 @@ views:
               - media_player.eetkamer
               - media_player.office
               - media_player.living_room
-              - media_player.zithoek
             template:
               - sonos_downstairs
           - type: custom:button-card
@@ -351,10 +336,9 @@ views:
                 icon:
                   - color: >
                       [[[
-                        let plugged = states['binary_sensor.ehhatdgg_cable_locked'].state;
-                        // weird but off seems to be plugged
-                        if (plugged === 'off') return 'var(--state-icon-active-color)';
-                        return 'var(--custom-button-card-color-off)';
+                        let plugged = states['sensor.ehhatdgg_status'].state;
+                        if (plugged === 'disconnected') return 'var(--custom-button-card-color-off)';
+                        return 'var(--state-icon-active-color)';
                       ]]]
                   - animation: >
                       [[[

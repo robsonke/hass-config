@@ -60,12 +60,17 @@ browser_mod:
                       secondary_info: last-changed
                 exclude:
                   - entity_id: binary_sensor.voordeur_slot
+                  - entity_id: binary_sensor.doors_and_windows_upstairs
               show_empty: false
               unique: entity
               sort:
                 method: last_changed
                 count: 5
                 reverse: true
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: button.deurbel_langeweide_start_p2p_stream
         # wrap in grid to avoid layout issues with swipe card
         - type: grid
           view_layout:
@@ -89,7 +94,7 @@ browser_mod:
                   prevEl: ".swiper-button-prev"
               cards:
                 - type: 'custom:webrtc-camera'
-                  entity: camera.doorbell_camera_webrtc
+                  entity: camera.doorbell_webrtc
                 - type: 'custom:webrtc-camera'
                   entity: camera.reoveranda_camera_webrtc
                 - type: 'custom:webrtc-camera'

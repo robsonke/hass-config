@@ -25,12 +25,6 @@ light:
       - light.livingback_light
       - light.livingfront_light
   - platform: group
-    name: Overloop
-    unique_id: overloop
-    entities:
-      - light.overloop_1
-      - light.overloop_2
-  - platform: group
     name: Keuken
     unique_id: keuken
     entities:

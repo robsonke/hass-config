@@ -48,6 +48,7 @@ from .const import (
     PLATFORMS,
     TIMEOUT,
     chargerObservations,
+    equalizerEnergyObservations,
     equalizerObservations,
     weeklyScheduleStartDays,
     weeklyScheduleStopDays,
@@ -165,25 +166,28 @@ class ProductData:
             "Latest Firmware for %s: %s", self.product.id, firmware["latestFirmware"]
         )
 
-    async def async_refresh(self):
+    async def async_refresh(self, poll_observations=None):
         """Poll observations."""
+
+        if poll_observations is None:
+            poll_observations = self.poll_observations
+
         if self.state is None:
             self.state = await self.product.empty_state(raw=True)
+            self.state["voltageNL1"] = None
+            self.state["voltageNL2"] = None
+            self.state["voltageNL3"] = None
+            self.state["voltageL1L2"] = None
+            self.state["voltageL1L3"] = None
+            self.state["voltageL2L3"] = None
+            self.state["internalTemperature"] = None
         if self.config is None:
             self.config = await self.product.empty_config(raw=True)
 
-        self.state["voltageNL1"] = None
-        self.state["voltageNL2"] = None
-        self.state["voltageNL3"] = None
-        self.state["voltageL1L2"] = None
-        self.state["voltageL1L3"] = None
-        self.state["voltageL2L3"] = None
-        self.state["internalTemperature"] = None
-
         _LOGGER.debug(
-            "Polling state for %s using %s", self.product.id, self.poll_observations
+            "Polling state for %s using %s", self.product.id, poll_observations
         )
-        observations = await self.product.get_observations(*self.poll_observations)
+        observations = await self.product.get_observations(*poll_observations)
         for observation in observations["observations"]:
             data_id = observation["id"]
             value = observation["value"]
@@ -191,7 +195,7 @@ class ProductData:
                 name = self.streamdata(data_id).name
             except ValueError:
                 # Unsupported data
-                _LOGGER.debug("Unsupported data id %s %s", data_id, value)
+                _LOGGER.debug("Unsupported data id %s %s %s", self.product.id, data_id, value)
                 return False
 
             _LOGGER.debug(
@@ -315,7 +319,10 @@ class ProductData:
         ):
             return True
 
-        if abs(reference - value) > abs(reference * MINIMUM_UPDATE):
+        try:
+            if abs(reference - value) > abs(reference * MINIMUM_UPDATE):
+                return True
+        except Exception:
             return True
 
         return False
@@ -355,7 +362,7 @@ class ProductData:
             name = self.streamdata(data_id).name
         except ValueError:
             # Unsupported data
-            _LOGGER.debug("Unsupported data id %s %s", data_id, value)
+            _LOGGER.debug("Unsupported data id %s %s %s", self.product.id, data_id, value)
             return False
 
         _LOGGER.debug(
@@ -363,10 +370,19 @@ class ProductData:
         )
 
         if "_" in name:
-            first, second = name.split("_")
+            try:
+                first, second = name.split("_")
+            except Exception as ex:
+                _LOGGER.print("Exception %s when splitting %s", ex, name)
+                return False
 
             if first == "state":
-                oldvalue = self.state[second]
+                try:
+                    oldvalue = self.state[second]
+                except KeyError:
+                    _LOGGER.debug("No old value for %s %s", self.product.id, name)
+                    self.state[second] = value
+                    return True
                 self.state[second] = value
                 if second == "lifetimeEnergy" and oldvalue != value:
                     await self.cost_async_refresh()
@@ -375,7 +391,13 @@ class ProductData:
             elif first == "config":
                 if self.config is None:
                     return False
-                if self.config[second] != value:
+                try:
+                    oldvalue = self.config[second]
+                except KeyError:
+                    _LOGGER.debug("No old value for %s %s", self.product.id, name)
+                    self.config[second] = value
+                    return True
+                if oldvalue != value:
                     self.config[second] = value
                     return True
             elif first == "schedule":
@@ -623,6 +645,16 @@ class Controller:
             )
         )
 
+        # Add time pattern refresh some random time after each hour mark
+        self.trackers.append(
+            async_track_time_change(
+                self.hass,
+                self.refresh_hour,
+                minute=2,
+                second=int(random() * 59),
+            )
+        )
+
         # Let other tasks run
         await asyncio.sleep(0)
 
@@ -640,6 +672,15 @@ class Controller:
 
         for equalizer in self.equalizers_data:
             await equalizer.firmware_async_refresh()
+
+        self.update_ha_state()
+
+    async def refresh_hour(self, now=None):
+        """Refresh the energy data, if needed."""
+        _LOGGER.debug("Hour refresh started")
+
+        for equalizer in self.equalizers_data:
+            await equalizer.async_refresh(poll_observations = equalizerEnergyObservations)
 
         self.update_ha_state()
 

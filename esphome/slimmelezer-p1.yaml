@@ -3,7 +3,7 @@ substitutions:
   device_name: slimmelezer-p1
   device_description: "DIY P1 module to read your smart meter"
   ip: !secret slimmelezer_ip
-     
+
 esphome:
   name: ${device_name}
   comment: "${device_description}"
@@ -27,13 +27,13 @@ esphome:
             - logger.log:
                 level: info
                 format: "Not using decryption key. If you need to set a key use Home Assistant service 'ESPHome:  ${device_name}_set_dsmr_key'"
- 
+
 <<: !include .common.yaml
 
 # Enable logging
 logger:
   baud_rate: 0
- 
+
 # Enable Home Assistant API
 api:
   services:
@@ -51,11 +51,11 @@ api:
           if (private_key.length() == 32)
             private_key.copy(id(stored_decryption_key), 32);
           id(dsmr_instance).set_decryption_key(private_key);
- 
+
 uart:
   baud_rate: 115200
   rx_pin: D7
- 
+
 globals:
   - id: has_key
     type: bool
@@ -64,10 +64,10 @@ globals:
   - id: stored_decryption_key
     type: char[32]
     restore_value: yes
- 
+
 dsmr:
   id: dsmr_instance
- 
+
 sensor:
   - platform: dsmr
     # energy_delivered_lux:
@@ -141,7 +141,7 @@ sensor:
   - platform: wifi_signal
     name: "SlimmeLezer Wi-Fi Signal"
     update_interval: 60s
- 
+
 text_sensor:
   - platform: dsmr
     identification:

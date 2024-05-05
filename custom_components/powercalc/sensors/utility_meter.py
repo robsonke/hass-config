@@ -21,6 +21,7 @@ from homeassistant.helpers.typing import StateType
 from custom_components.powercalc.const import (
     CONF_CREATE_UTILITY_METERS,
     CONF_ENERGY_SENSOR_PRECISION,
+    CONF_IGNORE_UNAVAILABLE_STATE,
     CONF_UTILITY_METER_OFFSET,
     CONF_UTILITY_METER_TARIFFS,
     CONF_UTILITY_METER_TYPES,
@@ -89,7 +90,7 @@ async def create_utility_meters(
 
         # Create utility meter for each tariff, and the tariff select entity which allows you to select a tariff.
         if tariffs:
-            filtered_tariffs = tariffs = [
+            filtered_tariffs = [
                 t for t in list(tariffs) if t != GENERAL_TARIFF
             ]
             tariff_select = await create_tariff_select(
@@ -185,6 +186,8 @@ async def create_utility_meter(
         params["cron_pattern"] = None
     if "periodically_resetting" in signature.parameters:
         params["periodically_resetting"] = False
+    if "sensor_always_available" in signature.parameters:
+        params["sensor_always_available"] = sensor_config.get(CONF_IGNORE_UNAVAILABLE_STATE) or False
 
     utility_meter = VirtualUtilityMeter(**params)
     utility_meter.rounding_digits = sensor_config.get(CONF_ENERGY_SENSOR_PRECISION)  # type: ignore

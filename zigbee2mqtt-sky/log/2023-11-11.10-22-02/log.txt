@@ -1,4 +1,0 @@
-info  2023-11-11 10:22:02: Logging to console and directory: '/config/zigbee2mqtt-sky/log/2023-11-11.10-22-02' filename: log.txt
-info  2023-11-11 10:22:02: Starting Zigbee2MQTT version 1.33.2-dev (commit #c8dcd71)
-info  2023-11-11 10:22:02: Starting zigbee-herdsman (0.22.1)
-error 2023-11-11 10:22:03: Not connected to MQTT server!

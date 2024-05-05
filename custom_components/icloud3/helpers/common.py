@@ -31,8 +31,11 @@ def list_to_str(list_value, separator=None):
     list_valt - list to be converted
     separator - Strig valut that separates each item (default = ', ')
     '''
+    if list_value == []: return ''
     separator_str = separator if separator else ', '
-    list_str = separator_str.join(list_value)
+    if None in list_value:
+        list_value = [lv for lv in list_value if lv is not None]
+    list_str = separator_str.join(list_value) if list_value else 'None'
 
     if separator_str.startswith(CRLF):
         return f"{separator_str}{list_str}"
@@ -41,6 +44,8 @@ def list_to_str(list_value, separator=None):
 
 #--------------------------------------------------------------------
 def list_add(list_value, add_value):
+    if add_value is None:
+        return list_value
     if add_value not in list_value:
         list_value.append(add_value)
     return list_value
@@ -55,8 +60,8 @@ def list_del(list_value, del_value):
 def str_to_list(str_value):
     '''
     Create a list of a comma separated strings
-    str_value   - ('icloud,iosapp')
-    Return      - ['icloud','iosapp']
+    str_value   - ('icloud,mobapp')
+    Return      - ['icloud','mobapp']
     '''
 
     while instr(str_value,', '):
@@ -93,7 +98,7 @@ def is_statzone(zone):
 
 #--------------------------------------------------------------------
 def isnot_statzone(zone):
-    return instr(zone, STATIONARY) is False
+    return (instr(zone, STATIONARY) is False)
 
 #--------------------------------------------------------------------
 def isnumber(string):
@@ -119,25 +124,17 @@ def inlist(string, list_items):
     return False
 
 #--------------------------------------------------------------------
-def round_to_zero(value):
-    if abs(value) < .0001: value = 0
-    return round(value, 8)
-#-------------------------------------------------------------------------------------------
-def set_precision(value, um=None):
-    '''
-    Return the distance value as an integer or float value
-    '''
-    try:
-        um = um if um else Gb.um
-        precision = 5 if um in ['km', 'mi'] else 2 if um in ['m', 'ft'] else 4
-        value = round(float(value), precision)
-        if value == int(value):
-            return int(value)
+def round_to_zero(number):
+    if isnumber(number) is False:
+        return number
 
-    except Exception as err:
-        pass
+    int_number = int(number*100000000)
+    if int(int_number) == 0:
+        return 0.0
 
-    return value
+    return int_number/100000000
+    # if abs(value) < .00001: value = 0.0
+    # return round(value, 8)
 
 #--------------------------------------------------------------------
 def is_zone(zone):
@@ -202,10 +199,24 @@ def obscure_field(field):
     return obscure_field
 
 #--------------------------------------------------------------------
+def zone_dname(zone):
+    try:
+        return Gb.zones_dname[zone]
+    except:
+        if zone in Gb.Zones_by_zone:
+            Zone = Gb.Zones_by_zone[zone]
+            Gb.zones_dname[zone] = Zone.dname
+        elif is_statzone(zone):
+            Gb.zones_dname[zone] = f"StatZone{zone[-1]}"
+        else:
+            Gb.zones_dname[zone] = zone.title()
+        return Gb.zones_dname[zone]
+
+#--------------------------------------------------------------------
 def zone_display_as(zone):
-    if is_statzone(zone) and zone not in Gb.zone_display_as:
+    if is_statzone(zone) and zone not in Gb.zones_dname:
         return 'StatZone'
-    return Gb.zone_display_as.get(zone, zone.title())
+    return Gb.zones_dname.get(zone, zone.title())
 
 #--------------------------------------------------------------------
 def format_gps(latitude, longitude, accuracy, latitude_to=None, longitude_to=None):

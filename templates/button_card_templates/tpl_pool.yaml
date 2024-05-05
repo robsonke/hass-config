@@ -12,14 +12,18 @@ pool:
       [[[
         return entity.state === 'Open' && states['sensor.pool_pump_frequency_level'].state !== 'OFF' && states['sensor.pool_pump_frequency_level'].state !== 'unavailable';
       ]]]
+    lights_on: >
+      [[[
+        return states['light.pool_light'].state === 'on';
+      ]]]
     circle_input: >
       [[[
-        return states['sensor.heatpump_pool_water_temperature'].state / states['number.heatpump_pool_water_temperature_target'].state * 100;
+        return states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state / states['number.pool_fairland_heatpump_target_temperature_heating'].state * 100;
       ]]]
     circle_text: >
       [[[
-        if (states['sensor.heatpump_pool_water_temperature'].state === 'unavailable') return '-';
-        return states['sensor.heatpump_pool_water_temperature'].state;
+        if (states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state === 'unavailable') return '-';
+        return states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state;
       ]]]
     unit: "°C"
     icon: mdi:pool
@@ -30,13 +34,21 @@ pool:
             [[[
               let color = '';
               if (states['binary_sensor.pool_pump_active'].state === 'on') color = 'var(--blue)';
-              if (states['sensor.heatpump_pool_speed'].state > 0) color = 'var(--orange)';
-              if (states['sensor.heatpump_pool_speed'].state > 79) color = 'var(--red)';
+              if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 0) color = 'var(--orange)';
+              if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 79) color = 'var(--red)';
               return color;
             ]]]
         - animation: '[[[ if (entity.state === "Moving") return "blink 2s ease infinite"; return "none"; ]]]'
+    card:
+      - background-color: >
+          [[[
+            if (variables.lights_on) return 'rgba(255, 187, 62, 0.5)';
+            return variables.consider_on ? 'rgba(255, 255, 255, 0.8)' : 'rgba(115, 115, 115, 0.4)';
+          ]]]
   tap_action:
     !include ../../dashboards/popups/pp_pool_garden.yaml
+
+
 
 icon_fan:
   styles:

@@ -1,0 +1,94 @@
+substitutions:
+  ip: !secret pool_shelly_3em_ip
+
+esphome:
+  name: "pool-shelly-3em"
+
+esp8266:
+  board: esp01_1m
+
+<<: !include .common.yaml
+  
+logger:
+  level: INFO
+
+i2c:
+  sda: GPIO12
+  scl: GPIO14
+  frequency: 200kHz
+
+status_led:
+  pin:
+    number: GPIO2
+
+switch:
+  - id: relay
+    name: Pool Shelly 3EM Relay
+    platform: gpio
+    pin:
+      number: GPIO15
+
+binary_sensor:
+  - id: button
+    name: Shelly 3EM Button
+    platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: true
+
+sensor:
+  - id: ade7880_device
+    platform: ade7880
+    update_interval: 5s
+    irq0_pin:
+      number: GPIO13
+    irq1_pin:
+      number: GPIO5
+    reset_pin:
+      number: GPIO16
+    frequency: 60Hz
+    phase_a:
+      name: Pool Shelly 3EM Phase A
+      voltage: Voltage
+      current: Current
+      active_power: Active Power
+      #power_factor: Power Factor
+      #forward_active_energy: Forward Active Energy
+      #reverse_active_energy: Reverse Active Energy
+      calibration:
+        current_gain: 3021141
+        voltage_gain: -822534
+        power_gain: -1232767
+        phase_angle: 164
+    phase_b:
+      name: Pool Shelly 3EM Phase B
+      voltage: Voltage
+      current: Current
+      active_power: Active Power
+      #power_factor: Power Factor
+      #forward_active_energy: Forward Active Energy
+      #reverse_active_energy: Reverse Active Energy
+      calibration:
+        current_gain: 3045856
+        voltage_gain: -797210
+        power_gain: -1228557
+        phase_angle: 156
+    phase_c:
+      name: Pool Shelly 3EM Phase C
+      voltage: Voltage
+      current: Current
+      active_power: Active Power
+      #power_factor: Power Factor
+      #forward_active_energy: Forward Active Energy
+      #reverse_active_energy: Reverse Active Energy
+      calibration:
+        current_gain: 3035182
+        voltage_gain: -810401
+        power_gain: -1224971
+        phase_angle: 156
+    neutral:
+      name: Pool Shelly 3EM Neutral
+      current: Current
+      calibration:
+        current_gain: 266842892

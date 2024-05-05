@@ -1,31 +1,31 @@
 {
     "0x00158d000533c62a": {
-        "temperature": 15.98,
-        "humidity": 57.68,
-        "pressure": 1028.8,
-        "linkquality": 199,
-        "voltage": 3005,
-        "battery": 100,
+        "temperature": 20.35,
+        "humidity": 60.13,
+        "pressure": 1007.7,
+        "linkquality": 143,
+        "voltage": 2915,
+        "battery": 43,
         "power_outage_count": 31477
     },
     "0x00158d0007e68332": {
-        "linkquality": 247,
-        "temperature": 15.77,
-        "humidity": 60.31,
-        "pressure": 1029.1,
-        "voltage": 2975,
-        "battery": 83,
+        "linkquality": 167,
+        "temperature": 20.16,
+        "humidity": 59.69,
+        "pressure": 1007.7,
+        "voltage": 2995,
+        "battery": 97,
         "power_outage_count": 20
     },
     "0x00158d0007e7531d": {
-        "linkquality": 207,
+        "linkquality": 255,
         "occupancy": false,
         "illuminance": 4,
         "illuminance_lux": 4,
-        "voltage": 3015,
+        "voltage": 3025,
         "battery": 100,
-        "device_temperature": 21,
-        "power_outage_count": 118
+        "device_temperature": 24,
+        "power_outage_count": 154
     },
     "0x84fd27fffecf2bce": {
         "update": {
@@ -33,6 +33,6 @@
             "installed_version": 587753009,
             "latest_version": 587753009
         },
-        "linkquality": 191
+        "linkquality": 255
     }
 }

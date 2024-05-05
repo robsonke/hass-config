@@ -1,5 +1,5 @@
 from ..global_variables     import GlobalVariables as Gb
-from ..const                import (NOT_SET,
+from ..const                import (NOT_SET, IC3LOG_FILENAME,
                                     NEW_LINE, CRLF, CRLF_DOT,
                                     EVLOG_ALERT, EVLOG_IC3_STARTING, EVLOG_IC3_STAGE_HDR,
                                     SETTINGS_INTEGRATIONS_MSG, INTEGRATIONS_IC3_CONFIG_MSG,
@@ -16,18 +16,28 @@ from ..helpers.common       import (instr, obscure_field, list_to_str, )
 from ..helpers.messaging    import (broadcast_info_msg,
                                     post_event, post_error_msg, log_error_msg, post_startup_alert,
                                     post_monitor_msg, post_internal_error,
-                                    log_debug_msg, log_info_msg, log_exception, log_rawdata,
-                                    _trace, _traceha, more_info, write_debug_log,  write_config_file_to_ic3_log, )
+                                    log_start_finish_update_banner,
+                                    log_debug_msg, log_warning_msg, log_info_msg, log_exception, log_rawdata,
+                                    _trace, _traceha, more_info, format_filename,
+                                    write_debug_log,  write_config_file_to_ic3log,
+                                    open_ic3log_file, )
 from ..helpers.time_util    import (time_now_secs, calculate_time_zone_offset, )
 
 import homeassistant.util.dt as dt_util
+import os
 
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def stage_1_setup_variables():
 
-    Gb.trace_prefix = 'STAGE 1 > '
+    # new_log_file=False
+    # ic3logger_file = Gb.hass.config.path(IC3LOG_FILENAME)
+    # filemode = 'w' if (new_log_file or os.path.isfile(ic3logger_file) is False) else 'a'
+    Gb.trace_prefix = 'STAGE1'
     stage_title = f'Stage 1 > Initial Preparations'
+
+    open_ic3log_file()
+    log_info_msg(f"* > {EVLOG_IC3_STAGE_HDR}{stage_title}")
 
     broadcast_info_msg(stage_title)
 
@@ -49,24 +59,24 @@ def stage_1_setup_variables():
         Gb.reinitialize_icloud_devices_cnt  = 0
 
         if Gb.initial_icloud3_loading_flag is False:
+            Gb.EvLog.startup_event_recds = []
+            Gb.EvLog.startup_event_save_recd_flag = True
             post_event( f"{EVLOG_IC3_STARTING}iCloud3 v{Gb.version} > Restarting, "
                         f"{dt_util.now().strftime('%A, %b %d')}")
-            # Gb.EvLog.update_event_log_display("")
-            # start_ic3.reinitialize_config_parameters()
             config_file.load_storage_icloud3_configuration_file()
-            write_config_file_to_ic3_log()
+            write_config_file_to_ic3log()
             start_ic3.initialize_global_variables()
             start_ic3.set_global_variables_from_conf_parameters()
-            start_ic3.set_zone_display_as()
-
 
         start_ic3.define_tracking_control_fields()
 
+        if Gb.ha_config_directory != '/config':
+            post_event(f"Base Config Directory > {Gb.ha_config_directory}")
         post_event(f"iCloud3 Directory > {Gb.icloud3_directory}")
         if Gb.conf_profile[CONF_VERSION] == 0:
-            post_event(f"iCloud3 Configuration File > {Gb.config_ic3_yaml_filename}")
+            post_event(f"iCloud3 Configuration File > {format_filename(Gb.config_ic3_yaml_filename)}")
         else:
-            post_event(f"iCloud3 Configuration File > {Gb.icloud3_config_filename}")
+            post_event(f"iCloud3 Configuration File > {format_filename(Gb.icloud3_config_filename)}")
 
         start_ic3.display_platform_operating_mode_msg()
         Gb.hass.loop.create_task(start_ic3.update_lovelace_resource_event_log_js_entry())
@@ -75,7 +85,7 @@ def stage_1_setup_variables():
         post_monitor_msg(f"LocationInfo-{Gb.ha_location_info}")
 
         calculate_time_zone_offset()
-        start_ic3.set_evlog_table_max_cnt()
+        start_ic3.set_event_recds_max_cnt()
 
         post_event(f"{EVLOG_IC3_STAGE_HDR}{stage_title}")
         Gb.EvLog.update_event_log_display("")
@@ -86,8 +96,9 @@ def stage_1_setup_variables():
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def stage_2_prepare_configuration():
 
-    Gb.trace_prefix = 'STAGE 2 > '
+    Gb.trace_prefix = 'STAGE2'
     stage_title = f'Stage 2 > Prepare Support Services'
+    log_info_msg(f"* > {EVLOG_IC3_STAGE_HDR}{stage_title}")
 
     try:
         Gb.EvLog.display_user_message(stage_title)
@@ -96,8 +107,9 @@ def stage_2_prepare_configuration():
         if Gb.initial_icloud3_loading_flag is False:
             Gb.PyiCloud = None
 
+        # start_ic3.initialize_global_variables()
+        # start_ic3.set_global_variables_from_conf_parameters()
         start_ic3.create_Zones_object()
-        # start_ic3.reset_StationaryZones_object()
         start_ic3.create_Waze_object()
 
         Gb.WazeHist.load_track_from_zone_table()
@@ -131,13 +143,14 @@ def stage_2_prepare_configuration():
     except Exception as err:
         log_exception(err)
 
-    write_debug_log(stage_title)
+    write_debug_log()
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def stage_3_setup_configured_devices():
 
-    Gb.trace_prefix = 'STAGE 3 > '
+    Gb.trace_prefix = 'STAGE3'
     stage_title = f'Stage 3 > Prepare Configured Devices'
+    log_info_msg(f"* > {EVLOG_IC3_STAGE_HDR}{stage_title}")
 
     try:
         Gb.EvLog.display_user_message(stage_title)
@@ -160,7 +173,7 @@ def stage_3_setup_configured_devices():
     except Exception as err:
         log_exception(err)
 
-    write_debug_log(stage_title)
+    write_debug_log()
 
     post_event(f"{EVLOG_IC3_STAGE_HDR}{stage_title}")
     Gb.EvLog.update_event_log_display("")
@@ -168,8 +181,9 @@ def stage_3_setup_configured_devices():
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def stage_4_setup_data_sources(retry=False):
 
-    Gb.trace_prefix = 'STAGE 4 > '
-    stage_title = f'Stage 4 > Setup iCloud & iOSApp Data Source'
+    Gb.trace_prefix = 'STAGE4'
+    stage_title = f'Stage 4 > Setup iCloud & MobApp Data Source'
+    log_info_msg(f"* > {EVLOG_IC3_STAGE_HDR}{stage_title}")
 
     # Missing username/password, PyiCloud can not be started
     if Gb.primary_data_source_ICLOUD:
@@ -208,19 +222,20 @@ def stage_4_setup_data_sources(retry=False):
                 event_msg = 'iCloud Location Services > Not used as a data source'
                 post_event(event_msg)
 
-        if Gb.conf_data_source_IOSAPP:
-            start_ic3.setup_tracked_devices_for_iosapp()
+        if Gb.conf_data_source_MOBAPP:
+            start_ic3.setup_tracked_devices_for_mobapp()
         else:
-            event_msg = 'iOS App > Not used as a data source'
+            event_msg = 'Mobile App > Not used as a data source'
             post_event(event_msg)
 
+        start_ic3.set_devices_verified_status()
         return_code = _are_all_devices_verified(retry=retry)
 
     except Exception as err:
         log_exception(err)
         return_code = False
 
-    write_debug_log(stage_title)
+    write_debug_log()
 
     post_event(f"{EVLOG_IC3_STAGE_HDR}{stage_title}{retry_msg}")
     Gb.EvLog.update_event_log_display("")
@@ -241,7 +256,7 @@ def _are_all_devices_verified(retry=False):
         False - Some were not verified
     '''
 
-    # Get a list of all tracked devices that have not been set p by icloud or the ios app
+    # Get a list of all tracked devices that have not been set p by icloud or the Mobile App
     unverified_devices = [devicename
                             for devicename, Device in Gb.Devices_by_devicename.items()
                             if Device.verified_flag is False]
@@ -267,8 +282,9 @@ def _are_all_devices_verified(retry=False):
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def stage_5_configure_tracked_devices():
 
-    Gb.trace_prefix = 'STAGE 5 > '
+    Gb.trace_prefix = 'STAGE5'
     stage_title = f'Stage 5 > Tracked Devices Configuration Summary'
+    log_info_msg(f"* > {EVLOG_IC3_STAGE_HDR}{stage_title}")
 
     try:
         Gb.EvLog.display_user_message(stage_title)
@@ -285,7 +301,7 @@ def stage_5_configure_tracked_devices():
     except Exception as err:
         log_exception(err)
 
-    write_debug_log(stage_title)
+    write_debug_log()
 
     post_event(f"{EVLOG_IC3_STAGE_HDR}{stage_title}")
     Gb.EvLog.display_user_message('')
@@ -293,19 +309,15 @@ def stage_5_configure_tracked_devices():
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def stage_6_initialization_complete():
 
-    Gb.trace_prefix = 'STAGE 6 > '
+    Gb.trace_prefix = 'STAGE6'
     stage_title = f'iCloud3 Initialization Complete'
+    log_info_msg(f"* > {EVLOG_IC3_STAGE_HDR}{stage_title}")
 
     broadcast_info_msg(stage_title)
 
     start_ic3.display_platform_operating_mode_msg()
     Gb.EvLog.display_user_message('')
 
-    if Gb.log_debug_flag is False:
-        Gb.startup_log_msgs = (NEW_LINE + '-'*55 +
-                                Gb.startup_log_msgs.replace(CRLF, NEW_LINE) +
-                                NEW_LINE + '-'*55)
-        log_info_msg(Gb.startup_log_msgs)
     Gb.startup_log_msgs = ''
 
     try:
@@ -347,7 +359,7 @@ def stage_7_initial_locate():
     if Gb.reinitialize_icloud_devices_flag and Gb.conf_famshr_device_cnt > 0:
         return_code = reinitialize_icloud_devices()
 
-    Gb.trace_prefix = 'INITLOC > '
+    Gb.trace_prefix = '1stLOC'
 
     Gb.this_update_secs = time_now_secs()
     Gb.this_update_time = dt_util.now().strftime('%H:%M:%S')
@@ -366,7 +378,15 @@ def stage_7_initial_locate():
         else:
             continue
 
-        post_event(Device.devicename, 'Trigger > Initial Locate')
+        post_event(Device, 'Trigger > Initial Locate')
+
+        if Device.no_location_data:
+            event_msg = f"{EVLOG_ALERT}NO GPS DATA RETURNED FROM ICLOUD LOCATION SERVICE"
+            post_event(Device, event_msg)
+            error_msg = (f"iCloud3 > {Device.fname_devicename} > "
+                        "No GPS data was returned from iCloud Location "
+                        "Service on the initial locate")
+            log_warning_msg(error_msg)
 
         Device.update_sensors_flag = True
 

@@ -25,8 +25,8 @@ browser_mod:
           dimensions:
             aspect_ratio_mode: unconstrained
           entities:
-            - entity: binary_sensor.doorbell_lw_doorbell
-            - entity: binary_sensor.doorbell_lw_motion
+            - entity: binary_sensor.deurbel_langeweide_ringing
+            - entity: binary_sensor.deurbel_langeweide_motion_detected
           menu:
             buttons:
               frigate:
@@ -45,7 +45,7 @@ browser_mod:
                 mode: below
                 media: snapshots
           cameras:
-            - camera_entity: camera.doorbell
+            - camera_entity: camera.doorbell_webrtc
               live_provider: ha
               frigate:
                 camera_name: Voordeur
@@ -62,11 +62,11 @@ browser_mod:
               entities:
                 - type: section
                   label: Voordeur
-                - entity: binary_sensor.doorbell_lw_doorbell
+                - entity: binary_sensor.deurbel_langeweide_ringing
                   name: Doorbell ding
                   secondary_info: last-changed
                 - binary_sensor.frontdoor_openclose_contact
-                - entity: binary_sensor.doorbell_lw_motion
+                - entity: binary_sensor.deurbel_langeweide_motion_detected
                   name: Last motion
                   secondary_info: last-changed
             - type: custom:auto-entities

@@ -1,7 +1,7 @@
 
 from ..global_variables     import GlobalVariables as Gb
 from ..const                import (HIGH_INTEGER,
-                                    EVLOG_ALERT, EVLOG_IC3_STARTING, EVLOG_NOTICE,
+                                    EVLOG_ALERT, EVLOG_NOTICE,
                                     CRLF, CRLF_DOT, DASH_20,
                                     ICLOUD, FAMSHR,
                                     SETTINGS_INTEGRATIONS_MSG, INTEGRATIONS_IC3_CONFIG_MSG,
@@ -14,8 +14,8 @@ from ..support.pyicloud_ic3 import (PyiCloudService, PyiCloudFailedLoginExceptio
 from ..helpers.common       import (instr, list_to_str, delete_file, )
 from ..helpers.messaging    import (post_event, post_error_msg, post_monitor_msg, post_startup_alert, log_debug_msg,
                                     log_info_msg, log_exception, log_error_msg, internal_error_msg2, _trace, _traceha, )
-from ..helpers.time_util    import (time_secs, secs_to_time, secs_to_datetime, secs_to_time_str, format_age,
-                                    secs_to_time_age_str, )
+from ..helpers.time_util    import (time_secs, secs_to_time, format_age,
+                                    format_time_age, )
 
 import os
 import time
@@ -44,9 +44,6 @@ def create_PyiCloudService(PyiCloud, called_from='unknown'):
     Gb.pyicloud_calls_time          = 0.0
 
     if Gb.username == '' or Gb.password == '':
-        # event_msg =(f"{EVLOG_ALERT}CONFIGURATION ALERT > The iCloud username or password has not been "
-        #             f"configured. iCloud will not be used for location tracking")
-        # post_event(event_msg)
         return
 
     authenticate_icloud_account(PyiCloud, called_from=called_from, initial_setup=True)
@@ -57,7 +54,7 @@ def create_PyiCloudService(PyiCloud, called_from='unknown'):
 
     else:
         event_msg =(f"iCLOUD3 ERROR > Apple ID Verification is needed or "
-                    f"another error occurred. The iOSApp tracking method will be "
+                    f"another error occurred. The MobApp tracking method will be "
                     f"used until the Apple ID Verification code has been entered. See the "
                     f"HA Notification area to continue. iCloud3 will then restart.")
         post_error_msg(event_msg)
@@ -83,9 +80,6 @@ def verify_pyicloud_setup_status():
         the PyiCloud session data requests must be run in the event loop.
 
     '''
-    # if Gb.PyiCloudInit is None and Gb.PyiCloud:
-    #     Gb.PyiCloudInit = Gb.PyiCloud
-
     init_step_needed   = list_to_str(Gb.PyiCloudInit.init_step_needed)
     init_step_complete = list_to_str(Gb.PyiCloudInit.init_step_complete)
 
@@ -115,14 +109,11 @@ def verify_pyicloud_setup_status():
                             f"{CRLF_DOT}Inprocess: {Gb.PyiCloudInit.init_step_inprocess}"
                             f"{CRLF_DOT}Needed: {init_step_needed}")
 
-        # else:
-        #     event_msg += (  f"{CRLF_DOT}Completed: {init_step_complete}"
-        #                     f"{CRLF_DOT}Inprocess: {Gb.PyiCloudInit.init_step_inprocess}"
-        #                     f"{CRLF_DOT}Needed: Restarting the interface now")
-
         post_event(event_msg)
 
         create_PyiCloudService(Gb.PyiCloud, called_from='stage4')
+
+    post_event(event_msg)
 
 #--------------------------------------------------------------------
 def authenticate_icloud_account(PyiCloud, called_from='unknown', initial_setup=False):
@@ -142,6 +133,8 @@ def authenticate_icloud_account(PyiCloud, called_from='unknown', initial_setup=F
             or Gb.username == ''
             or Gb.password == ''):
         return
+
+    this_fct_error_flag = True
 
     try:
         Gb.pyicloud_auth_started_secs = time_secs()
@@ -174,11 +167,11 @@ def authenticate_icloud_account(PyiCloud, called_from='unknown', initial_setup=F
 
     except PyiCloudFailedLoginException as err:
         event_msg =(f"{EVLOG_ALERT}iCloud3 Error > An error occurred logging into the iCloud Account. "
-                    f"Authentication Process/Error-{Gb.PyiCloud.authenticate_method[2:]})")
+                    f"Authentication Process, Error-({Gb.PyiCloud.authenticate_method[2:]})")
         post_error_msg(event_msg)
-        post_startup_alert('Username/Password error logging into the iCloud Account')
+        post_startup_alert('iCloud Account Loggin Error')
 
-        if instr(Gb.PyiCloud.authenticate_method, 'Invalid username/password'):
+        if Gb.PyiCloud.authenticate_method in ['', 'Invalid username/password']:
             Gb.PyiCloud = PyiCloud = None
             Gb.username = Gb.password = ''
             return False
@@ -186,11 +179,15 @@ def authenticate_icloud_account(PyiCloud, called_from='unknown', initial_setup=F
         check_all_devices_online_status()
         return False
 
-    except (PyiCloud2FARequiredException) as err:
+    except PyiCloud2FARequiredException as err:
         is_authentication_2fa_code_needed(PyiCloud, initial_setup=True)
         return False
 
     except Exception as err:
+        if this_fct_error_flag is False:
+                log_exception(err)
+                return
+
         event_msg =(f"{EVLOG_ALERT}iCloud3 Error > An error occurred logging into the iCloud Account. "
                     f"Error-{err}")
         post_error_msg(event_msg)
@@ -212,9 +209,10 @@ def display_authentication_msg(PyiCloud):
     if authentication_method == '':
         return
 
-    last_authenticated_time = last_authenticated_age = Gb.authenticated_time
-    if last_authenticated_time > 0:
-        last_authenticated_age = time_secs() - last_authenticated_time
+    last_authenticated_time =  Gb.authenticated_time
+    # last_authenticated_time = last_authenticated_age = Gb.authenticated_time
+    # if last_authenticated_time > 0:
+    #     last_authenticated_age = time_secs() - last_authenticated_time
 
     Gb.authenticated_time = time_secs()
     Gb.pyicloud_authentication_cnt += 1
@@ -223,7 +221,7 @@ def display_authentication_msg(PyiCloud):
                 f"#{Gb.pyicloud_authentication_cnt} > {authentication_method}, "
                 f"Last-{secs_to_time(last_authenticated_time)}")
     if instr(authentication_method, 'Password') is False:
-        event_msg += f" ({format_age(last_authenticated_age)})"
+        event_msg += f" ({format_age(last_authenticated_time)})"
 
 
     if instr(authentication_method, 'Password'):
@@ -241,8 +239,8 @@ def is_authentication_2fa_code_needed(PyiCloud, initial_setup=False):
         return False
     elif PyiCloud.requires_2fa:
         pass
-    # elif Gb.data_source_IOSAPP is False:  (beta 17)
-    elif Gb.conf_data_source_IOSAPP is False:
+    # elif Gb.data_source_MOBAPP is False:  (beta 17)
+    elif Gb.conf_data_source_MOBAPP is False:
         return False
     elif initial_setup:
         pass
@@ -271,15 +269,15 @@ def check_all_devices_online_status():
             if Device.offline_secs == 0:
                 Device.offline_secs = Gb.this_update_secs
             event_msg = (   f"Device Offline and not available > "
-                            f"OfflineSince-{secs_to_time_age_str(Device.offline_secs)}")
-            post_event(Device.devicename, event_msg)
+                            f"OfflineSince-{format_time_age(Device.offline_secs)}")
+            post_event(Device, event_msg)
 
         elif Device.is_pending:
             if Device.pending_secs == 0:
                 Device.pending_secs = Gb.this_update_secs
             event_msg = (   f"Device status is Pending/Unknown > "
-                            f"PendingSince-{secs_to_time_age_str(Device.pending_secs)}")
-            post_event(Device.devicename, event_msg)
+                            f"PendingSince-{format_time_age(Device.pending_secs)}")
+            post_event(Device, event_msg)
 
     if any_device_online_flag == False:
         event_msg = (   f"All Devices are offline or have a pending status. "

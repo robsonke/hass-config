@@ -4,7 +4,7 @@ from ..const                import (HOME, NOT_SET, HHMMSS_ZERO,
                                     EVLOG_ALERT,
                                     CRLF, CRLF_DOT, RARROW,
                                     FMF, FAMSHR,
-                                    FMF_FNAME, FAMSHR_FNAME, IOSAPP,
+                                    FMF_FNAME, FAMSHR_FNAME, MOBAPP,
                                     LATITUDE, LONGITUDE,
                                     LOCATION,
                                     )
@@ -13,11 +13,11 @@ from ..support              import start_ic3 as start_ic3
 from ..support              import pyicloud_ic3_interface
 
 from ..helpers.common       import (instr, is_statzone, list_to_str, )
-from ..helpers.messaging    import (post_event, post_error_msg, post_monitor_msg,
+from ..helpers.messaging    import (post_event, post_error_msg, post_monitor_msg, log_debug_msg,
                                     log_exception, log_start_finish_update_banner, log_rawdata,
                                     _trace, _traceha, )
-from ..helpers.time_util    import (time_now_secs, secs_to_time, secs_to_time_str, secs_to_age_str,
-                                    secs_since, secs_since_to_time_str, secs_to, )
+from ..helpers.time_util    import (time_now_secs, secs_to_time, format_timer, format_age,
+                                    secs_since,)
 from .pyicloud_ic3          import (PyiCloudAPIResponseException, PyiCloud2FARequiredException,
                                     ICLOUD_ERROR_CODES, )
 
@@ -33,15 +33,15 @@ def no_icloud_update_needed_tracking(Device):
         Device.icloud_no_update_reason = 'Paused'
 
     elif (Device.is_next_update_time_reached is False
-            and Device.is_inzone
-            and Device.isnot_in_statzone):
+            and Device.isin_zone
+            and Device.isnotin_statzone):
         Device.icloud_no_update_reason = 'inZone & Next Update Time not Reached'
 
     elif Gb.primary_data_source_ICLOUD is False:
-        Device.icloud_no_update_reason = 'Global iOS App Data Source'
+        Device.icloud_no_update_reason = 'Global Mobile App Data Source'
 
     elif Device.is_data_source_ICLOUD is False:
-        Device.icloud_no_update_reason = 'Device data from iOS App'
+        Device.icloud_no_update_reason = 'Device data from Mobile App'
 
     return (Device.icloud_no_update_reason != '')
 
@@ -72,12 +72,13 @@ def is_icloud_update_needed_timers(Device):
         if Device.is_statzone_timer_reached:
             Device.icloud_update_reason = ( f"Next Update & Stat Zone Time Reached@"
                                         f"{secs_to_time(Device.statzone_timer)}")
-        elif Device.isnot_inzone and Device.FromZone_NextToUpdate.from_zone != HOME:
-            Device.icloud_update_reason += f" ({Device.FromZone_NextToUpdate.from_zone_display_as})"
+        elif Device.isnotin_zone and Device.FromZone_NextToUpdate.from_zone != HOME:
+            Device.icloud_update_reason += f" ({Device.FromZone_NextToUpdate.from_zone_dname})"
 
     elif Device.is_next_update_overdue:
         Device.icloud_update_reason = 'Next Update Time Overdue'
 
+    log_debug_msg(Device, Device.icloud_update_reason)
     return (Device.icloud_update_reason != '')
 
 #----------------------------------------------------------------------------
@@ -98,15 +99,25 @@ def is_icloud_update_needed_general(Device):
             and Device.icloud_initial_locate_done):
         Device.icloud_update_reason = (f"Old Location-{Device.loc_data_time}")
 
-    elif (Device.sensor_zone == NOT_SET
-            or Device.sensors[LATITUDE] == 0
-            or Device.loc_data_latitude == 0
-            or Device.icloud_initial_locate_done is False):
+    # There is no data for the device and the initial zone is not_set and
+    # the old loc cnt > 0 means it has already tried to initialize the device
+    # and failed. It will be controlled by the error retry cnt/timer instead of
+    # the online & not_set and no location info next.
+    elif (Device.no_location_data
+            and Device.sensor_zone == NOT_SET
+            and Device.old_loc_cnt > 0):
+        Device.icloud_update_reason = ''
+
+    elif (Device.is_online
+            and Device.next_update_secs == 0
+            and (Device.sensor_zone == NOT_SET
+                or Device.icloud_initial_locate_done is False)):
         Device.icloud_update_reason = f"Initial FamShr Locate@{Gb.this_update_time}"
 
     elif Device.icloud_update_retry_flag:
         Device.icloud_update_reason  = "Retrying Location Refresh"
 
+    log_debug_msg(Device, Device.icloud_update_reason)
     return (Device.icloud_update_reason != '')
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -156,7 +167,7 @@ def request_icloud_data_update(Device):
         Device.icloud_devdata_useable_flag = False
 
         # log_exception(err)
-        error_msg = ("iCloud Location Request Error > An error occured refreshing the iCloud "
+        error_msg = ("iCloud3 Location Request Error > An error occured refreshing the iCloud "
                         "Location. iCloud may be down or there is an internet connection "
                         f"issue. iCloud3 will try again later. ({err})")
         post_error_msg(Device.devicename, error_msg)
@@ -208,10 +219,6 @@ def update_PyiCloud_RawData_data(Device, results_msg_flag=True):
 
         pyicloud_start_call_time = time_now_secs()
 
-        # Do not refresh data for monitored device, will update it after refresh of another device
-        #if Device.is_monitored:
-        #    pass
-
         # Refresh FamShr Data
         if Device.is_data_source_FAMSHR:
             if ((secs_since(Gb.pyicloud_refresh_time[FAMSHR]) >= 5
@@ -246,21 +253,20 @@ def update_PyiCloud_RawData_data(Device, results_msg_flag=True):
 
     except (PyiCloud2FARequiredException, PyiCloudAPIResponseException) as err:
         try:
-            _err_msg = ICLOUD_ERROR_CODES.get(Gb.PyiCloud.Session.response_status_code)
+            _err_msg = ICLOUD_ERROR_CODES.get(Gb.PyiCloud.Session.response_status_code,
+                            'Unknown Error')
 
             Device.icloud_acct_error_flag      = True
             Device.icloud_devdata_useable_flag = False
 
-            event_msg = (f"{EVLOG_ALERT}iCloud Location Request Error > An error occured refreshing "
-                            f"the iCloud Location Data.")
-            if _err_msg:
-                event_msg +=f"{CRLF_DOT}{_err_msg}, Error-{Gb.PyiCloud.Session.response_status_code}"
-            else:
-                event_msg+=(f"{CRLF_DOT}Error-{err}"
-                            f"{CRLF_DOT}iCloud may be down or there is a network connection or other issue."
-                            f"{CRLF}iCloud3 will try again later.")
-            post_event(Device.devicename, event_msg)
-            post_error_msg(event_msg)
+            error_msg = (f"{EVLOG_ALERT}iCloud3 Location Request Error > An error occured "
+                        f"refreshing the iCloud Location. iCloud may be down or there is an "
+                        f"internet connection issue. iCloud3 will try again later. "
+                        f"{CRLF_DOT}{_err_msg}, "
+                        f"Error-{Gb.PyiCloud.Session.response_status_code}")
+
+            post_event(Device, error_msg)
+            post_error_msg(error_msg)
 
         except Exception as err:
             # log_exception(err)
@@ -274,7 +280,7 @@ def update_all_devices_wih_latest_raw_data(Device):
 
 def update_device_with_latest_raw_data(Device, all_devices=False):
     '''
-    Update a Device's location data with the latest data from FamSshr, FmF or the iOSApp
+    Update a Device's location data with the latest data from FamSshr, FmF or the MobApp
     if is is better or newer than the old data. Optionally, cycle thru all PyiCloud
     Devices and update the data for every device being tracked or monitored when
     new data is requested for a device since iCloud gives us data for all devices.
@@ -283,7 +289,7 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
     and the one selecetd.
     '''
     try:
-        save_trace_prefix, Gb.trace_prefix = Gb.trace_prefix, "LOCDATA > "
+        save_trace_prefix, Gb.trace_prefix = Gb.trace_prefix, "LOCATE"
         if all_devices:
             Update_Devices = Gb.Devices
             # log_start_finish_update_banner('start', Device.devicename, 'Update All Devices from RawData', '')
@@ -292,8 +298,7 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
 
         for _Device in Update_Devices:
             _RawData = get_famshr_fmf_PyiCloud_RawData_to_use(_Device)
-            if _RawData is None:
-                continue
+            if _RawData is None: continue
 
             # Make sure data is really a available
             try:
@@ -341,13 +346,13 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
                             post_event(_Device.devicename, event_msg)
 
             if (_RawData is None
-                    or (_RawData.location_secs == 0 and _Device.iosapp_data_secs == 0)
+                    or (_RawData.location_secs == 0 and _Device.mobapp_data_secs == 0)
                     or _RawData.gps_accuracy > Gb.gps_accuracy_threshold):
                 pass
 
-            # Move the newest data from PyiCloud_RawData or the iOSApp data to the _Device's data fields
+            # Move the newest data from PyiCloud_RawData or the MobApp data to the _Device's data fields
             # But, if there is a location error, select iCloud data so it will do another request
-            elif (_RawData.location_secs >= _Device.iosapp_data_secs
+            elif (_RawData.location_secs >= _Device.mobapp_data_secs
                     or _Device.old_loc_cnt > 0):
                 if _RawData.location_secs != _Device.loc_data_secs:
                     _Device.moved_since_last_update_km = \
@@ -358,14 +363,14 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
                     _Device.update_dev_loc_data_from_raw_data_FAMSHR_FMF(_RawData,
                                                     requesting_device_flag=requesting_device_flag)
 
-            elif _Device.iosapp_data_secs > 0:
-                if _Device.iosapp_data_secs != _Device.loc_data_secs:
+            elif _Device.mobapp_data_secs > 0:
+                if _Device.mobapp_data_secs != _Device.loc_data_secs:
                     _Device.moved_since_last_update_km = \
-                                _Device.distance_km(_Device.iosapp_data_latitude,
-                                                    _Device.iosapp_data_longitude)
+                                _Device.distance_km(_Device.mobapp_data_latitude,
+                                                    _Device.mobapp_data_longitude)
 
-                    # Move data from iOS App
-                    _Device.update_dev_loc_data_from_raw_data_IOSAPP()
+                    # Move data from Mobile App
+                    _Device.update_dev_loc_data_from_raw_data_MOBAPP()
 
             # The update data msg is only displayed when the requesting Device is updated so the msg
             # for the Device being updated was never displayed even though the data was updated
@@ -377,6 +382,18 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
             if Device.is_location_old_or_gps_poor:
                 continue
 
+            # This fct may be run a second time to recheck loc times for different data
+            # sources. Don't redisplay it it's nothing changed.
+            if _Device.loc_msg_famshr_mobapp_time == \
+                        (f"{_Device.dev_data_source}-"
+                        f"{_Device.loc_data_time_gps}-"
+                        f"{_Device.mobapp_data_time_gps}"):
+                continue
+            _Device.loc_msg_famshr_mobapp_time = \
+                (f"{_Device.dev_data_source}-"
+                f"{_Device.loc_data_time_gps}-"
+                f"{_Device.mobapp_data_time_gps}")
+
             other_times = ""
             if famshr_secs > 0 and Gb.used_data_source_FAMSHR and _Device.dev_data_source != 'FamShr':
                 other_times += f"FamShr-{famshr_time}"
@@ -385,35 +402,28 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
                 if other_times != "": other_times += ", "
                 other_times += f"FmF-{fmf_time}"
 
-            if _Device.iosapp_monitor_flag and _Device.dev_data_source != 'iOSApp':
+            if _Device.mobapp_monitor_flag and _Device.dev_data_source != 'MobApp':
                 if other_times != "": other_times += ", "
-                if _Device.iosapp_data_gps_accuracy > Gb.gps_accuracy_threshold:
-                    other_times += f"iOSApp-{_Device.iosapp_data_time_gps}"
-                else:
-                    other_times += f"iOSApp-{_Device.iosapp_data_time}"
+                other_times += f"MobApp-{_Device.mobapp_data_time_gps}"
 
-            # Display appropriate message for the Device being updated or a monitor msg for all other Devices
-            # rc9 Check if new data is old. Can not use is_location_old since that checks
-            # icloud_devdata_useable_flag is True from the data update results
+            # Display location times for the selected device and all other data sources
+            # (famshr or mobapp). Display in Event log if the requesting device or a monitor
+            # msg if another device. Don't redisplay this msg if the data was just updated
+            # within the last 5-secs but running through this routine again.
             if secs_since(_Device.loc_data_secs) <= _Device.old_loc_threshold_secs + 5:
                 event_msg =(f"Located > "
                             f"{_Device.dev_data_source}-"
                             f"{_Device.loc_data_time_gps} "
-                            f"({secs_to_age_str(_Device.loc_data_secs)}), "
+                            f"({format_age(_Device.loc_data_secs)}), "
                             f"{other_times}")
-            else:
-                event_msg =(f"Location Old #1 > "
-                            f"{secs_to_age_str(_Device.loc_data_secs)}, "
-                            f"{_Device.dev_data_source}-"
-                            f"{_Device.loc_data_time_gps}")
 
-            if _Device.is_offline:
-                event_msg += f", DeviceStatus-{_Device.device_status}"
+                if _Device.is_offline:
+                    event_msg += f", DeviceStatus-{_Device.device_status}"
 
-            if requesting_device_flag:
-                post_event(_Device.devicename, event_msg)
-            else:
-                post_monitor_msg(_Device.devicename, event_msg)
+                if requesting_device_flag:
+                    post_event(_Device, event_msg)
+                else:
+                    post_monitor_msg(_Device, event_msg)
 
         pyicloud_ic3_interface.display_authentication_msg(Gb.PyiCloud)
         Gb.trace_prefix = save_trace_prefix
@@ -478,7 +488,7 @@ def is_PyiCloud_RawData_data_useable(Device, results_msg_flag=True):
         event_msg += "Requesting New Location"
 
     if results_msg_flag:
-        post_event(Device.devicename, event_msg)
+        post_event(Device, event_msg)
     else:
         post_monitor_msg(Device.devicename, event_msg)
     return is_useable_flag
@@ -514,7 +524,7 @@ def _get_devdata_useable_status(Device, data_source):
     else:
         return False, False, False, 0, 0, ''
 
-    if device_id is None or RawData is None:
+    if device_id is None or RawData is None or RawData.location is None:
         return False, False, False, 0, 0, ''
 
     # rc7.1 Added icloud_force_update_flag check
@@ -535,9 +545,9 @@ def _get_devdata_useable_status(Device, data_source):
             if Device.loc_data_secs == Device.last_update_loc_secs:
                 event_msg += "Location not Updated"
             else:
-                event_msg+=(f"Age-{secs_to_time_str(loc_age_secs)} "
-                            f"(> {secs_to_time_str(Device.FromZone_BeingUpdated.interval_secs)})")
-            post_event(Device.devicename, event_msg)
+                event_msg+=(f"Age-{format_timer(loc_age_secs)} "
+                            f"(> {format_timer(Device.FromZone_BeingUpdated.interval_secs)})")
+            post_event(Device, event_msg)
 
     gps_accuracy_ok = RawData.is_gps_good
     gps_accuracy    = round(RawData.gps_accuracy)
@@ -563,10 +573,8 @@ def get_famshr_fmf_PyiCloud_RawData_to_use(_Device):
         _RawData - The PyiCloud_RawData (_famshr or _fmf) data object
     '''
     try:
-        # _RawData_famshr = _Device.PyiCloud_RawData_famshr
-        # _RawData_fmf    = _Device.PyiCloud_RawData_fmf
-        _RawData_famshr = Gb.PyiCloud.RawData_by_device_id.get(_Device.device_id_famshr) #_Device.PyiCloud_RawData_famshr
-        _RawData_fmf    = Gb.PyiCloud.RawData_by_device_id.get(_Device.device_id_fmf)   #_Device.PyiCloud_RawData_fmf
+        _RawData_famshr = Gb.PyiCloud.RawData_by_device_id.get(_Device.device_id_famshr)
+        _RawData_fmf    = Gb.PyiCloud.RawData_by_device_id.get(_Device.device_id_fmf)
 
         if _RawData_famshr and _RawData_fmf is None:
             _RawData = _RawData_famshr
@@ -576,7 +584,7 @@ def get_famshr_fmf_PyiCloud_RawData_to_use(_Device):
 
         elif _RawData_famshr is None and _RawData_famshr is None:
             _RawData = None
-            _Device.data_source = IOSAPP
+            _Device.data_source = MOBAPP
             return
 
         # Is famshr raw data newer than fmf raw data
@@ -601,8 +609,7 @@ def get_famshr_fmf_PyiCloud_RawData_to_use(_Device):
 
         else:
             _RawData = None
-            _Device.data_source = IOSAPP
-            # start_ic3.set_primary_data_source(IOSAPP)
+            _Device.data_source = MOBAPP
 
             error_msg = (f"{EVLOG_ALERT}Data Exception > {_Device.devicename} > No iCloud FamShr  "
                         f"or FmF Device Id was assigned to this device. This can be caused by "
@@ -610,7 +617,7 @@ def get_famshr_fmf_PyiCloud_RawData_to_use(_Device):
                         f"{CRLF}Actions > Restart iCloud3. If the error continues, check the Event Log "
                         f"(iCloud3 Initialization Stage 2) and verify that the device is valid and a "
                         f"tracking method has been assigned. "
-                        f"The device will be tracked by the iOS App.")
+                        f"The device will be tracked by the Mobile App.")
             post_event(error_msg)
 
         error_msg = ''

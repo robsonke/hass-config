@@ -53,7 +53,7 @@
     "error": {
       "cannot_connect": "Failed to connect",
       "unknown": "Unexpected error"
-  },
+    },
     "abort": {
       "addon_get_discovery_info_failed": "Failed to get Music Assistant Server add-on discovery info.",
       "addon_info_failed": "Failed to get Music Assistant Server add-on info.",
@@ -64,7 +64,7 @@
       "not_matter_addon": "Discovered add-on is not the official Music Assistant Server add-on.",
       "reconfiguration_successful": "Successfully reconfigured the Music Assistant integration.",
       "cannot_connect": "Failed to connect"
-  },
+    },
     "progress": {
       "install_addon": "Please wait while the Music Assistant Server add-on installation finishes. This can take several minutes.",
       "start_addon": "Please wait while the Music Assistant Server add-on starts. This add-on is what powers Music Assistant in Home Assistant. This may take some seconds."
@@ -90,6 +90,14 @@
         "announce": {
           "name": "Announce",
           "description": "If the media should be played as an announcement."
+        },
+        "use_pre_announce": {
+          "name": "Use pre-announce",
+          "description": "Use pre-announcement sound for the announcement. Used with the announce option, omit to use player default."
+        },
+        "announce_volume": {
+          "name": "Announce volume",
+          "description": "Use a forced volume level for the announcement. Used with the announce option, omit to use player default."
         },
         "artist": {
           "name": "Artist name",

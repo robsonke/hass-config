@@ -1,0 +1,181 @@
+substitutions:
+  devicename: "m5stickc-pool-lights"
+  ip: !secret m5stickc_pool_lights_ip
+
+esphome:
+  name: ${devicename}
+  friendly_name: ${devicename}
+  comment: "RS485 Pool light control"
+  #includes:
+    #- uart_read_line_sensor.h
+
+esp32:
+  board: m5stick-c
+  framework:
+    type: arduino
+
+<<: !include .common.yaml
+
+logger:
+  baud_rate: 0
+  #level: VERBOSE #makes uart stream available in esphome logstream
+  level: INFO
+  hardware_uart: UART0
+  
+api:
+  encryption:
+    key: !secret api_key
+  services:
+    - service: set_color
+      variables:
+        color: string
+      then:
+        - uart.write:
+            id: mod_bus
+            data: !lambda |-
+              std::string str = color;
+                std::vector<uint8_t> vec(str.begin(), str.end());
+                return vec;
+    - service: send_uart_command
+      variables:
+        command: string
+      then:
+        - uart.write:
+            id: mod_bus
+            data: !lambda |-
+              std::string str = command;
+                std::vector<uint8_t> vec(str.begin(), str.end());
+                return vec;
+
+# https://community.home-assistant.io/t/working-esphome-yaml-for-m5stickc/538050
+# https://shop.m5stack.com/products/m5stickc-rs485-hat-aoz1282ci
+# GPIO 0 for UART-TX
+# GPIO 26 for UART-RX
+# This controls the Duratech PLP-REM-350
+# https://www.duratech.be/en/controller/plp-rem-350
+uart:
+  id: mod_bus
+  tx_pin: GPIO0
+  rx_pin: GPIO26
+  baud_rate: 9600
+  data_bits: 8
+  stop_bits: 1
+  parity: NONE
+  debug:
+    direction: BOTH
+    dummy_receiver: false
+    after:
+      delimiter: "\n"
+    sequence:
+      - lambda: UARTDebug::log_string(direction, bytes);
+ 
+modbus:
+  id: modbus1
+ 
+modbus_controller:
+  - id: reader1
+    address: 0
+    modbus_id: modbus1
+    setup_priority: -10
+    update_interval: 2s
+    command_throttle: 2ms
+
+
+
+switch:
+  - platform: template
+    id: pool_lights
+    name: Pool Lights
+    optimistic: True
+    # lambda: |-
+    #   if (id(pool_shelly_3em_phase_c_active_power).state > 8) {
+    #     return true;
+    #   } else {
+    #     return false;
+    #   }
+    turn_on_action:
+      - uart.write:
+          id: mod_bus
+          data: 'PL1'
+    turn_off_action:
+      - uart.write:
+          id: mod_bus
+          data: 'PL0'
+
+light:
+  # Built-in Red Status LED Light. See https://esphome.io/components/light/status_led.html
+  - platform: status_led
+    name: "LED Light"
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: GPIO10
+      inverted: true
+
+# Built-in buttons. See https://esphome.io/components/button/
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO37
+      inverted: true
+    id: button_a
+    name: Button A
+  - platform: gpio
+    pin:
+      number: GPIO39
+      inverted: true
+    id: button_b
+    name: Button B
+
+# Built-in infrared transmitter. See https://esphome.io/components/remote_transmitter.html
+# and https://m5stack.hackster.io/alessandro-polselli/turn-m5stickc-into-universal-ir-remote-home-automation-d3ec0d
+remote_transmitter:
+  pin: GPIO9
+  carrier_duty_percent: 50%
+
+# grab the power sensor from HA to track if lights are on/off
+# since we have no state
+sensor:
+  - platform: homeassistant
+    name: "Power Usage Pool Lights"
+    entity_id: sensor.pool_shelly_3em_phase_c_active_power
+    id: "pool_shelly_3em_phase_c_active_power"
+  - platform: axp192
+    address: 0x34
+    i2c_id: bus_a
+    model: M5STICKC
+    update_interval: 30s
+    battery_level:
+      name: "M5Stick Battery Level"
+      id: "m5stick_batterylevel"
+
+spi:
+  clk_pin: GPIO13
+  mosi_pin: GPIO15
+
+i2c:
+  - id: bus_a
+    sda: GPIO21
+    scl: GPIO22
+    scan: True
+
+# Fonts
+font:
+  - file: "gfonts://Roboto"
+    id: roboto
+    size: 12
+
+# builtin 80x160 TFT
+display:
+  - platform: st7735
+    model: "INITR_MINI160X80"
+    cs_pin: GPIO5
+    dc_pin: GPIO23
+    reset_pin: GPIO18
+    device_height: 80
+    device_width: 160
+    row_start: 1
+    col_start: 1
+    rotation: 270
+    update_interval: 2s
+    lambda: |-
+      it.print(80, 0, id(roboto), TextAlign::TOP_CENTER, "M5Stick Pool Lights");

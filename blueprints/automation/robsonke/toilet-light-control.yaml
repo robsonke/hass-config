@@ -98,8 +98,9 @@ trigger:
     to: 'off'
     for:
       hours: 0
-      minutes: '{{ local_no_motion_wait }}'
+      minutes: !input no_motion_wait
       seconds: 0
+    id: motion_off
   # there's motion!
   - platform: state
     entity_id: !input motion_entity
@@ -123,6 +124,11 @@ action:
         alias: "Is the light currently off?"
         entity_id: !input light_target
         state: "off"
+      - condition: not
+        conditions:
+          - condition: trigger
+            id:
+              - motion_off
       sequence:
         - service: light.turn_on
           alias: "Lets turn the light on with the brightness based on the time"
@@ -140,7 +146,7 @@ action:
               from: 'on'
               for:
                 hours: 0
-                minutes: '{{ local_no_motion_wait }}'
+                minutes: !input no_motion_wait
                 seconds: 0
             - platform: state
               alias: "Or continue when the door closes"
@@ -148,13 +154,13 @@ action:
               from: "on"
               to: "off"
           timeout:
-            minutes: '{{ local_no_motion_wait }}'
+            minutes: !input no_motion_wait
           continue_on_timeout: true
         - service: light.turn_off
           target:
             entity_id: !input light_target
           data:
-            transition: 10
+            transition: 3
     # this is a fallback situation, in case the light doesn't go off
     - conditions:
       - condition: state
@@ -171,11 +177,11 @@ action:
         state: "off"
         for:
           hours: 0
-          minutes: '{{ local_no_motion_wait }}'
+          minutes: !input no_motion_wait
           seconds: 0
       sequence:
         - service: light.turn_off
           target:
             entity_id: !input light_target
           data:
-            transition: 10
+            transition: 3

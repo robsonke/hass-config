@@ -14,17 +14,21 @@ from ..support.waze_route_calc_ic3  import WazeRouteCalculator, WRCError
 
 from ..helpers.common       import (instr, format_gps, )
 from ..helpers.messaging    import (post_event, post_internal_error, log_info_msg, _trace, _traceha, )
-from ..helpers.time_util    import (time_now_secs, datetime_now, secs_since, secs_to_time_str, mins_to_time_str, )
-from ..helpers.dist_util    import (mi_to_km,  format_dist_km, )
+from ..helpers.time_util    import (time_now_secs, datetime_now, secs_since, format_timer,  )
+from ..helpers.dist_util    import (km_to_um, )
 
 import traceback
 import time
 
-WAZE_STATUS_FNAME ={WAZE_USED: 'Waze-Used',
-                    WAZE_NOT_USED: 'Waze-Not Used',
-                    WAZE_PAUSED: 'Waze-Paused',
-                    WAZE_OUT_OF_RANGE: 'Waze-Out of Range',
-                    WAZE_NO_DATA: 'Waze-No Data'}
+Waze_UNDER_MIN = 'under_min'
+Waze_OVER_MAX  = 'over_max'
+WAZE_STATUS_FNAME ={WAZE_USED: 'Used',
+                    WAZE_NOT_USED: '×NotUsed',
+                    WAZE_PAUSED: '×Paused',
+                    WAZE_OUT_OF_RANGE: '×OutOfRange',
+                    WAZE_NO_DATA: '×NoData',
+                    Waze_UNDER_MIN: '×Under1km',
+                    Waze_OVER_MAX: '×Over100km'}
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 class Waze(object):
@@ -37,6 +41,9 @@ class Waze(object):
         self.waze_region                = waze_region.upper()
         self.waze_min_distance          = waze_min_distance
         self.waze_max_distance          = waze_max_distance
+        WAZE_STATUS_FNAME[Waze_UNDER_MIN] = f"×Under{waze_min_distance}km"
+        WAZE_STATUS_FNAME[Waze_OVER_MAX] = f"×Over{waze_max_distance}km"
+
         self.connection_error_displayed = False
 
         self.waze_manual_pause_flag        = False  #If Paused via iCloud command
@@ -89,6 +96,15 @@ class Waze(object):
     @property
     def is_status_OUT_OF_RANGE(self):
         return self.waze_status == WAZE_OUT_OF_RANGE
+
+    def range_msg(self, dist_km):
+        if dist_km > self.waze_max_distance:
+            return WAZE_STATUS_FNAME[Waze_OVER_MAX]
+        elif dist_km < self.waze_min_distance:
+            return WAZE_STATUS_FNAME[Waze_UNDER_MIN]
+        else:
+            return 'inRange'
+
 
     @property
     def waze_status_fname(self):
@@ -152,7 +168,7 @@ class Waze(object):
                     if waze_status == WAZE_NO_DATA:
                         event_msg = (f"Waze Route Error > Problem connecting to Waze Servers. "
                                     f"Distance will be calculated, Travel Time not available")
-                        post_event(Device.devicename, event_msg)
+                        post_event(Device, event_msg)
 
                         return (WAZE_NO_DATA, 0, 0, 0)
 
@@ -198,9 +214,8 @@ class Waze(object):
                 return (WAZE_NO_DATA, 0, 0, 0)
 
             try:
-
-                if ((route_dist_km > self.waze_max_distance)
-                        or (route_dist_km < self.waze_min_distance)):
+                if (route_dist_km > self.waze_max_distance
+                        or route_dist_km < self.waze_min_distance):
                     waze_status = WAZE_OUT_OF_RANGE
 
             except Exception as err:
@@ -212,13 +227,11 @@ class Waze(object):
 
             event_msg =(f"Waze Route Info > {waze_source_msg}")
             if waze_source_msg == "":
-                # event_msg += (  f"TravTime-{self.waze_mins_to_time_str(route_time)}, "
-                event_msg += (  f"TravTime-{secs_to_time_str(route_time * 60)}, "
-                                f"Dist-{format_dist_km(route_dist_km)}, "
-                                f"Moved-{format_dist_km(dist_moved_km)}"
-                                #f"CalcMoved-{format_dist_km(Device.loc_data_dist_moved_km)}, "
+                event_msg += (  f"TravTime-{format_timer(route_time * 60)}, "
+                                f"Dist-{km_to_um(route_dist_km)}, "
+                                f"Moved-{km_to_um(dist_moved_km)}"
                                 f"{wazehist_save_msg}")
-            post_event(Device.devicename, event_msg)
+            post_event(Device, event_msg)
 
             FromZone.waze_results = (WAZE_USED, route_time, route_dist_km, dist_moved_km)
 
@@ -254,7 +267,9 @@ class Waze(object):
                             FromZone.waze_results
 
             location_id = -2
-            waze_source_msg = "Using Previous Waze Location Info "
+            #waze_source_msg = "Using Previous Waze Location Info "
+            waze_source_msg = ( f"Moved-{km_to_um(Device.loc_data_dist_moved_km)}, "
+                                f"Using previous results")
 
         elif check_hist_db is False or self.is_historydb_USED is False:
             location_id = 0
@@ -359,26 +374,5 @@ class Waze(object):
         post_event(log_msg)
 
 #--------------------------------------------------------------------
-    # def waze_mins_to_time_str(self, waze_time_from_zone):
-    #     '''
-    #     Return the message displayed in the waze time field ►►
-    #     '''
-
-    #     #Display time to the nearest minute if more than 3 min away
-    #     if self.waze_status == WAZE_USED:
-    #         t = waze_time_from_zone * 60
-    #         r = 0
-    #         if t > -1:   #180:
-    #             t, r = divmod(t, 60)
-    #             t = t + 1 if r > 30 else t
-    #             t = t * 60
-
-    #         waze_time_msg = secs_to_time_str(t)
-
-    #     else:
-    #         waze_time_msg = ''
-
-    #     return waze_time_msg
-
     def __repr__(self):
         return (f"<Waze>")

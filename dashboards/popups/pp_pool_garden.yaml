@@ -37,6 +37,14 @@ browser_mod:
                 - entity: sensor.pool_deck_status
 
             - type: entities
+              title: Verlichting
+              show_header_toggle: false
+              card_mod:
+                class: header
+              entities:
+                - entity: light.pool_light
+
+            - type: entities
               title: Filterpomp
               show_header_toggle: false
               card_mod:
@@ -51,15 +59,11 @@ browser_mod:
               card_mod:
                 class: header
               entities:
-                # - entity: sensor.pool_ph_value
-                #   name: Ph waarde
-                # - entity: sensor.pool_redox_value
-                #   name: Redox waarde
                 - entity: binary_sensor.pool_pump_active
                   name: Flow?
                 - type: custom:pool-monitor-card
                   compact: true
-                  temperature: sensor.heatpump_pool_water_temperature
+                  temperature: sensor.pool_fairland_heatpump_inlet_water_temperature
                   ph: sensor.pool_ph_value
                   orp: sensor.pool_redox_value
 
@@ -69,15 +73,15 @@ browser_mod:
               card_mod:
                 class: header
               entities:
-                - entity: switch.heatpump_pool_switch
+                - entity: switch.pool_fairland_heatpump_power_switch
                   name: Warmtepomp
-                - entity: switch.heatpump_pool_smartmode
+                - entity: select.pool_fairland_heatpump_power_mode
                   name: Smart of Silent mode
-                - entity: number.heatpump_pool_water_temperature_target
+                - entity: number.pool_fairland_heatpump_target_temperature_heating
                   name: Gewenste temperatuur
-                - entity: sensor.heatpump_pool_water_temperature
+                - entity: sensor.pool_fairland_heatpump_inlet_water_temperature
                   name: Huidige temperatuur
-                - entity: sensor.heatpump_pool_speed
+                - entity: sensor.pool_fairland_heatpump_speed_percentage
                   name: Vermogen warmtepomp
             - type: entities
               title: Energie
@@ -85,19 +89,18 @@ browser_mod:
               card_mod:
                 class: header
               entities:
-                - entity: sensor.shelly_em3_zwembad_channel_b_power
+                - entity: sensor.pool_shelly_3em_phase_b_active_power
                   name: Pomp & roldek
-                - entity: sensor.shelly_em3_zwembad_channel_a_power
+                - entity: sensor.pool_shelly_3em_phase_a_active_power
                   name: Warmtepomp
-                - entity: sensor.shelly_em3_zwembad_channel_c_power
+                - entity: sensor.pool_shelly_3em_phase_c_active_power
                   name: Verlichting
             - type: entities
-              title: Test
+              title: Aansturing
               show_header_toggle: false
-              card_mod:
-                class: header
               entities:
-                - entity: light.pool_lights_pool_lights
+                - entity: input_boolean.enable_pool_automations
+                  name: Activeer aansturing?
 
         - type: vertical-stack
           view_layout:
@@ -134,32 +137,4 @@ browser_mod:
                     mode: below
                   next_previous:
                     style: chevrons
-
-
-        # - type: entities
-        #   view_layout:
-        #     grid-area: settings
-        #   show_header_toggle: false
-        #   title: Automatisch?
-        #   entities:
-        #     - entity: input_boolean.enable_automatic_screens
-        #       name: Screens automatisch aansturen vandaag?
-        # - type: custom:more-info-card
-        #   view_layout:
-        #     grid-area: cover1
-        #   entity: cover.voorraam
-        #   title: Voorkant
-        # - type: custom:more-info-card
-        #   view_layout:
-        #     grid-area: cover2
-        #   entity: cover.zijraam
-        #   title: Zijkant
-        # - type: history-graph
-        #   view_layout:
-        #     grid-area: history
-        #   hours_to_show: 12
-        #   entities:
-        #     - cover.voorraam
-        #     - cover.zijraam
-
 

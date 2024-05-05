@@ -41,6 +41,18 @@ ios:
       icon:
         icon: weather_night
         color: "#d9d441"
+      #show_in_carplay: false
+      #show_in_watch: true
+    - name: open_frontdoor
+      background_color: "#9e9e9e"
+      label:
+        text: "Voordeur openen"
+        color: "#ffffff"
+      icon:
+        icon: door-open
+        color: "#d9d441"
+      #show_in_carplay: true
+      #show_in_watch: true
 
 input_boolean:
   dark_mode:
@@ -196,6 +208,7 @@ group:
       - binary_sensor.window_masterbed_1_openclose_contact
       - binary_sensor.window_masterbed_2_openclose_contact
       - binary_sensor.window_guestroom_openclose_contact
+      - sensor.today_maximum_temperature
 
   ignored_entities:
     entities:
@@ -255,7 +268,7 @@ template:
           {% set entities = states|rejectattr('domain','eq','group')
             |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
             |rejectattr('state', 'equalto', '')
-            |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
+            |selectattr('state','in',['unavailable','none'])|map(attribute='entity_id')|list %}
           {% for item in entities %}
             {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
               {% set unavail.value = unavail.value + 1 %}
@@ -411,18 +424,3 @@ sensor:
       - 'time'
       - 'date'
       - 'date_time'
-
-  - platform: unifigateway
-    host: !secret router_ip
-    port: 443
-    version: 'UDMP-unifiOS'
-    username: !secret unifi_username
-    password: !secret unifi_password
-    verify_ssl: false
-    monitored_conditions:
-      - www
-      - lan
-      - wan
-      - wlan
-      - alerts
-      - firmware

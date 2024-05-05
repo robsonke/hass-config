@@ -16,6 +16,8 @@ homeassistant:
       last_reset: '1970-01-01T00:00:00+00:00'
     sensor.shelly_plug_badkamer_verwarming_energy_usage:
       last_reset: '1970-01-01T00:00:00+00:00'
+    sensor.current_price_electricity:
+      state_class: measurement
 
 # solaredge_modbus:
 #   name: 'SolarEdge Modbus'
@@ -148,7 +150,7 @@ powercalc:
             - name: Quooker
               unique_id: quooker
               daily_fixed_energy:
-                value: 10
+                value: 30
                 unit_of_measurement: W
             - name: Air Quality
               unique_id: air_quality
@@ -158,21 +160,6 @@ powercalc:
         - create_group: All Media
           # this is also part of sensor.all_media_player_power automatically
           entities:
-            # See https://support.sonos.com/s/article/256?language=en_US
-            - entity_id: media_player.living_room
-              name: Sonos Woonkamer
-              fixed:
-                states_power:
-                  playing: 12
-                  paused: 2.2
-                  idle: 2.2
-            - entity_id: media_player.eetkamer
-              name: Sonos Eetkamer
-              fixed:
-                states_power:
-                  playing: 12
-                  paused: 2.2
-                  idle: 2.2
             - create_group: TV Woonkamer Group
               entities:
               - entity_id: media_player.tv_room
@@ -263,42 +250,42 @@ powercalc:
                 # 5 * 5.5W
                 min_power: 0.5
                 max_power: 27.5
-            - entity_id: light.overloop
+            - entity_id: light.dimmer_corridor
               linear:
                 # 4 * 5.5W
                 min_power: 0.5
                 max_power: 22
-            - entity_id: light.logeerkamer
+            - entity_id: light.dimmer_guestroom
               linear:
                 # 4 * 5.5W
                 min_power: 0.5
                 max_power: 22
-            - entity_id: light.eva
+            - entity_id: light.dimmer_eva
               linear:
                 # 4 * 5.5W
                 min_power: 0.5
                 max_power: 22
-            - entity_id: light.slaapkamer_noa
+            - entity_id: light.dimmer_noa
               linear:
                 # 4 * 5.5W
                 min_power: 0.5
                 max_power: 22
-            - entity_id: light.badkamer
+            - entity_id: light.dimmer_bathroom
               linear:
                 # 5 * 5.5W
                 min_power: 0.5
                 max_power: 27.5
-            - entity_id: light.hoofdslaapkamer
+            - entity_id: light.dimmer_masterbed
               linear:
                 # 5 * 5.5W
                 min_power: 0.5
                 max_power: 27.5
-            - entity_id: light.inloopkast
+            - entity_id: light.dimmer_mastercloset
               linear:
                 # 4 * 5.5W
                 min_power: 0.5
                 max_power: 22
-            - entity_id: light.douche
+            - entity_id: light.dimmer_masterbath
               linear:
                 # 2 * 5.5W
                 min_power: 0.5

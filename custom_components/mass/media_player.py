@@ -1,7 +1,9 @@
 """MediaPlayer platform for Music Assistant integration."""
+
 from __future__ import annotations
 
 import asyncio
+import os
 from collections.abc import Mapping
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any
@@ -16,7 +18,9 @@ from homeassistant.components.media_player import (
     MediaPlayerEnqueue,
     MediaPlayerEntity,
 )
-from homeassistant.components.media_player.browse_media import async_process_play_media_url
+from homeassistant.components.media_player.browse_media import (
+    async_process_play_media_url,
+)
 from homeassistant.components.media_player.const import (
     ATTR_MEDIA_ANNOUNCE,
     ATTR_MEDIA_ENQUEUE,
@@ -26,7 +30,10 @@ from homeassistant.components.media_player.const import (
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import STATE_IDLE, STATE_OFF, STATE_PAUSED, STATE_PLAYING
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback, async_get_current_platform
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback,
+    async_get_current_platform,
+)
 from music_assistant.common.helpers.datetime import from_utc_timestamp
 from music_assistant.common.models.enums import (
     EventType,
@@ -101,6 +108,8 @@ ATTR_MEDIA_ID = "media_id"
 ATTR_MEDIA_TYPE = "media_type"
 ATTR_ARTIST = "artist"
 ATTR_ALBUM = "album"
+ATTR_USE_PRE_ANNOUNCE = "use_pre_announce"
+ATTR_ANNOUNCE_VOLUME = "announce_volume"
 
 # pylint: disable=too-many-public-methods
 
@@ -122,7 +131,9 @@ async def async_setup_entry(
         async_add_entities([MassPlayer(mass, event.object_id)])
 
     # register listener for new players
-    config_entry.async_on_unload(mass.subscribe(handle_player_added, EventType.PLAYER_ADDED))
+    config_entry.async_on_unload(
+        mass.subscribe(handle_player_added, EventType.PLAYER_ADDED)
+    )
     # add all current players
     for player in mass.players:
         added_ids.add(player.player_id)
@@ -135,11 +146,15 @@ async def async_setup_entry(
         {
             vol.Required(ATTR_MEDIA_ID): vol.All(cv.ensure_list, [cv.string]),
             vol.Optional(ATTR_MEDIA_TYPE): vol.Coerce(MediaType),
-            vol.Exclusive(ATTR_MEDIA_ENQUEUE, "enqueue_announce"): vol.Coerce(QueueOption),
+            vol.Exclusive(ATTR_MEDIA_ENQUEUE, "enqueue_announce"): vol.Coerce(
+                QueueOption
+            ),
             vol.Exclusive(ATTR_MEDIA_ANNOUNCE, "enqueue_announce"): cv.boolean,
             vol.Optional(ATTR_ARTIST): cv.string,
             vol.Optional(ATTR_ALBUM): cv.string,
             vol.Optional(ATTR_RADIO_MODE): vol.Coerce(bool),
+            vol.Optional(ATTR_USE_PRE_ANNOUNCE): vol.Coerce(bool),
+            vol.Optional(ATTR_ANNOUNCE_VOLUME): vol.Coerce(int),
         },
         "_async_play_media_advanced",
     )
@@ -148,13 +163,14 @@ async def async_setup_entry(
 class MassPlayer(MassBaseEntity, MediaPlayerEntity):
     """Representation of MediaPlayerEntity from Music Assistant Player."""
 
-    # pylint: disable=W0223
+    # pylint: disable=abstract-method,too-many-instance-attributes
 
     _attr_name = None
 
     def __init__(self, mass: MusicAssistantClient, player_id: str) -> None:
         """Initialize MediaPlayer entity."""
         super().__init__(mass, player_id)
+        self._attr_icon = self.player.icon.replace("mdi-", "mdi:")
         self._attr_media_image_remotely_accessible = True
         self._attr_supported_features = SUPPORTED_FEATURES
         if PlayerFeature.SYNC in self.player.supported_features:
@@ -182,7 +198,7 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
 
         # we subscribe to player queue time update but we only
         # accept a state change on big time jumps (e.g. seeking)
-        async def queue_time_updated(event: MassEvent):
+        async def queue_time_updated(event: MassEvent) -> None:
             if event.object_id != self.player.active_source:
                 return
             if abs(self._prev_time - event.data) > 5:
@@ -226,7 +242,9 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
             and queue.current_item.media_item
             and queue.current_item.media_item.metadata
         ):
-            attrs[ATTR_STREAM_TITLE] = queue.current_item.media_item.metadata.description
+            attrs[ATTR_STREAM_TITLE] = (
+                queue.current_item.media_item.metadata.description
+            )
         return attrs
 
     async def async_on_update(self) -> None:
@@ -385,9 +403,13 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
     async def async_set_repeat(self, repeat: str) -> None:
         """Set repeat state."""
         if queue := self.mass.players.get_player_queue(self.player.active_source):
-            await self.mass.players.queue_command_repeat(queue.queue_id, RepeatMode(repeat))
+            await self.mass.players.queue_command_repeat(
+                queue.queue_id, RepeatMode(repeat)
+            )
         else:
-            await self.mass.players.queue_command_repeat(self.player_id, RepeatMode(repeat))
+            await self.mass.players.queue_command_repeat(
+                self.player_id, RepeatMode(repeat)
+            )
 
     async def async_clear_playlist(self) -> None:
         """Clear players playlist."""
@@ -420,6 +442,8 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
             announce=announce,
             media_type=media_type,
             radio_mode=kwargs[ATTR_MEDIA_EXTRA].get(ATTR_RADIO_MODE),
+            use_pre_announce=kwargs[ATTR_MEDIA_EXTRA].get("use_pre_announce"),
+            announce_volume=kwargs[ATTR_MEDIA_EXTRA].get("announce_volume"),
         )
 
     async def async_join_players(self, group_members: list[str]) -> None:
@@ -429,10 +453,14 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
                 # resolve HA entity_id to MA player_id
                 if (hass_state := self.hass.states.get(child_entity_id)) is None:
                     continue
-                if (mass_player_id := hass_state.attributes.get("mass_player_id")) is None:
+                if (
+                    mass_player_id := hass_state.attributes.get("mass_player_id")
+                ) is None:
                     continue
                 tg.create_task(
-                    self.mass.players.player_command_sync(mass_player_id, self.player_id)
+                    self.mass.players.player_command_sync(
+                        mass_player_id, self.player_id
+                    )
                 )
 
     async def async_unjoin_player(self) -> None:
@@ -444,46 +472,56 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
         media_id: list[str],
         artist: str | None = None,
         album: str | None = None,
-        enqueue: MediaPlayerEnqueue | QueueOption | None = QueueOption.PLAY,
-        announce: bool | None = None,  # noqa: ARG002
+        enqueue: MediaPlayerEnqueue | QueueOption | None = None,
+        announce: bool | None = None,
         radio_mode: bool | None = None,
         media_type: str | None = None,
+        use_pre_announce: bool | None = None,
+        announce_volume: int | None = None,
     ) -> None:
         """Send the play_media command to the media player."""
         # pylint: disable=too-many-arguments
+        # announce/alert support
+        if announce:
+            await self.mass.players.play_announcement(
+                self.player_id, media_id[0], use_pre_announce, announce_volume
+            )
+            return
         media_uris: list[str] = []
         # work out (all) uri(s) to play
         for media_id_str in media_id:
-            # prefer URI format
+            # URL or URI string
             if "://" in media_id_str:
                 media_uris.append(media_id_str)
                 continue
             # try content id as library id
             if media_type and media_id_str.isnumeric():
                 with suppress(MediaNotFoundError):
-                    item = await self.mass.music.get_item(media_type, media_id_str, "library")
+                    item = await self.mass.music.get_item(
+                        media_type, media_id_str, "library"
+                    )
                     media_uris.append(item.uri)
                     continue
-            # lookup by name
-            if item := await self._get_item_by_name(media_id_str, artist, album, media_type):
+            # try local accessible filename
+            elif await asyncio.to_thread(os.path.isfile, media_id_str):
+                media_uris.append(media_id_str)
+                continue
+            # last resort: lookup by name/search
+            if item := await self._get_item_by_name(
+                media_id_str, artist, album, media_type
+            ):
                 media_uris.append(item.uri)
 
         if not media_uris:
-            raise MediaNotFoundError(f"Could not resolve {media_id} to playable media item")
+            raise MediaNotFoundError(
+                f"Could not resolve {media_id} to playable media item"
+            )
 
         # determine active queue to send the play request to
         if queue := self.mass.players.get_player_queue(self.player.active_source):
             queue_id = queue.queue_id
         else:
             queue_id = self.player_id
-
-        # announce/alert support (WIP)
-        if announce and radio_mode:
-            radio_mode = None
-        if announce is None and "/api/tts_proxy" in media_id:
-            announce = True
-        if announce:
-            raise NotImplementedError("Music Assistant does not yet support announcements")
 
         await self.mass.players.play_media(
             queue_id, media=media_uris, option=enqueue, radio_mode=radio_mode
@@ -493,7 +531,9 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
         self, media_content_type=None, media_content_id=None
     ) -> BrowseMedia:
         """Implement the websocket media browsing helper."""
-        return await async_browse_media(self.hass, self.mass, media_content_id, media_content_type)
+        return await async_browse_media(
+            self.hass, self.mass, media_content_id, media_content_type
+        )
 
     async def _get_item_by_name(
         self,
@@ -566,7 +606,8 @@ class MassPlayer(MassBaseEntity, MediaPlayerEntity):
         hass = self.hass
         config_entries = hass.config_entries.async_entries(DOMAIN)
         for config_entry in config_entries:
-            if config_entry.state == ConfigEntryState.SETUP_IN_PROGRESS and config_entry.data.get(
-                "expose_players_assist"
+            if (
+                config_entry.state == ConfigEntryState.SETUP_IN_PROGRESS
+                and config_entry.data.get("expose_players_assist")
             ):
                 async_expose_entity(hass, "conversation", self.entity_id, True)

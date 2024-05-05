@@ -68,7 +68,7 @@ template:
       icon: mdi:thermometer
       unique_id: today_maximum_temperature
       state: >
-        {{ state_attr('weather.openweathermap', 'forecast')[0].temperature | float(default=20) }}
+        {{ states('sensor.openweathermap_forecast_temperature') | float(default=20) }}
     - name: "Wind Force"
       icon: mdi:weather-windy
       unique_id: wind_force

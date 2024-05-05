@@ -15,15 +15,15 @@ selector = ""
 
 # use the copy selector options in devtools
 if value == "ph":
-  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(1) > div > div.card-body > div > div.col > a > div"
+  selector = "#content-wrapper > div.container > div.row > #card_PH > div > div > a"
 elif value == "redox":
-  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(2) > div > div.card-body > div > div.col > a"
+  selector = "#content-wrapper > div.container > div.row > #card_RX > div > div > a"
 #elif value == "flow":
 #  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(4) > div > div.card-body > div > div.col > a > div"
 elif value == "ph-target":
-  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(1) > div > div.card-body > p"
+  selector = "#content-wrapper > div.container > div.row > #card_PH > div > div > p.text-gray-500"
 elif value == "redox-target":
-  selector = "#content-wrapper > div.container-xl > div.row > div:nth-child(2) > div > div.card-body > p"
+  selector = "#content-wrapper > div.container > div.row > #card_RX > div > div > p.text-gray-500"
 
 
 with requests.session() as s:

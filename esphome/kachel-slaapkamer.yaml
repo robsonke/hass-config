@@ -50,7 +50,8 @@ climate:
       min_temperature: 15
       max_temperature: 30
       temperature_step: 1
-    active_state_datapoint: 1
+    active_state:
+      datapoint: 1
 
 sensor:
   - platform: uptime

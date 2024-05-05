@@ -268,6 +268,19 @@ class SmartThingsTV:
                 return map_value.get("name", "")
         return ""
 
+    def _get_source_list_from_map(self) -> list:
+        """Return source list from source map."""
+        if not self._source_list_map:
+            return []
+        source_list = []
+        for map_value in self._source_list_map:
+            if source_id := map_value.get("id"):
+                if source_id.upper() == "DTV":
+                    source_list.append(DIGITAL_TV)
+                else:
+                    source_list.append(source_id)
+        return source_list
+
     def set_application(self, app_id):
         """Set running application info."""
         if self._use_channel_info:
@@ -477,10 +490,11 @@ class SmartThingsTV:
         )
 
         # Sources and channel
-        self._source_list = self._load_json_list(dev_data, "supportedInputSources")
         self._source_list_map = self._load_json_list(
             dev_data, "supportedInputSourcesMap"
         )
+        # self._source_list = self._load_json_list(dev_data, "supportedInputSources")
+        self._source_list = self._get_source_list_from_map()
 
         if self._is_forced_val and self._forced_count <= 0:
             self._forced_count += 1

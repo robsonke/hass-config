@@ -226,24 +226,6 @@
       message: Het alarm is uitgeschakeld
       delay: 00:00:03
   mode: single
-- id: mailbox_notification
-  alias: Mail - Alert when mail in the mailbox
-  description: See if there's a vibration in the mailbox, identifying new mail
-  trigger:
-  - entity_id: binary_sensor.mailbox_vibration_sensor
-    platform: state
-    to: vibration
-  condition:
-  - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.mailbox_notification.attributes.last_triggered,
-      0) | int > 20 }}'
-  action:
-  - service: notify.all_phones
-    data:
-      message: ✉ Er is post bezorgd.
-      data:
-        persistent: true
-        tag: persistent
 - id: reset_lights_automation
   alias: Lights - Reset lights automation
   description: When we have disabled all automatic lighting, we reset this in the
@@ -401,7 +383,8 @@
   description: Say ding dong through the speakers when doorbell rings
   trigger:
   - platform: state
-    entity_id: binary_sensor.doorbell_lw_doorbell
+    entity_id:
+    - binary_sensor.deurbel_langeweide_ringing
     from: 'off'
     to: 'on'
   action:
@@ -427,51 +410,6 @@
         googlehome_entity: media_player.living_googlehome
         delay: '3'
         mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-    - service: notify.all_phones
-      data:
-        message: "\U0001F514 Ding Dong!"
-        data:
-          persistent: true
-          tag: persistent
-          image: http://admin:qg4Y7DhhCTNJnCtuAZp_zJM@192.168.0.246/cgi-bin/snapshot.cgi
-    - service: browser_mod.popup
-      data:
-        title: Voordeur Camera
-        timeout: 30000
-        size: wide
-        content:
-          type: custom:frigate-card
-          dimensions:
-            aspect_ratio_mode: unconstrained
-          entities:
-          - entity: binary_sensor.doorbell_lw_doorbell
-          - entity: binary_sensor.doorbell_lw_motion
-          menu:
-            buttons:
-              frigate:
-                enabled: false
-              image:
-                enabled: false
-              camera_ui:
-                enabled: false
-            style: overlay
-            position: top
-          view:
-            default: live
-          live:
-            controls:
-              thumbnails:
-                mode: below
-                media: snapshots
-          cameras:
-          - camera_entity: camera.doorbell
-            live_provider: ha
-            frigate:
-              camera_name: Voordeur
-          media_viewer:
-            controls:
-              next_previous:
-                style: chevrons
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -837,30 +775,6 @@
         - action: URI
           title: Open Hass
           uri: /lovelace/0
-- alias: Presence - Presence detection message
-  id: presence_detection_message
-  description: Send a push message in case the presence of a person changes
-  trigger:
-    platform: state
-    for:
-      seconds: 15
-    entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-  condition:
-  - condition: numeric_state
-    entity_id: sensor.ha_uptime_minutes
-    above: 3
-  - condition: template
-    value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
-  action:
-    service: notify.all_phones
-    data_template:
-      message: "\U0001F3E0 Status van {{ state_attr(trigger.entity_id, 'friendly_name')
-        }} gewijzigd naar {{ trigger.to_state.state }}"
-      data:
-        persistent: true
-        tag: persistent
 - id: presence_detection_message_speakers
   alias: Presence - Inform that one of us comes home
   description: Shout through speakers that somebody is arriving when the other one
@@ -1020,21 +934,6 @@
       data:
         persistent: true
         tag: persistent
-- id: '1618729855664'
-  alias: Laundry - Laundry ready
-  description: ''
-  use_blueprint:
-    path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
-    input:
-      power_sensor: sensor.wasmachine_switch_current_consumption
-      actions:
-      - service: notify.all_phones
-        data:
-          message: De wasmachine is klaar
-          data:
-            persistent: true
-            tag: persistent
-      starting_hysteresis: 1
 - id: '1618732336311'
   alias: Dishwasher - Dishwasher ready
   description: ''
@@ -1685,7 +1584,7 @@
   description: Enable on Thursday when we're away or leaving the house
   trigger:
   - platform: time
-    at: '13:30:00'
+    at: '12:30:00'
   - platform: state
     entity_id:
     - zone.home
@@ -1695,7 +1594,7 @@
     weekday:
     - thu
     before: '18:30'
-    after: '13:00:00'
+    after: '12:00:00'
   - condition: state
     entity_id: zone.home
     state: '0'
@@ -2069,32 +1968,6 @@
       window_sensor: binary_sensor.window_noaroom_openclose_contact
       price_level_sensor: sensor.energy_price_level
       price_level_percentage: 110
-- id: '1643267142475'
-  alias: Presence - Send message if cooker is still enabled and we left the house
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: zone.home
-    above: '0'
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
-  condition:
-  - condition: device
-    type: is_on
-    device_id: 4618f0919518ce4010cd4e0fa89fb474
-    entity_id: switch.kookplaat_power
-    domain: switch
-  action:
-  - service: notify.all_phones
-    data:
-      message: "\U0001F468‍\U0001F373 We zijn allebei weg maar de kookplaat staat
-        nog aan!"
-      data:
-        persistent: true
-        tag: persistent
-  mode: single
 - id: '1644162797655'
   alias: Heating - Control heating bedroom
   description: Turn on between 10h and 19h only when the temperature is too low and
@@ -2120,7 +1993,7 @@
         before: '22:00:00'
       - condition: numeric_state
         entity_id: sensor.climate_sensor_masterbedroom_temperature
-        below: '17'
+        below: 19
       - type: is_not_open
         condition: device
         device_id: e495b09d382329f43540381dedb31f15
@@ -2172,9 +2045,6 @@
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
-  - condition: state
-    entity_id: input_boolean.guest_mode
-    state: 'off'
   - condition: time
     after: '22:59:00'
   - condition: or
@@ -2278,65 +2148,6 @@
           data:
             persistent: true
             tag: persistent
-- id: '1655029746074'
-  alias: Switch - Control office light hue switch
-  description: ''
-  use_blueprint:
-    path: hugalafutro/Z2M_Hue_Dimmer_Switch_v2.yaml
-    input:
-      dimmer_action: zigbee2mqtt/dimmer_switch_office/action
-      action_on_press:
-      - service: light.toggle
-        data: {}
-        target:
-          entity_id: light.office_light
-      action_off_press:
-      - service: light.toggle
-        data: {}
-        target:
-          entity_id: light.office_light
-      action_up_press:
-      - service: light.turn_on
-        data_template:
-          entity_id: light.office_light
-          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
-            | int %} {{ [bri+20, 249] | min }}
-
-            '
-      action_down_press:
-      - service: light.turn_on
-        data_template:
-          entity_id: light.office_light
-          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
-            | int %} {{ [bri-20, 249] | min }}
-
-            '
-      action_on_hold:
-      - service: light.toggle
-        data: {}
-        target:
-          entity_id: light.office_light
-      action_off_hold:
-      - service: light.toggle
-        data: {}
-        target:
-          entity_id: light.office_light
-      action_up_hold:
-      - service: light.turn_on
-        data_template:
-          entity_id: light.office_light
-          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
-            | int %} {{ [bri+20, 249] | min }}
-
-            '
-      action_down_hold:
-      - service: light.turn_off
-        data_template:
-          entity_id: light.office_light
-          brightness: '{% set bri = state_attr(''light.office_light'', ''brightness'')
-            | int %} {{ [bri-20, 249] | min }}
-
-            '
 - id: '1659861088978'
   alias: Screens - Close screens zijraam on warm sunny days
   description: In case it's warm and sunny, close the screens in the morning but the
@@ -2403,7 +2214,10 @@
   - platform: state
     entity_id:
     - sensor.energy_price_level
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_pool_automations
+    state: 'on'
   action:
   - choose:
     - conditions:
@@ -2421,12 +2235,12 @@
       - service: switch.turn_on
         data: {}
         target:
-          entity_id: switch.heatpump_pool_switch
+          entity_id: switch.pool_fairland_heatpump_power_switch
     default:
     - service: switch.turn_off
       data: {}
       target:
-        entity_id: switch.heatpump_pool_switch
+        entity_id: switch.pool_fairland_heatpump_power_switch
   mode: single
   max_exceeded: silent
   trace:
@@ -3046,37 +2860,44 @@
         tag: persistent
   mode: single
 - id: '1684057104240'
-  alias: Pool - Switch heating between smart and silent
+  alias: Pool - Switch heating between silent and super silent
   description: Based on the target temperature and current temperature, move to silent
-    or smart mode.
+    or super silent mode.
   trigger:
   - platform: state
     entity_id:
-    - sensor.heatpump_pool_water_temperature
+    - sensor.pool_fairland_heatpump_inlet_water_temperature
   - platform: state
     entity_id:
-    - number.heatpump_pool_water_temperature_target
+    - number.pool_fairland_heatpump_target_temperature_heating
   - platform: time_pattern
     minutes: /30
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_pool_automations
+    state: 'on'
   action:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ states.number.heatpump_pool_water_temperature_target.state
-          | int(default=0) - states.sensor.heatpump_pool_water_temperature.state |
-          int(default=0) > 0 }}'
+        value_template: '{{ states.number.pool_fairland_heatpump_target_temperature_heating.state
+          | int(default=0) - states.sensor.pool_fairland_heatpump_inlet_water_temperature.state
+          | int(default=0) > 0 }}'
         alias: If we are about to get close to the target temperature
       sequence:
-      - service: switch.turn_on
-        data: {}
+      - service: select.select_option
+        metadata: {}
+        data:
+          option: Super Silence
         target:
-          entity_id: switch.heatpump_pool_smartmode
+          entity_id: select.pool_fairland_heatpump_power_mode
     default:
-    - service: switch.turn_off
-      data: {}
+    - service: select.select_option
+      metadata: {}
+      data:
+        option: Silence
       target:
-        entity_id: switch.heatpump_pool_smartmode
+        entity_id: select.pool_fairland_heatpump_power_mode
   mode: single
 - id: '1684057174715'
   alias: Pool - Alert when ph or redox values are not oke
@@ -3092,6 +2913,9 @@
       minutes: 0
       seconds: 0
   condition:
+  - condition: state
+    entity_id: input_boolean.enable_pool_automations
+    state: 'on'
   - condition: or
     conditions:
     - condition: numeric_state
@@ -3184,7 +3008,10 @@
   - platform: state
     entity_id:
     - input_boolean.guest_mode
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_pool_automations
+    state: 'on'
   action:
   - choose:
     - conditions:
@@ -3220,7 +3047,10 @@
   - platform: state
     entity_id:
     - schedule.pool_filter_pump_schedule
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.enable_pool_automations
+    state: 'on'
   action:
   - choose:
     - conditions:
@@ -3587,4 +3417,147 @@
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
             + 0.03}}'
         entity_id: media_player.slaapkamer_sonos
+  mode: single
+- id: '1707053269958'
+  alias: iOS - Open frontdoor
+  description: Open the door from car or watch
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: open_frontdoor
+  condition: []
+  action:
+  - service: lock.open
+    target:
+      entity_id: lock.nuki_voordeur_slot_lock
+    data: {}
+  - service: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+    data:
+      code: automation
+  mode: single
+- id: '1709065308888'
+  alias: Light - Turn off all in bedroom
+  description: Hold the first button on the Hue Tap to turn off all lights and music
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.hue_tap_switch_master_action
+    to: button_1_hold
+  condition: []
+  action:
+  - service: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.dimmer_master_closetbath
+      - light.bedroom_sonos_light
+      - light.dimmer_masterbed
+  - service: media_player.media_stop
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.slaapkamer_sonos
+  mode: single
+- id: '1710096450320'
+  alias: Doorbell - Start streaming p2p when doorbell stops the stream
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.deurbel_langeweide_stream_status
+    to: StreamStatus.IDLE
+  - platform: state
+    entity_id:
+    - sensor.deurbel_langeweide_stream_status
+    to: StreamStatus.PREPARING
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - platform: state
+    entity_id:
+    - button.deurbel_langeweide_stop_p2p_stream
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: sensor.deurbel_langeweide_stream_status
+        state: StreamStatus.IDLE
+      sequence:
+      - service: eufy_security.start_p2p_livestream
+        target:
+          entity_id: camera.deurbel_langeweide
+        data: {}
+    - conditions:
+      - condition: state
+        entity_id: sensor.deurbel_langeweide_stream_status
+        state: StreamStatus.PREPARING
+      sequence:
+      - service: button.press
+        metadata: {}
+        data: {}
+        target:
+          entity_id: button.deurbel_langeweide_stop_p2p_stream
+      - service: eufy_security.start_p2p_livestream
+        target:
+          entity_id: camera.deurbel_langeweide
+        data: {}
+        enabled: true
+    - conditions:
+      - condition: state
+        entity_id: button.deurbel_langeweide_stop_p2p_stream
+        state: unavailable
+      sequence:
+      - service: hassio.addon_restart
+        metadata: {}
+        data:
+          addon: 402f1039_eufy_security_ws
+    default:
+    - service: eufy_security.start_p2p_livestream
+      target:
+        entity_id: camera.deurbel_langeweide
+      data: {}
+  mode: restart
+- id: '1713629238604'
+  alias: Pool - Control brightsness pool lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_number.pool_light_brightness
+  condition: []
+  action:
+  - service: esphome.m5stickc_pool_lights_send_uart_command
+    data_template:
+      command: '{% if states.input_number.pool_light_brightness.state | int < 100
+        %} {% if states.input_number.pool_light_brightness.state | int >= 10 %} PD0{{
+        states.input_number.pool_light_brightness.state | float | round(0) }} {% else
+        %} PD00{{ states.input_number.pool_light_brightness.state | float | round(0)
+        }} {% endif %} {% else %} PD{{ states.input_number.pool_light_brightness.state
+        | float | round(0) }} {% endif %}'
+  mode: single
+- id: '1713699174034'
+  alias: Pool - Set the lights program
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.pool_light_program_options
+  condition: []
+  action:
+  - service: esphome.m5stickc_pool_lights_send_uart_command
+    data_template:
+      command: PS{{ states.input_select.pool_light_program_options.state[:2] }}
   mode: single
