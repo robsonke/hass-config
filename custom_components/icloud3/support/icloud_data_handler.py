@@ -139,7 +139,7 @@ def request_icloud_data_update(Device):
     if (Gb.primary_data_source_ICLOUD is False
             or Device.is_data_source_ICLOUD is False
             or Gb.PyiCloud is None):
-        return False # beta 4/13b16
+        return False
 
     devicename = Device.devicename
 
@@ -149,20 +149,22 @@ def request_icloud_data_update(Device):
 
             Device.icloud_devdata_useable_flag = update_PyiCloud_RawData_data(Device)
 
+            # Retry in an error occurs
             if (Device.icloud_devdata_useable_flag is False
                     and Device.icloud_initial_locate_done is False):
                 Device.icloud_devdata_useable_flag = update_PyiCloud_RawData_data(Device)
 
             if Device.icloud_devdata_useable_flag is False:
                 Device.display_info_msg("iCloud Location Not Available")
-                if Gb.icloud_acct_error_cnt > 3:
+                if Gb.icloud_acct_error_cnt > 5:
                     error_msg = (f"iCloud3 Error > No Location Returned for {devicename}. "
                                     "iCloud may be down or there is an Authentication issue. ")
                     post_error_msg(Device.devicename, error_msg)
 
         return True
 
-    except Exception as err:
+
+    except (PyiCloud2FARequiredException, PyiCloudAPIResponseException) as err:
         Device.icloud_acct_error_flag      = True
         Device.icloud_devdata_useable_flag = False
 
@@ -172,7 +174,13 @@ def request_icloud_data_update(Device):
                         f"issue. iCloud3 will try again later. ({err})")
         post_error_msg(Device.devicename, error_msg)
 
-    return False #beta 4/13b16
+    except Exception as err:
+        Device.icloud_acct_error_flag      = True
+        Device.icloud_devdata_useable_flag = False
+
+        # log_exception(err)
+
+    return False
 
 #----------------------------------------------------------------------------
 def update_PyiCloud_RawData_data(Device, results_msg_flag=True):
@@ -269,8 +277,9 @@ def update_PyiCloud_RawData_data(Device, results_msg_flag=True):
             post_error_msg(error_msg)
 
         except Exception as err:
+            Device.icloud_acct_error_flag      = True
+            Device.icloud_devdata_useable_flag = False
             # log_exception(err)
-            pass
 
         return False
 
@@ -306,7 +315,7 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
             except Exception as err:
                 rawdata_msg = 'No Location data'
                 if _RawData:
-                    log_rawdata(f"{rawdata_msg}-{_Device.devicename}/{_Device.is_data_source_FAMSHR_FMF}",
+                    log_rawdata(f"iCloud - {rawdata_msg}-{_Device.devicename}/{_Device.is_data_source_FAMSHR_FMF}",
                                 {'filter': _RawData.device_data})
                 continue
                 # log_exception(err)
@@ -339,11 +348,11 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
                             else:
                                 reason_msg = (  f"NewData-{_RawData.location_time}/±{_RawData.gps_accuracy:.0f}m "
                                                 f"vs {_Device.loc_data_time_gps}, ")
-                            event_msg =(f"Rejected  #{Device.old_loc_cnt} > "
+                            post_event(_Device,
+                                        f"Rejected  #{Device.old_loc_cnt} > "
                                         f"{reason_msg}"
                                         f"Updated-{_RawData.data_source} data, "
                                         f"{Device.device_status_msg}")
-                            post_event(_Device.devicename, event_msg)
 
             if (_RawData is None
                     or (_RawData.location_secs == 0 and _Device.mobapp_data_secs == 0)
@@ -398,9 +407,9 @@ def update_device_with_latest_raw_data(Device, all_devices=False):
             if famshr_secs > 0 and Gb.used_data_source_FAMSHR and _Device.dev_data_source != 'FamShr':
                 other_times += f"FamShr-{famshr_time}"
 
-            if fmf_secs > 0 and Gb.used_data_source_FMF and _Device.dev_data_source != 'FmF':
-                if other_times != "": other_times += ", "
-                other_times += f"FmF-{fmf_time}"
+            # if fmf_secs > 0 and Gb.used_data_source_FMF and _Device.dev_data_source != 'FmF':
+            #     if other_times != "": other_times += ", "
+            #     other_times += f"FmF-{fmf_time}"
 
             if _Device.mobapp_monitor_flag and _Device.dev_data_source != 'MobApp':
                 if other_times != "": other_times += ", "
@@ -482,8 +491,8 @@ def is_PyiCloud_RawData_data_useable(Device, results_msg_flag=True):
     event_msg = f"{data_type} {useable_msg} > "
     if famshr_secs > 0 and Gb.used_data_source_FAMSHR:
         event_msg += f"FamShr-{famshr_time}, "
-    if fmf_secs > 0 and Gb.used_data_source_FMF:
-        event_msg += f"FmF-{fmf_time}, "
+    # if fmf_secs > 0 and Gb.used_data_source_FMF:
+    #     event_msg += f"FmF-{fmf_time}, "
     if is_useable_flag is False:
         event_msg += "Requesting New Location"
 
@@ -611,14 +620,13 @@ def get_famshr_fmf_PyiCloud_RawData_to_use(_Device):
             _RawData = None
             _Device.data_source = MOBAPP
 
-            error_msg = (f"{EVLOG_ALERT}Data Exception > {_Device.devicename} > No iCloud FamShr  "
+            post_event( f"{EVLOG_ALERT}Data Exception > {_Device.devicename} > No iCloud FamShr  "
                         f"or FmF Device Id was assigned to this device. This can be caused by "
                         f"No location data was returned from iCloud when iCloud3 was started."
                         f"{CRLF}Actions > Restart iCloud3. If the error continues, check the Event Log "
                         f"(iCloud3 Initialization Stage 2) and verify that the device is valid and a "
                         f"tracking method has been assigned. "
                         f"The device will be tracked by the Mobile App.")
-            post_event(error_msg)
 
         error_msg = ''
         if _RawData is None:

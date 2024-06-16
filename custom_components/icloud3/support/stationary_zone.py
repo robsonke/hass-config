@@ -80,7 +80,7 @@ def move_device_into_statzone(Device):
                             and Zone.distance_m(latitude, longitude) <= Zone.radius_m)]
 
     if available_zones != []:
-        _clear_statzone_timer_distance(Device)
+        clear_statzone_timer_distance(Device)
         return False
 
     if _is_too_close_to_another_zone(Device): return False
@@ -101,7 +101,7 @@ def move_device_into_statzone(Device):
         event_msg = f"Created Stationary Zone > {StatZone.fname_id}, SetupBy-{Device.fname}"
     post_event(event_msg)
 
-    _clear_statzone_timer_distance(Device, create_statzone_flag=True)
+    clear_statzone_timer_distance(Device, create_statzone_flag=True)
 
     StatZone.attrs[LATITUDE]  = latitude
     StatZone.attrs[LONGITUDE] = longitude
@@ -177,9 +177,9 @@ def exit_statzone(Device):
 
         remove_statzone(StatZone, Device)
 
-        event_msg =(f"Will Remove Stationary Zone > {StatZone.dname}, "
+        post_event(Device,
+                    f"Will Remove Stationary Zone > {StatZone.dname}, "
                     f"LastUsedBy-{Device.fname}")
-        post_event(Device, event_msg)
 
 #--------------------------------------------------------------------
 def kill_and_recreate_unuseable_statzone(Device):
@@ -205,9 +205,9 @@ def kill_and_recreate_unuseable_statzone(Device):
 
     for _Device in Devices_in_statzone:
         _Device.StatZone = _StatZone
-        event_msg =(f"Reassigned Stationary Zone > {StatZone.dname}{RARROW}"
+        post_event(_Device,
+                    f"Reassigned Stationary Zone > {StatZone.dname}{RARROW}"
                     f"{_StatZone.dname}")
-        post_event(_Device.devicename, event_msg)
 
     remove_statzone(StatZone)
 
@@ -231,7 +231,7 @@ def move_statzone_to_device_location(Device, latitude=None, longitude=None):
 
     if _is_too_close_to_another_zone(Device): return
 
-    _clear_statzone_timer_distance(Device)
+    clear_statzone_timer_distance(Device)
 
     StatZone.attrs[LATITUDE]  = latitude
     StatZone.attrs[LONGITUDE] = longitude
@@ -258,10 +258,10 @@ def remove_statzone(StatZone, Device=None):
         Gb.StatZones_to_delete.append(StatZone)
 
     if Device:
-        _clear_statzone_timer_distance(Device)
-        event_msg =(f"Exited Stationary Zone > {StatZone.dname}, "
+        clear_statzone_timer_distance(Device)
+        post_event(Device,
+                    f"Exited Stationary Zone > {StatZone.dname}, "
                     f"DevicesRemaining-{devices_in_statzone_count(StatZone)}")
-        post_event(Device, event_msg)
 
 #--------------------------------------------------------------------
 def ha_statzones():
@@ -289,13 +289,11 @@ def _trigger_monitored_device_update(StatZone, Device, action):
         if action == ENTER_ZONE and _Device.StatZone is None:
             dist_apart_m = _Device.distance_m(Device.loc_data_latitude, Device.loc_data_longitude)
             if dist_apart_m <= Gb.statzone_radius_m:
-                event_msg = f"Trigger > Enter New Stationary Zone > {StatZone.dname}"
-                post_event(_Device.devicename, event_msg)
+                post_event(_Device, f"Trigger > Enter New Stationary Zone > {StatZone.dname}")
 
         elif action == EXIT_ZONE and _Device.StatZone is StatZone:
             _Device.StatZone = None
-            event_msg = f"Trigger > Exit Removed Stationary Zone > {StatZone.dname}"
-            post_event(_Device.devicename, event_msg)
+            post_event(_Device, f"Trigger > Exit Removed Stationary Zone > {StatZone.dname}")
 
         else:
             continue
@@ -335,7 +333,6 @@ def _is_too_close_to_another_zone(Device):
                                     Device.loc_data_gps_accuracy))]
 
     if CloseZones == []: return False
-
     CloseZone = CloseZones[0]
     if is_statzone(CloseZone.zone):
         log_msg = ( f"{Device.devicename} > StatZone not created, too close to "
@@ -346,7 +343,8 @@ def _is_too_close_to_another_zone(Device):
 
     return True
 #--------------------------------------------------------------------
-def _clear_statzone_timer_distance(Device, create_statzone_flag=False):
+def clear_statzone_timer_distance(Device, create_statzone_flag=False):
+
     Device.statzone_timer      = 0
-    Device.statzone_moved_dist = 0
+    Device.statzone_moved_dist = 0.0
     Device.statzone_setup_secs = Gb.this_update_secs if create_statzone_flag else 0

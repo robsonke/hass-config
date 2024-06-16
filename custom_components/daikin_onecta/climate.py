@@ -31,6 +31,10 @@ from .const import COORDINATOR
 from .const import DAIKIN_DEVICES
 from .const import DOMAIN as DAIKIN_DOMAIN
 from .const import FANMODE_FIXED
+from .const import SWING_COMFORT
+from .const import SWING_COMFORT_HORIZONTAL
+from .const import SWING_FLOOR
+from .const import SWING_FLOOR_HORIZONTAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -135,13 +139,16 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
         self._attr_swing_mode = self.get_swing_mode()
         self._attr_preset_mode = self.get_preset_mode()
         self._attr_fan_mode = self.get_fan_mode()
-        self._attr_available = self._device.available
         self._attr_device_info = self._device.device_info()
 
     @callback
     def _handle_coordinator_update(self) -> None:
         self.update_state()
         self.async_write_ha_state()
+
+    @property
+    def available(self) -> bool:
+        return self._device.available
 
     def climate_control(self):
         cc = None
@@ -200,11 +207,6 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
     @property
     def translation_key(self) -> str:
         return "daikin_onecta"
-
-    @property
-    def available(self):
-        """Return the availability of the underlying device."""
-        return self._device.available
 
     def get_supported_features(self):
         supported_features = 0
@@ -316,22 +318,23 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
             await self.async_set_hvac_mode(kwargs[ATTR_HVAC_MODE])
 
         if ATTR_TEMPERATURE in kwargs:
-            operationmode = self.operation_mode()
-            omv = operationmode["value"]
             value = kwargs[ATTR_TEMPERATURE]
-            res = await self._device.patch(
-                self._device.id,
-                self._embedded_id,
-                "temperatureControl",
-                f"/operationModes/{omv}/setpoints/{self._setpoint}",
-                value,
-            )
-            # When updating the value to the daikin cloud worked update our local cached version
-            if res:
-                setpointdict = self.setpoint()
-                if setpointdict is not None:
-                    self._attr_target_temperature = value
-                    self.async_write_ha_state()
+            if self._attr_target_temperature != value:
+                operationmode = self.operation_mode()
+                omv = operationmode["value"]
+                res = await self._device.patch(
+                    self._device.id,
+                    self._embedded_id,
+                    "temperatureControl",
+                    f"/operationModes/{omv}/setpoints/{self._setpoint}",
+                    value,
+                )
+                # When updating the value to the daikin cloud worked update our local cached version
+                if res:
+                    setpointdict = self.setpoint()
+                    if setpointdict is not None:
+                        self._attr_target_temperature = value
+                        self.async_write_ha_state()
 
     def get_hvac_mode(self):
         """Return current HVAC mode."""
@@ -558,14 +561,14 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
             swingMode = SWING_BOTH
         if v == "floorHeatingAirflow":
             if h == "swing":
-                swingMode = "floorHeatingAirflow and Horizontal"
+                swingMode = SWING_FLOOR_HORIZONTAL
             else:
-                swingMode = "floorHeatingAirflow"
+                swingMode = SWING_FLOOR
         if v == "windNice":
             if h == "swing":
-                swingMode = "Comfort Airflow and Horizontal"
+                swingMode = SWING_COMFORT_HORIZONTAL
             else:
-                swingMode = "Comfort Airflow"
+                swingMode = SWING_COMFORT
 
         _LOGGER.info(
             "Device '%s' has swing mode '%s', determined from h:%s v:%s",
@@ -601,13 +604,13 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
                                 if horizontal is not None:
                                     swingModes.append(SWING_BOTH)
                             if mode == "floorHeatingAirflow":
-                                swingModes.append(mode)
+                                swingModes.append(SWING_FLOOR)
                                 if horizontal is not None:
-                                    swingModes.append("floorHeatingAirflow and Horizontal")
+                                    swingModes.append(SWING_FLOOR_HORIZONTAL)
                             if mode == "windNice":
-                                swingModes.append("Comfort Airflow")
+                                swingModes.append(SWING_COMFORT)
                                 if horizontal is not None:
-                                    swingModes.append("Comfort Airflow and Horizontal")
+                                    swingModes.append(SWING_COMFORT_HORIZONTAL)
         _LOGGER.info("Device '%s' support swing modes %s", self._device.name, swingModes)
         return swingModes
 
@@ -629,12 +632,7 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
                 vertical = fan_direction.get("vertical")
                 if horizontal is not None:
                     new_h_mode = "stop"
-                    if swing_mode in (
-                        SWING_HORIZONTAL,
-                        SWING_BOTH,
-                        "Comfort Airflow and Horizontal",
-                        "floorHeatingAirflow and Horizontal",
-                    ):
+                    if swing_mode in (SWING_HORIZONTAL, SWING_BOTH, SWING_COMFORT_HORIZONTAL, SWING_FLOOR_HORIZONTAL):
                         new_h_mode = "swing"
                     res &= await self._device.patch(
                         self._device.id,
@@ -654,15 +652,9 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
                     new_v_mode = "stop"
                     if swing_mode in (SWING_VERTICAL, SWING_BOTH):
                         new_v_mode = "swing"
-                    if swing_mode in (
-                        "floorHeatingAirflow",
-                        "floorHeatingAirflow and Horizontal",
-                    ):
+                    if swing_mode in (SWING_FLOOR, SWING_FLOOR_HORIZONTAL):
                         new_v_mode = "floorHeatingAirflow"
-                    if swing_mode in (
-                        "Comfort Airflow",
-                        "Comfort Airflow and Horizontal",
-                    ):
+                    if swing_mode in (SWING_COMFORT, SWING_COMFORT_HORIZONTAL):
                         new_v_mode = "windNice"
                     res &= await self._device.patch(
                         self._device.id,
@@ -758,7 +750,6 @@ class DaikinClimate(CoordinatorEntity, ClimateEntity):
     def get_preset_modes(self):
         supported_preset_modes = [PRESET_NONE]
         cc = self.climate_control()
-        # self._current_preset_mode = PRESET_NONE
         for mode in PRESET_MODES:
             daikin_mode = HA_PRESET_TO_DAIKIN[mode]
             preset = cc.get(daikin_mode)

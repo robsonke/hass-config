@@ -35,6 +35,20 @@ browser_mod:
               filter:
                 include:
                   - entity_id: lock.nuki_voordeur_slot_lock
+            - type: tile
+              entity: input_text.camera_analysis
+              show_entity_picture: false
+              name: Laatste gebeurtenis
+              icon: mdi:camera
+              hide_state: false
+              vertical: false
+              state_content:
+                - state
+                - last-changed
+              tap_action:
+                action: url
+                url_path: /ccab4aaf_frigate/ingress
+
             - type: custom:auto-entities
               card:
                 type: entities
@@ -67,10 +81,6 @@ browser_mod:
                 method: last_changed
                 count: 5
                 reverse: true
-            - type: entities
-              show_header_toggle: false
-              entities:
-                - entity: button.deurbel_langeweide_start_p2p_stream
         # wrap in grid to avoid layout issues with swipe card
         - type: grid
           view_layout:
@@ -94,7 +104,7 @@ browser_mod:
                   prevEl: ".swiper-button-prev"
               cards:
                 - type: 'custom:webrtc-camera'
-                  entity: camera.doorbell_webrtc
+                  entity: camera.langeweide_doorbell_clear
                 - type: 'custom:webrtc-camera'
                   entity: camera.reoveranda_camera_webrtc
                 - type: 'custom:webrtc-camera'

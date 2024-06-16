@@ -42,7 +42,18 @@ browser_mod:
               card_mod:
                 class: header
               entities:
-                - entity: light.pool_light
+                - type: custom:mushroom-light-card
+                  entity: light.pool_light
+                  layout: horizontal
+                  fill_container: true
+                  primary_info: name
+                  secondary_info: state
+                  icon_type: icon
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_control: true
+                  show_color_temp_control: false
+                  collapsible_controls: false
 
             - type: entities
               title: Filterpomp
@@ -80,7 +91,9 @@ browser_mod:
                 - entity: number.pool_fairland_heatpump_target_temperature_heating
                   name: Gewenste temperatuur
                 - entity: sensor.pool_fairland_heatpump_inlet_water_temperature
-                  name: Huidige temperatuur
+                  name: Ingaande temperatuur
+                - entity: sensor.pool_fairland_heatpump_outlet_water_temperature
+                  name: Uitgaande temperatuur
                 - entity: sensor.pool_fairland_heatpump_speed_percentage
                   name: Vermogen warmtepomp
             - type: entities

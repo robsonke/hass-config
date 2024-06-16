@@ -266,7 +266,75 @@ browser_mod:
                   decimals: 2
             - type: energy-sources-table
             - type: energy-date-selection
-            - type: energy-distribution
-              link_dashboard: true
+            # - type: energy-distribution
+            #   link_dashboard: true
+            - type: custom:power-flow-card-plus
               view_layout:
                 position: sidebar
+              entities:
+                grid:
+                  entity:
+                    consumption: sensor.power_consumed
+                    production: sensor.power_produced
+                  invert_state: false
+                  use_metadata: false
+                  color_value: true
+                solar:
+                  entity: sensor.solaredgemb_dc_power
+                  display_zero_state: true
+                home:
+                  entity: sensor.net_power_consumption
+                fossil_fuel_percentage:
+                  entity: sensor.grid_fossil_fuel_percentage
+                  icon: mdi:pine-tree
+                  color_icon: true
+                  display_zero: true
+                  name: Non Fossil
+                  state_type: power
+                individual:
+                  - entity: sensor.ehhatdgg_power
+                    icon: mdi:car-electric
+                    color: '#80b8ff'
+                    name: BMW
+                    color_icon: false
+                    display_zero: true
+                    display_zero_state: false
+                    calculate_flow_rate: false
+                    inverted_animation: false
+                    show_direction: false
+                    use_metadata: true
+                    unit_white_space: false
+                    secondary_info:
+                      entity: sensor.ix3_remaining_battery_percent
+                      unit_of_measurement: '%'
+                      icon: mdi:ev-station
+                  - entity: sensor.altherma_power_usage
+                    icon: mdi:heat-pump
+                    color_value: false
+                    color_icon: true
+                    display_zero_state: false
+                    calculate_flow_rate: false
+                    inverted_animation: false
+                    show_direction: false
+                    use_metadata: true
+                    name: Warmtepomp
+                battery: {}
+              clickable_entities: true
+              display_zero_lines:
+                mode: show
+                transparency: 50
+                grey_color:
+                  - 189
+                  - 189
+                  - 189
+              use_new_flow_rate_model: true
+              w_decimals: 0
+              kw_decimals: 1
+              min_flow_rate: 0.75
+              max_flow_rate: 6
+              max_expected_power: 12000
+              min_expected_power: 0.01
+              watt_threshold: 1000
+              transparency_zero_lines: 0
+              disable_dots: false
+              

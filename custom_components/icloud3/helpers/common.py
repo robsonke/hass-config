@@ -3,11 +3,17 @@
 from ..global_variables import GlobalVariables as Gb
 from ..const            import (NOT_HOME, STATIONARY, CIRCLE_LETTERS_DARK, UNKNOWN, CRLF_DOT, CRLF, )
 from collections        import OrderedDict
+from homeassistant.util import json as json_util
+from homeassistant.helpers import json as json_helpers
 import os
+import json
+import logging
+_LOGGER = logging.getLogger(__name__)
+#_LOGGER = logging.getLogger(f"icloud3")
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #
-#   DATA VERIFICATION FUNCTIONS
+#   DICTION & LIST UTILITY FUNCTIONS
 #
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def combine_lists(parm_lists):
@@ -33,8 +39,8 @@ def list_to_str(list_value, separator=None):
     '''
     if list_value == []: return ''
     separator_str = separator if separator else ', '
-    if None in list_value:
-        list_value = [lv for lv in list_value if lv is not None]
+    if None in list_value or '' in list_value:
+        list_value = [lv for lv in list_value if lv is not None and lv != '']
     list_str = separator_str.join(list_value) if list_value else 'None'
 
     if separator_str.startswith(CRLF):
@@ -77,6 +83,28 @@ def delete_from_list(list_value, item):
     return list_value
 
 #--------------------------------------------------------------------
+def sort_dict_by_values(dict_value):
+    '''
+    Return a dictionary sorted by the item values
+    '''
+    if (type(dict_value) is not dict
+            or dict_value == {}):
+        return {}
+
+    dict_value_lower        = {k: v.lower() for k, v in dict_value.items()}
+    sorted_dict_value_lower = sorted(dict_value_lower.items(), key=lambda x:x[1])
+    keys_sorted_dict_value_lower = dict(sorted_dict_value_lower).keys()
+    sorted_dict_value       = {k: dict_value[k] for k in keys_sorted_dict_value_lower}
+
+    return sorted_dict_value
+
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#
+#   DATA VERIFICATION FUNCTIONS
+#
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 def instr(string, substring):
     '''
     Fine a substring or a list of substrings strings in a string
@@ -112,8 +140,12 @@ def isnumber(string):
         return False
 
 #--------------------------------------------------------------------
-def isbetween(number, greater_than, less_than_equal):
-    return (less_than_equal > number > greater_than)
+def isbetween(number, min_value, max_value):
+    '''
+    Return True if the the number is between the other two numbers
+    including the min_value and max_value number)
+    '''
+    return (max_value+1 > number > min_value-1)
 
 #--------------------------------------------------------------------
 def inlist(string, list_items):
@@ -249,6 +281,90 @@ def format_cnt(desc, n):
     return f", {desc}(#{n})" if n > 1 else ''
 
 #--------------------------------------------------------------------
+async def async_load_json_file(filename):
+    if os.path.exists(filename) is False:
+        return {}
+
+    try:
+        data = await Gb.hass.async_add_executor_job(
+                            json_util.load_json,
+                            filename)
+        return data
+
+    except Exception as err:
+        #_LOGGER.exception(err)
+        pass
+
+    return {}
+
+#--------------------------------------------------------------------
+def load_json_file(filename):
+    if os.path.exists(filename) is False:
+        return {}
+
+    try:
+        if Gb.initial_icloud3_loading_flag:
+            data = json_util.load_json(filename)
+        else:
+            data = Gb.hass.async_add_executor_job(
+                            json_util.load_json,
+                            filename)
+        return data
+
+    except RuntimeError as err:
+        if str(err) == 'no running event loop':
+            data = json_util.load_json(filename)
+            return data
+
+    except Exception as err:
+        _LOGGER.exception(err)
+        pass
+
+    return {}
+
+#--------------------------------------------------------------------
+async def async_save_json_file(filename, data):
+
+    try:
+        await Gb.hass.async_add_executor_job(
+                            json_helpers.save_json,
+                            filename,
+                            data)
+        return True
+
+    except Exception as err:
+        _LOGGER.exception(err)
+        pass
+
+    return False
+
+#--------------------------------------------------------------------
+def save_json_file(filename, data):
+
+    try:
+        # The HA event loop has not been set up yet during initialization
+        if Gb.initial_icloud3_loading_flag:
+            json_helpers.save_json(filename, data)
+        else:
+
+            Gb.hass.async_add_executor_job(
+                            json_helpers.save_json,
+                            filename,
+                            data)
+        return True
+
+    except RuntimeError as err:
+        if err == 'no running event loop':
+            json_helpers.save_json(filename, data)
+            return True
+
+    except Exception as err:
+        _LOGGER.exception(err)
+        pass
+
+    return False
+
+#--------------------------------------------------------------------
 def delete_file(file_desc, directory, filename, backup_extn=None, delete_old_sv_file=False):
     '''
     Delete a file.
@@ -296,3 +412,82 @@ def delete_file(file_desc, directory, filename, backup_extn=None, delete_old_sv_
     except Exception as err:
         Gb.HALogger.exception(err)
         return "Delete error"
+
+#--------------------------------------------------------------------
+def encode_password(password):
+    '''
+    Determine if the password is encoded.
+
+    Return:
+        Decoded password
+    '''
+    try:
+        if (password == '' or Gb.encode_password_flag is False):
+            return password
+
+        return f"««{base64_encode(password)}»»"
+
+    except Exception as err:
+        #log_exception(err)
+        password = password.replace('«', '').replace('»', '')
+        return password
+
+def base64_encode(string):
+    """
+    Encode the string via base64 encoder
+    """
+    # encoded = base64.urlsafe_b64encode(string)
+    # return encoded.rstrip("=")
+
+    try:
+        string_bytes = string.encode('ascii')
+        base64_bytes = base64.b64encode(string_bytes)
+        return base64_bytes.decode('ascii')
+
+    except Exception as err:
+        #log_exception(err)
+        password = password.replace('«', '').replace('»', '')
+        return password
+
+
+#--------------------------------------------------------------------
+def decode_password(password):
+    '''
+    Determine if the password is encoded.
+
+    Return:
+        Decoded password
+    '''
+    try:
+        # If the password in the configuration file is not encoded (no '««' or '»»')
+        # and it should be encoded, save the configuration file which will encode it
+        if (Gb.encode_password_flag
+                and password != ''
+                and (password.startswith('««') is False
+                    or password.endswith('»»') is False)):
+            password = password.replace('«', '').replace('»', '')
+            Gb.conf_tracking[CONF_PASSWORD] = password
+            #write_storage_icloud3_configuration_file()
+
+        # Decode password if it is encoded and has the '««password»»' format
+        if (password.startswith('««') or password.endswith('»»')):
+            password = password.replace('«', '').replace('»', '')
+            return base64_decode(password)
+
+    except Exception as err:
+        #log_exception(err)
+        password = password.replace('«', '').replace('»', '')
+
+    return password
+
+def base64_decode(string):
+    """
+    Decode the string via base64 decoder
+    """
+    # padding = 4 - (len(string) % 4)
+    # string = string + ("=" * padding)
+    # return base64.urlsafe_b64decode(string)
+
+    base64_bytes = string.encode('ascii')
+    string_bytes = base64.b64decode(base64_bytes)
+    return string_bytes.decode('ascii')

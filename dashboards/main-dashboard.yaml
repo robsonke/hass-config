@@ -3,7 +3,7 @@ decluttering_templates: !include ../templates/decluttering_templates.yaml
 
 wallpanel:
   enabled: true
-  hide_toolbar: true
+  hide_toolbar: false
   idle_time: 0
 
 views:
@@ -17,8 +17,8 @@ views:
       grid-template-areas: |
         "sidebar  .        .          .        ."
         "sidebar  home     downstairs upstairs ."
-        "sidebar  garden1   garden2     energy   ."
-        "sidebar  footer   footer     footer   ."
+        "sidebar  garden1  garden2    energy   ."
+        "sidebar  garden1  garden2    energy   ."
       mediaquery:
         '(max-width: 800px)':
           grid-gap: calc(var(--grid-card-gap) * 0.5)
@@ -37,13 +37,12 @@ views:
             ".  .          ."
         '(max-width: 1200px)':
           grid-gap: calc(var(--grid-card-gap) * 1)
-          grid-template-columns: repeat(4, 1fr) 0
-          grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
+          grid-template-columns: 350px repeat(3, 1fr) 0
+          grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
           grid-template-areas: |
             "sidebar  .        .          .        ."
             "sidebar  home     downstairs upstairs ."
-            "sidebar  garden1   garden2     energy   ."
-            "sidebar  footer   footer     footer   ."
+            "sidebar  garden1  garden2    energy   ."
             "sidebar  .        .          .        ."
 
     cards:
@@ -172,8 +171,8 @@ views:
                   {{ state_attr('sensor.template_paper_days_until_collection', 'text') }}
                 tap_action:
                   !include popups/pp_sidebar_trash.yaml
-          - type: custom:gap-card
-            height: 10
+          # - type: custom:gap-card
+          #   height: 10
 
           #################################################
           #                                               #
@@ -489,14 +488,6 @@ views:
             template:
               - door_window_group_upstairs
             group_expand: true
-          # - type: custom:button-card
-          #   entity: media_player.slaapkamer_sonos
-          #   name: Muziek
-          #   icon: mdi:speaker
-          #   template:
-          #     - music
-          #   tap_action:
-          #     action: more-info
           - type: custom:button-card
             entity: media_player.music_upstairs
             name: Muziek

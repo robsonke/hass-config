@@ -431,6 +431,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors = _validate_daily_energy_input(user_input)
 
+        schema = _create_daily_energy_schema(self.hass)
         if user_input is not None and not errors:
             self.selected_sensor_type = SensorType.DAILY_ENERGY
             self.name = user_input.get(CONF_NAME)
@@ -438,14 +439,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
 
-            self.sensor_config.update(_build_daily_energy_config(user_input))
+            self.sensor_config.update(_build_daily_energy_config(user_input, schema))
             if self.sensor_config.get(CONF_CREATE_UTILITY_METERS):
                 return await self.async_step_utility_meter_options()
-            return self.create_config_entry()
+            return self.create_config_entry()  # type: ignore
 
         return self.async_show_form(
             step_id="daily_energy",
-            data_schema=SCHEMA_DAILY_ENERGY,
+            data_schema=schema,
             errors=errors,
         )
 
@@ -466,7 +467,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 if self.sensor_config.get(CONF_CREATE_UTILITY_METERS):
                     return await self.async_step_utility_meter_options()
-                return self.create_config_entry()
+                return self.create_config_entry()  # type: ignore
 
         group_schema = SCHEMA_GROUP.extend(
             _create_group_options_schema(self.hass).schema,
@@ -621,7 +622,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.sensor_config.update(user_input)
             if self.sensor_config.get(CONF_CREATE_UTILITY_METERS):
                 return await self.async_step_utility_meter_options()
-            return self.create_config_entry()
+            return self.create_config_entry()  # type: ignore
 
         return self.async_show_form(
             step_id="real_power",
@@ -727,7 +728,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         if user_input is not None or self.skip_advanced_step:
             self.sensor_config.update(user_input or {})
-            return self.create_config_entry()
+            return self.create_config_entry()  # type: ignore
 
         return self.async_show_form(
             step_id="power_advanced",
@@ -744,7 +745,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         if user_input is not None:
             self.sensor_config.update(user_input or {})
-            return self.create_config_entry()
+            return self.create_config_entry()  # type: ignore
 
         return self.async_show_form(
             step_id="utility_meter_options",
@@ -786,7 +787,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self.source_entity_id:
             self.sensor_config.update({CONF_ENTITY_ID: self.source_entity_id})
 
-        return self.async_create_entry(title=self.name, data=self.sensor_config)  # type: ignore
+        return self.async_create_entry(title=str(self.name), data=self.sensor_config)
 
 
 class OptionsFlowHandler(OptionsFlow):
@@ -856,7 +857,7 @@ class OptionsFlowHandler(OptionsFlow):
             self._process_user_input(user_input, schema)
 
         if self.sensor_type == SensorType.DAILY_ENERGY:
-            self.current_config.update(_build_daily_energy_config(user_input))
+            self.current_config.update(_build_daily_energy_config(user_input, _create_daily_energy_schema(self.hass)))
 
         if self.sensor_type == SensorType.VIRTUAL_POWER:
             generic_option_schema = SCHEMA_POWER_OPTIONS.extend(
@@ -1028,6 +1029,14 @@ def _create_virtual_power_schema(
     return schema.extend(power_options.schema)  # type: ignore
 
 
+def _create_daily_energy_schema(hass: HomeAssistant) -> vol.Schema:
+    return SCHEMA_DAILY_ENERGY.extend(  # type: ignore
+        {
+            vol.Optional(CONF_GROUP): _create_group_selector(hass),
+        },
+    )
+
+
 def _create_schema_advanced(sensor_config: ConfigType) -> vol.Schema:
     schema = SCHEMA_POWER_ADVANCED
 
@@ -1136,6 +1145,7 @@ def _create_group_selector(
             options=options,
             multiple=multiple,
             mode=selector.SelectSelectorMode.DROPDOWN,
+            custom_value=True,
         ),
     )
 
@@ -1252,18 +1262,18 @@ def _build_strategy_config(
     return strategy_options
 
 
-def _build_daily_energy_config(user_input: dict[str, Any]) -> dict[str, Any]:
+def _build_daily_energy_config(user_input: dict[str, Any], schema: vol.Schema) -> dict[str, Any]:
     """Build the config under daily_energy: key."""
-    schema = SCHEMA_DAILY_ENERGY_OPTIONS
     config: dict[str, Any] = {
         CONF_DAILY_FIXED_ENERGY: {},
+        CONF_CREATE_UTILITY_METERS: False,
     }
     for key in schema.schema:
         val = user_input.get(key)
         if val is None:
             continue
-        if key == CONF_CREATE_UTILITY_METERS:
-            config[CONF_CREATE_UTILITY_METERS] = val
+        if key in [CONF_CREATE_UTILITY_METERS, CONF_GROUP, CONF_NAME, CONF_UNIQUE_ID]:
+            config[str(key)] = val
             continue
 
         config[CONF_DAILY_FIXED_ENERGY][str(key)] = val

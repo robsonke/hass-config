@@ -59,6 +59,9 @@ input_boolean:
     name: Dark Mode
     icon: mdi:theme-light-dark
 
+input_text:
+  camera_analysis:
+    name: Camera Event Analysis
 
 # Custom homekit config currently not supported by the integration page
 homekit:

@@ -85,8 +85,6 @@ sleep_well:
   - service: light.turn_off
     target:
       entity_id:
-      - light.socket1_light_corner
-      - light.socket2_light_couch
       - light.diningtable_light
     data:
       transition: 2

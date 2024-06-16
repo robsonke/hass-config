@@ -197,16 +197,16 @@ select:
             // Switching capacity turns the device on and switches to manual.
             // Switching to P does not turn the device on.
             if (strcmp(x.c_str(), "Off") == 0) {
-              tuya_tuya->set_enum_datapoint_value(101, 0x3);
+              tuya_tuya_id->set_enum_datapoint_value(101, 0x3);
             } else if (strcmp(x.c_str(), "Low") == 0) {
-              tuya_tuya->set_enum_datapoint_value(101, 0x0);
+              tuya_tuya_id->set_enum_datapoint_value(101, 0x0);
             } else if (strcmp(x.c_str(), "Medium") == 0) {
-              tuya_tuya->set_enum_datapoint_value(101, 0x1);
+              tuya_tuya_id->set_enum_datapoint_value(101, 0x1);
             } else if (strcmp(x.c_str(), "High") == 0) {
-              tuya_tuya->set_enum_datapoint_value(101, 0x2);
+              tuya_tuya_id->set_enum_datapoint_value(101, 0x2);
             } else {
-              tuya_tuya->set_boolean_datapoint_value(1, true);
-              tuya_tuya->set_enum_datapoint_value(4, 0x1);
+              tuya_tuya_id->set_boolean_datapoint_value(1, true);
+              tuya_tuya_id->set_enum_datapoint_value(4, 0x1);
             }
 
 text_sensor:

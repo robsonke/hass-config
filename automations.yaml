@@ -384,7 +384,7 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.deurbel_langeweide_ringing
+    - binary_sensor.langeweide_doorbell_visitor
     from: 'off'
     to: 'on'
   action:
@@ -608,10 +608,18 @@
           seconds: 15
           milliseconds: 0
       - service: light.turn_off
-        data: {}
         target:
           entity_id: light.dimmer_hall
       alias: Turn on hall light shortly
+  - alias: Turn off the couch and corner light too if it's after 11 pm
+    condition: time
+    after: '22:55:00'
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.socket1_light_corner
+      - light.socket2_light_couch
+    data: {}
   mode: single
 - id: lights_turn_off_bedtime_auto
   alias: Lights - Turn off lights automatically - bedtime
@@ -645,6 +653,11 @@
         tag: persistent
   - service: script.sleep_well
     data: {}
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.socket1_light_corner
+      - light.socket2_light_couch
   mode: single
 - id: closet_light_turn_on
   alias: Lights - Turn on lights when closet door opens
@@ -1146,9 +1159,9 @@
         persistent: true
         tag: persistent
   - service: cover.close_cover
-    data: {}
     target:
       entity_id: cover.voorraam
+    data: {}
   trace:
     stored_traces: 20
   mode: single
@@ -1306,6 +1319,11 @@
   action:
   - service: script.sleep_well
     data: {}
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.socket1_light_corner
+      - light.socket2_light_couch
   - service: alarm_control_panel.alarm_arm_night
     target:
       entity_id: alarm_control_panel.alarmo
@@ -1888,6 +1906,11 @@
   action:
   - service: script.sleep_well
     data: {}
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.socket1_light_corner
+      - light.socket2_light_couch
   - service: alarm_control_panel.alarm_arm_night
     target:
       entity_id: alarm_control_panel.alarmo
@@ -2005,8 +2028,8 @@
         entity_id: binary_sensor.window_masterbed_2_openclose_contact
         domain: binary_sensor
       - condition: state
-        entity_id: sensor.cheapest_16_hours_24h
-        state: 'True'
+        entity_id: binary_sensor.cheapest_16_hours_24h
+        state: 'on'
         alias: The price should be not too high
       sequence:
       - device_id: 63bfcece97a8578bf632cddbc75ee61d
@@ -2153,8 +2176,11 @@
   description: In case it's warm and sunny, close the screens in the morning but the
     one on the side a bit later
   trigger:
-  - platform: time_pattern
-    minutes: /15
+  - platform: state
+    entity_id:
+    - sensor.rate_rain_piezo
+    - sensor.openweathermap_forecast_temperature
+    - sensor.openweathermap_forecast_cloud_coverage
   condition:
   - condition: and
     conditions:
@@ -2168,14 +2194,14 @@
         - condition: numeric_state
           entity_id: sensor.openweathermap_forecast_cloud_coverage
           below: '80'
+        alias: Is the temperature forecast 20C+ and the cloud coverage below 80%
       - condition: numeric_state
         entity_id: sensor.openweathermap_forecast_temperature
         above: '22'
-    - condition: device
-      device_id: 7a674f956b15af8decebb36355772928
-      domain: cover
+      alias: Is it warm and not too cloudy or just warmer?
+    - condition: state
       entity_id: cover.zijraam
-      type: is_open
+      state: open
   - condition: time
     after: '11:00:00'
     before: '19:00:00'
@@ -2199,8 +2225,8 @@
   mode: single
 - id: '1659880318627'
   alias: Pool - Control the Pool Heatpump
-  description: Turn on the pool heatpump based on need and energy pricing and outdoor
-    temperature
+  description: Turn on the pool heat pump and choose a run mode (normal/silent/super
+    silent) based on need and energy pricing and outdoor temperature
   trigger:
   - platform: state
     entity_id: sensor.today_maximum_temperature
@@ -2212,30 +2238,76 @@
       minutes: 10
       seconds: 0
   - platform: state
+    entity_id: sensor.pool_heating_temperature_diff
+  - platform: state
     entity_id:
-    - sensor.energy_price_level
+    - binary_sensor.cheapest_16_hours_24h
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   condition:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
+  - condition: state
+    entity_id: binary_sensor.cheapest_16_hours_24h
+    state: 'on'
+  - condition: numeric_state
+    entity_id: sensor.openweathermap_forecast_temperature
+    above: 15
   action:
   - choose:
     - conditions:
-      - condition: numeric_state
-        entity_id: sensor.energy_price_level
-        attribute: percentage
-        below: 100
+      - condition: state
+        entity_id: binary_sensor.cheapest_16_hours_24h
+        state: 'on'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         above: 14
       - condition: state
         entity_id: binary_sensor.pool_pump_active
         state: 'on'
+      - condition: numeric_state
+        entity_id: sensor.pool_heating_temperature_diff
+        above: 1
       sequence:
       - service: switch.turn_on
         data: {}
         target:
           entity_id: switch.pool_fairland_heatpump_power_switch
+      - choose:
+        - conditions:
+          - condition: numeric_state
+            entity_id: sensor.pool_heating_temperature_diff
+            above: 2
+            alias: If we are about to get close to the target temperature
+          sequence:
+          - service: select.select_option
+            metadata: {}
+            data:
+              option: Normal
+            target:
+              entity_id: select.pool_fairland_heatpump_power_mode
+        - conditions:
+          - condition: numeric_state
+            entity_id: sensor.pool_heating_temperature_diff
+            above: 1
+            alias: If we are about to get closer to the target temperature
+          sequence:
+          - service: select.select_option
+            metadata: {}
+            data:
+              option: Silence
+            target:
+              entity_id: select.pool_fairland_heatpump_power_mode
+        default:
+        - service: select.select_option
+          metadata: {}
+          data:
+            option: Super Silence
+          target:
+            entity_id: select.pool_fairland_heatpump_power_mode
     default:
     - service: switch.turn_off
       data: {}
@@ -2582,8 +2654,8 @@
       - condition: or
         conditions:
         - condition: state
-          entity_id: sensor.cheapest_16_hours_24h
-          state: 'True'
+          entity_id: binary_sensor.cheapest_16_hours_24h
+          state: 'on'
           alias: Is this one of the cheapest hours of the day
         - condition: numeric_state
           entity_id: sensor.energy_price_level
@@ -2775,8 +2847,8 @@
         entity_id: binary_sensor.window_masterbed_2_openclose_contact
         domain: binary_sensor
       - condition: state
-        entity_id: sensor.cheapest_16_hours_24h
-        state: 'True'
+        entity_id: binary_sensor.cheapest_16_hours_24h
+        state: 'on'
         alias: The price should be not too high
       sequence:
       - type: turn_on
@@ -2870,8 +2942,9 @@
   - platform: state
     entity_id:
     - number.pool_fairland_heatpump_target_temperature_heating
-  - platform: time_pattern
-    minutes: /30
+  - platform: state
+    entity_id:
+    - binary_sensor.cheapest_16_hours_24h
   condition:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -2924,7 +2997,9 @@
       below: 6
     - condition: numeric_state
       entity_id: sensor.pool_redox_value
-      above: 800
+      above: 850
+    - condition: numeric_state
+      entity_id: sensor.pool_redox_value
       below: 500
     - condition: state
       entity_id: binary_sensor.pool_pump_active
@@ -2950,14 +3025,15 @@
   - condition: state
     entity_id: binary_sensor.pool_pump_active
     state: 'on'
-    for:
-      hours: 0
-      minutes: 2
-      seconds: 0
+  - condition: template
+    value_template: "{% if as_timestamp(now()) | int -\n as_timestamp(states.automation.pool_alert_when_ph_or_redox_values_are_not_oke.attributes.last_triggered)\n
+      \     | int > 57600 %} true {% else %} false {% endif %}"
+    alias: Only trigger this automation once per 16 hours max
   action:
-  - service: notify.all_phones
+  - service: notify.mobile_app_iphone_rob
     data:
-      message: "\U0001F3CA De waardes of flow van het zwembad zijn niet in orde."
+      message: "\U0001F3CA De ph/orp waardes of flow van het zwembad zijn niet in
+        orde."
       data:
         persistent: true
         tag: persistent
@@ -3462,102 +3538,203 @@
     target:
       entity_id: media_player.slaapkamer_sonos
   mode: single
-- id: '1710096450320'
-  alias: Doorbell - Start streaming p2p when doorbell stops the stream
+- id: '1715023558828'
+  alias: Doors - Unlock the front door on week days at 7:00
+  description: And only when we're home
+  trigger:
+  - platform: time
+    at: 07:00:00
+    alias: Trigger every day at 7:00 in the morning
+  condition:
+  - condition: state
+    entity_id: binary_sensor.workday_rob
+    state: 'on'
+    alias: Confirm it's a week day
+  - condition: numeric_state
+    entity_id: zone.home
+    above: 0
+    alias: At least somebody home?
+  action:
+  - service: lock.unlock
+    metadata: {}
+    data: {}
+    target:
+      entity_id: lock.nuki_voordeur_slot_lock
+  mode: single
+- id: '1715282105706'
+  alias: Alarm - Interrupt the manual pause in case one of us comes home
+  description: This is to avoid that the alarm switches back on after 2 hours and
+    freaking us out
+  trigger:
+  - platform: numeric_state
+    entity_id:
+    - zone.home
+    above: 0
+  condition:
+  - condition: template
+    value_template: '{{ state_attr(''automation.alarm_disable_alarm_manually'', ''current'')
+      > 0 }}'
+    alias: Is the "Disable alarm manually" automation running?
+  action:
+  - service: automation.turn_off
+    metadata: {}
+    data:
+      stop_actions: true
+    target:
+      entity_id: automation.alarm_disable_alarm_manually
+  - service: automation.turn_on
+    target:
+      entity_id:
+      - automation.alarm_disable_alarm_manually
+    data: {}
+  mode: single
+- id: '1716736577091'
+  alias: Frigate / Generative AI / Notification TEST
   description: ''
+  trigger:
+  - platform: mqtt
+    topic: frigate/events
+    payload: new
+    value_template: '{{ value_json.type }}'
+  - platform: mqtt
+    topic: frigate/events
+    payload: update
+    value_template: '{{ value_json.type }}'
+  condition:
+  - condition: template
+    value_template: '{{ camera_entity != ''camera.evabed'' }}'
+    alias: Skip Eva's camera
+  - condition: template
+    value_template: '{{ camera_entity != ''camera.noabed'' }}'
+    alias: Skip Noa's camera
+  - condition: template
+    value_template: '{{ states(''switch.'' ~ camera_name ~ ''_detect'') == ''on''
+      }}'
+    alias: Is the detect switch on for that camera?
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: zone.home
+      state: '0'
+      alias: Are we all away?
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: armed_night
+    alias: Are we away or is the night alarm active
+  - condition: template
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.test_frigate_generative_ai_notification.attributes.last_triggered,
+      0) | int > 20 }}'
+    alias: Only trigger once per 20 seconds
+  action:
+  - service: camera.snapshot
+    metadata: {}
+    data:
+      filename: downloads/latest_front_{{ camera_entity }}.jpg
+    target:
+      entity_id: '{{ camera_entity }}'
+  - service: google_generative_ai_conversation.generate_content
+    metadata: {}
+    data:
+      image_filename: downloads/latest_front_{{ camera_entity }}.jpg
+      prompt: Very briefly describe what you see in this image from my security camera.
+        Your message needs to be short to fit in a phone notification. Don't describe
+        stationary objects, plants or buildings. And please answer in Dutch.
+    response_variable: generated_content
+  - service: input_text.set_value
+    metadata: {}
+    data:
+      value: '{{ generated_content.text }}'
+    target:
+      entity_id: input_text.camera_analysis
+  - service: notify.mobile_app_iphone_rob
+    data:
+      message: ' {{ generated_content.text }} '
+      data:
+        image: https://home.tigrou.nl/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        tag: '{{trigger.payload_json["after"]["id"]}}'
+        when: '{{trigger.payload_json["after"]["start_time"]|int}}'
+        entity_id: '{{ camera_entity }}'
+        data:
+          url: /ccab4aaf_frigate/ingress
+        push:
+          category: camera
+  variables:
+    camera_entity: camera.{{trigger.payload_json["after"]["camera"] | replace("-","_")
+      | lower}}
+    camera_name: '{{trigger.payload_json["after"]["camera"] | replace("-","_") | lower}}'
+  mode: single
+- id: '1716926628476'
+  alias: Sleep - Turn off last lights around 11 pm
+  description: ''
+  trigger:
+  - platform: time
+    at: '22:55:00'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
+  action:
+  - service: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.socket1_light_corner
+      - light.socket2_light_couch
+  mode: single
+- id: '1718380304677'
+  alias: Energy - Disable solar panels in case of negative pricing
+  description: Avoid paying for delivering energy but also limit the impact on the
+    power grid in case there is no need
   trigger:
   - platform: state
     entity_id:
-    - sensor.deurbel_langeweide_stream_status
-    to: StreamStatus.IDLE
-  - platform: state
-    entity_id:
-    - sensor.deurbel_langeweide_stream_status
-    to: StreamStatus.PREPARING
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  - platform: state
-    entity_id:
-    - button.deurbel_langeweide_stop_p2p_stream
-    to: unavailable
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  - platform: homeassistant
-    event: start
+    - sensor.current_price_electricity
   condition: []
   action:
   - choose:
     - conditions:
+      - condition: numeric_state
+        entity_id: sensor.current_price_electricity
+        below: 0
       - condition: state
-        entity_id: sensor.deurbel_langeweide_stream_status
-        state: StreamStatus.IDLE
+        entity_id: number.solaredgemb_active_power_limit
+        state: '100'
       sequence:
-      - service: eufy_security.start_p2p_livestream
-        target:
-          entity_id: camera.deurbel_langeweide
-        data: {}
-    - conditions:
-      - condition: state
-        entity_id: sensor.deurbel_langeweide_stream_status
-        state: StreamStatus.PREPARING
-      sequence:
-      - service: button.press
-        metadata: {}
-        data: {}
-        target:
-          entity_id: button.deurbel_langeweide_stop_p2p_stream
-      - service: eufy_security.start_p2p_livestream
-        target:
-          entity_id: camera.deurbel_langeweide
-        data: {}
-        enabled: true
-    - conditions:
-      - condition: state
-        entity_id: button.deurbel_langeweide_stop_p2p_stream
-        state: unavailable
-      sequence:
-      - service: hassio.addon_restart
+      - service: number.set_value
         metadata: {}
         data:
-          addon: 402f1039_eufy_security_ws
-    default:
-    - service: eufy_security.start_p2p_livestream
-      target:
-        entity_id: camera.deurbel_langeweide
-      data: {}
-  mode: restart
-- id: '1713629238604'
-  alias: Pool - Control brightsness pool lights
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - input_number.pool_light_brightness
-  condition: []
-  action:
-  - service: esphome.m5stickc_pool_lights_send_uart_command
-    data_template:
-      command: '{% if states.input_number.pool_light_brightness.state | int < 100
-        %} {% if states.input_number.pool_light_brightness.state | int >= 10 %} PD0{{
-        states.input_number.pool_light_brightness.state | float | round(0) }} {% else
-        %} PD00{{ states.input_number.pool_light_brightness.state | float | round(0)
-        }} {% endif %} {% else %} PD{{ states.input_number.pool_light_brightness.state
-        | float | round(0) }} {% endif %}'
-  mode: single
-- id: '1713699174034'
-  alias: Pool - Set the lights program
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - input_select.pool_light_program_options
-  condition: []
-  action:
-  - service: esphome.m5stickc_pool_lights_send_uart_command
-    data_template:
-      command: PS{{ states.input_select.pool_light_program_options.state[:2] }}
+          value: '0'
+        target:
+          entity_id: number.solaredgemb_active_power_limit
+        alias: Disable the solar panels
+      - service: notify.mobile_app_iphone_rob
+        data:
+          message: "\U0001F31E De zonnepanelen zijn uitgezet vanwege een stroomprijs
+            van {{ states.sensor.current_price_electricity }} cent."
+          data:
+            persistent: true
+            tag: persistent
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.current_price_electricity
+        above: 0
+      - condition: state
+        entity_id: number.solaredgemb_active_power_limit
+        state: '0'
+      sequence:
+      - service: number.set_value
+        metadata: {}
+        data:
+          value: '100'
+        target:
+          entity_id: number.solaredgemb_active_power_limit
+        alias: Enable the solar panels
+      - service: notify.mobile_app_iphone_rob
+        data:
+          message: "\U0001F31E De zonnepanelen zijn weer aangezet vanwege een stroomprijs
+            van {{ states.sensor.current_price_electricity }} cent."
+          data:
+            persistent: true
+            tag: persistent
   mode: single

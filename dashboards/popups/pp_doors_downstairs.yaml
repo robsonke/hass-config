@@ -25,8 +25,9 @@ browser_mod:
           dimensions:
             aspect_ratio_mode: unconstrained
           entities:
-            - entity: binary_sensor.deurbel_langeweide_ringing
-            - entity: binary_sensor.deurbel_langeweide_motion_detected
+            - entity: binary_sensor.langeweide_doorbell_visitor
+            - entity: binary_sensor.langeweide_doorbell_motion
+            - entity: binary_sensor.langeweide_doorbell_person
           menu:
             buttons:
               frigate:
@@ -45,7 +46,7 @@ browser_mod:
                 mode: below
                 media: snapshots
           cameras:
-            - camera_entity: camera.doorbell_webrtc
+            - camera_entity: camera.langeweide_doorbell_clear
               live_provider: ha
               frigate:
                 camera_name: Voordeur
@@ -62,12 +63,15 @@ browser_mod:
               entities:
                 - type: section
                   label: Voordeur
-                - entity: binary_sensor.deurbel_langeweide_ringing
-                  name: Doorbell ding
+                - entity: binary_sensor.langeweide_doorbell_visitor
+                  name: Deurbel ding
                   secondary_info: last-changed
                 - binary_sensor.frontdoor_openclose_contact
-                - entity: binary_sensor.deurbel_langeweide_motion_detected
-                  name: Last motion
+                - entity: binary_sensor.langeweide_doorbell_motion
+                  name: Laatste beweging
+                  secondary_info: last-changed
+                - entity: binary_sensor.langeweide_doorbell_person
+                  name: Laatste persoon
                   secondary_info: last-changed
             - type: custom:auto-entities
               card:

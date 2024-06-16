@@ -30,8 +30,6 @@ from ..helpers.messaging    import (post_event, post_error_msg, post_monitor_msg
                                     _trace, _traceha, )
 from ..helpers.time_util    import (secs_to_time, time_str_to_secs, datetime_now, secs_since,
                                     time_now_secs, time_now, )
-# from ..config_flow          import ActionSettingsFlowManager
-# from ..                     import config_flow
 
 # EvLog Action Commands
 CMD_ERROR                  = 'error'
@@ -275,9 +273,7 @@ def update_service_handler(action_entry=None, action_fname=None, devicename=None
 
     if action == f"{CMD_REFRESH_EVENT_LOG}+clear_evlog_greenbar_msgs":
         action = CMD_REFRESH_EVENT_LOG
-        clear_evlog_greenbar_msg()
 
-    clear_evlog_greenbar_msg()
     if (action == CMD_REFRESH_EVENT_LOG
             and Gb.EvLog.secs_since_refresh <= 2
             and Gb.EvLog.last_refresh_devicename == devicename):
@@ -321,7 +317,7 @@ def update_service_handler(action_entry=None, action_fname=None, devicename=None
         if action == CMD_PAUSE:
             if devicename is None:
                 Gb.all_tracking_paused_flag = True
-                Gb.EvLog.display_user_message('Tracking is Paused', alert=True)
+                # Gb.EvLog.display_user_message('Tracking is Paused', alert=True)
             for Device in Devices:
                 Device.pause_tracking()
 
@@ -439,8 +435,7 @@ def handle_action_log_level(action_option, change_conf_log_level=True):
     start_ic3.update_conf_file_log_level(new_log_level)
 
     log_level_fname = new_log_level.replace('-', ' ').title()
-    event_msg = f"Log Level Change > New Level: {log_level_fname}"
-    post_event(event_msg)
+    post_event(f"Log Level Change > New Level: {log_level_fname}")
 
 def _on_off_text(condition):
     return 'On' if condition else 'Off'
@@ -481,19 +476,16 @@ def _handle_action_device_locate(Device, action_option):
             _handle_action_device_location_mobapp(Device)
             return
         else:
-            post_event(Device,
-                        "Mobile App Location Tracking is not available")
+            post_event(Device, "Mobile App Location Tracking is not available")
 
     if (Gb.primary_data_source_ICLOUD is False
             or (Device.device_id_famshr is None and Device.device_id_fmf is None)
             or Device.is_data_source_ICLOUD is False):
-        post_event(Device,
-                    "iCloud Location Tracking is not available")
+        post_event(Device, "iCloud Location Tracking is not available")
         return
 
     elif Device.is_offline:
-        post_event(Device,
-                    "The device is offline, iCloud Location Tracking is not available")
+        post_event(Device, "The device is offline, iCloud Location Tracking is not available")
         return
 
     try:
@@ -502,6 +494,11 @@ def _handle_action_device_locate(Device, action_option):
             interval_secs = 5
     except:
         interval_secs = 5
+
+    if Device.is_tracking_paused:
+        Gb.all_tracking_paused_flag = False
+        Gb.EvLog.display_user_message('', clear_evlog_greenbar_msg=True)
+        Device.resume_tracking()
 
     Gb.icloud_force_update_flag = True
     Device.icloud_force_update_flag = True

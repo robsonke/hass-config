@@ -30,8 +30,6 @@ template:
         {% else %}
           OFF
         {% endif %}
-
-  - sensor:
     - name: "Pool Deck Status"
       icon: mdi:fit-to-screen
       unique_id: pool_deck_status
@@ -43,6 +41,15 @@ template:
         {% else %}
           Moving
         {% endif %}
+    - name: "Pool Heating Temperature Diff"
+      icon: mdi:heat-wave
+      unique_id: pool_heating_temperature_diff
+      attributes:
+        friendly_name: Pool Heating Temperature Diff
+        has_diff: >
+          {{ states.number.pool_fairland_heatpump_target_temperature_heating.state | int(default=0) - states.sensor.pool_fairland_heatpump_inlet_water_temperature.state | int(default=0) > 0 }}
+      state: >
+        {{ states.number.pool_fairland_heatpump_target_temperature_heating.state | int(default=0) - states.sensor.pool_fairland_heatpump_inlet_water_temperature.state | int(default=0) }}
 
 # en/disable all automations for pool
 input_boolean:

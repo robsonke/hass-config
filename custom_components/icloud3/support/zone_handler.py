@@ -12,7 +12,6 @@
 
 import os
 import homeassistant.util.dt as dt_util
-from homeassistant.helpers.typing import EventType
 from homeassistant.helpers  import event
 from homeassistant.core     import callback
 
@@ -205,6 +204,7 @@ def select_zone(Device, latitude=None, longitude=None):
     zones_distance_list = \
         [(f"{int(zone_data[ZD_DIST_M]):08}|{zone_data[ZD_NAME]}|{zone_data[ZD_DIST_M]}")
                 for zone_data in zones_data if zone_data[ZD_NAME] != zone_selected]
+    zones_distance_list.sort()
 
     return ZoneSelected, zone_selected, zone_selected_dist_m, zones_distance_list
 
@@ -225,7 +225,6 @@ def post_zone_selected_msg(Device, ZoneSelected, zone_selected,
     # Format distance msg
     zones_dist_msg = ''
     zones_displayed = [zone_selected]
-    zones_distance_list.sort()
     for zone_distance_list in zones_distance_list:
         zdl_items  = zone_distance_list.split('|')
         _zone      = zdl_items[1]
@@ -233,7 +232,6 @@ def post_zone_selected_msg(Device, ZoneSelected, zone_selected,
 
         zones_dist_msg += ( f"{zone_dname(_zone)}"
                             f"-{m_to_um(_zone_dist)}")
-        # zones_dist_msg += f"-r{int(Gb.Zones_by_zone[_zone].radius_m)}m"
         zones_dist_msg += ", "
 
     gps_accuracy_msg = ''
@@ -277,8 +275,7 @@ def post_zone_selected_msg(Device, ZoneSelected, zone_selected,
         and NOT_SET not in zones_cnt_by_zone):
             for _Device in Gb.Devices:
                 if Device is not _Device:
-                    event_msg = f"Zone-Device Counts > {zones_cnt_msg}"
-                    post_event(_Device.devicename, event_msg)
+                    post_event(_Device, f"Zone-Device Counts > {zones_cnt_msg}")
 
 #--------------------------------------------------------------------
 def closest_zone(latitude, longitude):
@@ -399,8 +396,7 @@ def log_zone_enter_exit_activity(Device):
     if Device.log_zone == '':
         Device.log_zone = Device.loc_data_zone
         Device.log_zone_enter_secs = Gb.this_update_secs
-        event_msg = f"Log Zone Activity > Logging Started-{zone_dname(Device.log_zone)}"
-        post_event(Device, event_msg)
+        post_event(Device, f"Log Zone Activity > Logging Started-{zone_dname(Device.log_zone)}")
         return
 
     # Must be in the zone for at least 4-minutes
@@ -426,8 +422,7 @@ def log_zone_enter_exit_activity(Device):
                 f"{Device.devicename}"
                 "\n")
         f.write(recd)
-        event_msg = f"Log Zone Activity > Logging Ended-{zone_dname(Device.log_zone)}"
-        post_event(Device, event_msg)
+        post_event(Device, f"Log Zone Activity > Logging Ended-{zone_dname(Device.log_zone)}")
 
     if Device.loc_data_zone in Device.log_zones:
         Device.log_zone = Device.loc_data_zone
@@ -462,14 +457,12 @@ def request_update_devices_no_mobapp_same_zone_on_exit(Device):
         _Device.trigger = 'Check Zone Exit'
         _Device.check_zone_exit_secs = time_now_secs()
         det_interval.update_all_device_fm_zone_sensors_interval(_Device, 15)
-        event_msg = f"Trigger > Check Zone Exit, GeneratedBy-{Device.fname}"
-        post_event(_Device.devicename, event_msg)
+        post_event(_Device, f"Trigger > Check Zone Exit, GeneratedBy-{Device.fname}")
 
 
 #------------------------------------------------------------------------------
 @callback
-#def _async_add_zone_entity_id(event: EventType[event.EventStateChangedData]) -> None:
-def ha_added_zone_entity_id(event: EventType[event.EventStateChangedData]) -> None:
+def ha_added_zone_entity_id(event):
     """Add zone entity ID."""
 
     zone_entity_id = event.data['entity_id']
@@ -490,8 +483,7 @@ def ha_added_zone_entity_id(event: EventType[event.EventStateChangedData]) -> No
 
 #------------------------------------------------------------------------------
 @callback
-#def _async_remove_zone_entity_id(event: EventType[event.EventStateChangedData]) -> None:
-def ha_removed_zone_entity_id(event: EventType[event.EventStateChangedData]) -> None:
+def ha_removed_zone_entity_id(event):
     """Remove zone entity ID."""
     try:
         zone_entity_id = event.data['entity_id']
@@ -499,8 +491,7 @@ def ha_removed_zone_entity_id(event: EventType[event.EventStateChangedData]) -> 
 
         if (zone == HOME
                 or zone not in Gb.HAZones_by_zone
-                or Gb.start_icloud3_inprocess_flag
-                or Gb.restart_icloud3_request_flag):
+                or Gb.start_icloud3_inprocess_flag):
             return
 
         Zone = Gb.HAZones_by_zone[zone]

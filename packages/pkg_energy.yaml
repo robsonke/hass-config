@@ -431,67 +431,6 @@ template:
         {% else %}
           {{ "normal" }}
         {% endif %}
-
-    - name: Cheapest 8 Hours 24h
-      unique_id: cheapest_8_hours_24h
-      attributes:
-        friendly_name: Cheapest 8 Hours 24h
-      state: >-
-        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
-        {%- set cheap_hours = namespace(number=8) %}
-        {% for i in range(0, 23) %}
-          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
-        {%- endfor -%}
-        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
-        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
-        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
-          {% if sorted_hour_price_dict[i].0 == now().hour %}
-            {% set ns.cheapest_hour = true %}
-          {% else %}
-            {% set ns.cheapest_hour = false %}
-          {% endif %}
-        {%- endfor -%}
-        {{ ns.cheapest_hour }}
-    - name: Cheapest 12 Hours 24h
-      unique_id: cheapest_12_hours_24h
-      attributes:
-        friendly_name: Cheapest 12 Hours 24h
-      state: >-
-        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
-        {%- set cheap_hours = namespace(number=12) %}
-        {% for i in range(0, 23) %}
-          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
-        {%- endfor -%}
-        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
-        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
-        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
-          {% if sorted_hour_price_dict[i].0 == now().hour %}
-            {% set ns.cheapest_hour = true %}
-          {% else %}
-            {% set ns.cheapest_hour = false %}
-          {% endif %}
-        {%- endfor -%}
-        {{ ns.cheapest_hour }}
-    - name: Cheapest 16 Hours 24h
-      unique_id: cheapest_16_hours_24h
-      attributes:
-        friendly_name: Cheapest 16 Hours 24h
-      state: >-
-        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
-        {%- set cheap_hours = namespace(number=16) %}
-        {% for i in range(0, 23) %}
-          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
-        {%- endfor -%}
-        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
-        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
-        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
-          {% if sorted_hour_price_dict[i].0 == now().hour %}
-            {% set ns.cheapest_hour = true %}
-          {% else %}
-            {% set ns.cheapest_hour = false %}
-          {% endif %}
-        {%- endfor -%}
-        {{ ns.cheapest_hour }}
     - name: Average price today
       unique_id: average_price_today
       icon: mdi:lightning-bolt
@@ -512,4 +451,67 @@ template:
         {% else %}
           {{ (((sumTomorrow / countTomorrow) + 0.12599) * 1.21) | round(2, 'floor') }}
         {% endif %}
+
+  - binary_sensor:
+    - name: Cheapest 8 Hours 24h
+      unique_id: cheapest_8_hours_24h
+      attributes:
+        friendly_name: Cheapest 8 Hours 24h
+      state: >-
+        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+        {%- set cheap_hours = namespace(number=8) %}
+        {% for i in range(0, 23) %}
+          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
+        {%- endfor -%}
+        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+          {% if sorted_hour_price_dict[i].0 == now().hour %}
+            {% set ns.cheapest_hour = True %}
+          {% else %}
+            {% set ns.cheapest_hour = False %}
+          {% endif %}
+        {%- endfor -%}
+        {{ ns.cheapest_hour }}
+    - name: Cheapest 12 Hours 24h
+      unique_id: cheapest_12_hours_24h
+      attributes:
+        friendly_name: Cheapest 12 Hours 24h
+      state: >-
+        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+        {%- set cheap_hours = namespace(number=12) %}
+        {% for i in range(0, 23) %}
+          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
+        {%- endfor -%}
+        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+          {% if sorted_hour_price_dict[i].0 == now().hour %}
+            {% set ns.cheapest_hour = True %}
+          {% else %}
+            {% set ns.cheapest_hour = False %}
+          {% endif %}
+        {%- endfor -%}
+        {{ ns.cheapest_hour }}
+    - name: Cheapest 16 Hours 24h
+      unique_id: cheapest_16_hours_24h
+      attributes:
+        friendly_name: Cheapest 16 Hours 24h
+      state: >-
+        {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+        {%- set cheap_hours = namespace(number=16) %}
+        {% for i in range(0, 23) %}
+          {% set ns.hour_price = ns.hour_price + [(i, state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')[i].value)] %}
+        {%- endfor -%}
+        {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+        {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+        {% for i in range(0, cheap_hours.number) if not ns.cheapest_hour %}
+          {% if sorted_hour_price_dict[i].0 == now().hour %}
+            {% set ns.cheapest_hour = True %}
+          {% else %}
+            {% set ns.cheapest_hour = False %}
+          {% endif %}
+        {%- endfor -%}
+        {{ ns.cheapest_hour }}
+
 

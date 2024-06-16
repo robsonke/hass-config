@@ -171,6 +171,8 @@ custom-dark:
     #view {
       background: var(--lovelace-background);
       background-size: cover;
+      /* avoid icons disappear behind toolbar */
+      padding-top: calc(var(--header-height) + env(safe-area-inset-top));
     }
 
   card-mod-view-yaml: |
@@ -228,7 +230,8 @@ custom-dark:
         background-color: rgba(0, 0, 0, 0.06);
         border-radius: 0;
         border-right: 0.1vw solid rgba(58, 69, 73, 0.2);
-        min-height: 100vh;
+        /* normally 100 but the toolbar pushes it down */
+        min-height: 96vh;
       }
       /* phone */
       @media screen and (max-width: 800px) {
@@ -240,34 +243,6 @@ custom-dark:
             margin-bottom: -6%;
         }
       }
-    #################################################
-    #                                               #
-    #                    FOOTER                     #
-    #                                               #
-    #################################################
-    grid-layout$hui-horizontal-stack-card:
-      $: |
-        #root {
-          flex-wrap: wrap;
-          justify-content: space-between;
-          overflow: visible;
-          #margin-top: -1.95vw !important;
-          padding-bottom: 2.5em;
-        }
-        @media screen and (min-width: 1200px) {
-          #root {
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            margin-top: -1.6vh;
-            padding-bottom: 0;
-          }
-        }
-        /* phone */
-        @media screen and (max-width: 800px) {
-          #root {
-            padding-top: 4vw !important;
-          }
-        }
     #################################################
     #                                               #
     #             SIDEBAR BOTTOM ICONS              #
@@ -285,7 +260,7 @@ custom-dark:
           hui-grid-card {
             position: absolute;
             right: 4vw;
-            top: 3vw;
+            top: 17vw;
           }
         }
       $: |

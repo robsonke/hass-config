@@ -1,8 +1,50 @@
 ### Important Links:
-- iCloud3 Documentation is [here](https://gcobb321.github.io/icloud3_v3_docs/#/chapters/0.1-introduction)
-- The *Installing iCloud3* chapter describes migrating from iCloud3 v2 and installing iCloud3 for the first time
+**Migrating from v2.4.7_** - See [here](https://gcobb321.github.io/icloud3_v3_docs/#/chapters/3.1-migrating-v2-to-v3) for instructions on migrating from from an older version.
+**Installing for the first time_** - See [here](https://gcobb321.github.io/icloud3_v3_docs/#/chapters/3.2-installing-and-configuring) for instructions on installing as a New Installation
+**iCloud3 v3 Documentation** - iCloud3 User Guide can be found [here](https://gcobb321.github.io/icloud3_v3_docs/#/)
 
-### Change Log
+3.0.5.2
+.......................
+### Change Log - v3.0.5.2 (6/8/2024)
+1. HA I/O ERROR FROM EVENT LOOP (Fixed) - HA was complaining about doing I/O (HACS file) outside of the Event Loop. Changed the method of doing I/O to use HA routines for the configuration file, restore state file and HACS file.
+2. FROM_ZONE ERROR (Fixed) - Normally the TrackFrom Zone and NextUpdate Zone is the Home zone. Added a check to set it to Home if it had never been set.
+
+
+3.0.5.1
+.......................
+### Change Log - v3.0.5.1 (5/25/2024)
+1. MOBILE APP (Fix) - Fixed a problem where the device's Mobile App data source would be disabled (reset to NotUsed) if the HA Mobile App Integration was set up after the Mobile App's initial locate had been completed.
+2. TRANSLATION FILE (new) - Added Chinese (Simplified) translation (@MagicStarTrace)
+
+### Change Log - v3.0.5 (5/18/2024)
+1. HACS UPUDATE ALERT (New) - The HACS Integration information will be check on a regular basis to see if a newer version of iCloud3 is available.
+2. ICLOUD ACCOUNT AUTHENTICATION/FAMSHR DEVICES LIST (Fixed) - During startup ("Stage 4), the iCloud Account access is set up and the devices in the Family Sharing List is read. If a problem occurred, iCloud3 would retry this 10-times to see if the error was corrected. However, the FamShr data was not being reread and the old data was being used. The FamShr data is now reread correctly when trying to recover from this error.
+3. UPDATE DEVICES SCREEN (Fixed) - When upgrading a device (iPhone, iPad, Watch) and both the old and new devices are still in the Family Sharing List, the new device was being set back to the old device the next time iCloud3 was started.
+4. LOCKED ICLOUD ACCOUNT (New) - An error message is displayed in the HA logs and on the Event Log if the iCloud account is locked.
+5. EVENT LOG (Fix) - An 'Unbound event_recd' error would display when the length of the the event text > 2000 characters (@ehendrix23).
+
+
+v3.0.4
+.......................
+### Change Log - v3.0.4 (5/11/2024)
+1. ADD DEVICE (Fixed) - An 'Out of Range' error message was encountered adding the first device.
+2. DIRECTION OF TRAVEL (Improvement) - Tweaked the AwayFrom direction override when approaching Home after the previous directions were Towards.
+3. Event Type DEPRECIATED EOORO MESSAGE (Fixed) - This was a warning about the removal of the EventType from HA next year. It has been removed.
+4. RAWDATA LOGGING - Changed some formatting of the log to better filter device messages.
+
+
+v3.0.3
+.......................
+### Change Log - v3.0.3 (5/1/2024)
+1. ALERTS (New) - An alert message is displayed on the Event Log and in the _alert_ attribute on the device's device_tracker and badge entities until it has been resolved. Examples of alerts are a startup error, no gps data, the device is offline, the battery below 20%, and tracking is paused. The alert attribute can be used in an automation to trigger sending a message to any device using the Mobile App. See the _Reference > Devices and Other Alerts_ chapter in the iCloud3 docs [here](#/chapters/7.6-alerts) for more information and example automations.
+2. BATTERY (Improvement) - The battery information attribute has been added to the device's device_tracker and badge entity. It shows the battery level, charging state, when the information was updated and the source of the data. The charging status text has been changed to 'Charged', 'Charging', 'NotCharging', 'Low' and 'Unknown'.
+3. UPDATE SENSOR (Fixed) - An 'AttributeError' message has been fixed. It was caused by trying to update the sensor before the sensor had been set up.
+4. CONFIGURE SETTINGS > ICLOUD ACCOUNT AND MOBILE APP screen (Fixed) - Changing iCloud account information (Username or password) was not being saved correctly so restarting iCloud3 would still use the old account. A Log Off option was added to initialize the iCloud Account username/password fields.
+5. DIRECTION OF TRAVEL (Improvement) - When Driving towards Home, the calculated straight line distance is used to determine the travel direction ('Towards'). The direction would momentarily  change to 'AwayFrom' if the distance from Home increased due to a curve in the road or you were stopped at an intersection. It would then change back to 'Towards' on the next update. In this case, the direction will not be changed and will remain 'Towards'.
+6. Other minor code changes, tuning and code cleanup.
+
+
+
 v3.0.2 - 3/30/2023
 .......................
 1. ICLOUD SERVER ERROR MESSAGE (Fixed) - When the iCloud servers did not respond with location information, the 'no response from iCloud servers' error was displayed correctly. This was followed by another unrelated error which should have not been displayed.

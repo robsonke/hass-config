@@ -47,6 +47,10 @@ pool:
           ]]]
   tap_action:
     !include ../../dashboards/popups/pp_pool_garden.yaml
+  state_display: >
+    [[[
+      return `<span style="font-size: 1rem">${entity.state} (ph: ${states['sensor.pool_ph_value'].state}, orp: ${Number.parseFloat(states['sensor.pool_redox_value'].state).toFixed(0)})</span>`;
+    ]]]
 
 
 

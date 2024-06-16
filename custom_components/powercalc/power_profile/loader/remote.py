@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 import logging
@@ -22,6 +23,8 @@ ENDPOINT_DOWNLOAD = f"{DOWNLOAD_PROXY}/download"
 
 
 class RemoteLoader(Loader):
+    retry_timeout = 3
+
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
         self.library_contents: dict = {}
@@ -31,7 +34,7 @@ class RemoteLoader(Loader):
 
     async def initialize(self) -> None:
         self.library_contents = await self.load_library_json()
-        self.last_update_time = self.get_last_update_time()
+        self.last_update_time = await self.hass.async_add_executor_job(self.get_last_update_time)  # type: ignore
 
         # Load contents of library JSON into memory
         manufacturers: list[dict] = self.library_contents.get("manufacturers", [])
@@ -45,16 +48,19 @@ class RemoteLoader(Loader):
                     self.manufacturer_models[manufacturer_name] = []
                 self.manufacturer_models[manufacturer_name].append(model)
 
-    @staticmethod
-    async def load_library_json() -> dict[str, Any]:
+    async def load_library_json(self) -> dict[str, Any]:
         """Load library.json file"""
+
+        def _load_local_library_json() -> dict[str, Any]:
+            """Load library.json file from local storage"""
+            with open(get_library_json_path()) as f:
+                return cast(dict[str, Any], json.load(f))
 
         _LOGGER.debug("Loading library.json from github")
         async with aiohttp.ClientSession() as session, session.get(ENDPOINT_LIBRARY) as resp:
             if resp.status != 200:
                 _LOGGER.error("Failed to download library.json from github, falling back to local copy")
-                with open(get_library_json_path()) as f:
-                    return cast(dict[str, Any], json.load(f))
+                return await self.hass.async_add_executor_job(_load_local_library_json)  # type: ignore
             return cast(dict[str, Any], await resp.json())
 
     async def get_manufacturer_listing(self, device_type: DeviceType | None) -> set[str]:
@@ -75,15 +81,16 @@ class RemoteLoader(Loader):
             if not device_type or device_type in model.get("device_type", DeviceType.LIGHT)
         }
 
-    async def load_model(self, manufacturer: str, model: str) -> tuple[dict, str] | None:
+    async def load_model(self, manufacturer: str, model: str, force_update: bool = False) -> tuple[dict, str] | None:
         model_info = self.model_infos.get(f"{manufacturer}/{model}")
         if not model_info:
             raise LibraryLoadingError("Model not found in library: %s/%s", manufacturer, model)
 
         storage_path = self.get_storage_path(manufacturer, model)
+        model_path = os.path.join(storage_path, "model.json")
 
         needs_update = False
-        path_exists = os.path.exists(storage_path)
+        path_exists = os.path.exists(model_path)
         if not path_exists:
             needs_update = True
 
@@ -93,20 +100,20 @@ class RemoteLoader(Loader):
                 _LOGGER.debug("Remote profile is newer than local profile")
                 needs_update = True
 
-        if needs_update:
+        if needs_update or force_update:
             try:
-                await self.download_profile(manufacturer, model, storage_path)
-                self.set_last_update_time(time.time())
+                await self.download_with_retry(manufacturer, model, storage_path)
             except ProfileDownloadError as e:
                 if not path_exists:
                     raise e
-                _LOGGER.error("Failed to download profile, falling back to local profile")
+                _LOGGER.debug("Failed to download profile, falling back to local profile")
 
-        model_path = os.path.join(storage_path, "model.json")
+        def _load_json() -> dict[str, Any]:
+            """Load model.json file for a given model."""
+            with open(model_path) as f:
+                return cast(dict[str, Any], json.load(f))
 
-        with open(model_path) as f:
-            json_data = json.load(f)
-
+        json_data = await self.hass.async_add_executor_job(_load_json)  # type: ignore
         return json_data, storage_path
 
     def get_storage_path(self, manufacturer: str, model: str) -> str:
@@ -121,12 +128,17 @@ class RemoteLoader(Loader):
         with open(path) as f:
             return float(f.read())
 
-    def set_last_update_time(self, time: float) -> None:
+    async def set_last_update_time(self, time: float) -> None:
         """Set the last update time of the local library"""
         self.last_update_time = time
         path = self.hass.config.path(STORAGE_DIR, "powercalc_profiles", ".last_update")
-        with open(path, "w") as f:
-            f.write(str(time))
+
+        def _write() -> None:
+            """Write last update time to file"""
+            with open(path, "w") as f:
+                f.write(str(time))
+
+        return await self.hass.async_add_executor_job(_write)  # type: ignore
 
     async def find_model(self, manufacturer: str, search: set[str]) -> str | None:
         """Find the model in the library."""
@@ -144,6 +156,24 @@ class RemoteLoader(Loader):
         if isinstance(remote_modification_time, str):
             remote_modification_time = datetime.datetime.fromisoformat(remote_modification_time).timestamp()
         return remote_modification_time  # type: ignore
+
+    async def download_with_retry(self, manufacturer: str, model: str, storage_path: str) -> None:
+        """Download a file from a remote endpoint with retries"""
+        max_retries = 3
+        retry_count = 0
+
+        while retry_count < max_retries:
+            try:
+                await self.download_profile(manufacturer, model, storage_path)
+                break  # Break out of the loop if download is successful
+            except ProfileDownloadError as e:
+                _LOGGER.error(e, exc_info=e)
+                retry_count += 1
+                if retry_count == max_retries:
+                    raise ProfileDownloadError(f"Failed to download profile even after {max_retries} retries, falling back to local profile") from e
+
+                await asyncio.sleep(self.retry_timeout)
+                _LOGGER.warning("Failed to download profile, retrying... (Attempt %d of %d)", retry_count, max_retries)
 
     async def download_profile(self, manufacturer: str, model: str, storage_path: str) -> None:
         """
