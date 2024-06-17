@@ -25,3 +25,1027 @@
 06-17 07:54:15 _INIT_ ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
                                           ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME,  
                                           ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:00:00 ------   icloud_iphone_rob > Nearby Devices (<65ft) > @7:54a, ⌘iCloud iPhone Steffi-12.5ft (7:06a)
+06-17 08:01:50 MOBAPP   icloud_iphone_rob > MobApp Trigger > Signaled@8:01:49A
+06-17 08:01:50 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME, SIGNALED@8:01:49A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:01:50 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:01:49a (1 secs ago), FamShr-6:05:33a
+06-17 08:01:50 MOBAPP ⡇ icloud_iphone_rob > Zone > Home(2)-13.5ft > GPS-(51.50247, 3.91073/±35m)
+06-17 08:01:50 MOBAPP ⡇ icloud_iphone_rob > Results > NextUpdate-10:01:50a, Moved-0.0mi , Battery-90%, ×Went3km
+06-17 08:01:50 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:01:55 MOBAPP   icloud_iphone_rob > MobApp Trigger > Launch@8:01:55A
+06-17 08:01:55 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME, LAUNCH@8:01:55A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:01:55 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:01:55a (0 min ago), FamShr-6:05:33a
+06-17 08:01:55 MOBAPP ⡇ icloud_iphone_rob > Zone > Home(2)-13.5ft > GPS-(51.50247, 3.91073/±35m)
+06-17 08:01:55 MOBAPP ⡇ icloud_iphone_rob > Results > NextUpdate-10:01:55a, Moved-0.0mi , Battery-90%, ×Went3km
+06-17 08:01:55 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:03:05 MOBAPP   icloud_iphone_rob > MobApp Trigger > Siri@8:03:04A
+06-17 08:03:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME, SIRI@8:03:04A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:03:05 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:03:04a (1 secs ago), FamShr-6:05:33a
+06-17 08:03:05 MOBAPP ⡇ icloud_iphone_rob > Zone > Home(2)-13.5ft > GPS-(51.50247, 3.91073/±35m)
+06-17 08:03:05 MOBAPP ⡇ icloud_iphone_rob > Results > NextUpdate-10:03:05a, Moved-0.0mi , Battery-90%, ×Went3km
+06-17 08:03:05 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:04:10 MOBAPP   icloud_iphone_rob > MobApp State Changed > Home → Away
+06-17 08:04:10 MOBAPP   icloud_iphone_rob > MobApp Trigger > Exit Zone@8:04:08a (Home/131m)
+06-17 08:04:10 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME, EXIT ZONE@8:04:08A (HOME/131M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:04:10 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:04:08a (2 secs ago), FamShr-6:05:33a
+06-17 08:04:10 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-429.0ft, CJG-1.0mi, Maxxton-12.7mi, GPS-(51.50330, 3.90931/±10m)
+06-17 08:04:10 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:04a, NextUpdate-8:07:10a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km, WazeMsg-×Under1km
+06-17 08:04:10 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:04:15 MOBAPP   icloud_iphone_rob > MobApp Trigger > Exit Zone@8:04:13a (Home/131m)
+06-17 08:04:15 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, EXIT ZONE@8:04:13A (HOME/131M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:04:15 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:04:13a (2 secs ago), FamShr-6:05:33a
+06-17 08:04:15 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.12mi, CJG-0.98mi, Maxxton-12.7mi, GPS-(51.50336, 3.90832/±10m)
+06-17 08:04:15 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:04a, NextUpdate-8:07:15a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km, WazeMsg-×Under1km
+06-17 08:04:15 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:04:20 MOBAPP   icloud_iphone_rob > MobApp Trigger > Exit Zone@8:04:18a (Home/131m)
+06-17 08:04:20 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, EXIT ZONE@8:04:18A (HOME/131M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:04:20 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:04:18a (2 secs ago), FamShr-6:05:33a
+06-17 08:04:20 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.15mi, CJG-0.96mi, Maxxton-12.6mi, GPS-(51.50345, 3.90765/±10m)
+06-17 08:04:20 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:04a, NextUpdate-8:07:20a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km, WazeMsg-×Under1km
+06-17 08:04:20 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:04:35 MOBAPP   icloud_iphone_rob > MobApp Trigger > Exit Zone@8:04:33a (Home/131m)
+06-17 08:04:35 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, EXIT ZONE@8:04:33A (HOME/131M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:04:35 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:04:33a (2 secs ago), FamShr-6:05:33a
+06-17 08:04:35 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.22mi, CJG-0.95mi, Maxxton-12.6mi, GPS-(51.50467, 3.90697/±10m)
+06-17 08:04:35 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:04a, NextUpdate-8:07:35a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km, WazeMsg-×Under1km
+06-17 08:04:35 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:07:35 ICLOUD   Authenticating account Rob Sonke (ro.@ti.......) with token
+06-17 08:07:37 [pyicloud_ic3:0673] ⛔.⛔ . . . self.account_name='Rob Sonke' self.data['dsInfo']={'lastName': 'Sonke', 'iCDPEnabled': False, 'tantorMigrated': True, 'dsid': '219492012', 'hsaEnabled': True, 'isHideMyEmailSubscriptionActive': True, 'ironcadeMigrated': True, 'ageCategory': 1, 'locale': 'en-us_NL', 'brZoneConsolidated': True, 'ICDRSCapableDeviceList': 'ipad-mac', 'isManagedAppleID': False, 'isCustomDomainsFeatureAvailable': True, 'isHideMyEmailFeatureAvailable': True, 'ContinueOnDeviceEligibleDeviceInfo': [], 'gilligan-invited': True, 'appleIdAliases': [], 'hsaVersion': 2, 'ubiquityEOLEnabled': True, 'isPaidDeveloper': True, 'countryCode': 'NLD', 'notificationId': 'b757e836-e6c5-4530-bee3-ff880ceaaa27', 'primaryEmailVerified': True, 'aDsID': '000070-05-1d156ed0-4c07-4a1f-90a5-393792a66c44', 'locked': False, 'ICDRSCapableDeviceCount': 2, 'hasICloudQualifyingDevice': True, 'primaryEmail': 'rob@tigrou.nl', 'appleIdEntries': [{'isPrimary': True, 'type': 'EMAIL', 'value': 'rob@tigrou.nl'}], 'gilligan-enabled': True, 'isWebAccessAllowed': True, 'fullName': 'Rob Sonke', 'mailFlags': {'isThreadingAvailable': False, 'isSearchV2Provisioned': False, 'rawBits': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'isCKMail': False, 'isMppSupportedInCurrentCountry': True}, 'languageCode': 'en-us', 'appleId': 'rob@tigrou.nl', 'hasUnreleasedOS': True, 'analyticsOptInStatus': True, 'firstName': 'Rob', 'iCloudAppleIdAlias': '', 'notesMigrated': True, 'beneficiaryInfo': {'isBeneficiary': False}, 'hasPaymentInfo': True, 'pcsDeleted': False, 'isCustomDomainTransferSubscriptionActive': True, 'appleIdAlias': '', 'brMigrated': True, 'statusCode': 2, 'familyEligible': True} 
+06-17 08:07:37 ICLOUD   Authentication completed successfully, method-Token
+06-17 08:07:38 ICLOUD   icloud_iphone_rob > Located > FamShr-6:05:33a → 6:05:39a, Old, 2 hrs ago
+06-17 08:07:55 ICLOUD   icloud_iphone_rob > Located > FamShr-6:05:39a → 8:07:42a, 90% → 91%
+06-17 08:07:55 LOCATE   icloud_iphone_rob > Located > FamShr-8:07:42a (13 secs ago), MobApp-8:04:33a
+06-17 08:07:55 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:07:55 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:07:55 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.90mi, CJG-1.6mi, Maxxton-13.0mi, GPS-(51.51515, 3.91519/±5m)
+06-17 08:07:56 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:07:56 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:07a, NextUpdate-8:08:55a, Moved-0.0mi (AwayFrom), Battery-91%, ×Went3km
+06-17 08:07:56 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:07:56 ICLOUD   icloud_iphone_steffi > Battery Info > Level-98%, NotCharging (FamShr)
+06-17 08:08:55 ICLOUD   icloud_iphone_rob > Located > FamShr-8:07:42a → 8:08:41a, 91%
+06-17 08:08:55 LOCATE   icloud_iphone_rob > Located > FamShr-8:08:41a (14 secs ago), MobApp-8:04:33a
+06-17 08:08:55 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:08:55 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:08:55 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.90mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51524, 3.91542/±35m)
+06-17 08:08:56 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:08:56 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:08a, NextUpdate-8:09:55a, Moved-0.0mi (AwayFrom), Battery-91%, ×Went3km
+06-17 08:08:56 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:10:00 ICLOUD   icloud_iphone_rob > Located > FamShr-8:08:41a → 8:09:56a, 91%
+06-17 08:10:00 LOCATE   icloud_iphone_rob > Located > FamShr-8:09:56a (4 secs ago), MobApp-8:04:33a
+06-17 08:10:00 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:10:00 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:10:00 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.91mi, CJG-1.6mi, Maxxton-13.0mi, GPS-(51.51529, 3.91518/±11m)
+06-17 08:10:01 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:10:01 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:10a, NextUpdate-8:11:00a, Moved-0.0mi (AwayFrom), Battery-91%, ×Went3km
+06-17 08:10:01 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:10:15 MOBAPP   icloud_iphone_rob > MobApp Trigger > Sig Loc Change@8:10:11a
+06-17 08:10:15 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:10:11A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:10:15 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:10:11a (4 secs ago), FamShr-8:09:56a
+06-17 08:10:15 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.91mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51529, 3.91552/±35m)
+06-17 08:10:15 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:10:15 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:10a, NextUpdate-8:11:15a, Moved-0.0mi (AwayFrom), Battery-91%, ×Went3km
+06-17 08:10:15 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:11:05 MOBAPP   icloud_iphone_rob > MobApp Trigger > Siri@8:11:04A
+06-17 08:11:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIRI@8:11:04A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:11:05 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:11:04a (1 secs ago), FamShr-8:09:56a
+06-17 08:11:05 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(1) > Home(1)-0.91mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51529, 3.91552/±35m)
+06-17 08:11:05 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:11:05 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:11a, NextUpdate-8:12:05a, Moved-0.0mi (AwayFrom), Battery-91%, ×Went3km
+06-17 08:11:05 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:11:40 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Signaled@8:11:37A
+06-17 08:11:40 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME, SIGNALED@8:11:37A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:11:40 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:11:37a (3 secs ago), FamShr-8:09:59a
+06-17 08:11:40 MOBAPP ⡇ icloud_iphone_steffi > Zone > Home(1)-2.8ft > Away(1), GPS-(51.50250, 3.91071/±9m)
+06-17 08:11:40 MOBAPP ⡇ icloud_iphone_steffi > Results > NextUpdate-10:11:40a, Moved-0.0mi , Battery-98%, ✓Went3km
+06-17 08:11:40 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:11:40 ICLOUD   icloud_iphone_steffi > Battery Info > Level-95%, NotCharging (MobApp)
+06-17 08:12:00 MOBAPP   icloud_iphone_steffi > MobApp State Changed > Home → Away
+06-17 08:12:00 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Exit Zone@8:11:59a (Home/302m)
+06-17 08:12:00 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME, EXIT ZONE@8:11:59A (HOME/302M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:12:00 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:11:59a (1 secs ago), FamShr-8:09:59a
+06-17 08:12:00 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.19mi, CJG-0.92mi, Maxxton-12.6mi, GPS-(51.50357, 3.90671/±56m)
+06-17 08:12:00 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:12a, NextUpdate-8:15:00a, Moved-0.0mi (AwayFrom), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:12:00 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:12:05 ICLOUD   icloud_iphone_rob > Located > FamShr-8:09:56a → 8:12:01a, 91%
+06-17 08:12:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:09:59a → 8:10:04a, Old, 2 mins ago
+06-17 08:12:05 LOCATE   icloud_iphone_rob > Located > FamShr-8:12:01a (4 secs ago), MobApp-8:11:04a
+06-17 08:12:05 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:12:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:12:05 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.90mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51524, 3.91543/±35m)
+06-17 08:12:06 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:12:06 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:12a, NextUpdate-8:13:05a, Moved-0.0mi (Towards), Battery-91%, ×Went3km
+06-17 08:12:06 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:12:06 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Exit Zone@8:12:02a (Home/302m)
+06-17 08:12:06 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, EXIT ZONE@8:12:02A (HOME/302M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:12:06 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:12:02a (4 secs ago), FamShr-8:10:04a
+06-17 08:12:06 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.15mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.50330, 3.90744/±44m)
+06-17 08:12:06 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:12a, NextUpdate-8:15:05a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:12:06 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:13:05 ICLOUD   icloud_iphone_rob > Located > FamShr-8:12:01a → 8:12:22a, 91%
+06-17 08:13:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:10:04a → 8:12:09a, 95% → 97%
+06-17 08:13:05 LOCATE   icloud_iphone_rob > Located > FamShr-8:12:22a (43 secs ago), MobApp-8:11:04a
+06-17 08:13:05 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:13:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:13:05 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.90mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51522, 3.91541/±35m)
+06-17 08:13:06 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:13:06 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:13a, NextUpdate-8:14:05a, Moved-0.0mi (Towards), Battery-91%, ×Went3km
+06-17 08:13:06 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:13:06 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Exit Zone@8:13:02a (Home/302m)
+06-17 08:13:06 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, EXIT ZONE@8:13:02A (HOME/302M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:13:06 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:13:02a (4 secs ago), FamShr-8:12:09a
+06-17 08:13:06 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.41mi, CJG-0.78mi, Maxxton-12.5mi, GPS-(51.49823, 3.90422/±5m)
+06-17 08:13:06 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:13a, NextUpdate-8:14:05a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:13:06 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:14:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:12:09a → 8:13:09a, 97%
+06-17 08:14:05 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:14:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:14:05 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.40mi, CJG-0.80mi, Maxxton-12.5mi, GPS-(51.49798, 3.90479/±5m)
+06-17 08:14:05 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:14a, NextUpdate-8:14:20a, Moved-0.0mi (Towards), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:14:05 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:14:10 ICLOUD   icloud_iphone_rob > Located > FamShr-8:12:22a → 8:14:09a, 91% → 90%
+06-17 08:14:10 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:13:09a → 8:14:09a, 97%
+06-17 08:14:10 LOCATE   icloud_iphone_rob > Located > FamShr-8:14:09a (1 secs ago), MobApp-8:11:04a
+06-17 08:14:10 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:14:10 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:14:10 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.91mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51529, 3.91553/±35m)
+06-17 08:14:11 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:14:11 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:14a, NextUpdate-8:15:10a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km
+06-17 08:14:11 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:14:20 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Siri@8:14:16A
+06-17 08:14:20 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, SIRI@8:14:16A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:14:20 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:14:16a (4 secs ago), FamShr-8:14:09a
+06-17 08:14:20 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.41mi, CJG-0.78mi, Maxxton-12.5mi, GPS-(51.49823, 3.90422/±5m)
+06-17 08:14:20 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:14a, NextUpdate-8:14:50a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:14:20 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:14:50 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:14:50 ICLOUD   icloud_iphone_rob > Located > FamShr-8:14:09a → 8:14:15a, 90%
+06-17 08:14:50 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:14:09a → 8:14:14a, 97%
+06-17 08:14:50 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:14:50 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:14:50 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.41mi, CJG-0.78mi, Maxxton-12.5mi, GPS-(51.49823, 3.90422/±5m)
+06-17 08:14:50 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:14a, NextUpdate-8:15:50a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:14:50 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:15:00 ------   icloud_iphone_rob > Nearby Devices (<65ft) > @8:14a, ×iCloud iPhone Steffi-1.3mi
+06-17 08:15:00 ------   icloud_iphone_steffi > Nearby Devices (<65ft) > @8:14a, ×iCloud iPhone Rob-1.3mi
+06-17 08:15:10 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:15:10 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:15:10 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.91mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51525, 3.91547/±35m)
+06-17 08:15:10 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:15:10 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:15a, NextUpdate-8:16:10a, Moved-0.0mi (Towards), Battery-90%, ×Went3km
+06-17 08:15:10 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:15:50 ICLOUD   icloud_iphone_rob > Located > FamShr-8:14:15a, Old, 2 mins ago
+06-17 08:15:50 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:14:14a → 8:14:54a, 97%
+06-17 08:15:50 LOCATE   icloud_iphone_steffi > Located > FamShr-8:14:54a (56 secs ago), MobApp-8:14:16a
+06-17 08:15:50 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:15:50 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:15:50 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.38mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49733, 3.90775/±5m)
+06-17 08:15:50 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:15a, NextUpdate-8:16:05a, Moved-0.0mi (Towards), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:15:50 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:16:05 ICLOUD   icloud_iphone_rob > Located > FamShr-8:14:15a → 8:15:52a, 90%
+06-17 08:16:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:14:54a → 8:15:54a, 97%
+06-17 08:16:05 LOCATE   icloud_iphone_steffi > Located > FamShr-8:15:54a (11 secs ago), MobApp-8:14:16a
+06-17 08:16:05 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:16:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:16:05 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.57mi, CJG-0.90mi, Maxxton-12.5mi, GPS-(51.49488, 3.90571/±5m)
+06-17 08:16:05 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:16a, NextUpdate-8:16:35a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:16:05 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:16:10 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:16:10 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:16:10 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.90mi, CJG-1.6mi, Maxxton-13.0mi, GPS-(51.51522, 3.91517/±9m)
+06-17 08:16:11 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:16:11 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:16a, NextUpdate-8:17:10a, Moved-0.0mi (Towards), Battery-90%, ×Went3km
+06-17 08:16:11 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:16:35 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:16:35 ICLOUD   icloud_iphone_rob > Located > FamShr-8:15:52a → 8:16:09a, 90%
+06-17 08:16:35 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:15:54a → 8:16:09a, 97%
+06-17 08:16:35 LOCATE   icloud_iphone_steffi > Located > FamShr-8:16:09a (26 secs ago), MobApp-8:14:16a
+06-17 08:16:35 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:16:35 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:16:35 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.62mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49406, 3.90611/±5m)
+06-17 08:16:35 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:16a, NextUpdate-8:17:35a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:16:35 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:17:10 ICLOUD   icloud_iphone_rob > Located > FamShr-8:16:09a → 8:16:40a, 90%
+06-17 08:17:10 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:16:09a → 8:16:39a, 97%
+06-17 08:17:10 LOCATE   icloud_iphone_rob > Located > FamShr-8:16:40a (30 secs ago), MobApp-8:11:04a
+06-17 08:17:10 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:17:10 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:17:10 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.94mi, CJG-1.7mi, Maxxton-13.0mi, GPS-(51.51578, 3.91504/±10m)
+06-17 08:17:11 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:17:11 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:17a, NextUpdate-8:18:10a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km
+06-17 08:17:11 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:17:35 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:17:35 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:17:35 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.85mi, CJG-1.0mi, Maxxton-12.5mi, GPS-(51.49061, 3.90571/±5m)
+06-17 08:17:35 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:17:35 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:17a, NextUpdate-8:18:35a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km
+06-17 08:17:35 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:18:05 MOBAPP   icloud_iphone_rob > MobApp Trigger > Sig Loc Change@8:18:02a
+06-17 08:18:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:18:02A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:18:05 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:18:02a (3 secs ago), FamShr-8:16:40a
+06-17 08:18:05 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.66mi, CJG-1.3mi, Maxxton-12.8mi, GPS-(51.51205, 3.91043/±10m)
+06-17 08:18:05 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:18:05 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:18a, NextUpdate-8:19:05a, Moved-0.0mi (Towards), Battery-90%, ×Went3km
+06-17 08:18:05 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:18:05 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Sig Loc Change@8:18:02a
+06-17 08:18:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:18:02A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:18:05 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:18:02a (3 secs ago), FamShr-8:16:39a
+06-17 08:18:05 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48999, 3.90074/±5m)
+06-17 08:18:18 MOBAPP ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:18:18 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:18a, NextUpdate-8:19:15a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km
+06-17 08:18:18 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:19:05 ICLOUD   icloud_iphone_rob > Located > FamShr-8:16:40a → 8:17:14a, Old, 2 mins ago
+06-17 08:19:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:16:39a → 8:17:15a, Old, 2 mins ago
+06-17 08:19:05 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:19:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:19:05 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.66mi, CJG-1.3mi, Maxxton-12.8mi, GPS-(51.51205, 3.91043/±10m)
+06-17 08:19:06 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:19:06 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:19a, NextUpdate-8:20:05a, Moved-0.0mi (Towards), Battery-90%, ×Went3km
+06-17 08:19:06 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:19:10 MOBAPP   icloud_iphone_rob > MobApp Trigger > Siri@8:19:06A
+06-17 08:19:10 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIRI@8:19:06A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:19:10 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:19:06a (4 secs ago), FamShr-8:17:14a
+06-17 08:19:10 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(2) > Home-0.66mi, CJG-1.3mi, Maxxton-12.8mi, GPS-(51.51205, 3.91043/±10m)
+06-17 08:19:22 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:19:22 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:19a, NextUpdate-8:20:20a, Moved-0.0mi (Towards), Battery-90%, ×Went3km
+06-17 08:19:22 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:19:23 ICLOUD   icloud_iphone_rob > Located > FamShr-8:17:14a → 8:19:09a, 90%
+06-17 08:19:23 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:17:15a → 8:19:10a, 97%
+06-17 08:19:23 LOCATE   icloud_iphone_steffi > Located > FamShr-8:19:10a (13 secs ago), MobApp-8:18:02a
+06-17 08:19:23 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:19:23 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:19:23 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48998, 3.90049/±5m)
+06-17 08:19:23 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:19:23 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:19a, NextUpdate-8:20:20a, Moved-0.0mi (AwayFrom), Battery-97%, ✓Went3km
+06-17 08:19:23 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:20:20 ICLOUD   icloud_iphone_rob > Located > FamShr-8:19:09a → 8:19:26a, 90%
+06-17 08:20:20 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:19:10a → 8:19:27a, 97% → 96%
+06-17 08:20:20 LOCATE   icloud_iphone_rob > Located > FamShr-8:19:26a (54 secs ago), MobApp-8:19:06a
+06-17 08:20:20 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:20:20 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:20:20 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-0.76mi, Home-0.77mi, Maxxton-12.2mi, GPS-(51.50888, 3.89609/±10m)
+06-17 08:20:21 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:20:21 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:20a, NextUpdate-8:21:20a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km
+06-17 08:20:21 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:20:21 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:20:21 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:20:21 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48998, 3.90049/±5m)
+06-17 08:20:21 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:20:21 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:20a, NextUpdate-8:21:20a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:20:21 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:20:35 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Siri@8:20:31A
+06-17 08:20:35 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, SIRI@8:20:31A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:20:35 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:20:31a (4 secs ago), FamShr-8:19:27a
+06-17 08:20:35 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48999, 3.90074/±5m)
+06-17 08:20:35 MOBAPP ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:20:35 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:20a, NextUpdate-8:20:50a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:20:35 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:20:50 ICLOUD   icloud_iphone_rob > Located > FamShr-8:19:26a → 8:20:24a, 90%
+06-17 08:20:50 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:19:27a → 8:20:24a, 96%
+06-17 08:20:50 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:20:50 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:20:50 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48999, 3.90074/±5m)
+06-17 08:20:51 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:20:51 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:20a, NextUpdate-8:21:05a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:20:51 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:21:05 ICLOUD   icloud_iphone_rob > Located > FamShr-8:20:24a → 8:20:54a, 90%
+06-17 08:21:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:20:24a → 8:20:54a, 96%
+06-17 08:21:05 LOCATE   icloud_iphone_steffi > Located > FamShr-8:20:54a (11 secs ago), MobApp-8:20:31a
+06-17 08:21:05 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:21:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:21:05 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48998, 3.90049/±5m)
+06-17 08:21:06 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:21:06 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:21a, NextUpdate-8:21:35a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:21:06 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:21:20 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:21:20 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:21:20 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-0.70mi, Home-1.0mi, Maxxton-11.9mi, GPS-(51.50961, 3.88923/±10m)
+06-17 08:21:20 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:21:20 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:21a, NextUpdate-8:22:20a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km
+06-17 08:21:20 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:21:35 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:21:35 ICLOUD   icloud_iphone_rob > Located > FamShr-8:20:54a → 8:21:09a, 90%
+06-17 08:21:35 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:20:54a → 8:21:09a, 96%
+06-17 08:21:35 LOCATE   icloud_iphone_steffi > Located > FamShr-8:21:09a (26 secs ago), MobApp-8:20:31a
+06-17 08:21:35 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:21:35 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:21:35 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48998, 3.90049/±5m)
+06-17 08:21:36 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:21:36 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:21a, NextUpdate-8:22:35a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:21:36 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:22:20 ICLOUD   icloud_iphone_rob > Located > FamShr-8:21:09a → 8:21:39a, 90%
+06-17 08:22:20 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:21:09a → 8:21:40a, 96%
+06-17 08:22:20 LOCATE   icloud_iphone_rob > Located > FamShr-8:21:39a (41 secs ago), MobApp-8:19:06a
+06-17 08:22:20 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:22:20 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:22:20 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-0.70mi, Home-1.4mi, Maxxton-11.4mi, GPS-(51.50889, 3.87968/±10m)
+06-17 08:22:21 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:22:21 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:22a, NextUpdate-8:23:50a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km
+06-17 08:22:21 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:22:35 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:22:35 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:22:35 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48998, 3.90049/±5m)
+06-17 08:22:35 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:22:35 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:22a, NextUpdate-8:23:35a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:22:35 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:23:05 MOBAPP   icloud_iphone_rob > MobApp Trigger > Sig Loc Change@8:23:03a
+06-17 08:23:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:23:03A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:23:05 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:23:03a (2 secs ago), FamShr-8:21:39a
+06-17 08:23:05 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-0.77mi, Home-1.7mi, Maxxton-11.1mi, GPS-(51.50540, 3.87099/±10m)
+06-17 08:23:06 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:23:06 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:23a, NextUpdate-8:24:35a, Moved-0.0mi (AwayFrom), Battery-90%, ×Went3km
+06-17 08:23:06 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:23:35 ICLOUD   icloud_iphone_rob > Located > FamShr-8:21:39a → 8:22:24a, Old, 1 min ago
+06-17 08:23:35 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:21:40a → 8:22:24a, Old, 1 min ago
+06-17 08:23:40 ICLOUD   icloud_iphone_rob > Located > FamShr-8:22:24a → 8:23:39a, 90% → 89%
+06-17 08:23:40 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:22:24a → 8:23:40a, 96%
+06-17 08:23:40 LOCATE   icloud_iphone_steffi > Located > FamShr-8:23:40a (0 min ago), MobApp-8:20:31a
+06-17 08:23:40 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:23:40 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:23:40 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48996, 3.90050/±5m)
+06-17 08:23:47 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:23:47 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:23a, NextUpdate-8:24:45a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:23:47 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:24:35 LOCATE   icloud_iphone_rob > Located > FamShr-8:23:39a (56 secs ago), MobApp-8:23:03a
+06-17 08:24:35 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:24:35 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:24:35 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-0.67mi, Home-1.7mi, Maxxton-11.0mi, GPS-(51.49770, 3.87105/±10m)
+06-17 08:24:35 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:24:35 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:24a, NextUpdate-8:26:05a, Moved-0.0mi (AwayFrom), Battery-89%, ×Went3km
+06-17 08:24:35 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:24:45 ICLOUD   icloud_iphone_rob > Located > FamShr-8:23:39a → 8:23:44a, 89%
+06-17 08:24:45 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:23:40a → 8:23:44a, 96%
+06-17 08:24:45 LOCATE   icloud_iphone_steffi > Located > FamShr-8:23:44a (1 min ago), MobApp-8:20:31a
+06-17 08:24:45 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:24:45 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:24:45 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48996, 3.90050/±5m)
+06-17 08:24:52 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:24:52 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:24a, NextUpdate-8:25:50a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:24:52 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:25:50 ICLOUD   icloud_iphone_rob > Located > FamShr-8:23:44a → 8:24:49a, 89%
+06-17 08:25:50 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:23:44a → 8:24:49a, 96%
+06-17 08:25:50 LOCATE   icloud_iphone_steffi > Located > FamShr-8:24:49a (1 min ago), MobApp-8:20:31a
+06-17 08:25:50 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:25:50 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:25:50 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.91mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.48996, 3.90050/±5m)
+06-17 08:25:57 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:25:57 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:25a, NextUpdate-8:26:55a, Moved-0.0mi (AwayFrom), Battery-96%, ✓Went3km
+06-17 08:25:57 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:26:05 ICLOUD   icloud_iphone_rob > Located > FamShr-8:24:49a → 8:25:54a, 89%
+06-17 08:26:05 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:24:49a → 8:25:58a, 96%
+06-17 08:26:05 LOCATE   icloud_iphone_rob > Located > FamShr-8:25:54a (11 secs ago), MobApp-8:23:03a
+06-17 08:26:05 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:26:05 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:26:05 ICLOUD ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-2.6mi, Home-3.6mi, Maxxton-9.3mi, GPS-(51.48522, 3.83091/±10m)
+06-17 08:26:06 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:26:06 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:26a, NextUpdate-8:29:05a, Moved-0.0mi (AwayFrom), Battery-89%, ✓Went3km
+06-17 08:26:06 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:26:55 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:26:55 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:26:55 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > CJG-0.90mi, Home-0.97mi, Maxxton-12.3mi, GPS-(51.49002, 3.90042/±9m)
+06-17 08:26:55 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:26:55 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:26a, NextUpdate-8:27:10a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:26:55 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:27:10 ICLOUD   icloud_iphone_rob > Located > FamShr-8:25:54a → 8:26:09a, 89%
+06-17 08:27:10 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:25:58a → 8:26:09a, Old, 1 min ago
+06-17 08:27:16 ICLOUD   icloud_iphone_rob > Located > FamShr-8:26:09a → 8:27:14a, 89%
+06-17 08:27:16 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:26:09a → 8:27:15a, 96%
+06-17 08:27:16 LOCATE   icloud_iphone_steffi > Located > FamShr-8:27:15a (1 secs ago), MobApp-8:20:31a
+06-17 08:27:16 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:27:16 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:27:16 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.91mi, CJG-0.91mi, Maxxton-12.4mi, GPS-(51.49059, 3.90175/±35m)
+06-17 08:27:16 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:27:16 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:27a, NextUpdate-8:27:30a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:27:16 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:27:30 ICLOUD   icloud_iphone_rob > Located > FamShr-8:27:14a → 8:27:19a, 89%
+06-17 08:27:30 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:27:15a → 8:27:24a, 96%
+06-17 08:27:30 LOCATE   icloud_iphone_steffi > Located > FamShr-8:27:24a (6 secs ago), MobApp-8:20:31a
+06-17 08:27:30 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:27:30 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:27:30 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.88mi, CJG-0.97mi, Maxxton-12.4mi, GPS-(51.49060, 3.90348/±8m)
+06-17 08:27:37 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:27:37 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:27a, NextUpdate-8:27:50a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:27:37 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:27:50 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:27:50 ICLOUD   icloud_iphone_rob > Located > FamShr-8:27:19a → 8:27:34a, 89%
+06-17 08:27:50 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:27:24a → 8:27:34a, 96%
+06-17 08:27:50 LOCATE   icloud_iphone_steffi > Located > FamShr-8:27:34a (16 secs ago), MobApp-8:20:31a
+06-17 08:27:50 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:27:50 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:27:50 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.90mi, CJG-1.0mi, Maxxton-12.5mi, GPS-(51.49019, 3.90408/±7m)
+06-17 08:27:51 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:27:51 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:27a, NextUpdate-8:28:05a, Moved-0.0mi (Towards*), Battery-96%, ✓Went3km
+06-17 08:27:51 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:28:05 MOBAPP   icloud_iphone_rob > MobApp Trigger > Sig Loc Change@8:28:03a
+06-17 08:28:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:28:03A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:28:05 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:28:03a (2 secs ago), FamShr-8:27:34a
+06-17 08:28:05 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(2) > CJG-4.7mi, Home-5.8mi, Maxxton-7.0mi, GPS-(51.49710, 3.77742/±10m)
+06-17 08:28:05 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:28:05 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:28a, NextUpdate-8:33:05a, Moved-0.0mi (AwayFrom), Battery-89%, ✓Went3km
+06-17 08:28:05 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:28:06 ICLOUD   icloud_iphone_rob > Located > FamShr-8:27:34a → 8:27:54a, 89%
+06-17 08:28:06 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:27:34a → 8:27:54a, 96%
+06-17 08:28:06 LOCATE   icloud_iphone_steffi > Located > FamShr-8:27:54a (12 secs ago), MobApp-8:20:31a
+06-17 08:28:06 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:28:06 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:28:06 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.96mi, CJG-1.1mi, Maxxton-12.5mi, GPS-(51.48913, 3.90498/±5m)
+06-17 08:28:12 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:28:12 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:28a, NextUpdate-8:28:25a, Moved-0.0mi (Towards*), Battery-96%, ✓Went3km
+06-17 08:28:12 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:28:25 ICLOUD   icloud_iphone_rob > Located > FamShr-8:27:54a → 8:28:09a, 89% → 88%
+06-17 08:28:25 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:27:54a → 8:28:10a, 96%
+06-17 08:28:25 LOCATE   icloud_iphone_steffi > Located > FamShr-8:28:10a (15 secs ago), MobApp-8:20:31a
+06-17 08:28:25 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:28:25 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:28:25 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.93mi, CJG-1.1mi, Maxxton-12.5mi, GPS-(51.48945, 3.90549/±5m)
+06-17 08:28:32 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:28:32 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:28a, NextUpdate-8:28:45a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:28:32 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:28:45 ICLOUD   icloud_iphone_rob > Located > FamShr-8:28:09a → 8:28:29a, 88%
+06-17 08:28:45 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:28:10a → 8:28:29a, 96%
+06-17 08:28:45 LOCATE   icloud_iphone_steffi > Located > FamShr-8:28:29a (16 secs ago), MobApp-8:20:31a
+06-17 08:28:45 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:28:45 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:28:45 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.79mi, CJG-1.0mi, Maxxton-12.6mi, GPS-(51.49150, 3.90604/±5m)
+06-17 08:28:46 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:28:46 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:28a, NextUpdate-8:29:00a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:28:46 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:28:50 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Sig Loc Change@8:28:46a
+06-17 08:28:50 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:28:46A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:28:50 LOCATE ⡇ icloud_iphone_steffi > Location > Refresh Needed, Age-21 secs (> 15 secs)
+06-17 08:28:50 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:28:46a (4 secs ago), FamShr-8:28:29a
+06-17 08:28:50 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.69mi, CJG-0.98mi, Maxxton-12.6mi, GPS-(51.49283, 3.90633/±5m)
+06-17 08:28:57 MOBAPP ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:28:57 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:28a, NextUpdate-8:29:10a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:28:57 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:29:10 ICLOUD   icloud_iphone_rob > Located > FamShr-8:28:29a → 8:28:49a, 88%
+06-17 08:29:10 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:28:29a → 8:28:49a, 96%
+06-17 08:29:10 LOCATE   icloud_iphone_steffi > Located > FamShr-8:28:49a (21 secs ago), MobApp-8:28:46a
+06-17 08:29:10 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:29:10 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:29:10 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.68mi, CJG-0.98mi, Maxxton-12.6mi, GPS-(51.49307, 3.90637/±5m)
+06-17 08:29:11 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:29:11 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:29a, NextUpdate-8:29:25a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km
+06-17 08:29:11 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:29:25 ICLOUD   icloud_iphone_rob > Located > FamShr-8:28:49a → 8:29:14a, 88%
+06-17 08:29:25 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:28:49a → 8:29:14a, 96%
+06-17 08:29:25 LOCATE   icloud_iphone_steffi > Located > FamShr-8:29:14a (11 secs ago), MobApp-8:28:46a
+06-17 08:29:25 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:29:25 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:29:25 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.54mi, CJG-0.91mi, Maxxton-12.6mi, GPS-(51.49521, 3.90616/±5m)
+06-17 08:29:25 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:29a, NextUpdate-8:29:40a, Moved-0.0mi (Towards), Battery-96%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:29:25 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:29:40 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:29:40 ICLOUD   icloud_iphone_rob > Located > FamShr-8:29:14a → 8:29:29a, 88%
+06-17 08:29:40 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:29:14a → 8:29:29a, 96% → 95%
+06-17 08:29:40 LOCATE   icloud_iphone_steffi > Located > FamShr-8:29:29a (11 secs ago), MobApp-8:28:46a
+06-17 08:29:40 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:29:40 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:29:40 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.46mi, CJG-0.93mi, Maxxton-12.6mi, GPS-(51.49628, 3.90723/±5m)
+06-17 08:29:40 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:29a, NextUpdate-8:29:55a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:29:40 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:29:55 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:29:55 ICLOUD   icloud_iphone_rob > Located > FamShr-8:29:29a → 8:29:44a, 88%
+06-17 08:29:55 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:29:29a → 8:29:44a, 95%
+06-17 08:29:55 LOCATE   icloud_iphone_steffi > Located > FamShr-8:29:44a (11 secs ago), MobApp-8:28:46a
+06-17 08:29:55 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:29:55 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:29:55 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.44mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49650, 3.90746/±5m)
+06-17 08:29:55 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:29a, NextUpdate-8:30:10a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:29:55 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:30:00 ------   icloud_iphone_rob > Nearby Devices (<65ft) > @8:29a, ×iCloud iPhone Steffi-5.5mi (8:27a)
+06-17 08:30:00 ------   icloud_iphone_steffi > Nearby Devices (<65ft) > @8:29a, ×iCloud iPhone Rob-7.6mi
+06-17 08:30:10 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:30:10 ICLOUD   icloud_iphone_rob > Located > FamShr-8:29:44a → 8:29:59a, 88%
+06-17 08:30:10 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:29:44a → 8:29:59a, 95%
+06-17 08:30:10 LOCATE   icloud_iphone_steffi > Located > FamShr-8:29:59a (11 secs ago), MobApp-8:28:46a
+06-17 08:30:10 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:30:10 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:30:10 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.44mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49650, 3.90746/±5m)
+06-17 08:30:10 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:30a, NextUpdate-8:30:25a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:30:10 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:30:25 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:30:25 ICLOUD   icloud_iphone_rob > Located > FamShr-8:29:59a → 8:30:14a, 88%
+06-17 08:30:25 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:29:59a → 8:30:14a, 95%
+06-17 08:30:25 LOCATE   icloud_iphone_steffi > Located > FamShr-8:30:14a (11 secs ago), MobApp-8:28:46a
+06-17 08:30:25 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:30:25 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:30:25 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.44mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49650, 3.90746/±5m)
+06-17 08:30:25 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:30a, NextUpdate-8:30:40a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:30:25 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:30:40 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:30:40 ICLOUD   icloud_iphone_rob > Located > FamShr-8:30:14a → 8:30:29a, 88%
+06-17 08:30:40 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:30:14a → 8:30:29a, 95%
+06-17 08:30:40 LOCATE   icloud_iphone_steffi > Located > FamShr-8:30:29a (11 secs ago), MobApp-8:28:46a
+06-17 08:30:40 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:30:40 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:30:40 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.44mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49650, 3.90746/±5m)
+06-17 08:30:40 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:30a, NextUpdate-8:30:55a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:30:40 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:30:55 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:30:55 ICLOUD   icloud_iphone_rob > Located > FamShr-8:30:29a → 8:30:44a, 88%
+06-17 08:30:55 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:30:29a → 8:30:44a, 95%
+06-17 08:30:55 LOCATE   icloud_iphone_steffi > Located > FamShr-8:30:44a (11 secs ago), MobApp-8:28:46a
+06-17 08:30:55 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:30:55 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:30:55 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.44mi, CJG-0.94mi, Maxxton-12.6mi, GPS-(51.49650, 3.90746/±5m)
+06-17 08:30:55 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:30a, NextUpdate-8:31:10a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:30:55 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:31:00 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Siri@8:30:59A
+06-17 08:31:00 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, SIRI@8:30:59A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:31:00 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:30:59a (1 secs ago), FamShr-8:30:44a
+06-17 08:31:00 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.69mi, CJG-0.98mi, Maxxton-12.6mi, GPS-(51.49283, 3.90633/±5m)
+06-17 08:31:00 MOBAPP ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:31:00 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:31a, NextUpdate-8:31:15a, Moved-0.0mi (Towards*), Battery-95%, ✓Went3km
+06-17 08:31:00 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:31:15 ICLOUD   icloud_iphone_rob > Located > FamShr-8:30:44a → 8:30:59a, 88%
+06-17 08:31:15 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:30:44a → 8:30:59a, 95%
+06-17 08:31:15 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:31:15 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:31:15 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.69mi, CJG-0.98mi, Maxxton-12.6mi, GPS-(51.49283, 3.90633/±5m)
+06-17 08:31:16 ICLOUD ⡇ icloud_iphone_steffi > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:31:16 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:31a, NextUpdate-8:31:30a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km
+06-17 08:31:16 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:31:30 ICLOUD   icloud_iphone_rob > Located > FamShr-8:30:59a → 8:31:19a, 88%
+06-17 08:31:30 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:30:59a → 8:31:19a, 95%
+06-17 08:31:30 LOCATE   icloud_iphone_steffi > Located > FamShr-8:31:19a (11 secs ago), MobApp-8:30:59a
+06-17 08:31:30 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:31:30 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:31:30 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.37mi, CJG-0.97mi, Maxxton-12.7mi, GPS-(51.49727, 3.90850/±5m)
+06-17 08:31:30 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:31a, NextUpdate-8:31:45a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:31:30 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:31:45 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:31:45 ICLOUD   icloud_iphone_rob > Located > FamShr-8:31:19a → 8:31:34a, 88%
+06-17 08:31:45 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:31:19a → 8:31:34a, 95%
+06-17 08:31:45 LOCATE   icloud_iphone_steffi > Located > FamShr-8:31:34a (11 secs ago), MobApp-8:30:59a
+06-17 08:31:45 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:31:45 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:31:45 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.34mi, CJG-1.00mi, Maxxton-12.7mi, GPS-(51.49771, 3.90924/±5m)
+06-17 08:31:45 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:31a, NextUpdate-8:32:00a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:31:45 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:32:00 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:32:00 ICLOUD   icloud_iphone_rob > Located > FamShr-8:31:34a → 8:31:49a, 88%
+06-17 08:32:00 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:31:34a → 8:31:49a, 95%
+06-17 08:32:00 LOCATE   icloud_iphone_steffi > Located > FamShr-8:31:49a (11 secs ago), MobApp-8:30:59a
+06-17 08:32:00 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:32:00 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:32:00 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.30mi, CJG-1.0mi, Maxxton-12.7mi, GPS-(51.49823, 3.91052/±5m)
+06-17 08:32:00 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:32a, NextUpdate-8:32:15a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:32:00 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:32:15 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:32:15 ICLOUD   icloud_iphone_rob > Located > FamShr-8:31:49a → 8:32:04a, 88%
+06-17 08:32:15 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:31:49a → 8:32:04a, 95%
+06-17 08:32:15 LOCATE   icloud_iphone_steffi > Located > FamShr-8:32:04a (11 secs ago), MobApp-8:30:59a
+06-17 08:32:15 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:32:15 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:32:15 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.27mi, CJG-1.1mi, Maxxton-12.8mi, GPS-(51.49861, 3.91173/±5m)
+06-17 08:32:15 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:32a, NextUpdate-8:32:30a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:32:15 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:32:30 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:32:30 ICLOUD   icloud_iphone_rob > Located > FamShr-8:32:04a → 8:32:19a, 88%
+06-17 08:32:30 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:32:04a → 8:32:19a, 95%
+06-17 08:32:30 LOCATE   icloud_iphone_steffi > Located > FamShr-8:32:19a (11 secs ago), MobApp-8:30:59a
+06-17 08:32:30 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:32:30 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:32:30 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.21mi, CJG-1.1mi, Maxxton-12.8mi, GPS-(51.49949, 3.91070/±5m)
+06-17 08:32:30 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:32a, NextUpdate-8:32:45a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:32:30 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:32:45 ICLOUD   icloud_iphone_steffi > Location > Refresh Needed, Location not Updated
+06-17 08:32:45 ICLOUD   icloud_iphone_rob > Located > FamShr-8:32:19a → 8:32:34a, 88%
+06-17 08:32:45 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:32:19a → 8:32:34a, 95%
+06-17 08:32:45 LOCATE   icloud_iphone_steffi > Located > FamShr-8:32:34a (11 secs ago), MobApp-8:30:59a
+06-17 08:32:45 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:32:45 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:32:45 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-0.15mi, CJG-1.0mi, Maxxton-12.7mi, GPS-(51.50039, 3.91007/±5m)
+06-17 08:32:45 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:32a, NextUpdate-8:33:00a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:32:45 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:32:50 MOBAPP   icloud_iphone_steffi > MobApp State Changed > Away → Home
+06-17 08:32:50 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Enter Zone@8:32:49a (Home/80m)
+06-17 08:32:50 MOBAPP   icloud_iphone_steffi > Zone Enter Not Delayed > TrackedFrom Zone
+06-17 08:32:50 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME, ENTER ZONE@8:32:49A (HOME/80M) 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:32:50 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:32:49a (1 secs ago), FamShr-8:32:34a
+06-17 08:32:50 MOBAPP ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-262.4ft, CJG-1.0mi, Maxxton-12.7mi, GPS-(51.50189, 3.91009/±5m)
+06-17 08:32:50 MOBAPP ⡇ icloud_iphone_steffi > Results > Arrive-8:32a, NextUpdate-8:33:05a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:32:50 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:33:05 MOBAPP   icloud_iphone_rob > MobApp Trigger > Sig Loc Change@8:33:04a
+06-17 08:33:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME, SIG LOC CHANGE@8:33:04A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:33:05 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:33:04a (1 secs ago), FamShr-8:32:34a
+06-17 08:33:05 MOBAPP ⡇ icloud_iphone_rob > Zone > Away(2) > Maxxton-1.9mi, CJG-10.2mi, Home-11.3mi, GPS-(51.48157, 3.65205/±10m)
+06-17 08:33:11 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:33:11 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:33a, NextUpdate-8:43:10a, Moved-0.0mi (AwayFrom), Battery-88%, ✓Went3km
+06-17 08:33:11 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:33:12 ICLOUD   icloud_iphone_rob > Located > FamShr-8:32:34a → 8:32:52a, 88%
+06-17 08:33:12 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:32:34a → 8:32:49a, 95%
+06-17 08:33:12 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:33:12 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:33:12 ICLOUD ⡇ icloud_iphone_steffi > Zone > Away(2) > Home-262.4ft, CJG-1.0mi, Maxxton-12.7mi, GPS-(51.50189, 3.91009/±5m)
+06-17 08:33:12 ICLOUD ⡇ icloud_iphone_steffi > Results > Arrive-8:33a, NextUpdate-8:33:25a, Moved-0.0mi (Towards), Battery-95%, ✓Went3km, WazeMsg-×Under1km
+06-17 08:33:12 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-NOT_HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:33:25 ICLOUD   icloud_iphone_rob > Located > FamShr-8:32:52a → 8:33:15a, 88%
+06-17 08:33:25 ICLOUD   icloud_iphone_steffi > Located > FamShr-8:32:49a → 8:33:16a, 95%
+06-17 08:33:25 LOCATE   icloud_iphone_steffi > Located > FamShr-8:33:16a (9 secs ago), MobApp-8:32:49a
+06-17 08:33:25 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:33:25 ICLOUD   icloud_iphone_steffi > Zone Enter Not Delayed > TrackedFrom Zone
+06-17 08:33:25 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:33:25 ICLOUD ⡇ icloud_iphone_steffi > Zone > Home(1)-68.1ft > Away(1), GPS-(51.50232, 3.91079/±5m)
+06-17 08:33:25 ICLOUD ⡇ icloud_iphone_rob > Zone-Device Counts > Away(1)
+06-17 08:33:25 ICLOUD ⡇ icloud_iphone_steffi > Results > NextUpdate-10:33:25a, Moved-224.9ft , Battery-95%, ✓Went3km
+06-17 08:33:25 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:33:40 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Launch@8:33:38A
+06-17 08:33:40 MOBAPP   icloud_iphone_steffi > Outside of Zone without MobApp `Exit Zone` Trigger, Keeping in Zone-Home > Distance-80m, KeepInZoneThreshold-75m to 175m, Located-8:33:16a (24 secs ago)
+06-17 08:33:45 LOCATE   icloud_iphone_steffi > Located > FamShr-8:33:16a (0 min ago), MobApp-8:33:38a
+06-17 08:33:45 ICLOUD   icloud_iphone_steffi > Trigger > Next Update Time Reached
+06-17 08:33:45 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, ICLOUD, CURRZONE-HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:33:45 ICLOUD ⡇ icloud_iphone_steffi > Zone > Home(1)-68.1ft > Away(1), GPS-(51.50232, 3.91079/±5m)
+06-17 08:33:45 ICLOUD ⡇ icloud_iphone_steffi > Results > NextUpdate-10:33:45a, Moved-224.9ft , Battery-95%, ✓Went3km
+06-17 08:33:45 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, FAMSHR, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:35:00 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Siri@8:34:58A
+06-17 08:35:00 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME, SIRI@8:34:58A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:35:00 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-8:34:58a (2 secs ago), FamShr-8:33:16a
+06-17 08:35:00 MOBAPP ⡇ icloud_iphone_steffi > Zone > Home(1)-66.4ft > Away(1), GPS-(51.50232, 3.91071/±7m)
+06-17 08:35:00 MOBAPP ⡇ icloud_iphone_steffi > Results > NextUpdate-10:35:00a, Moved-17.9ft , Battery-95%, ✓Went3km
+06-17 08:35:00 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:37:15 ICLOUD   icloud_iphone_rob > Battery Info > Level-85%, NotCharging (MobApp)
+06-17 08:37:25 MOBAPP   icloud_iphone_rob > MobApp State Changed > Away → Maxxton
+06-17 08:37:25 MOBAPP   icloud_iphone_rob > MobApp Trigger > Enter Zone@8:37:25a (Maxxton/63m)
+06-17 08:37:25 MOBAPP   icloud_iphone_rob > Enter Zone Delayed > Maxxton, DelayFor-30 secs
+06-17 08:37:55 ICLOUD   icloud_iphone_rob > Located > FamShr-8:33:15a → 8:33:29a, Old, 4 mins ago
+06-17 08:37:55 LOCATE   icloud_iphone_rob > Located > MobApp-8:37:25a (30 secs ago), FamShr-8:33:15a
+06-17 08:37:55 ICLOUD   icloud_iphone_rob > Trigger > Next Update Time Reached
+06-17 08:37:55 ICLOUD   icloud_iphone_rob > Zone Enter Not Delayed > Next Update Time Reached
+06-17 08:37:55 ICLOUD ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, ICLOUD, CURRZONE-NOT_HOME, NEXT UPDATE TIME REACHED 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:37:55 ICLOUD ⡇ icloud_iphone_rob > Zone > Maxxton(1)-205.5ft > GPS-(51.49533, 3.61460/±10m)
+06-17 08:38:02 ICLOUD ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:38:02 ICLOUD ⡇ icloud_iphone_rob > Results > Arrive-8:38a, NextUpdate-10:38:00a, Moved-0.0mi , Battery-85%, ✓Went3km
+06-17 08:38:02 ICLOUD ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:38:50 MOBAPP   icloud_iphone_rob > MobApp Trigger > Sig Loc Change@8:38:47a
+06-17 08:38:50 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON, SIG LOC CHANGE@8:38:47A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:38:50 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:38:47a (3 secs ago), FamShr-8:33:29a
+06-17 08:38:50 MOBAPP ⡇ icloud_iphone_rob > Zone > Maxxton(1)-129.8ft > GPS-(51.49591, 3.61462/±10m)
+06-17 08:38:51 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:38:51 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:38a, NextUpdate-10:38:50a, Moved-0.0mi , Battery-85%, ✓Went3km
+06-17 08:38:51 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:39:45 MOBAPP   icloud_iphone_rob > MobApp Trigger > Siri@8:39:43A
+06-17 08:39:45 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON, SIRI@8:39:43A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:39:45 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:39:43a (2 secs ago), FamShr-8:33:29a
+06-17 08:39:45 MOBAPP ⡇ icloud_iphone_rob > Zone > Maxxton(1)-140.0ft > GPS-(51.49582, 3.61454/±13m)
+06-17 08:39:51 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:39:51 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:39a, NextUpdate-10:39:50a, Moved-0.0mi , Battery-85%, ✓Went3km
+06-17 08:39:51 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 08:45:00 ------   icloud_iphone_rob > Nearby Devices (<65ft) > @8:39a, ×iCloud iPhone Steffi-12.8mi (8:34a)
+06-17 08:45:00 ------   icloud_iphone_steffi > Nearby Devices (<65ft) > @8:34a, ×iCloud iPhone Rob-11.4mi (8:33a)
+06-17 08:48:15 MOBAPP   icloud_iphone_rob > MobApp Trigger > Bkgnd Fetch@8:48:14a
+06-17 08:48:15 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON, BKGND FETCH@8:48:14A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 08:48:15 LOCATE ⡇ icloud_iphone_rob > Located > MobApp-8:48:14a (1 secs ago), FamShr-8:33:29a
+06-17 08:48:15 MOBAPP ⡇ icloud_iphone_rob > Zone > Maxxton(1)-125.5ft > GPS-(51.49597, 3.61470/±6m)
+06-17 08:48:21 MOBAPP ⡇ icloud_iphone_rob > Waze Route Error > Problem connecting to Waze Servers. Distance will be calculated, Travel Time not available
+06-17 08:48:21 MOBAPP ⡇ icloud_iphone_rob > Results > Arrive-8:48a, NextUpdate-10:48:20a, Moved-0.0mi , Battery-85%, ✓Went3km
+06-17 08:48:21 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-MAXXTON,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 09:00:00 ------   icloud_iphone_rob > Nearby Devices (<65ft) > @8:48a, ×iCloud iPhone Steffi-12.8mi (8:34a)
+06-17 09:00:05 MOBAPP   icloud_iphone_steffi > MobApp Trigger > Siri@9:00:03A
+06-17 09:00:05 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME, SIRI@9:00:03A 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+06-17 09:00:05 LOCATE ⡇ icloud_iphone_steffi > Located > MobApp-9:00:03a (2 secs ago), FamShr-8:33:33a
+06-17 09:00:05 MOBAPP ⡇ icloud_iphone_steffi > Zone > Home(1)-66.4ft > GPS-(51.50232, 3.91071/±7m)
+06-17 09:00:05 MOBAPP ⡇ icloud_iphone_steffi > Results > NextUpdate-11:00:05a, Moved-0.0mi , Battery-95%, ✓Went3km
+06-17 09:00:05 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME,  
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06-17 09:15:00 ------   icloud_iphone_steffi > Nearby Devices (<65ft) > @9:00a, ×iCloud iPhone Rob-12.8mi (8:48a)
+06-17 09:25:15 ICLOUD   icloud_iphone_steffi > Battery Info > Level-90%, NotCharging (MobApp)

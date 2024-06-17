@@ -22,7 +22,6 @@ homeassistant:
   internal_url: !secret internal_url
   allowlist_external_dirs:
     - '/config/'
-    - '/config/downloads/'
   auth_providers:
     - type: homeassistant
     - type: trusted_networks

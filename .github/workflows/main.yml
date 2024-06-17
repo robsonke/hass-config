@@ -35,6 +35,6 @@ jobs:
       - name: 🚀 Run Home Assistant Configuration Check
         uses: frenck/action-home-assistant@v1
         with:
-          path: "./config"
+          path: "."
           secrets: .stub/fakesecrets.yaml
           version: "${{ matrix.version }}"

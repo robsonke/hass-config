@@ -1,8 +1,8 @@
 {
     "0x00158d000533c62a": {
-        "temperature": 20.98,
-        "humidity": 61.27,
-        "pressure": 1008.9,
+        "temperature": 20.46,
+        "humidity": 60.33,
+        "pressure": 1009.7,
         "linkquality": 143,
         "voltage": 2885,
         "battery": 23,
@@ -10,9 +10,9 @@
     },
     "0x00158d0007e68332": {
         "linkquality": 167,
-        "temperature": 22.03,
-        "humidity": 56.67,
-        "pressure": 1008.8,
+        "temperature": 21.46,
+        "humidity": 54.88,
+        "pressure": 1009.5,
         "voltage": 3005,
         "battery": 100,
         "power_outage_count": 20
@@ -24,7 +24,7 @@
         "illuminance_lux": 4,
         "voltage": 3025,
         "battery": 100,
-        "device_temperature": 26,
+        "device_temperature": 27,
         "power_outage_count": 155
     },
     "0x84fd27fffecf2bce": {
@@ -33,6 +33,6 @@
             "installed_version": 587753009,
             "latest_version": 587753009
         },
-        "linkquality": 255
+        "linkquality": 247
     }
 }
