@@ -8,7 +8,7 @@ appdaemon
 backup
 deps
 tts
-downloads
+#downloads/*
 www/community
 www/snapshots
 www/fonts
@@ -16,6 +16,9 @@ double-take
 zigbee2mqtt/log
 zigbee2mqtt/coordinator_backup.json
 zigbee2mqtt/state.json
+zigbee2mqtt-sky/log
+zigbee2mqtt-sky/coordinator_backup.json
+zigbee2mqtt-sky/state.json
 
 # And some files
 secrets.yaml
@@ -29,6 +32,7 @@ home-assistant.log.1
 home-assistant.log.fault
 daikin_data.json
 daikin_puredata.json
+icloud3*.log
 
 # And ignore the ignore for some files
 !/.storage/lovelace

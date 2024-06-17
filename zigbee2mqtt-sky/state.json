@@ -1,8 +1,8 @@
 {
     "0x00158d000533c62a": {
-        "temperature": 20.21,
-        "humidity": 62.89,
-        "pressure": 1004.8,
+        "temperature": 20.98,
+        "humidity": 61.27,
+        "pressure": 1008.9,
         "linkquality": 143,
         "voltage": 2885,
         "battery": 23,
@@ -10,9 +10,9 @@
     },
     "0x00158d0007e68332": {
         "linkquality": 167,
-        "temperature": 22.18,
-        "humidity": 55.13,
-        "pressure": 1004.5,
+        "temperature": 22.03,
+        "humidity": 56.67,
+        "pressure": 1008.8,
         "voltage": 3005,
         "battery": 100,
         "power_outage_count": 20
