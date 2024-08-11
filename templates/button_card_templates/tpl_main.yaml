@@ -207,7 +207,11 @@ sonos_downstairs:
     browser_mod:
       service: browser_mod.popup
       data:
-        size: wide
+        size: normal
+        style: |
+          --popup-min-width: 1150px;
+          --popup-padding-x: 0px;
+          --popup-padding-y: 0px;
         timeout: 60000
         title: Sonos - Muziek
         content:

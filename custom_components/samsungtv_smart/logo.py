@@ -1,4 +1,5 @@
 """Logo implementation for SamsungTV Smart."""
+
 import asyncio
 from datetime import datetime, timedelta
 from enum import Enum

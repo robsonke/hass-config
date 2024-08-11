@@ -1,4 +1,5 @@
 """ Smartthings TV integration """
+
 from __future__ import annotations
 
 from asyncio import TimeoutError as AsyncTimeoutError

@@ -75,6 +75,7 @@ api:
 
 ota:
   password: "8789ff569642774d2e2ad47f88ffa234"
+  platform: esphome
 
 sprinkler:
   - id: controller

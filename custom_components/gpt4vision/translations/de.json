@@ -30,16 +30,29 @@
                 "data": {
                     "api_key": "Ihr API-Schlüssel"
                 }
+            },
+            "anthropic": {
+                "title": "Fügen Sie den Anthropic-API-Schlüssel hinzu",
+                "description": "Geben Sie einen gültigen Anthropic-API-Schlüssel an.",
+                "data": {
+                    "api_key": "Ihr API-Schlüssel"
+                }
+            },
+            "google": {
+                "title": "Fügen Sie den Google Gemini-API-Schlüssel hinzu",
+                "description": "Geben Sie einen gültigen Google Gemini-API-Schlüssel an.",
+                "data": {
+                    "api_key": "Ihr API-Schlüssel"
+                }
             }
         },
         "error": {
-            "openai_not_configured": "OpenAI-Anbieter ist nicht konfiguriert",
-            "localai_not_configured": "LocalAI-Anbieter ist nicht konfiguriert",
-            "invalid_image_path": "Bild nicht gefunden. Überprüfen Sie den Pfad und versuchen Sie es erneut.",
-            "handshake_failed": "Verbindung zum LocalAI-Server fehlgeschlagen. Bitte überprüfen Sie die IP-Adresse und den Port und versuchen Sie es erneut."
+            "handshake_failed": "Verbindung zum Server konnte nicht hergestellt werden. Überprüfen Sie Ihren API-Schlüssel oder die IP und den Port",
+            "empty_api_key": "Ungültiger API-Key"
         },
         "abort": {
-            "already_configured": "Anbieter ist bereits konfiguriert. Löschen Sie die vorhandene Konfiguration, um eine neue hinzuzufügen."
+            "already_configured": "Anbieter ist bereits konfiguriert. Löschen Sie die vorhandene Konfiguration, um eine neue hinzuzufügen.",
+            "unknown_provider": "Unbekannter Anbieter"
         }
     }
 }

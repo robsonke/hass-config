@@ -49,39 +49,39 @@ browser_mod:
                     yellow: 4
                     red: 8
                   max: 12
-            - type: custom:auto-entities
-              title: Meest verbruikende apparaten
-              card:
-                type: entities
-              filter:
-                include:
-                  - domain: sensor
-                    attributes:
-                      device_class: power
-                exclude:
-                  - state: "off"
-                  - state: "unavailable"
-                  - integration: tibber
-                  - entity_id: sensor.all_powercalc_entities_power
-                  - entity_id: sensor.solaredgemb_ac_power
-                  - entity_id: sensor.all_manual_lights_power
-                  - entity_id: sensor.tv_woonkamer_group_power
-                  - entity_id: sensor.sonos_tv_room_power
-                  - entity_id: sensor.garden_light_power
-                  - entity_id: sensor.air_quality_power
-                  - entity_id: sensor.quooker_power
-                  - entity_id: sensor.samsung_qn95aa_55_tv_power
-                  - entity_id: sensor.office_light_power
-                  - entity_id: sensor.kitchen_light_power
-                  - entity_id: sensor.solaredge_current_power
-                  - entity_id: sensor.power_production_now
-                  - entity_id: sensor.shelly_plug_kachel_slaapkamer_power
-                  - entity_id: sensor.altherma_power_usage_secundary
-              sort:
-                method: state
-                count: 10
-                numeric: true
-                reverse: true
+            # - type: custom:auto-entities
+            #   title: Meest verbruikende apparaten
+            #   card:
+            #     type: entities
+            #   filter:
+            #     include:
+            #       - domain: sensor
+            #         attributes:
+            #           device_class: power
+            #     exclude:
+            #       - state: "off"
+            #       - state: "unavailable"
+            #       - integration: tibber
+            #       - entity_id: sensor.all_powercalc_entities_power
+            #       - entity_id: sensor.solaredgemb_ac_power
+            #       - entity_id: sensor.all_manual_lights_power
+            #       - entity_id: sensor.tv_woonkamer_group_power
+            #       - entity_id: sensor.sonos_tv_room_power
+            #       - entity_id: sensor.garden_light_power
+            #       - entity_id: sensor.air_quality_power
+            #       - entity_id: sensor.quooker_power
+            #       - entity_id: sensor.samsung_qn95aa_55_tv_power
+            #       - entity_id: sensor.office_light_power
+            #       - entity_id: sensor.kitchen_light_power
+            #       - entity_id: sensor.solaredge_current_power
+            #       - entity_id: sensor.power_production_now
+            #       - entity_id: sensor.shelly_plug_kachel_slaapkamer_power
+            #       - entity_id: sensor.altherma_power_usage_secundary
+            #   sort:
+            #     method: state
+            #     count: 10
+            #     numeric: true
+            #     reverse: true
 
             - type: 'custom:bar-card'
               entities:

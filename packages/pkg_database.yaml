@@ -27,6 +27,9 @@ recorder:
       - sensor.browser_*
     event_types:
       - call_service
+    entities:
+      # See https://github.com/gcobb321/icloud3/issues/356
+      - sensor.icloud3_event_log
 
 # Find the 10 biggest entities:
 # SELECT states_meta.entity_id as Entity, count(states.metadata_id) as Count FROM states

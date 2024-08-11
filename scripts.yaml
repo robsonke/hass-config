@@ -30,25 +30,27 @@ flash_office_loop:
 sonos_say:
   alias: Sonos TTS script
   sequence:
-  - service: sonos.snapshot
-    data_template:
+  - data_template:
       entity_id: '{{ sonos_entity }}'
       with_group: true
-  - service: media_player.unjoin
-    data_template:
+    enabled: true
+    action: sonos.snapshot
+  - data_template:
       entity_id: '{{ sonos_entity }}'
-  - service: media_player.volume_set
-    data_template:
+    action: media_player.unjoin
+  - data_template:
       entity_id: '{{ sonos_entity }}'
       volume_level: '{{ volume }}'
-  - service: tts.google_translate_say
-    data_template:
+    action: media_player.volume_set
+  - data_template:
       entity_id: '{{ sonos_entity }}'
       message: '{{ message }}'
+    action: tts.google_translate_say
   - delay: '{{ delay }}'
-  - service: sonos.restore
-    data_template:
+  - data_template:
       entity_id: '{{ sonos_entity }}'
+    enabled: true
+    action: sonos.restore
   mode: single
   icon: mdi:play
 sonos_play_sound:
@@ -139,6 +141,14 @@ lights_on_away:
     target:
       entity_id:
       - light.benedenverdieping_afwezig
+  - service: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 25
+    target:
+      entity_id:
+      - light.socket2_light_couch
+      - light.socket1_light_corner
 lights_on_home:
   alias: Lights on - home
   sequence:
@@ -147,6 +157,14 @@ lights_on_home:
     target:
       entity_id:
       - light.benedenverdieping_aanwezig
+  - service: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 25
+    target:
+      entity_id:
+      - light.socket2_light_couch
+      - light.socket1_light_corner
   mode: single
 lights_down_stairs_off:
   alias: Lights off - downstairs

@@ -17,7 +17,6 @@ from homeassistant.components.utility_meter.const import METER_TYPES
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import (
     CONF_DOMAIN,
-    CONF_ENTITIES,
     CONF_SCAN_INTERVAL,
     EVENT_HOMEASSISTANT_STARTED,
     Platform,
@@ -61,7 +60,6 @@ from .const import (
     CONF_UTILITY_METER_TYPES,
     DATA_CALCULATOR_FACTORY,
     DATA_CONFIGURED_ENTITIES,
-    DATA_DISCOVERED_ENTITIES,
     DATA_DISCOVERY_MANAGER,
     DATA_DOMAIN_ENTITIES,
     DATA_STANDBY_POWER_SENSORS,
@@ -231,7 +229,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         DOMAIN_CONFIG: domain_config,
         DATA_CONFIGURED_ENTITIES: {},
         DATA_DOMAIN_ENTITIES: {},
-        DATA_DISCOVERED_ENTITIES: {},
         DATA_USED_UNIQUE_IDS: [],
         DATA_STANDBY_POWER_SENSORS: {},
     }
@@ -248,8 +245,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     try:
         await repair_none_config_entries_issue(hass)
-    except Exception as e:  # noqa: BLE001
-        _LOGGER.error("problem while cleaning up None entities", exc_info=e)
+    except Exception as e:  # noqa: BLE001  # pragma: no cover
+        _LOGGER.error("problem while cleaning up None entities", exc_info=e)  # pragma: no cover
 
     return True
 
@@ -291,37 +288,20 @@ def setup_domain_groups(hass: HomeAssistant, global_config: ConfigType) -> None:
     if not domain_groups:
         return
 
-    async def _create_domain_groups(event: None) -> None:
-        """Create group sensors aggregating all power sensors from given domains."""
-        _LOGGER.debug("Setting up domain based group sensors..")
-        for domain in domain_groups:
-            if domain not in hass.data[DOMAIN].get(DATA_DOMAIN_ENTITIES):
-                _LOGGER.error(
-                    "Cannot setup group for domain %s, no entities found",
-                    domain,
-                )
-                continue
-
-            domain_entities = hass.data[DOMAIN].get(DATA_DOMAIN_ENTITIES)[domain]
-
-            hass.async_create_task(
-                async_load_platform(
-                    hass,
-                    SENSOR_DOMAIN,
-                    DOMAIN,
-                    {
-                        DISCOVERY_TYPE: PowercalcDiscoveryType.DOMAIN_GROUP,
-                        CONF_ENTITIES: domain_entities,
-                        CONF_DOMAIN: domain,
-                    },
-                    global_config,
-                ),
-            )
-
-    hass.bus.async_listen_once(
-        EVENT_HOMEASSISTANT_STARTED,
-        _create_domain_groups,
-    )
+    _LOGGER.debug("Setting up domain based group sensors..")
+    for domain in domain_groups:
+        hass.async_create_task(
+            async_load_platform(
+                hass,
+                SENSOR_DOMAIN,
+                DOMAIN,
+                {
+                    DISCOVERY_TYPE: PowercalcDiscoveryType.DOMAIN_GROUP,
+                    CONF_DOMAIN: domain,
+                },
+                global_config,
+            ),
+        )
 
 
 async def setup_yaml_sensors(
@@ -343,29 +323,37 @@ async def setup_yaml_sensors(
 
     async def _load_secondary_sensors(_: None) -> None:
         """Load secondary sensors after primary sensors."""
-        await asyncio.gather(*(
-            hass.async_create_task(async_load_platform(
-                hass,
-                Platform.SENSOR,
-                DOMAIN,
-                sensor_config,
-                config,
-            ))
-            for sensor_config in secondary_sensors
-        ))
+        await asyncio.gather(
+            *(
+                hass.async_create_task(
+                    async_load_platform(
+                        hass,
+                        Platform.SENSOR,
+                        DOMAIN,
+                        sensor_config,
+                        config,
+                    ),
+                )
+                for sensor_config in secondary_sensors
+            ),
+        )
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _load_secondary_sensors)
 
-    await asyncio.gather(*(
-        hass.async_create_task(async_load_platform(
-            hass,
-            Platform.SENSOR,
-            DOMAIN,
-            sensor_config,
-            config,
-        ))
-        for sensor_config in primary_sensors
-    ))
+    await asyncio.gather(
+        *(
+            hass.async_create_task(
+                async_load_platform(
+                    hass,
+                    Platform.SENSOR,
+                    DOMAIN,
+                    sensor_config,
+                    config,
+                ),
+            )
+            for sensor_config in primary_sensors
+        ),
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -426,11 +414,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     version = config_entry.version
     if version == 1:
         data = {**config_entry.data}
-        if (
-            CONF_FIXED in data
-            and CONF_POWER in data[CONF_FIXED]
-            and CONF_POWER_TEMPLATE in data[CONF_FIXED]
-        ):
+        if CONF_FIXED in data and CONF_POWER in data[CONF_FIXED] and CONF_POWER_TEMPLATE in data[CONF_FIXED]:
             data[CONF_FIXED].pop(CONF_POWER, None)
         hass.config_entries.async_update_entry(config_entry, data=data, version=2)
 
@@ -457,8 +441,8 @@ async def repair_none_config_entries_issue(hass: HomeAssistant) -> None:
             object.__setattr__(entry, "unique_id", unique_id)
             hass.config_entries._entries._index_entry(entry)  # noqa
             await hass.config_entries.async_remove(entry.entry_id)
-        except Exception as e:  # noqa: BLE001
-            _LOGGER.error("problem while cleaning up None entities", exc_info=e)
+        except Exception as e:  # noqa: BLE001  # pragma: no cover
+            _LOGGER.error("problem while cleaning up None entities", exc_info=e)  # pragma: no cover
 
 
 def _notify_message(

@@ -1,4 +1,5 @@
 """The samsungtv_smart integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -13,6 +14,7 @@ import async_timeout
 import voluptuous as vol
 from websocket import WebSocketException
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_DEVICE_ID,
@@ -160,7 +162,7 @@ def is_valid_ha_version() -> bool:
 def _notify_message(
     hass: HomeAssistant, notification_id: str, title: str, message: str
 ) -> None:
-    """Notify user with persistent notification"""
+    """Notify user with persistent notification."""
     hass.async_create_task(
         hass.services.async_call(
             domain="persistent_notification",
@@ -300,13 +302,18 @@ def _migrate_entry_unique_id(hass: HomeAssistant, entry: ConfigEntry) -> None:
     hass.config_entries.async_update_entry(entry, unique_id=new_unique_id)
 
 
-def _register_logo_paths(hass: HomeAssistant) -> str | None:
+async def _register_logo_paths(hass: HomeAssistant) -> str | None:
     """Register paths for local logos."""
 
     static_logo_path = Path(__file__).parent / "static"
-    hass.http.register_static_path(STATIC_IMAGE_BASE_URL, str(static_logo_path), False)
+    static_paths = [
+        StaticPathConfig(
+            STATIC_IMAGE_BASE_URL, str(static_logo_path), cache_headers=False
+        )
+    ]
 
     local_logo_path = Path(hass.config.path("www", f"{DOMAIN}_logos"))
+    url_logo_path = str(local_logo_path)
     if not local_logo_path.exists():
         try:
             local_logo_path.mkdir(parents=True)
@@ -314,10 +321,15 @@ def _register_logo_paths(hass: HomeAssistant) -> str | None:
             _LOGGER.warning(
                 "Error registering custom logo folder %s: %s", str(local_logo_path), exc
             )
-            return None
+            url_logo_path = None
 
-    hass.http.register_static_path(CUSTOM_IMAGE_BASE_URL, str(local_logo_path), False)
-    return str(local_logo_path)
+    if url_logo_path is not None:
+        static_paths.append(
+            StaticPathConfig(CUSTOM_IMAGE_BASE_URL, url_logo_path, cache_headers=False)
+        )
+
+    await hass.http.async_register_static_paths(static_paths)
+    return url_logo_path
 
 
 async def get_device_info(hostname: str, session: ClientSession) -> dict:
@@ -512,7 +524,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 hass.data[DOMAIN][valid_entries[0]] = {DATA_CFG_YAML: data_yaml}
 
     # Register path for local logo
-    if local_logo_path := await hass.async_add_executor_job(_register_logo_paths, hass):
+    if local_logo_path := await _register_logo_paths(hass):
         hass.data.setdefault(DOMAIN, {})[LOCAL_LOGO_PATH] = local_logo_path
 
     return True

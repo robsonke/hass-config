@@ -12,7 +12,7 @@ views:
     layout:
       margin: 0
       grid-gap: calc(var(--grid-card-gap) * 1)
-      grid-template-columns: 420px repeat(3, 1fr) 0
+      grid-template-columns: repeat(4, 1fr) 0
       grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
       grid-template-areas: |
         "sidebar  .        .          .        ."
@@ -37,7 +37,8 @@ views:
             ".  .          ."
         '(max-width: 1200px)':
           grid-gap: calc(var(--grid-card-gap) * 1)
-          grid-template-columns: 350px repeat(3, 1fr) 0
+          #grid-template-columns: 300px repeat(3, 1fr) 0
+          grid-template-columns: repeat(4, 1fr) 0
           grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
           grid-template-areas: |
             "sidebar  .        .          .        ."
@@ -80,7 +81,7 @@ views:
             template: weather
 
           - type: custom:gap-card
-            height: 40
+            height: 20
 
           - type: horizontal-stack
             cards:
@@ -124,7 +125,7 @@ views:
                 entity: input_boolean.guest_mode
 
           - type: custom:gap-card
-            height: 40
+            height: 20
           - type: tile
             entity: alarm_control_panel.alarmo
             tap_action:
@@ -135,15 +136,21 @@ views:
                   - armed_night
                   - armed_away
                   - disarmed
+            card_mod:
+              style:
+                .: |
+                  ha-card .content {
+                    display: none !important;
+                  }
 
-          - type: custom:gap-card
-            height: 20
+          # - type: custom:gap-card
+          #   height: 10
           - type: custom:mushroom-chips-card
             card_mod:
               style: |
                 ha-card.type-custom-mushroom-chips-card {
                   --chip-font-weight: normal;
-                  --chip-font-size: 1rem;
+                  --chip-font-size: 0.8rem;
                   margin: 1rem 0 0 0.5rem;
                 }
             chips:
@@ -483,18 +490,18 @@ views:
                   return heating;
                 ]]]
           - type: custom:button-card
-            entity: binary_sensor.doors_and_windows_upstairs
-            name: Ramen
-            template:
-              - door_window_group_upstairs
-            group_expand: true
-          - type: custom:button-card
             entity: media_player.music_upstairs
             name: Muziek
             triggers_update:
               - media_player.slaapkamer_sonos
             template:
               - sonos_upstairs
+          - type: custom:button-card
+            entity: binary_sensor.doors_and_windows_upstairs
+            name: Ramen
+            template:
+              - door_window_group_upstairs
+            group_expand: true
 
       #################################################
       #                                               #

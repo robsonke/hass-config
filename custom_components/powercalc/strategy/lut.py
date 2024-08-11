@@ -96,13 +96,13 @@ class LutRegistry:
 
         raise LutFileNotFoundError("Data file not found: %s")
 
-    def get_supported_color_modes(self, power_profile: PowerProfile) -> set[ColorMode]:
+    async def get_supported_color_modes(self, power_profile: PowerProfile) -> set[ColorMode]:
         """Return the color modes supported by the Profile."""
         cache_key = f"{power_profile.manufacturer}_{power_profile.model}_supported_color_modes"
         supported_color_modes = self._supported_color_modes.get(cache_key)
         if supported_color_modes is None:
             supported_color_modes = set()
-            for file in os.listdir(power_profile.get_model_directory()):
+            for file in await self._hass.async_add_executor_job(os.listdir, power_profile.get_model_directory()):
                 if file.endswith(".csv.gz"):
                     color_mode = ColorMode(file.removesuffix(".csv.gz"))
                     if color_mode in LUT_COLOR_MODES:
@@ -140,7 +140,7 @@ class LutStrategy(PowerCalculationStrategyInterface):
             brightness = 255
 
         if color_mode == ColorMode.UNKNOWN:
-            _LOGGER.debug(
+            _LOGGER.warning(
                 "%s: Could not calculate power. color mode unknown",
                 entity_state.entity_id,
             )
@@ -162,16 +162,23 @@ class LutStrategy(PowerCalculationStrategyInterface):
 
         light_setting = LightSetting(color_mode=color_mode, brightness=brightness)
         if color_mode == ColorMode.HS:
-            hs = color_temperature_to_hs(attrs[ATTR_COLOR_TEMP]) if original_color_mode == ColorMode.COLOR_TEMP else attrs[ATTR_HS_COLOR]
-            light_setting.hue = int(hs[0] / 360 * 65535)
-            light_setting.saturation = int(hs[1] / 100 * 255)
-            _LOGGER.debug(
-                "%s: Looking up power usage for bri:%s hue:%s sat:%s}",
-                entity_state.entity_id,
-                brightness,
-                light_setting.hue,
-                light_setting.saturation,
-            )
+            try:
+                hs = color_temperature_to_hs(attrs[ATTR_COLOR_TEMP]) if original_color_mode == ColorMode.COLOR_TEMP else attrs[ATTR_HS_COLOR]
+                light_setting.hue = int(hs[0] / 360 * 65535)
+                light_setting.saturation = int(hs[1] / 100 * 255)
+                _LOGGER.debug(
+                    "%s: Looking up power usage for bri:%s hue:%s sat:%s}",
+                    entity_state.entity_id,
+                    brightness,
+                    light_setting.hue,
+                    light_setting.saturation,
+                )
+            except Exception:  # noqa: BLE001
+                _LOGGER.error(
+                    "%s: Could not calculate power. no hue/sat set. Please check the attributes of your light in the developer tools.",
+                    entity_state.entity_id,
+                )
+                return None
         elif color_mode == ColorMode.COLOR_TEMP:
             light_setting.color_temp = attrs[ATTR_COLOR_TEMP]
             _LOGGER.debug(
@@ -193,10 +200,13 @@ class LutStrategy(PowerCalculationStrategyInterface):
 
     async def get_selected_color_mode(self, attrs: Mapping[str, Any]) -> ColorMode:
         """Get the selected color mode for the entity."""
-        color_mode = ColorMode(str(attrs.get(ATTR_COLOR_MODE)))
+        try:
+            color_mode = ColorMode(str(attrs.get(ATTR_COLOR_MODE, ColorMode.UNKNOWN)))
+        except ValueError:
+            color_mode = ColorMode.UNKNOWN
         if color_mode in COLOR_MODES_COLOR:
             color_mode = ColorMode.HS
-        profile_color_modes = self._lut_registry.get_supported_color_modes(self._profile)
+        profile_color_modes = await self._lut_registry.get_supported_color_modes(self._profile)
         if color_mode not in profile_color_modes and color_mode == ColorMode.COLOR_TEMP:
             _LOGGER.debug("Color mode not natively supported, falling back to HS")
             color_mode = ColorMode.HS
@@ -256,12 +266,7 @@ class LutStrategy(PowerCalculationStrategyInterface):
         lookup_dict: LookupDictType,
         search_key: int,
     ) -> float | LookupDictType:
-        return (
-            lookup_dict.get(search_key)
-            or lookup_dict[
-                min(lookup_dict.keys(), key=lambda key: abs(key - search_key))
-            ]
-        )
+        return lookup_dict.get(search_key) or lookup_dict[min(lookup_dict.keys(), key=lambda key: abs(key - search_key))]
 
     @staticmethod
     def get_nearest_lower_brightness(

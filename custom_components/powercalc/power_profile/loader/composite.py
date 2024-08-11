@@ -16,10 +16,18 @@ class CompositeLoader(Loader):
     async def get_manufacturer_listing(self, device_type: DeviceType | None) -> set[str]:
         """Get listing of available manufacturers."""
 
-        return {
-            manufacturer for loader in self.loaders
-            for manufacturer in await loader.get_manufacturer_listing(device_type)
-        }
+        return {manufacturer for loader in self.loaders for manufacturer in await loader.get_manufacturer_listing(device_type)}
+
+    async def find_manufacturer(self, search: str) -> str | None:
+        """Check if a manufacturer is available. Also must check aliases."""
+
+        search = search.lower()
+        for loader in self.loaders:
+            manufacturer = await loader.find_manufacturer(search)
+            if manufacturer:
+                return manufacturer
+
+        return None
 
     async def get_model_listing(self, manufacturer: str, device_type: DeviceType | None) -> set[str]:
         """Get listing of available models for a given manufacturer."""
@@ -27,7 +35,6 @@ class CompositeLoader(Loader):
         return {model for loader in self.loaders for model in await loader.get_model_listing(manufacturer, device_type)}
 
     async def load_model(self, manufacturer: str, model: str) -> tuple[dict, str] | None:
-
         for loader in self.loaders:
             result = await loader.load_model(manufacturer, model)
             if result:

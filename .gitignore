@@ -2,6 +2,9 @@
 /.storage/*
 .cloud
 .google.token
+.jwt_secret
+.vacuum
+.timeline
 glances
 node-red
 appdaemon

@@ -233,14 +233,23 @@ custom-dark:
         /* normally 100 but the toolbar pushes it down */
         min-height: 96vh;
       }
+      hui-card:last-child {
+        flex-grow: 1;
+      }
+      /* tablet */
+      @media screen and (max-width: 1200px) {
+        #root {
+          min-height: 90vh;
+        }
+      }
       /* phone */
       @media screen and (max-width: 800px) {
         #root {
+          min-height: 70vh;
           background-color: rgba(0,0,0,0);
-            border-right: none;
-            min-height: 100%;
-            margin-left: -0.8%;
-            margin-bottom: -6%;
+          border-right: none;
+          margin-left: -0.8%;
+          margin-bottom: -6%;
         }
       }
     #################################################
@@ -254,6 +263,7 @@ custom-dark:
           display: flex;
           flex: auto;
           align-items: flex-end;
+          min-height: 100%;
         }
         /* phone */
         @media screen and (max-width: 800px) {
@@ -261,12 +271,13 @@ custom-dark:
             position: absolute;
             right: 4vw;
             top: 17vw;
+            min-height: auto;
           }
         }
       $: |
         #root {
           width: 100%;
-          padding: 0 15% 5% 15%;
+          padding: 0 15% 0 15%;
         }
         /* phone */
         @media screen and (max-width: 800px) {

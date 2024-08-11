@@ -6,7 +6,7 @@
     input:
       time: '10:00:00'
       actions:
-      - service: notify.mobile_app_iphone_rob
+      - action: notify.mobile_app_iphone_rob
         data:
           message: "\U0001F50B Low battery warning for {{sensors|replace(\"_\",\"
             \")}}"
@@ -34,16 +34,16 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.all_phones
-    data:
+  - data:
       message: ⏰ We zijn beiden weg, het alarm wordt geactiveerd
       data:
         persistent: true
         tag: persistent
-  - service: alarm_control_panel.alarm_arm_away
-    target:
+    action: notify.all_phones
+  - target:
       entity_id: alarm_control_panel.alarmo
     data: {}
+    action: alarm_control_panel.alarm_arm_away
   mode: single
 - id: alarm_auto_disarm_when_arriving
   alias: Alarm - Disarm automatically when one of us comes home
@@ -83,13 +83,13 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ⏰ Een van ons komt thuis, het alarm wordt gedeactiveerd.
       data:
         persistent: true
         tag: persistent
-  - service: alarm_control_panel.alarm_disarm
+  - action: alarm_control_panel.alarm_disarm
     data:
       code: automation
     target:
@@ -110,7 +110,7 @@
     entity_id: alarm_control_panel.alarmo
     state: armed_away,armed_home,armed_night
   action:
-  - service: alarm_control_panel.alarm_trigger
+  - action: alarm_control_panel.alarm_trigger
     entity_id: alarm_control_panel.alarmo
   mode: single
 - id: alarm_triggered_alert
@@ -122,7 +122,7 @@
     entity_id: alarm_control_panel.alarmo
     to: triggered
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F6A8\U0001F6A8 ALARM! Het alarm gaat af en is te laat gedeactiveerd!
         \U0001F6A8\U0001F6A8"
@@ -141,7 +141,7 @@
         - action: SILENCE_ALARM
           title: Alarm uit
           icon: sfsymbols:bell.slash
-  - service: input_boolean.turn_on
+  - action: input_boolean.turn_on
     target:
       entity_id: input_boolean.alarm_active
   - repeat:
@@ -152,19 +152,19 @@
       - condition: template
         value_template: '{{ repeat.index <= 20 }}'
       sequence:
-      - service: script.sonos_say
+      - action: script.sonos_say
         data:
           sonos_entity: media_player.living_room
           volume: 0.3
           message: Je bent gezien en wordt nu gefilmd!
           delay: 00:00:03
-      - service: script.sonos_play_sound
+      - action: script.sonos_play_sound
         data:
           mp3_url: https://home.tigrou.nl/local/sounds/alarm2.mp3
           volume: 0.3
           sonos_entity: media_player.living_room
           delay: 00:00:10
-  - service: input_boolean.turn_off
+  - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.alarm_active
   mode: single
@@ -177,18 +177,18 @@
     entity_id: alarm_control_panel.alarmo
     to: pending
   action:
-  - service: script.sonos_say
-    data:
+  - data:
       sonos_entity: media_player.living_room
       volume: 0.5
       message: Je bent gezien, deactiveer het alarm binnen 2 minuten!
       delay: 00:00:03
-  - service: browser_mod.popup
-    data:
+    action: script.sonos_say
+  - data:
       title: Alarm actief
       content:
         type: custom:alarmo-card
         entity: alarm_control_panel.alarmo
+    action: browser_mod.popup
   - repeat:
       while:
       - condition: state
@@ -197,12 +197,12 @@
       - condition: template
         value_template: '{{ repeat.index <= 10 }}'
       sequence:
-      - service: script.sonos_play_sound
-        data:
+      - data:
           mp3_url: https://home.tigrou.nl/local/sounds/pending_alarm.mp3
           volume: 0.4
           sonos_entity: media_player.living_room
           delay: 00:00:01
+        action: script.sonos_play_sound
 - id: alarm_disarm_correctly
   alias: Alarm - Disarmed
   description: Send a message that the alarm is properly disarmed and inform the person
@@ -213,13 +213,13 @@
     from: triggered,pending
     to: disarmed
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: '✅ ALARM: Het alarm is uitgezet.'
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -246,9 +246,9 @@
       entity_id: input_boolean.enable_automatic_screens
       state: 'off'
   action:
-  - service: input_boolean.turn_on
+  - action: input_boolean.turn_on
     entity_id: input_boolean.enable_automatic_lights
-  - service: input_boolean.turn_on
+  - action: input_boolean.turn_on
     entity_id: input_boolean.enable_automatic_garden_lights
 - id: groundfloor_lights_on_when_dark_away
   alias: Lights - Turn on lights when dark - away
@@ -277,13 +277,13 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       message: "\U0001F4A1 Verlichting automatisch aan - niet thuis"
       data:
         persistent: true
         tag: persistent
-  - service: script.lights_on_away
+  - action: script.lights_on_away
     data: {}
   - delay:
       hours: 0
@@ -323,7 +323,7 @@
     entity_id: alarm_control_panel.alarmo
     type: is_disarmed
   action:
-  - service: script.lights_on_home
+  - action: script.lights_on_home
     data: {}
   - delay: '1'
   mode: single
@@ -337,7 +337,7 @@
     to: 'True'
   condition: []
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       title: "\U0001F6A8\U0001F6A8 Snapshots are Stale \U0001F6A8\U0001F6A8"
       message: Please visit the Hass.io Google Drive Backup add-on status page for
@@ -371,7 +371,7 @@
       minutes: 0
       seconds: 0
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data_template:
       message: "\U0001F4C5  Opletten {{ state_attr(trigger.entity_id, 'friendly_name')
         }}!"
@@ -389,21 +389,21 @@
     to: 'on'
   action:
   - parallel:
-    - service: script.googlehome_play_sound
+    - action: script.googlehome_play_sound
       data:
         volume: 0.7
         volume_restore: 0.4
         googlehome_entity: media_player.office_googlehome
         delay: '3'
         mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-    - service: script.googlehome_play_sound
+    - action: script.googlehome_play_sound
       data:
         volume: 0.7
         volume_restore: 0.2
         googlehome_entity: media_player.bedroom_googlehome
         delay: '3'
         mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-    - service: script.googlehome_play_sound
+    - action: script.googlehome_play_sound
       data:
         volume: 0.7
         volume_restore: 0.4
@@ -474,35 +474,35 @@
       minutes: 15
       seconds: 0
   action:
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 50
     target:
       entity_id:
       - light.garden_light
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       kelvin: 2200
     target:
       entity_id:
       - light.palm1_light
       - light.palm2_light
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 6
     target:
       entity_id: light.woodshed_light
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 50
     target:
       entity_id: light.garden_lantern_light1
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 50
     target:
       entity_id: light.garden_lantern_light2
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 50
     target:
@@ -512,12 +512,12 @@
       minutes: 0
       seconds: 30
       milliseconds: 0
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 35
     target:
       entity_id: light.veranda_light
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       kelvin: 2200
     target:
@@ -543,7 +543,7 @@
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
   action:
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id:
@@ -557,7 +557,7 @@
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id:
@@ -569,7 +569,7 @@
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id:
@@ -594,10 +594,10 @@
       before: 05:00
   action:
   - parallel:
-    - service: script.sleep_well
+    - action: script.sleep_well
       data: {}
     - sequence:
-      - service: light.turn_on
+      - action: light.turn_on
         data:
           brightness_pct: 30
         target:
@@ -607,14 +607,14 @@
           minutes: 0
           seconds: 15
           milliseconds: 0
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.dimmer_hall
       alias: Turn on hall light shortly
   - alias: Turn off the couch and corner light too if it's after 11 pm
     condition: time
     after: '22:55:00'
-  - service: light.turn_off
+  - action: light.turn_off
     target:
       entity_id:
       - light.socket1_light_corner
@@ -645,15 +645,15 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       message: "\U0001F4A1 Verlichting automatisch uit"
       data:
         persistent: true
         tag: persistent
-  - service: script.sleep_well
+  - action: script.sleep_well
     data: {}
-  - service: light.turn_off
+  - action: light.turn_off
     target:
       entity_id:
       - light.socket1_light_corner
@@ -667,7 +667,7 @@
     from: 'off'
     to: 'on'
   action:
-  - service: light.turn_on
+  - action: light.turn_on
     data: {}
     target:
       entity_id: light.hallcloset_light
@@ -676,7 +676,7 @@
       entity_id: binary_sensor.door_hallcloset_openclose_contact
       from: 'on'
       to: 'off'
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id: light.hallcloset_light
@@ -699,7 +699,7 @@
       minutes: 10
       seconds: 0
   action:
-  - service: alarm_control_panel.alarm_disarm
+  - action: alarm_control_panel.alarm_disarm
     data:
       code: automation
     target:
@@ -712,14 +712,14 @@
         entity_id: zone.home
         above: '0'
       sequence:
-      - service: media_player.media_play
+      - action: media_player.media_play
         data: {}
         target:
           entity_id: media_player.eetkamer
   - condition: numeric_state
     entity_id: sensor.light_sensor_living_illuminance_lux
     below: '60'
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 40
     target:
@@ -738,11 +738,11 @@
     at: 01:00:00
   action:
   - delay: 00:04
-  - service: hassio.addon_restart
+  - action: hassio.addon_restart
     data:
       addon: a0d7b954_ssh
   - delay: 00:01
-  - service: hassio.addon_stdin
+  - action: hassio.addon_stdin
     data:
       addon: a0d7b954_ssh
       input: bash /config/cast.sh
@@ -754,7 +754,7 @@
     platform: time
     at: 01:15:00
   action:
-  - service: hassio.addon_restart
+  - action: hassio.addon_restart
     data:
       addon: core_letsencrypt
 - alias: Lights - Check if automatic lights are disabled by accident
@@ -778,7 +778,7 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'off'
   action:
-    service: notify.mobile_app_iphone_rob
+    action: notify.mobile_app_iphone_rob
     data:
       message: De automatische verlichting is uitgeschakeld, dit is mogelijk onbewust.
       data:
@@ -813,7 +813,7 @@
     state: 'off'
     entity_id: input_boolean.guest_mode
   action:
-  - service: script.sonos_say
+  - action: script.sonos_say
     data_template:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -821,7 +821,7 @@
         komt er aan!
       delay: 00:00:03
   - delay: '2'
-  - service: script.googlehome_say
+  - action: script.googlehome_say
     data_template:
       volume: 0.5
       volume_restore: 0.4
@@ -869,7 +869,7 @@
       value_template: '{{ trigger.payload_json[''after''][''camera''] == ''bijkeuken''
         }}'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data_template:
       message: Er is een {{trigger.payload_json["after"]["label"]}} gedetecteerd op
         de {{ trigger.payload_json["after"]["camera"] }} camera
@@ -890,7 +890,7 @@
   condition: '{{ is_state(''input_boolean.dark_mode'', ''off'') }}'
   action:
     entity_id: input_boolean.dark_mode
-    service: input_boolean.turn_on
+    action: input_boolean.turn_on
 - alias: Theme - Switch to light mode
   id: theme_switch_light
   trigger:
@@ -901,14 +901,14 @@
   condition: '{{ is_state(''input_boolean.dark_mode'', ''on'') }}'
   action:
     entity_id: input_boolean.dark_mode
-    service: input_boolean.turn_off
+    action: input_boolean.turn_off
 - id: theme_switch_manually
   alias: Theme - Change theme manually
   trigger:
   - platform: state
     entity_id: input_boolean.dark_mode
   action:
-  - service: browser_mod.set_theme
+  - action: browser_mod.set_theme
     data_template:
       theme: custom-dark
       dark: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else
@@ -919,7 +919,7 @@
   - platform: state
     entity_id: sensor.lovelace_size
   action:
-  - service: shell_command.convert_lovelace
+  - action: shell_command.convert_lovelace
     data: {}
 - id: sjorsje_bin_full
   alias: Vacuum - Sjorsje Bin Full
@@ -928,7 +928,7 @@
     platform: state
     to: 'on'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F9F9 Sjorsje's opvangbak zit vol"
       data:
@@ -941,7 +941,7 @@
     platform: numeric_state
     below: 20
   action:
-    service: notify.all_phones
+    action: notify.all_phones
     data:
       message: "\U0001F50B Sjorsje's accu raakt leeg"
       data:
@@ -955,13 +955,13 @@
     input:
       power_sensor: sensor.vaatwasser_switch_current_consumption
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: De vaatwasser is klaar
           data:
             persistent: true
             tag: persistent
-      - service: tts.google_translate_say
+      - action: tts.google_translate_say
         entity_id: media_player.office_googlehome
         data_template:
           message: De vaatwasser is klaar
@@ -988,7 +988,7 @@
       entity_id: lock.nuki_voordeur_slot_lock
       state: unlocked
   action:
-  - service: lock.lock
+  - action: lock.lock
     target:
       entity_id: lock.nuki_voordeur_slot_lock
     data: {}
@@ -1015,17 +1015,25 @@
     to: armed_night
   condition: []
   action:
-  - service: switch.turn_on
+  - action: switch.turn_on
     target:
       entity_id:
       - switch.achterdeur_detect
       - switch.terras_detect
       - switch.veranda_detect
       - switch.bijkeuken_detect
-      - switch.evabed_detect
-      - switch.noabed_detect
       - switch.zwembad_detect
     data: {}
+  - condition: state
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.evabed_detect
+      - switch.noabed_detect
   mode: single
 - id: '1621190465429'
   alias: Presence - Disable detection because day starts
@@ -1038,7 +1046,7 @@
     to: disarmed
   condition: []
   action:
-  - service: switch.turn_off
+  - action: switch.turn_off
     target:
       entity_id:
       - switch.achterdeur_detect
@@ -1066,7 +1074,7 @@
       entity_id: sensor.open_windows_and_doors_downstairs
       state: '0'
   action:
-  - service: script.sonos_say
+  - action: script.sonos_say
     data_template:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -1084,7 +1092,7 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F6AA Deur: let op, de voordeur staat al 10 minuten open"
       data:
@@ -1105,7 +1113,7 @@
     from: 'off'
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data_template:
       message: Let op, batterij status van het voordeur slot is kritiek!
       data:
@@ -1127,16 +1135,21 @@
       - condition: and
         conditions:
         - condition: numeric_state
-          entity_id: sensor.openweathermap_forecast_temperature
+          entity_id: sensor.today_maximum_temperature
           above: '20'
         - condition: numeric_state
           entity_id: sensor.openweathermap_cloud_coverage
           below: '80'
         alias: Warm and not too much clouds
-      - condition: numeric_state
-        entity_id: sensor.openweathermap_forecast_temperature
-        above: '24'
-      alias: Just hot or warm and not cloudy
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_cloud_coverage
+          below: '95'
+        - condition: numeric_state
+          entity_id: sensor.today_maximum_temperature
+          above: '24'
+        alias: Just hot or warm and not so cloudy
     - condition: device
       device_id: eb69e1ad4596ef0df19b685a4e84e026
       domain: cover
@@ -1152,13 +1165,13 @@
     entity_id: input_boolean.enable_automatic_screens
     state: 'on'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ☀️ De screens aan de voorkant gaan dicht
       data:
         persistent: true
         tag: persistent
-  - service: cover.close_cover
+  - action: cover.close_cover
     target:
       entity_id: cover.voorraam
     data: {}
@@ -1199,13 +1212,13 @@
       entity_id: input_boolean.enable_automatic_screens
       state: 'on'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ☀️ De screen aan de voorkant gaat open
       data:
         persistent: true
         tag: persistent
-  - service: cover.open_cover
+  - action: cover.open_cover
     data: {}
     target:
       entity_id: cover.voorraam
@@ -1214,7 +1227,7 @@
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - service: cover.open_cover
+  - action: cover.open_cover
     data: {}
     target:
       entity_id: cover.voorraam
@@ -1223,7 +1236,7 @@
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - service: cover.open_cover
+  - action: cover.open_cover
     data: {}
     target:
       entity_id: cover.voorraam
@@ -1265,13 +1278,13 @@
     entity_id: input_boolean.enable_automatic_screens
     state: 'on'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ☀️ De screen aan de zijkant gaat open
       data:
         persistent: true
         tag: persistent
-  - service: cover.open_cover
+  - action: cover.open_cover
     data: {}
     target:
       entity_id: cover.zijraam
@@ -1280,7 +1293,7 @@
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - service: cover.open_cover
+  - action: cover.open_cover
     data: {}
     target:
       entity_id: cover.zijraam
@@ -1289,7 +1302,7 @@
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - service: cover.open_cover
+  - action: cover.open_cover
     data: {}
     target:
       entity_id: cover.zijraam
@@ -1317,14 +1330,14 @@
     entity_id: binary_sensor.hallwaydoor_openclose_contact
     state: 'off'
   action:
-  - service: script.sleep_well
+  - action: script.sleep_well
     data: {}
-  - service: light.turn_off
+  - action: light.turn_off
     target:
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
-  - service: alarm_control_panel.alarm_arm_night
+  - action: alarm_control_panel.alarm_arm_night
     target:
       entity_id: alarm_control_panel.alarmo
     data: {}
@@ -1347,7 +1360,7 @@
       entity_id: person.steffi
       state: home
   action:
-  - service: switch.turn_off
+  - action: switch.turn_off
     target:
       entity_id:
       - switch.achterdeur_detect
@@ -1368,13 +1381,13 @@
     for: 02:00:00
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F697 De auto is automatisch op slot gezet"
       data:
         persistent: true
         tag: persistent
-  - service: lock.lock
+  - action: lock.lock
     target:
       entity_id: lock.ix3_lock
   mode: single
@@ -1400,7 +1413,7 @@
     entity_id: alarm_control_panel.alarmo
     type: disarm
     code: automation
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
       volume: 0.3
@@ -1411,7 +1424,7 @@
       minutes: 55
       seconds: 0
       milliseconds: 0
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
       volume: 0.3
@@ -1426,13 +1439,13 @@
     domain: alarm_control_panel
     entity_id: alarm_control_panel.alarmo
     type: arm_away
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: De tijd is om, het alarm wordt weer geactiveerd.
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
       volume: 0.3
@@ -1451,7 +1464,7 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F6AA Deur: let op, de achterdeur staat al 10 minuten open"
       data:
@@ -1493,7 +1506,7 @@
       entity_id: person.rob
       state: just_arrived
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F6AA Deur: let op, de schuur- of blokhutdeur gaat open maar
         wij zijn niet thuis"
@@ -1543,12 +1556,12 @@
     entity_id: light.garden_light
     state: 'off'
   action:
-  - service: light.turn_on
+  - action: light.turn_on
     target:
       entity_id:
       - light.garden_light
       - light.veranda_light
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: Er is een persoon gedetecteerd op een camera!
       data:
@@ -1564,7 +1577,7 @@
       minutes: 1
       seconds: 0
       milliseconds: 0
-  - service: light.turn_off
+  - action: light.turn_off
     target:
       entity_id:
       - light.garden_light
@@ -1580,7 +1593,7 @@
   - condition: template
     value_template: '{{ trigger.event.data.reason == ''open_sensors'' }}'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F6A8 Alarm kan niet geactiveerd worden omdat: {% for entity_id
         in trigger.event.data.sensors %}\n  - {{ state_attr(entity_id, 'friendly_name')
@@ -1588,7 +1601,7 @@
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -1620,7 +1633,7 @@
     entity_id: input_boolean.guest_mode
     state: 'off'
   action:
-  - service: input_boolean.turn_on
+  - action: input_boolean.turn_on
     target:
       entity_id: input_boolean.guest_mode
     data: {}
@@ -1629,7 +1642,7 @@
     entity_id: alarm_control_panel.alarmo
     type: disarm
     code: automation
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: Guest modus aangezet en alarm uit voor Maartje
       data:
@@ -1640,7 +1653,7 @@
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: input_boolean.turn_off
+  - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.guest_mode
     data: {}
@@ -1671,7 +1684,7 @@
       entity_id: sensor.light_sensor_living_illuminance_lux
       below: '30'
   action:
-  - service: script.lights_on_home
+  - action: script.lights_on_home
     data: {}
   mode: single
 - id: '1635280472840'
@@ -1704,7 +1717,7 @@
         entity_id: light.diningtable_light
         state: ''
   action:
-  - service: light.turn_off
+  - action: light.turn_off
     target:
       entity_id:
       - light.kitchendesk_light
@@ -1712,7 +1725,7 @@
       - light.livingfront_light
       - light.office_light
     data: {}
-  - service: light.turn_on
+  - action: light.turn_on
     target:
       entity_id:
       - light.livingback_light
@@ -1752,7 +1765,7 @@
         entity_id: light.kitchendesk_light
         state: 'on'
   action:
-  - service: script.lights_down_stairs_off
+  - action: script.lights_down_stairs_off
     data: {}
   mode: single
 - id: '1635281191811'
@@ -1773,7 +1786,7 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - service: media_player.media_pause
+  - action: media_player.media_pause
     target:
       entity_id:
       - media_player.eetkamer
@@ -1791,7 +1804,7 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: Het RIVM heeft een stookalert afgegeven, kacheltje uit.
       data:
@@ -1812,7 +1825,7 @@
       milliseconds: 0
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F697 De ramen van de auto staan al een uurtje open."
       data:
@@ -1831,7 +1844,7 @@
       seconds: 10
     from: Online
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data_template:
       message: "\U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable
         }}"
@@ -1888,7 +1901,7 @@
     entity_id: light.lights_upstairs
     state: 'on'
   action:
-  - service: script.lights_off_upstairs
+  - action: script.lights_off_upstairs
     data: {}
   mode: single
 - id: '1639680674230'
@@ -1904,16 +1917,37 @@
     after: '21:00'
     before: 05:00
   action:
-  - service: script.sleep_well
-    data: {}
-  - service: light.turn_off
+  - parallel:
+    - action: script.sleep_well
+      data: {}
+    - action: alarm_control_panel.alarm_arm_night
+      target:
+        entity_id: alarm_control_panel.alarmo
+      data: {}
+    - sequence:
+      - action: light.turn_on
+        data:
+          brightness_pct: 30
+        target:
+          entity_id: light.dimmer_hall
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 15
+          milliseconds: 0
+      - action: light.turn_off
+        target:
+          entity_id: light.dimmer_hall
+        data: {}
+      alias: Turn on hall light shortly
+  - alias: Turn off the couch and corner light too if it's after 11 pm
+    condition: time
+    after: '22:55:00'
+  - action: light.turn_off
     target:
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
-  - service: alarm_control_panel.alarm_arm_night
-    target:
-      entity_id: alarm_control_panel.alarmo
     data: {}
   mode: single
 - id: '1639684695002'
@@ -1930,7 +1964,7 @@
       - 71e44d7d313b4695a8bf51705f7adfc3
   condition: []
   action:
-  - service: alarm_control_panel.alarm_disarm
+  - action: alarm_control_panel.alarm_disarm
     data:
       code: automation
     target:
@@ -1952,7 +1986,7 @@
     at: 09:55
   condition: []
   action:
-  - service: switch.turn_on
+  - action: switch.turn_on
     target:
       entity_id: switch.shelly_plug_kachel_slaapkamer
   mode: single
@@ -1964,7 +1998,7 @@
     at: '22:05:00'
   condition: []
   action:
-  - service: switch.turn_off
+  - action: switch.turn_off
     target:
       entity_id: switch.shelly_plug_kachel_slaapkamer
     data: {}
@@ -2037,7 +2071,7 @@
         entity_id: select.eurom_alutherm_capacity
         type: select_option
         option: Auto
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data:
           hvac_mode: heat
           temperature: 18
@@ -2084,12 +2118,12 @@
       minutes: 5
       seconds: 0
       milliseconds: 0
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id:
       - light.veranda_light
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id:
@@ -2101,7 +2135,7 @@
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - service: light.turn_on
+  - action: light.turn_on
     data:
       brightness_pct: 30
     target:
@@ -2115,7 +2149,7 @@
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - service: light.turn_off
+  - action: light.turn_off
     data: {}
     target:
       entity_id: light.hue_lights_garden
@@ -2130,7 +2164,7 @@
       window_sensor: binary_sensor.window_masterbed_1_openclose_contact
       min_temp: 15
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: "\U0001F3E0 Het raam in de slaapkamer staat open en het begint
             nu wel een beetje fris te worden."
@@ -2147,7 +2181,7 @@
       window_sensor: binary_sensor.window_masterbed_2_openclose_contact
       min_temp: 15
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: "\U0001F3E0 Het raam in de slaapkamer staat open en het begint
             nu wel een beetje fris te worden."
@@ -2164,7 +2198,7 @@
       window_sensor: binary_sensor.window_noa_openclose_sensor
       min_temp: 15
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: "\U0001F3E0 Het raam bij Noa staat open en het begint nu wel een
             beetje fris te worden."
@@ -2179,7 +2213,7 @@
   - platform: state
     entity_id:
     - sensor.rate_rain_piezo
-    - sensor.openweathermap_forecast_temperature
+    - sensor.today_maximum_temperature
     - sensor.openweathermap_forecast_cloud_coverage
   condition:
   - condition: and
@@ -2189,15 +2223,21 @@
       - condition: and
         conditions:
         - condition: numeric_state
-          entity_id: sensor.openweathermap_forecast_temperature
+          entity_id: sensor.today_maximum_temperature
           above: '20'
         - condition: numeric_state
-          entity_id: sensor.openweathermap_forecast_cloud_coverage
+          entity_id: sensor.openweathermap_cloud_coverage
           below: '80'
         alias: Is the temperature forecast 20C+ and the cloud coverage below 80%
-      - condition: numeric_state
-        entity_id: sensor.openweathermap_forecast_temperature
-        above: '22'
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_cloud_coverage
+          below: '95'
+        - condition: numeric_state
+          entity_id: sensor.today_maximum_temperature
+          above: '24'
+        alias: Just hot or warm and not so cloudy
       alias: Is it warm and not too cloudy or just warmer?
     - condition: state
       entity_id: cover.zijraam
@@ -2212,13 +2252,13 @@
     entity_id: input_boolean.enable_automatic_screens
     state: 'on'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ☀️ De screens aan de zijkant gaan dicht
       data:
         persistent: true
         tag: persistent
-  - service: cover.close_cover
+  - action: cover.close_cover
     data: {}
     target:
       entity_id: cover.zijraam
@@ -2254,7 +2294,7 @@
     entity_id: binary_sensor.cheapest_16_hours_24h
     state: 'on'
   - condition: numeric_state
-    entity_id: sensor.openweathermap_forecast_temperature
+    entity_id: sensor.today_maximum_temperature
     above: 15
   action:
   - choose:
@@ -2272,7 +2312,7 @@
         entity_id: sensor.pool_heating_temperature_diff
         above: 1
       sequence:
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id: switch.pool_fairland_heatpump_power_switch
@@ -2283,7 +2323,7 @@
             above: 2
             alias: If we are about to get close to the target temperature
           sequence:
-          - service: select.select_option
+          - action: select.select_option
             metadata: {}
             data:
               option: Normal
@@ -2295,21 +2335,21 @@
             above: 1
             alias: If we are about to get closer to the target temperature
           sequence:
-          - service: select.select_option
+          - action: select.select_option
             metadata: {}
             data:
               option: Silence
             target:
               entity_id: select.pool_fairland_heatpump_power_mode
         default:
-        - service: select.select_option
+        - action: select.select_option
           metadata: {}
           data:
             option: Super Silence
           target:
             entity_id: select.pool_fairland_heatpump_power_mode
     default:
-    - service: switch.turn_off
+    - action: switch.turn_off
       data: {}
       target:
         entity_id: switch.pool_fairland_heatpump_power_switch
@@ -2360,12 +2400,12 @@
       minutes: 0
       seconds: 0
   action:
-  - service: water_heater.set_temperature
+  - action: water_heater.set_temperature
     data:
       temperature: 30
     target:
       entity_id: water_heater.domestic_hot_water_tank
-  - service: water_heater.set_operation_mode
+  - action: water_heater.set_operation_mode
     data:
       operation_mode: 'off'
     target:
@@ -2405,13 +2445,13 @@
           state: heating
         alias: Action should not be set to heating already
       sequence:
-      - service: climate.set_hvac_mode
+      - action: climate.set_hvac_mode
         target:
           entity_id: climate.warmtepomp
         data:
           hvac_mode: heat
         alias: Set HVAC to heating
-      - service: select.select_option
+      - action: select.select_option
         data:
           option: heating
         target:
@@ -2430,7 +2470,7 @@
           attribute: hvac_action
           state: 'off'
       sequence:
-      - service: climate.set_hvac_mode
+      - action: climate.set_hvac_mode
         target:
           entity_id: climate.warmtepomp
         data:
@@ -2452,13 +2492,13 @@
           state: cooling
         alias: Action should not be set to cooling already
       sequence:
-      - service: climate.set_hvac_mode
+      - action: climate.set_hvac_mode
         target:
           entity_id: climate.warmtepomp
         data:
           hvac_mode: cool
         alias: Set HVAC to cooling
-      - service: select.select_option
+      - action: select.select_option
         data:
           option: cooling
         target:
@@ -2488,7 +2528,7 @@
       value_template: '{{ trigger.to_state.context.id != none }}'
     alias: Only in case of a manual user interaction
   action:
-  - service: input_boolean.turn_off
+  - action: input_boolean.turn_off
     data: {}
     target:
       entity_id: input_boolean.enable_automatic_screens
@@ -2503,7 +2543,7 @@
       switch: switch.shelly_plug_s_8_fridge1_relay
       max_time_off: 30
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur
             uit!"
@@ -2519,7 +2559,7 @@
       switch: switch.shelly_plug_koelkast_relay
       max_time_off: 30
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: "\U0001F9CA Let op, de koelkast staat al een half uur uit!"
           data:
@@ -2537,7 +2577,7 @@
     entity_id: sensor.water_daily
     above: 5
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F4A6 Let op, we hebben vandaag al meer dan 5 kuub water verbruikt!"
       data:
@@ -2568,7 +2608,7 @@
         entity_id: select.operation_mode
         state: heating
       sequence:
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data_template:
           temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
             | float }}'
@@ -2583,7 +2623,7 @@
         entity_id: select.operation_mode
         state: heating
       sequence:
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data_template:
           temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
             | float -1 }}'
@@ -2598,7 +2638,7 @@
         entity_id: select.operation_mode
         state: cooling
       sequence:
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data_template:
           temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
             | float }}'
@@ -2613,7 +2653,7 @@
         entity_id: select.operation_mode
         state: cooling
       sequence:
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data_template:
           temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
             | float + 1}}'
@@ -2680,7 +2720,7 @@
           entity_id: input_boolean.heating_downstairs
           state: 'on'
       sequence:
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id: switch.climate_control
@@ -2708,12 +2748,12 @@
             entity_id: input_boolean.heating_downstairs
             state: 'off'
       sequence:
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id: switch.climate_control
     default:
-    - service: switch.turn_off
+    - action: switch.turn_off
       data: {}
       target:
         entity_id: switch.climate_control
@@ -2746,11 +2786,11 @@
     state: 'on'
     entity_id: input_boolean.guest_mode
   action:
-  - service: input_boolean.turn_off
+  - action: input_boolean.turn_off
     data: {}
     target:
       entity_id: input_boolean.guest_mode
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ⏰ Een van ons komt thuis, gast modus gaat nu uit
       data:
@@ -2772,7 +2812,7 @@
     below: 14
     alias: Today Maximum Temperature Outside is below 18 degrees
   action:
-  - service: switch.turn_on
+  - action: switch.turn_on
     data: {}
     target:
       entity_id:
@@ -2783,7 +2823,7 @@
       minutes: 30
       seconds: 0
       milliseconds: 0
-  - service: switch.turn_off
+  - action: switch.turn_off
     data: {}
     target:
       entity_id:
@@ -2804,7 +2844,7 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data_template:
       message: "\U0001F4A6 De waterbak van de ontvochtiger zit vol, zsm legen"
       data:
@@ -2905,7 +2945,7 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       message: "\U0001F3A5 Frigate staat uit, aanzetten aub"
       data:
@@ -2924,7 +2964,7 @@
     entity_id: vacuum.sjorsje
     state: unavailable
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F5D1 Sjorsje is onbereikbaar"
       data:
@@ -2958,14 +2998,14 @@
           | int(default=0) > 0 }}'
         alias: If we are about to get close to the target temperature
       sequence:
-      - service: select.select_option
+      - action: select.select_option
         metadata: {}
         data:
           option: Super Silence
         target:
           entity_id: select.pool_fairland_heatpump_power_mode
     default:
-    - service: select.select_option
+    - action: select.select_option
       metadata: {}
       data:
         option: Silence
@@ -3030,7 +3070,7 @@
       \     | int > 57600 %} true {% else %} false {% endif %}"
     alias: Only trigger this automation once per 16 hours max
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       message: "\U0001F3CA De ph/orp waardes of flow van het zwembad zijn niet in
         orde."
@@ -3065,7 +3105,7 @@
     above: 25
   condition: []
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ⚡ Een van de drie fases zit te lang boven de 25A.
       data:
@@ -3106,12 +3146,12 @@
           entity_id: alarm_control_panel.alarmo
           state: armed_night
       sequence:
-      - service: lock.unlock
+      - action: lock.unlock
         data: {}
         target:
           entity_id: lock.aquadeck_rol_dek
     default:
-    - service: lock.lock
+    - action: lock.lock
       data: {}
       target:
         entity_id: lock.aquadeck_rol_dek
@@ -3134,7 +3174,7 @@
         entity_id: schedule.pool_filter_pump_schedule
         state: 'on'
       sequence:
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id: switch.pool_pomp_switch
@@ -3143,7 +3183,7 @@
         entity_id: schedule.pool_filter_pump_schedule
         state: 'off'
       sequence:
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id: switch.pool_pomp_switch
@@ -3160,11 +3200,11 @@
     entity_id: input_boolean.irrigation_plan_enable
     state: 'on'
   action:
-  - service: input_boolean.turn_off
+  - action: input_boolean.turn_off
     data: {}
     target:
       entity_id: input_boolean.irrigation_plan_enable
-  - service: switch.turn_on
+  - action: switch.turn_on
     data: {}
     target:
       entity_id: switch.irrigation_main_switch
@@ -3206,13 +3246,13 @@
     entity_id: input_boolean.enable_bbq_automations
     state: 'on'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: ♨️ BBQ Timer is klaar.
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -3239,14 +3279,14 @@
     value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_probe_1_alarm.attributes.last_triggered,
       0) | int > 60 }}'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: '♨️ BBQ Temperatuur te hoog of laag: {{ states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
         | round }}°C'
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -3272,14 +3312,14 @@
     value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_probe_2_alarm.attributes.last_triggered,
       0) | int > 60 }}'
   action:
-  - service: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F356 Het vlees op de BBQ is nu {{ states['sensor.inkbird_ibt_2x_temperature_probe_2'].state
         | round }}°C"
       data:
         persistent: true
         tag: persistent
-  - service: script.sonos_say
+  - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
       volume: 0.3
@@ -3366,7 +3406,7 @@
     entity_id: binary_sensor.important_addons
     state: 'off'
   action:
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       message: \U0001F4A1 Let op, er zijn addons down
       data:
@@ -3383,7 +3423,7 @@
       window_sensor: binary_sensor.window_eva_openclose_contact
       min_temp: 15
       actions:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: "\U0001F3E0 Het raam bij Eva staat open en het begint nu wel een
             beetje fris te worden."
@@ -3438,14 +3478,14 @@
             state: playing
             alias: Is sonos playing
           sequence:
-          - service: media_player.media_stop
+          - action: media_player.media_stop
             target:
               entity_id: media_player.slaapkamer_sonos
             data: {}
             alias: Stop playing
         default:
         - alias: Play radio 2 on sonos
-          service: media_player.play_media
+          action: media_player.play_media
           metadata: {}
           data:
             media_content_id: x-rincon-mp3radio://icecast.omroep.nl/radio2-bb-aac
@@ -3471,7 +3511,7 @@
           entity_id: media_player.slaapkamer_sonos
           state: playing
       sequence:
-      - service: media_player.volume_set
+      - action: media_player.volume_set
         data_template:
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
             - 0.03}}'
@@ -3488,7 +3528,7 @@
           entity_id: media_player.slaapkamer_sonos
           state: playing
       sequence:
-      - service: media_player.volume_set
+      - action: media_player.volume_set
         data_template:
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
             + 0.03}}'
@@ -3504,11 +3544,11 @@
       actionName: open_frontdoor
   condition: []
   action:
-  - service: lock.open
+  - action: lock.open
     target:
       entity_id: lock.nuki_voordeur_slot_lock
     data: {}
-  - service: alarm_control_panel.alarm_disarm
+  - action: alarm_control_panel.alarm_disarm
     target:
       entity_id: alarm_control_panel.alarmo
     data:
@@ -3524,7 +3564,7 @@
     to: button_1_hold
   condition: []
   action:
-  - service: light.turn_off
+  - action: light.turn_off
     metadata: {}
     data: {}
     target:
@@ -3532,7 +3572,7 @@
       - light.dimmer_master_closetbath
       - light.bedroom_sonos_light
       - light.dimmer_masterbed
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     metadata: {}
     data: {}
     target:
@@ -3555,7 +3595,7 @@
     above: 0
     alias: At least somebody home?
   action:
-  - service: lock.unlock
+  - action: lock.unlock
     metadata: {}
     data: {}
     target:
@@ -3576,13 +3616,13 @@
       > 0 }}'
     alias: Is the "Disable alarm manually" automation running?
   action:
-  - service: automation.turn_off
+  - action: automation.turn_off
     metadata: {}
     data:
       stop_actions: true
     target:
       entity_id: automation.alarm_disable_alarm_manually
-  - service: automation.turn_on
+  - action: automation.turn_on
     target:
       entity_id:
       - automation.alarm_disable_alarm_manually
@@ -3625,14 +3665,17 @@
     value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.test_frigate_generative_ai_notification.attributes.last_triggered,
       0) | int > 20 }}'
     alias: Only trigger once per 20 seconds
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
   action:
-  - service: camera.snapshot
+  - action: camera.snapshot
     metadata: {}
     data:
       filename: downloads/latest_front_{{ camera_entity }}.jpg
     target:
       entity_id: '{{ camera_entity }}'
-  - service: google_generative_ai_conversation.generate_content
+  - action: google_generative_ai_conversation.generate_content
     metadata: {}
     data:
       image_filename: downloads/latest_front_{{ camera_entity }}.jpg
@@ -3640,13 +3683,13 @@
         Your message needs to be short to fit in a phone notification. Don't describe
         stationary objects, plants or buildings. And please answer in Dutch.
     response_variable: generated_content
-  - service: input_text.set_value
+  - action: input_text.set_value
     metadata: {}
     data:
       value: '{{ generated_content.text }}'
     target:
       entity_id: input_text.camera_analysis
-  - service: notify.mobile_app_iphone_rob
+  - action: notify.mobile_app_iphone_rob
     data:
       message: ' {{ generated_content.text }} '
       data:
@@ -3674,7 +3717,7 @@
     entity_id: alarm_control_panel.alarmo
     state: armed_night
   action:
-  - service: light.turn_off
+  - action: light.turn_off
     metadata: {}
     data: {}
     target:
@@ -3701,14 +3744,14 @@
         entity_id: number.solaredgemb_active_power_limit
         state: '100'
       sequence:
-      - service: number.set_value
+      - action: number.set_value
         metadata: {}
         data:
           value: '0'
         target:
           entity_id: number.solaredgemb_active_power_limit
         alias: Disable the solar panels
-      - service: notify.mobile_app_iphone_rob
+      - action: notify.mobile_app_iphone_rob
         data:
           message: "\U0001F31E De zonnepanelen zijn uitgezet vanwege een stroomprijs
             van {{ states.sensor.current_price_electricity }} cent."
@@ -3723,14 +3766,14 @@
         entity_id: number.solaredgemb_active_power_limit
         state: '0'
       sequence:
-      - service: number.set_value
+      - action: number.set_value
         metadata: {}
         data:
           value: '100'
         target:
           entity_id: number.solaredgemb_active_power_limit
         alias: Enable the solar panels
-      - service: notify.mobile_app_iphone_rob
+      - action: notify.mobile_app_iphone_rob
         data:
           message: "\U0001F31E De zonnepanelen zijn weer aangezet vanwege een stroomprijs
             van {{ states.sensor.current_price_electricity }} cent."

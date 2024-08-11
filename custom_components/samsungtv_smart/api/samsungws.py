@@ -20,6 +20,7 @@ Copyright (C) 2020 Ollo69
     Boston, MA  02110-1335  USA
 
 """
+
 from __future__ import annotations
 
 import base64

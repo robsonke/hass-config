@@ -19,13 +19,6 @@ homeassistant:
     sensor.current_price_electricity:
       state_class: measurement
 
-# solaredge_modbus:
-#   name: 'SolarEdge Modbus'
-#   host: 192.168.0.175
-#   port: 502
-#   scan_interval: 30
-#   read_meter1: false
-
 sensor:
   - platform: rest
     name: Tibber prices

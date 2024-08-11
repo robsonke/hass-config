@@ -68,6 +68,7 @@ from .const             import (DOMAIN, ICLOUD3, DATETIME_FORMAT,
 from .const_sensor      import (SENSOR_GROUPS )
 from .helpers.common    import (instr, isnumber, obscure_field, list_to_str, str_to_list,
                                 is_statzone, zone_dname, isbetween, list_del, list_add,
+                                get_file_list, get_directory_list,
                                 sort_dict_by_values, )
 from .helpers.messaging import (log_exception, log_debug_msg, log_info_msg,
                                 _traceha, _trace,
@@ -1428,9 +1429,33 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
         if key in DISPLAY_ZONE_FORMAT_ITEMS_KEY_TEXT:
             DISPLAY_ZONE_FORMAT_ITEMS_KEY_TEXT[key] = \
                 DISPLAY_ZONE_FORMAT_ITEMS_KEY_TEXT[key].replace(example_text, real_text)
-
 #-------------------------------------------------------------------------------------------
     async def async_step_tracking_parameters(self, user_input=None, errors=None):
+        self.step_id = 'tracking_parameters'
+        user_input, action_item = self._action_text_to_item(user_input)
+
+        if self.www_directory_list == []:
+            directory_list, start_dir, file_filter = [True, 'www', []]
+            self.www_directory_list = await Gb.hass.async_add_executor_job(
+                                                            get_directory_list,
+                                                            start_dir)
+
+        if self.common_form_handler(user_input, action_item, errors):
+            if action_item == 'save':
+                Gb.picture_www_dirs = Gb.conf_profile[CONF_PICTURE_WWW_DIRS].copy()
+                self.picture_by_filename = {}
+            return await self.async_step_menu()
+
+
+        if self._any_errors():
+            self.errors['action_items'] = 'update_aborted'
+
+        return self.async_show_form(step_id=self.step_id,
+                            data_schema=self.form_schema(self.step_id),
+                            errors=self.errors)
+
+#-------------------------------------------------------------------------------------------
+    async def xasync_step_tracking_parameters(self, user_input=None, errors=None):
         self.step_id = 'tracking_parameters'
         user_input, action_item = self._action_text_to_item(user_input)
 
@@ -1495,7 +1520,8 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
 #-------------------------------------------------------------------------------------------
     async def async_step_special_zones(self, user_input=None, errors=None):
         self.step_id = 'special_zones'
-        user_input, action_item = self._action_text_to_item(user_input)\
+        user_input, action_item = self._action_text_to_item(user_input)
+        await self._build_zone_list()
 
         if self.common_form_handler(user_input, action_item, errors):
             return await self.async_step_menu()
@@ -2283,7 +2309,7 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
                                 or self.errors.get('base', '') == 'icloud_acct_logged_into')
                                 or self.errors.get('base', '') == 'icloud_acct_not_logged_into'):
 
-                    await self._build_update_device_selection_lists()
+                    # await self._build_update_device_selection_lists()
                     self._prepare_device_selection_list()
 
                     user_input[CONF_ICLOUD_SERVER_ENDPOINT_SUFFIX] = self.endpoint_suffix
@@ -2543,7 +2569,7 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
                         data_schema=self.form_schema(called_from_step_id),
                         errors=self.errors)
 
-        await self._build_update_device_selection_lists()
+        # await self._build_update_device_selection_lists()
 
         self.obscure_username = obscure_field(self.username) or 'NoUsername'
         self.obscure_password = obscure_field(self.password) or 'NoPassword'
@@ -2628,13 +2654,13 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
                                                     called_from_step_id='device_list')
 
         device_cnt = len(Gb.conf_devices)
-        if user_input is None:
-            await self._build_update_device_selection_lists()
+        # if user_input is None:
+        #     await self._build_update_device_selection_lists()
 
         if user_input is not None:
             if (action_item in ['update_device', 'delete_device']
                     and CONF_DEVICES not in user_input):
-                await self._build_update_device_selection_lists()
+                # await self._build_update_device_selection_lists()
                 action_item = ''
 
             if action_item == 'return':
@@ -2840,6 +2866,7 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
         self.step_id = 'add_device'
         self.errors = errors or {}
         self.errors_user_input = {}
+        await self._build_update_device_selection_lists()
 
         if user_input is None:
             return self.async_show_form(step_id=self.step_id,
@@ -2892,6 +2919,7 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
         self.step_id = 'update_device'
         self.errors = errors or {}
         self.errors_user_input = {}
+        await self._build_update_device_selection_lists()
 
         if user_input is None:
             return self.async_show_form(step_id=self.step_id,
@@ -3244,13 +3272,13 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
     async def _build_update_device_selection_lists(self):
         """ Setup the option lists used to select device parameters """
 
-        self._build_picture_filename_list()
-        self._build_mobapp_entity_list()
-        self._build_zone_list()
+        await self._build_picture_filename_list()
+        await self._build_mobapp_entity_list()
+        await self._build_zone_list()
 
         await self._build_famshr_devices_list()
         # self._build_fmf_devices_list()
-        self._build_devicename_by_famshr_fmf()
+        await self._build_devicename_by_famshr_fmf()
 
 #----------------------------------------------------------------------
     async def _build_famshr_devices_list(self):
@@ -3352,7 +3380,7 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
             self.fmf_list_text_by_email = self.fmf_list_text_by_email_base.copy()
 
 #----------------------------------------------------------------------
-    def _build_devicename_by_famshr_fmf(self, current_devicename=None):
+    async def _build_devicename_by_famshr_fmf(self, current_devicename=None):
         '''
         Cycle thru the configured devices and build a devicename by the
         famshr fname and fmf email values. This is used to validate these
@@ -3393,7 +3421,7 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
         #     self.fmf_list_text_by_email[fmf_email] = f"{fmf_text}{devicename_msg}"
 
 #----------------------------------------------------------------------
-    def _build_mobapp_entity_list(self):
+    async def _build_mobapp_entity_list(self):
         '''
         Cycle through the /config/.storage/core.entity_registry file and return
         the entities for platform ('mobile_app', etc)
@@ -3506,8 +3534,63 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
 
         return device_info
 
+
 #-------------------------------------------------------------------------------------------
-    def _build_picture_filename_list(self):
+    async def _build_picture_filename_list(self):
+
+        try:
+            if self.picture_by_filename != {}:
+                return
+
+            directory_list, start_dir, file_filter = [False, 'www', ['png', 'jpg', 'jpeg']]
+            image_filenames = await Gb.hass.async_add_executor_job(
+                                                    get_file_list,
+                                                    start_dir,
+                                                    file_filter)
+            # image_filenames = await Gb.hass.async_add_executor_job(
+            #                                         self.get_file_or_directory_list,
+            #                                         directory_list,
+            #                                         start_dir,
+            #                                         file_filter)
+
+            sorted_image_filenames = []
+            over_25_warning_msgs = []
+            for image_filename in image_filenames:
+                if image_filename.startswith('⛔'):
+                    over_25_warning_msgs.append(image_filename)
+                else:
+                    sorted_image_filenames.append(f"{image_filename.rsplit('/', 1)[1]}:{image_filename}")
+            sorted_image_filenames.sort()
+            self.picture_by_filename = {}
+            self.picture_by_filename['www_dirs'] = "Source Directories:"
+            www_dir_idx = 0
+
+            if Gb.picture_www_dirs:
+                while www_dir_idx < len(Gb.picture_www_dirs):
+                    self.picture_by_filename[f"www_dirs{www_dir_idx}"] = \
+                                f"{DOT}{list_to_str(Gb.picture_www_dirs[www_dir_idx:www_dir_idx+3])}"
+                    www_dir_idx += 3
+            else:
+                self.picture_by_filename["www_dirs0"] = f"{DOT}All `www/*` directories are scaned"
+
+            for over_25_warning_msg in over_25_warning_msgs:
+                www_dir_idx += 1
+                self.picture_by_filename[f"www_dirs{www_dir_idx}"] = over_25_warning_msg
+
+            #self.picture_by_filename.extend(sorted_image_filenames)
+            self.picture_by_filename['www_dirs998'] = "Set filter on `Tracking and Other Parameters` screen"
+            self.picture_by_filename['www_dirs999'] = f"{'-'*85}"
+            self.picture_by_filename.update(self.picture_by_filename_base)
+
+            for sorted_image_filename in sorted_image_filenames:
+                image_filename, image_filename_path = sorted_image_filename.split(':')
+                self.picture_by_filename[image_filename_path] = \
+                            f"{image_filename}{RARROW}{image_filename_path.replace(image_filename, '')}"
+
+        except Exception as err:
+            log_exception(err)
+#-------------------------------------------------------------------------------------------
+    def x_build_picture_filename_list(self):
 
         try:
             if self.picture_by_filename != {}:
@@ -3571,10 +3654,11 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
             log_exception(err)
 
 #-------------------------------------------------------------------------------------------
-    def _build_zone_list(self):
+    async def _build_zone_list(self):
 
         if self.zone_name_key_text != {}:
             return
+
 
         fname_zones = []
         for zone, Zone in Gb.HAZones_by_zone.items():
@@ -3863,7 +3947,6 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
             return
 
         Gb.async_add_entities_sensor(NewSensors, True)
-        ic3_sensor._setup_recorder_exclude_sensor_filter(NewSensors)
 
 #-------------------------------------------------------------------------------------------
     def _get_all_sensors_list(self):
@@ -4507,8 +4590,8 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
 
         #------------------------------------------------------------------------
         elif step_id == 'update_device':
-            self._build_picture_filename_list()
-            self._build_devicename_by_famshr_fmf(self.conf_device_selected[CONF_IC3_DEVICENAME])
+            # self._build_picture_filename_list()
+            # self._build_devicename_by_famshr_fmf(self.conf_device_selected[CONF_IC3_DEVICENAME])
             error_key = ''
             self.errors = self.errors or {}
 
@@ -4971,9 +5054,6 @@ class iCloud3_OptionsFlowHandler(config_entries.OptionsFlow):
         #------------------------------------------------------------------------
         elif step_id == 'special_zones':
             try:
-                if self.zone_name_key_text == {}:
-                    self._build_zone_list()
-
                 pass_thru_zone_used  = (Gb.conf_general[CONF_PASSTHRU_ZONE_TIME] > 0)
                 stat_zone_used       = (Gb.conf_general[CONF_STAT_ZONE_STILL_TIME] > 0)
                 track_from_base_zone_used = Gb.conf_general[CONF_TRACK_FROM_BASE_ZONE_USED]

@@ -34,6 +34,9 @@ homeassistant:
           - 4e66c82d531047cfbece83e7ed882e8f
       allow_bypass_login: true
 
+assist_pipeline:
+  debug_recording_dir: /config/downloads
+
 system_log:
   fire_event: true
   max_entries: 100

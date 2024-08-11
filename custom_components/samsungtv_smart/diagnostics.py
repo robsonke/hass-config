@@ -1,4 +1,5 @@
 """Diagnostics support for Samsung TV Smart."""
+
 from __future__ import annotations
 
 from homeassistant.components.diagnostics import REDACTED, async_redact_data

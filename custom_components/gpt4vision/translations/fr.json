@@ -30,17 +30,29 @@
                 "data": {
                     "api_key": "Votre clé API"
                 }
+            },
+            "anthropic": {
+                "title": "Ajoutez la clé API OpenAI",
+                "description": "Fournissez une clé API Anthropic valide.",
+                "data": {
+                    "api_key": "Votre clé API"
+                }
+            },
+            "google": {
+                "title": "Ajoutez la clé API Google Gemini",
+                "description": "Fournissez une clé API Google Gemini valide.",
+                "data": {
+                    "api_key": "Votre clé API"
+                }
             }
         },
         "error": {
-            "openai_not_configured": "Le fournisseur OpenAI n'est pas configuré",
-            "localai_not_configured": "Le fournisseur LocalAI n'est pas configuré",
-            "ollama_not_configured": "Le fournisseur Ollama n'est pas configuré",
-            "invalid_image_path": "Image non trouvée. Vérifiez le chemin et essayez à nouveau.",
-            "handshake_failed": "Échec de la connexion au serveur LocalAI. Veuillez vérifier l'adresse IP et le port et réessayer."
+            "handshake_failed": "Impossible de se connecter au serveur. Vérifiez votre clé API ou l'adresse IP et le port.",
+            "empty_api_key": "clé API invalide"
         },
         "abort": {
-            "already_configured": "Le fournisseur est déjà configuré. Supprimez la configuration existante pour en ajouter une nouvelle."
+            "already_configured": "Le fournisseur est déjà configuré. Supprimez la configuration existante pour en ajouter une nouvelle.",
+            "unknown_provider": "Fournisseur inconnu"
         }
     }
 }

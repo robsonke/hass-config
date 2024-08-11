@@ -18,18 +18,18 @@ weather:
     wind_bearing_template: "{{ states('sensor.winddir') | float(default=states('sensor.kloetinge_wind_direction') | float(default=0)) }}"
     wind_speed_template: "{{ states('sensor.windspeed') | float(default=states('sensor.kloetinge_wind_speed') | float(default=0)) }}"
     humidity_template: "{{ states('sensor.humidity') | float(default=states('sensor.kloetinge_humidity') | float(default=0)) }}"
-    forecast_daily_template: "{{ state_attr('weather.home', 'forecast') }}"
+    forecast_daily_template: "{{ state_attr('sensor.today_maximum_temperature', 'forecast') }}"
     pressure_template: "{{ state_attr('weather.home', 'pressure') }}"
-    # invalid according to editor, but not according to HA
     temperature_unit: "°C"
     visibility_unit: "km"
     wind_speed_unit: "km/h"
     pressure_unit: "hPa"
+    precipitation_unit: "mm"
 
 template:
   - trigger:
-      - platform: time_pattern
-        minutes: /10
+    - platform: state
+      entity_id: weather.home
     action:
       - service: weather.get_forecasts
         data:
@@ -38,6 +38,12 @@ template:
           entity_id: weather.home
         response_variable: forecast_daily
     sensor:
+      - name: "Today Maximum Temperature"
+        icon: mdi:thermometer
+        unique_id: today_maximum_temperature
+        state: "{{ forecast_daily['weather.home'].forecast[0].temperature }}"
+        attributes:
+          forecast: "{{ forecast_daily['weather.home'].forecast }}"
       - name: Weather Forecast Langeweide Daily
         unique_id: weather_langeweide_ecowitt_forecast_daily
         state: "{{ now().isoformat() }}"
@@ -64,11 +70,11 @@ template:
           forecast: "{{ forecast_hourly['weather.home'].forecast }}"
 
   - sensor:
-    - name: "Today Maximum Temperature"
-      icon: mdi:thermometer
-      unique_id: today_maximum_temperature
-      state: >
-        {{ states('sensor.openweathermap_forecast_temperature') | float(default=20) }}
+    # - name: "Today Maximum Temperature"
+    #   icon: mdi:thermometer
+    #   unique_id: today_maximum_temperature
+    #   state: >
+    #     {{ states('sensor.openweathermap_forecast_temperature') | float(default=20) }}
     - name: "Wind Force"
       icon: mdi:weather-windy
       unique_id: wind_force

@@ -1,4 +1,5 @@
 """Smartthings TV integration cast tube."""
+
 from __future__ import annotations
 
 import logging
