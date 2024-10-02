@@ -220,13 +220,6 @@ group:
 
 template:
   - sensor:
-    - unique_id: hacs_version
-      state: >
-        {{ device_attr(device_id('sensor.hacs'), 'sw_version') }}
-      attributes:
-        friendly_name: HACS Version
-
-  - sensor:
     - unique_id: sidebar_time
       state: template
       attributes:

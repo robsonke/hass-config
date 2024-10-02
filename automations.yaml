@@ -51,9 +51,9 @@
   trigger:
   - platform: state
     entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: just_arrived
+    - person.rob
+    - person.steffi
+    to: home
     for: 0:00:30
   - platform: state
     entity_id: device_tracker.ix3
@@ -152,18 +152,16 @@
       - condition: template
         value_template: '{{ repeat.index <= 20 }}'
       sequence:
-      - action: script.sonos_say
-        data:
-          sonos_entity: media_player.living_room
-          volume: 0.3
+      - data:
+          sonos_entity: media_player.eetkamer
+          volume: 30
           message: Je bent gezien en wordt nu gefilmd!
-          delay: 00:00:03
+        action: script.sonos_say
       - action: script.sonos_play_sound
         data:
           mp3_url: https://home.tigrou.nl/local/sounds/alarm2.mp3
-          volume: 0.3
+          volume: 40
           sonos_entity: media_player.living_room
-          delay: 00:00:10
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.alarm_active
@@ -178,10 +176,9 @@
     to: pending
   action:
   - data:
-      sonos_entity: media_player.living_room
-      volume: 0.5
+      sonos_entity: media_player.eetkamer
+      volume: 20
       message: Je bent gezien, deactiveer het alarm binnen 2 minuten!
-      delay: 00:00:03
     action: script.sonos_say
   - data:
       title: Alarm actief
@@ -199,9 +196,8 @@
       sequence:
       - data:
           mp3_url: https://home.tigrou.nl/local/sounds/pending_alarm.mp3
-          volume: 0.4
+          volume: 40
           sonos_entity: media_player.living_room
-          delay: 00:00:01
         action: script.sonos_play_sound
 - id: alarm_disarm_correctly
   alias: Alarm - Disarmed
@@ -222,9 +218,8 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
+      volume: 20
       message: Het alarm is uitgeschakeld
-      delay: 00:00:03
   mode: single
 - id: reset_lights_automation
   alias: Lights - Reset lights automation
@@ -389,27 +384,24 @@
     to: 'on'
   action:
   - parallel:
-    - action: script.googlehome_play_sound
+    - action: script.sonos_play_sound
       data:
-        volume: 0.7
-        volume_restore: 0.4
-        googlehome_entity: media_player.office_googlehome
-        delay: '3'
+        volume: 30
+        sonos_entity: media_player.eetkamer
         mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-    - action: script.googlehome_play_sound
+    - action: script.sonos_play_sound
       data:
-        volume: 0.7
-        volume_restore: 0.2
-        googlehome_entity: media_player.bedroom_googlehome
-        delay: '3'
+        volume: 30
+        sonos_entity: media_player.woonkamer
         mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
-    - action: script.googlehome_play_sound
-      data:
-        volume: 0.7
-        volume_restore: 0.4
-        googlehome_entity: media_player.living_googlehome
-        delay: '3'
-        mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+  - condition: time
+    after: 06:00:00
+    before: '22:00:00'
+  - action: script.sonos_play_sound
+    data:
+      volume: 20
+      sonos_entity: media_player.slaapkamer_sonos
+      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -797,9 +789,9 @@
     for:
       seconds: 15
     entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: just_arrived
+    - person.rob
+    - person.steffi
+    to: home
   condition:
   - condition: or
     conditions:
@@ -816,20 +808,10 @@
   - action: script.sonos_say
     data_template:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
+      volume: 30
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
         komt er aan!
-      delay: 00:00:03
   - delay: '2'
-  - action: script.googlehome_say
-    data_template:
-      volume: 0.5
-      volume_restore: 0.4
-      googlehome_entity: media_player.office_googlehome
-      delay: 3
-      message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
-        komt er aan!
-  - delay: '5'
   mode: single
 - id: presence_frigate_object_detection
   alias: Alarm - Notify of person events on camera
@@ -1077,9 +1059,8 @@
   - action: script.sonos_say
     data_template:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
+      volume: 20
       message: Let op, er staan beneden nog ramen of deuren open!
-      delay: 00:00:03
   mode: single
 - id: '1621192941666'
   alias: Doors - Alert when frontdoor is open too long
@@ -1318,10 +1299,10 @@
     entity_id: alarm_control_panel.alarmo
     state: disarmed
   - condition: state
-    entity_id: device_tracker.rob_presence
+    entity_id: person.rob
     state: home
   - condition: state
-    entity_id: device_tracker.steffi_presence
+    entity_id: person.steffi
     state: home
   - condition: state
     entity_id: light.socket2_light_couch
@@ -1348,7 +1329,7 @@
   trigger:
   - platform: state
     for: 0:00:15
-    entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
+    entity_id: person.rob,person.steffi
     to: home
   condition:
   - condition: and
@@ -1416,9 +1397,8 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
-      volume: 0.3
+      volume: 30
       message: Het alarm is voor 2 uur uitgezet.
-      delay: 00:00:10
   - delay:
       hours: 1
       minutes: 55
@@ -1427,9 +1407,8 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
-      volume: 0.3
+      volume: 30
       message: Let op, het alarm wordt over 5 minuten weer geactiveerd.
-      delay: 00:00:10
   - delay:
       hours: 0
       minutes: 5
@@ -1448,10 +1427,9 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
-      volume: 0.3
+      volume: 30
       message: Let op, het alarm is weer geactiveerd. Druk op de knop om het weer
         uit te zetten.
-      delay: 00:00:06
   mode: single
 - id: '1625814711652'
   alias: Doors - Alert when backdoor is open too long
@@ -1499,12 +1477,12 @@
     conditions:
     - condition: state
       entity_id: person.steffi
-      state: just_arrived
+      state: home
   - condition: not
     conditions:
     - condition: state
       entity_id: person.rob
-      state: just_arrived
+      state: home
   action:
   - action: notify.all_phones
     data:
@@ -1604,8 +1582,7 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
-      delay: 00:00:03
+      volume: 20
       message: "Alarm kan niet geactiveerd worden omdat: {% for entity_id in trigger.event.data.sensors
         %}\n  - {{ state_attr(entity_id, 'friendly_name') }} staat {{ states(entity_id)
         }}\n{% endfor %}\n"
@@ -1664,8 +1641,8 @@
     lights
   trigger:
   - platform: state
-    entity_id: device_tracker.rob_presence,device_tracker.steffi_presence
-    to: just_arrived
+    entity_id: person.rob,person.steffi
+    to: home
     for: 0:00:30
   - platform: state
     entity_id: device_tracker.ix3
@@ -2770,9 +2747,9 @@
     for:
       seconds: 15
     entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
-    to: just_arrived
+    - person.rob
+    - person.steffi
+    to: home
   condition:
   - condition: or
     conditions:
@@ -3119,8 +3096,8 @@
   trigger:
   - platform: state
     entity_id:
-    - device_tracker.rob_presence
-    - device_tracker.steffi_presence
+    - person.rob
+    - person.steffi
   - platform: state
     entity_id:
     - input_boolean.guest_mode
@@ -3248,16 +3225,15 @@
   action:
   - action: notify.all_phones
     data:
-      message: ♨️ BBQ Timer is klaar.
+      message: BBQ Timer is klaar.
       data:
         persistent: true
         tag: persistent
   - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
+      volume: 30
       message: Barbecue timer biep!
-      delay: 00:00:03
   mode: single
 - id: '1690718896889'
   alias: BBQ - Probe 1 alarm
@@ -3289,10 +3265,9 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
+      volume: 30
       message: 'Let op: De barbecue temperatuur is {{ states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
         | round }} graden!'
-      delay: 00:00:05
   mode: single
 - id: '1690720476474'
   alias: BBQ - Probe 2 alarm
@@ -3322,10 +3297,9 @@
   - action: script.sonos_say
     data:
       sonos_entity: media_player.eetkamer
-      volume: 0.3
+      volume: 30
       message: 'Let op: Het vlees op de barbecue is nu {{ states[''sensor.inkbird_ibt_2x_temperature_probe_2''].state
         | round }} graden.'
-      delay: 00:00:05
   mode: single
 - id: '1690914761794'
   alias: Motion Lights - Control shed lights
@@ -3781,3 +3755,46 @@
             persistent: true
             tag: persistent
   mode: single
+- id: '1724489164994'
+  alias: System - Remove state history of heavy sensors
+  description: Like power consumption and production
+  trigger:
+  - platform: time
+    at: 04:00:00
+  condition: []
+  action:
+  - action: recorder.purge_entities
+    metadata: {}
+    data:
+      keep_days: 4
+      entity_id:
+      - sensor.power_consumed
+      - sensor.power_produced
+      - sensor.power_consumed_phase_3
+      - sensor.power_produced_phase_3
+      - sensor.power_produced_phase_2
+      - sensor.power_consumed_phase_2
+      - sensor.power_produced_phase_1
+      - sensor.power_consumed_phase_1
+      - sensor.winecooler_switch_current_consumption
+      - sensor.pool_shelly_3em_phase_a_active_power
+      - sensor.pool_shelly_3em_phase_b_active_power
+      - sensor.pool_shelly_3em_phase_c_active_power
+      - sensor.electricity_cost_today
+      - sensor.power_langeweide_28
+      - sensor.power_production_langeweide_28
+      - sensor.processor_use
+      - sensor.runtime
+      - sensor.winddir
+      domains: weather
+      entity_globs: sensor.*voltage* sensor.shelly_*_power sensor.*detection_fps
+  mode: single
+- id: '1726401797955'
+  alias: System - Wallpanel Battery Management
+  description: Disable charging when reaching 80%
+  use_blueprint:
+    path: robsonke/wallpanel_battery_management.yaml
+    input:
+      battery: sensor.ipad_kitchen_battery_level
+      low_percent: 25
+      charger: switch.shelly_plug_s_10_relay

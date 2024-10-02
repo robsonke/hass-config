@@ -1,0 +1,32 @@
+esphome:
+  name: onju-voice-sat-3
+  friendly_name: onju-voice-sat-3
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "g/VEvAJbeXyBy/TKhj5DDpeP/S/azxByvWFEudluCMc="
+
+ota:
+  - platform: esphome
+    password: "2753210a7451af2d9439721ee07dd715"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Onju-Voice-Sat-3"
+    password: "SxOSYwLCMs7l"
+
+captive_portal:
+    

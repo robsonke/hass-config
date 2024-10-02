@@ -71,4 +71,8 @@ devices:
     optimistic: true
   '0x84fd27fffecf2bce':
     friendly_name: range_extender_extra
-availability: true
+availability:
+  active:
+    timeout: 10
+  passive:
+    timeout: 1500

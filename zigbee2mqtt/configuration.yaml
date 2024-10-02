@@ -3,6 +3,7 @@ mqtt:
   server: mqtt://192.168.0.40:1883
   user: mqtt_ha
   password: cFXeDaAe99pViUZPa16E
+  base_topic: zigbee2mqtt
 serial:
   port: >-
     /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_7e834311c712ec11900b23c7bd930c07-if00-port0
@@ -111,6 +112,8 @@ devices:
     friendly_name: hue_lily_light_fence_2
   '0x00158d00032352c8':
     friendly_name: mailbox_vibration_sensor
+    homeassistant: {}
+    optimistic: true
   '0x84fd27fffecdeae9':
     friendly_name: range_extender_tradfri_guest
   '0x00158d00053fdd80':

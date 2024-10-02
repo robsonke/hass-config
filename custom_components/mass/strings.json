@@ -8,26 +8,16 @@
   "config": {
     "flow_title": "{name}",
     "step": {
-      "init": {
-        "data": {
-          "url": "URL of the Music Assistant server",
-          "expose_players_assist": "Expose players to Assist"
-        }
-      },
       "manual": {
         "title": "Manually add Music Assistant Server",
-        "description": "Enter the URL to your already running Music Assistant Server. If you do not have the Music Assistant Sewrver running, you should install it first.",
+        "description": "Enter the URL to your already running Music Assistant Server. If you do not have the Music Assistant Server running, you should install it first.",
         "data": {
-          "url": "URL of the Music Assistant server",
-          "expose_players_assist": "Expose players to Assist"
+          "url": "URL of the Music Assistant server"
         }
       },
       "discovery_confirm": {
         "description": "Do you want to add the Music Assistant Server `{url}` to Home Assistant?",
-        "title": "Discovered Music Assistant Server",
-        "data": {
-          "expose_players_assist": "Expose players to Assist"
-        }
+        "title": "Discovered Music Assistant Server"
       }
     },
     "error": {
@@ -75,7 +65,7 @@
       "name": "Play Announcement (advanced)",
       "description": "Play announcement on a Music Assistant player with more fine grained control options.",
       "fields": {
-        "media_id": {
+        "url": {
           "name": "URL",
           "description": "URL to the notification sound."
         },
@@ -86,6 +76,20 @@
         "announce_volume": {
           "name": "Announce volume",
           "description": "Use a forced volume level for the announcement. Omit to use player default."
+        }
+      }
+    },
+    "transfer_queue": {
+      "name": "Transfer Queue",
+      "description": "Transfer the player's queue to another player.",
+      "fields": {
+        "source_player": {
+          "name": "Source media player",
+          "description": "The source media player which has the queue you want to transfer."
+        },
+        "auto_play": {
+          "name": "Auto play",
+          "description": "Start playing the queue on the target player. Omit to use the default behavior."
         }
       }
     },
@@ -112,6 +116,10 @@
         "limit": {
           "name": "Limit",
           "description": "Maximum number of items to return (per media type)."
+        },
+        "library_only": {
+          "name": "Only library items",
+          "description": "Only include results that are in the library."
         }
       }
     }
@@ -131,8 +139,10 @@
     "flow_title": "{name}",
     "step": {
       "init": {
+        "description": "For the last 2 options see [here]({docs_voice_url})",
         "data": {
           "url": "URL of the Music Assistant server",
+          "openai_agent_id": "Music Assistant specific LLM Conversation Agent",
           "expose_players_assist": "Expose players to Assist"
         }
       }

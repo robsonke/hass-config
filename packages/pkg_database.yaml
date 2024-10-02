@@ -30,6 +30,11 @@ recorder:
     entities:
       # See https://github.com/gcobb321/icloud3/issues/356
       - sensor.icloud3_event_log
+      - sensor.net_power_consumption
+      - sensor.unifi_langeweide_memory_utilization
+      - sensor.unifi_langeweide_cpu_utilization
+
+# See the automation to cleanup sensors too
 
 # Find the 10 biggest entities:
 # SELECT states_meta.entity_id as Entity, count(states.metadata_id) as Count FROM states

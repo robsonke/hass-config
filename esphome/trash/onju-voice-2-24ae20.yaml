@@ -1,0 +1,17 @@
+substitutions:
+  name: onju-voice-2-24ae20
+  friendly_name: Onju Voice Satellite 2-2
+packages:
+  tetele.onju_voice_satellite: github://tetele/onju-voice-satellite/esphome/onju-voice-microwakeword.yaml@main
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+api:
+  encryption:
+    key: eUrQlXqcn8VJLe99MU8RAFqwJ0hH6ge8yilvH/1vowM=
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

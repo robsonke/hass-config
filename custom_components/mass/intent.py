@@ -33,23 +33,37 @@ SLOT_VALUE = "value"
 
 async def async_setup_intents(hass: HomeAssistant) -> None:
     """Set up the Music Assistant intents."""
-    intent.async_register(hass, MassPlayMediaOnMediaPlayerHandler())
+    intent.async_register(hass, MassPlayMediaOnMediaPlayerHandler(hass))
 
 
 class MassPlayMediaOnMediaPlayerHandler(intent.IntentHandler):
     """Handle PlayMediaOnMediaPlayer intents."""
 
     intent_type = INTENT_PLAY_MEDIA_ON_MEDIA_PLAYER
-    slot_schema = {
-        vol.Any(NAME_SLOT, AREA_SLOT): cv.string,
-        vol.Optional(QUERY_SLOT): cv.string,
-        vol.Optional(ARTIST_SLOT): cv.string,
-        vol.Optional(TRACK_SLOT): cv.string,
-        vol.Optional(ALBUM_SLOT): cv.string,
-    }
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        """Initialize MassPlayMediaOnMediaPlayerHandler."""
+        self.hass = hass
+
+    @property
+    def slot_schema(self) -> dict | None:
+        """Return a slot schema."""
+        slot_schema = {
+            vol.Any(NAME_SLOT, AREA_SLOT): cv.string,
+            vol.Optional(ARTIST_SLOT): cv.string,
+            vol.Optional(TRACK_SLOT): cv.string,
+            vol.Optional(ALBUM_SLOT): cv.string,
+        }
+        if any(
+            config_entry.data.get(CONF_OPENAI_AGENT_ID)
+            for config_entry in self.hass.config_entries.async_entries(DOMAIN)
+        ):
+            slot_schema[vol.Optional(QUERY_SLOT)] = cv.string
+        return slot_schema
 
     async def async_handle(self, intent_obj: intent.Intent) -> intent.IntentResponse:
         """Handle the intent."""
+        # pylint: disable=too-many-locals
         response = intent_obj.create_response()
         slots = self.async_validate_slots(intent_obj.slots)
         config_entry = await self._get_loaded_config_entry(intent_obj.hass)
@@ -59,10 +73,11 @@ class MassPlayMediaOnMediaPlayerHandler(intent.IntentHandler):
         )
 
         query = slots.get(QUERY_SLOT, {}).get(SLOT_VALUE)
+        radio_mode = False
         if query:
             if not config_entry.data.get(CONF_OPENAI_AGENT_ID):
                 raise intent.IntentHandleError(
-                    "query requires using a conversation agent"
+                    "query requires using a conversation agent https://music-assistant.io/integration/voice/#ma-specific-conversation-agent"
                 )
             ai_response = await self._async_query_ai(intent_obj, query, config_entry)
             try:
@@ -73,6 +88,7 @@ class MassPlayMediaOnMediaPlayerHandler(intent.IntentHandler):
                 return response
             media_id = json_payload.get(ATTR_MEDIA_ID)
             media_type = json_payload.get(ATTR_MEDIA_TYPE)
+            radio_mode = json_payload.get(ATTR_RADIO_MODE, False)
         else:
             artist = slots.get(ARTIST_SLOT, {}).get(SLOT_VALUE, "")
             track = slots.get(TRACK_SLOT, {}).get(SLOT_VALUE, "")
@@ -100,7 +116,7 @@ class MassPlayMediaOnMediaPlayerHandler(intent.IntentHandler):
                 media_type=media_type,
                 media_id=media_id,
                 enqueue=None,
-                extra={ATTR_RADIO_MODE: False},
+                extra={ATTR_RADIO_MODE: radio_mode},
             )
         except MusicAssistantError as err:
             raise intent.IntentHandleError(err.args[0] if err.args else "") from err

@@ -19,6 +19,7 @@ ota:
 
 web_server:
   port: 80
+  version: 3
 
 time:
   - platform: homeassistant

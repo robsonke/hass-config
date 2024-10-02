@@ -42,7 +42,7 @@ browser_mod:
               hours_to_show: 12
               refresh_interval: 30
               entities:
-                - device_tracker.steffi_presence
+                #- device_tracker.steffi_presence
                 - device_tracker.iphone_steffi
                 - device_tracker.icloud_iphone_steffi
                 - device_tracker.iphonedetect_steffi

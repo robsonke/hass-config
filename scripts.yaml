@@ -30,61 +30,35 @@ flash_office_loop:
 sonos_say:
   alias: Sonos TTS script
   sequence:
-  - data_template:
+  - action: media_player.play_media
+    data_template:
+      announce: true
+      media_content_id: media-source://tts/tts.piper?message="{{ message }}"&language=nl_NL
+      media_content_type: music
+      extra:
+        volume: '{{ volume }}'
+    target:
       entity_id: '{{ sonos_entity }}'
-      with_group: true
-    enabled: true
-    action: sonos.snapshot
-  - data_template:
-      entity_id: '{{ sonos_entity }}'
-    action: media_player.unjoin
-  - data_template:
-      entity_id: '{{ sonos_entity }}'
-      volume_level: '{{ volume }}'
-    action: media_player.volume_set
-  - data_template:
-      entity_id: '{{ sonos_entity }}'
-      message: '{{ message }}'
-    action: tts.google_translate_say
-  - delay: '{{ delay }}'
-  - data_template:
-      entity_id: '{{ sonos_entity }}'
-    enabled: true
-    action: sonos.restore
   mode: single
   icon: mdi:play
 sonos_play_sound:
   alias: Sonos Play MP3
   sequence:
-  - service: sonos.snapshot
-    data_template:
+  - action: media_player.play_media
+    target:
       entity_id: '{{ sonos_entity }}'
-  - service: media_player.unjoin
-    data_template:
-      entity_id: '{{ sonos_entity }}'
-  - service: media_player.volume_mute
-    data_template:
-      is_volume_muted: false
-      entity_id: '{{ sonos_entity }}'
-  - service: media_player.volume_set
-    data_template:
-      volume_level: '{{ volume }}'
-      entity_id: '{{ sonos_entity }}'
-  - service: media_player.play_media
-    data_template:
-      media_content_id: '{{ mp3_url }}'
+    data:
+      announce: true
       media_content_type: music
-      entity_id: '{{ sonos_entity }}'
-  - delay: '{{ delay }}'
-  - service: sonos.restore
-    data_template:
-      entity_id: '{{ sonos_entity }}'
+      media_content_id: '{{ mp3_url }}'
+      extra:
+        volume: '{{ volume }}'
   mode: single
   icon: mdi:play
 sleep_well:
   alias: Sleep well
   sequence:
-  - service: light.turn_off
+  - action: light.turn_off
     target:
       entity_id:
       - light.diningtable_light
@@ -95,8 +69,7 @@ sleep_well:
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - service: light.turn_off
-    data:
+  - data:
       transition: 2
     target:
       entity_id:
@@ -107,28 +80,28 @@ sleep_well:
       - light.woonkamer
       - light.boekenkast
       - light.ledstrip_tv
-  - service: script.sonos_say
-    data:
-      sonos_entity: media_player.living_room
-      volume: 0.3
+    action: light.turn_off
+  - data:
+      sonos_entity: media_player.eetkamer
+      volume: 10
       message: Slaap lekker
-      delay: 00:00:02
+    action: script.sonos_say
   - delay:
       hours: 0
       minutes: 0
       seconds: 3
       milliseconds: 0
-  - service: light.turn_off
-    target:
+  - target:
       entity_id: light.kitchendesk_light
     data: {}
-  - service: media_player.media_pause
-    target:
+    action: light.turn_off
+  - target:
       entity_id:
       - media_player.eetkamer
       - media_player.office
       - media_player.living_room
     data: {}
+    action: media_player.media_pause
   mode: parallel
   icon: mdi:sleep
   max: 10

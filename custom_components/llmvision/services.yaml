@@ -13,8 +13,10 @@ image_analyzer:
             - 'OpenAI'
             - 'Anthropic'
             - 'Google'
+            - 'Groq'
             - 'Ollama'
             - 'LocalAI'
+            - 'Custom OpenAI'
     model:
       name: Model
       required: false

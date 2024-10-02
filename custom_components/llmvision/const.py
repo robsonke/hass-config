@@ -7,12 +7,15 @@ DOMAIN = "llmvision"
 CONF_OPENAI_API_KEY = 'openai_api_key'
 CONF_ANTHROPIC_API_KEY = 'anthropic_api_key'
 CONF_GOOGLE_API_KEY = 'google_api_key'
+CONF_GROQ_API_KEY = 'groq_api_key'
 CONF_LOCALAI_IP_ADDRESS = 'localai_ip'
 CONF_LOCALAI_PORT = 'localai_port'
 CONF_LOCALAI_HTTPS = 'localai_https'
 CONF_OLLAMA_IP_ADDRESS = 'ollama_ip'
 CONF_OLLAMA_PORT = 'ollama_port'
 CONF_OLLAMA_HTTPS = 'ollama_https'
+CONF_CUSTOM_OPENAI_ENDPOINT = 'custom_openai_endpoint'
+CONF_CUSTOM_OPENAI_API_KEY = 'custom_openai_api_key'
 
 # service call constants
 PROVIDER = 'provider'
@@ -33,8 +36,10 @@ INCLUDE_FILENAME = 'include_filename'
 ERROR_OPENAI_NOT_CONFIGURED = "OpenAI provider is not configured"
 ERROR_ANTHROPIC_NOT_CONFIGURED = "Anthropic provider is not configured"
 ERROR_GOOGLE_NOT_CONFIGURED = "Google provider is not configured"
+ERROR_GROQ_NOT_CONFIGURED = "Groq provider is not configured"
 ERROR_LOCALAI_NOT_CONFIGURED = "LocalAI provider is not configured"
 ERROR_OLLAMA_NOT_CONFIGURED = "Ollama provider is not configured"
+ERROR_CUSTOM_OPENAI_NOT_CONFIGURED = "Custom OpenAI provider is not configured"
 ERROR_NO_IMAGE_INPUT = "No image input provided"
 ERROR_HANDSHAKE_FAILED = "Handshake with LocalAI server failed"
 
@@ -46,5 +51,6 @@ VERSION_ANTHROPIC = "2023-06-01"
 ENDPOINT_OPENAI = "https://api.openai.com/v1/chat/completions"
 ENDPOINT_ANTHROPIC = "https://api.anthropic.com/v1/messages"
 ENDPOINT_GOOGLE = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+ENDPOINT_GROQ = "https://api.groq.com/openai/v1/chat/completions"
 ENDPOINT_LOCALAI = "{protocol}://{ip_address}:{port}/v1/chat/completions"
 ENDPOINT_OLLAMA = "{protocol}://{ip_address}:{port}/api/chat"

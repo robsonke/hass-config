@@ -48,6 +48,7 @@ from .const import (
     OPTIONAL_EASEE_ENTITIES,
     PLATFORMS,
     TIMEOUT,
+    VERSION,
     chargerObservations,
     equalizerEnergyObservations,
     equalizerObservations,
@@ -108,15 +109,11 @@ class ProductData:
 
     def is_state_polled(self):
         """Check if state is polled."""
-        if self.state is None:
-            return False
-        return True
+        return self.state is not None
 
     def is_config_polled(self):
         """Check if config is polled."""
-        if self.config is None:
-            return False
-        return True
+        return self.config is not None
 
     def is_schedule_polled(self):
         """Check if schedule is polled."""
@@ -265,13 +262,13 @@ class ProductData:
                 day = time.weekday()
                 if period[1] != 0:  # Start
                     saved_day = day
-                    self.weekly_schedule[
-                        weeklyScheduleStartDays[saved_day]
-                    ] = time.strftime("%H:%M")
+                    self.weekly_schedule[weeklyScheduleStartDays[saved_day]] = (
+                        time.strftime("%H:%M")
+                    )
                 else:
-                    self.weekly_schedule[
-                        weeklyScheduleStopDays[saved_day]
-                    ] = time.strftime("%H:%M")
+                    self.weekly_schedule[weeklyScheduleStopDays[saved_day]] = (
+                        time.strftime("%H:%M")
+                    )
         # Delayed or Daily schedule
         elif (kind == "Recurring" and recurrency == "Daily") or kind == "Absolute":
             self.schedule["isEnabled"] = True
@@ -336,7 +333,10 @@ class ProductData:
             return
 
         now = dt_util.utcnow().replace(microsecond=0)
-        elapsed = now - self.state["latestPulse"]
+        try:
+            elapsed = now - self.state["latestPulse"]
+        except KeyError:
+            return
 
         if elapsed.total_seconds() > OFFLINE_DELAY:
             if self.state["isOnline"] is True:
@@ -411,7 +411,7 @@ class ProductData:
                     value = "{}"
                 self.schedules_interpret(json.loads(value))
             else:
-                _LOGGER.debug("Unkonwn update type: %s", first)
+                _LOGGER.debug("Unknown update type: %s", first)
 
         return False
 
@@ -466,7 +466,9 @@ class Controller:
     async def initialize(self):
         """Initialize the session and get initial data."""
         client_session = aiohttp_client.async_get_clientsession(self.hass)
-        self.easee = Easee(self.username, self.password, client_session)
+        self.easee = Easee(
+            self.username, self.password, client_session, f"easee_hass_{VERSION}"
+        )
 
         try:
             with timeout(TIMEOUT):
@@ -742,9 +744,9 @@ class Controller:
         current_p1,
         current_p2,
         current_p3,
-        compare_p1,
-        compare_p2,
-        compare_p3,
+        compare_str_p1,
+        compare_str_p2,
+        compare_str_p3,
     ):
         """Check circuit current."""
         if current_p2 is None:
@@ -755,19 +757,33 @@ class Controller:
         for charger_data in self.chargers_data:
             if charger_data.circuit.id == circuit_id:
                 try:
-                    if (
-                        charger_data.state[compare_p1] != current_p1
-                        or charger_data.state[compare_p2] != current_p2
-                        or charger_data.state[compare_p3] != current_p3
-                    ):
-                        return charger_data.circuit
+                    compare_p1 = charger_data.state[compare_str_p1]
                 except KeyError:
-                    if (
-                        charger_data.config[compare_p1] != current_p1
-                        or charger_data.config[compare_p2] != current_p2
-                        or charger_data.config[compare_p3] != current_p3
-                    ):
-                        return charger_data.circuit
+                    try:
+                        compare_p1 = charger_data.config[compare_str_p1]
+                    except KeyError:
+                        compare_p1 = None
+                try:
+                    compare_p2 = charger_data.state[compare_str_p2]
+                except KeyError:
+                    try:
+                        compare_p2 = charger_data.config[compare_str_p2]
+                    except KeyError:
+                        compare_p2 = compare_p1
+                try:
+                    compare_p3 = charger_data.state[compare_str_p3]
+                except KeyError:
+                    try:
+                        compare_p3 = charger_data.config[compare_str_p3]
+                    except KeyError:
+                        compare_p3 = compare_p1
+
+                if (
+                    compare_p1 != current_p1
+                    or compare_p2 != current_p2
+                    or compare_p3 != current_p3
+                ):
+                    return charger_data.circuit
 
                 return False
         return None
@@ -778,9 +794,9 @@ class Controller:
         current_p1,
         current_p2,
         current_p3,
-        compare_p1,
-        compare_p2,
-        compare_p3,
+        compare_str_p1,
+        compare_str_p2,
+        compare_str_p3,
     ):
         """Check charger current."""
         if current_p2 is None:
@@ -791,19 +807,33 @@ class Controller:
         for charger_data in self.chargers_data:
             if charger_data.product.id == charger_id:
                 try:
-                    if (
-                        charger_data.state[compare_p1] != current_p1
-                        or charger_data.state[compare_p2] != current_p2
-                        or charger_data.state[compare_p3] != current_p3
-                    ):
-                        return charger_data.product
+                    compare_p1 = charger_data.state[compare_str_p1]
                 except KeyError:
-                    if (
-                        charger_data.config[compare_p1] != current_p1
-                        or charger_data.config[compare_p2] != current_p2
-                        or charger_data.config[compare_p3] != current_p3
-                    ):
-                        return charger_data.product
+                    try:
+                        compare_p1 = charger_data.config[compare_str_p1]
+                    except KeyError:
+                        compare_p1 = None
+                try:
+                    compare_p2 = charger_data.state[compare_str_p2]
+                except KeyError:
+                    try:
+                        compare_p2 = charger_data.config[compare_str_p2]
+                    except KeyError:
+                        compare_p2 = compare_p1
+                try:
+                    compare_p3 = charger_data.state[compare_str_p3]
+                except KeyError:
+                    try:
+                        compare_p3 = charger_data.config[compare_str_p3]
+                    except KeyError:
+                        compare_p3 = compare_p1
+
+                if (
+                    compare_p1 != current_p1
+                    or compare_p2 != current_p2
+                    or compare_p3 != current_p3
+                ):
+                    return charger_data.product
 
                 return False
         return None
