@@ -49,40 +49,6 @@ browser_mod:
                     yellow: 4
                     red: 8
                   max: 12
-            # - type: custom:auto-entities
-            #   title: Meest verbruikende apparaten
-            #   card:
-            #     type: entities
-            #   filter:
-            #     include:
-            #       - domain: sensor
-            #         attributes:
-            #           device_class: power
-            #     exclude:
-            #       - state: "off"
-            #       - state: "unavailable"
-            #       - integration: tibber
-            #       - entity_id: sensor.all_powercalc_entities_power
-            #       - entity_id: sensor.solaredgemb_ac_power
-            #       - entity_id: sensor.all_manual_lights_power
-            #       - entity_id: sensor.tv_woonkamer_group_power
-            #       - entity_id: sensor.sonos_tv_room_power
-            #       - entity_id: sensor.garden_light_power
-            #       - entity_id: sensor.air_quality_power
-            #       - entity_id: sensor.quooker_power
-            #       - entity_id: sensor.samsung_qn95aa_55_tv_power
-            #       - entity_id: sensor.office_light_power
-            #       - entity_id: sensor.kitchen_light_power
-            #       - entity_id: sensor.solaredge_current_power
-            #       - entity_id: sensor.power_production_now
-            #       - entity_id: sensor.shelly_plug_kachel_slaapkamer_power
-            #       - entity_id: sensor.altherma_power_usage_secundary
-            #   sort:
-            #     method: state
-            #     count: 10
-            #     numeric: true
-            #     reverse: true
-
             - type: 'custom:bar-card'
               entities:
                 - sensor.current_phase_1
@@ -126,52 +92,6 @@ browser_mod:
               state_color: false
               title: Energie totalen
 
-            # - type: custom:mini-graph-card
-            #   entities:
-            #     - entity: sensor.altherma_power_usage
-            #       name: Altherma Primary
-            #     - entity: sensor.shelly_plug_s_7_meterkast2_power
-            #       name: Meterkast2
-            #     - entity: sensor.vaatwasser_switch_current_consumption
-            #       name: Vaatwasser
-            #     - entity: sensor.wasmachine_switch_current_consumption
-            #       name: Wasmachine
-            #     - entity: sensor.winecooler_switch_current_consumption
-            #       name: Wijnkoeler
-            #     - entity: sensor.shelly_plug_droger_power
-            #       name: Droger
-            #     - entity: sensor.shelly_plug_office_power
-            #       name: Kantoor
-            #     - entity: sensor.eurom_alutherm_power
-            #       name: Verwarming slaapkamer
-            #     - entity: sensor.shelly_plug_badkamer_verwarming_power
-            #       name: Verwarming Badkamer
-            #     - entity: sensor.shelly_plug_douche_verwarming_power
-            #       name: Verwarming Douche
-            #     - entity: sensor.shelly_plug_s_6_meterkast1_power
-            #       name: Meterkast1
-            #     - entity: sensor.shelly_plug_s_8_fridge1_power
-            #       name: Vriezer Schuur
-            #     - entity: sensor.infrarood_eva_current_consumption
-            #       name: Verwarming Logeerkamer
-            #     - entity: sensor.infraroodpanel_noa_current_consumption
-            #       name: Verwarming Eva
-            #     - entity: sensor.all_light_power
-            #     - entity: sensor.all_housekeeping_entities_power
-            #     - entity: sensor.all_manual_lights_power
-            #     - entity: sensor.all_media_power
-            #     - entity: sensor.ehhatdgg_power
-            #     - entity: sensor.shelly_plug_koelkast_power
-            #   show:
-            #     labels: true
-            #   hour24: true
-            #   hours_to_show: 24
-            #   show_points: false
-            #   line_width: 2
-            #   points_per_hour: 10
-            #   logarithmic: true
-            #   height: 300
-
         - type: vertical-stack
           view_layout:
             grid-area: details2
@@ -197,7 +117,7 @@ browser_mod:
                 - entity: sensor.nordpool_kwh_nl_eur_3_10_021
                   data_generator: |
                     return entity.attributes.raw_today.map((entry) => {
-                      let value = (entry.value + 0.12599) * 1.21;
+                      let value = (entry.value + (0.12599 * 1.21));
                       return [new Date(entry.start), value];
                     });
                   type: column
@@ -239,7 +159,7 @@ browser_mod:
                     let hour = new Date().getHours();
                     if (hour >= 13) {
                       return entity.attributes.raw_tomorrow.map((entry) => {
-                        let value = (entry.value + 0.12599) * 1.21;
+                        let value = (entry.value + (0.12599 * 1.21));
                         return [new Date(entry.start), value];
                       });
                     }
@@ -266,8 +186,6 @@ browser_mod:
                   decimals: 2
             - type: energy-sources-table
             - type: energy-date-selection
-            # - type: energy-distribution
-            #   link_dashboard: true
             - type: custom:power-flow-card-plus
               view_layout:
                 position: sidebar

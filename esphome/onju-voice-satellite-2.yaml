@@ -1,163 +1,176 @@
 substitutions:
-  name: "onju-voice-satellite-2"
+  name: "onju-voice-sat-2"
   friendly_name: "Onju Voice Satellite 2"
   project_version: "1.1.0"
-  device_description: "Onju Voice Satellite 2 with ESPHome software and microWakeWord"
-  wakeup_sound_url: "https://home.tigrou.nl/local/sounds/wakeup.mp3" # New Notification #7 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/736267/
-  error_sound_url: "https://home.tigrou.nl/local/sounds/error.mp3" # Error #8 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734442/
-  timer_finished_sound_url: "https://home.tigrou.nl/local/sounds/timer_finished.mp3" # New Notification #6 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734445/
-
-external_components:
-  - source:
-      type: git
-      url: https://github.com/gnumpi/esphome_audio
-      ref: dev-next
-    components: [adf_pipeline, i2s_audio]
-
-#########################################
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  power_save_mode: none
-  manual_ip:
-    static_ip: !secret onju_voice_2_ip
-    gateway: 192.168.0.1
-    subnet: 255.255.255.0
-    dns1: 192.168.0.1
-    dns2: 8.8.8.8
-
-captive_portal:
-
-api:
-  encryption:
-    key: !secret api_key
-  services:
-    - service: start_va
-      then:
-        - voice_assistant.start
-    - service: stop_va
-      then:
-        - voice_assistant.stop
-    - service: notification_on
-      then:
-        - script.execute: turn_on_notification
-    - service: notification_clear
-      then:
-        - script.execute: clear_notification
-
-ota:
-  password: !secret wifi_password
-  platform: esphome
-
-web_server:
-
-time:
-  - platform: homeassistant
-    id: homeassistant_time
-
-logger:
-  level: DEBUG
-
-#########################################
+  device_description: "Onju Voice Satellite 2 with ESPHome software"
+  error_sound_url: "http://192.168.0.40:8123/local/sounds/error.mp3" # Error #8 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734442/
+  timer_finished_sound_url: "http://192.168.0.40:8123/local/sounds/timer_finished.mp3" # New Notification #6 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734445/
+  # Phases of the Voice Assistant
+  # IDLE: The voice assistant is ready to be triggered by a wake-word
+  voice_assist_idle_phase_id: '1'
+  # LISTENING: The voice assistant is ready to listen to a voice command (after being triggered by the wake word)
+  voice_assist_listening_phase_id: '2'
+  # THINKING: The voice assistant is currently processing the command
+  voice_assist_thinking_phase_id: '3'
+  # REPLYING: The voice assistant is replying to the command
+  voice_assist_replying_phase_id: '4'
+  # NOT_READY: The voice assistant is not ready
+  voice_assist_not_ready_phase_id: '10'
+  # ERROR: The voice assistant encountered an error
+  voice_assist_error_phase_id: '11'
+  # MUTED: The voice assistant is muted and will not reply to a wake-word
+  voice_assist_muted_phase_id: '12'
 
 
 esphome:
   name: "${name}"
   friendly_name: "${friendly_name}"
   comment: "${device_description}"
-  name_add_mac_suffix: false
+  #name_add_mac_suffix: true
   project:
     name: tetele.onju_voice_satellite
     version: "${project_version}"
   min_version: 2024.7.3
   platformio_options:
     board_build.flash_mode: dio
-    board_build.arduino.memory_type: qio_opi
-  on_boot:
-    then:
-      - light.turn_on:
-          id: top_led
-          effect: slow_pulse
-          red: 100%
-          green: 60%
-          blue: 0%
-      - wait_until:
-          condition:
-            wifi.connected:
-      - light.turn_on:
-          id: top_led
-          effect: pulse
-          red: 0%
-          green: 100%
-          blue: 0%
-      - wait_until:
-          condition:
-            api.connected:
-      - light.turn_on:
-          id: top_led
-          effect: none
-          red: 0%
-          green: 100%
-          blue: 0%
-      - delay: 1s
-      - script.execute: reset_led
-
+    board_upload.maximum_size: 16777216
+  # on_boot:
+  #   then:
+      # - voice_assistant.start_continuous
+      # - light.turn_on:
+      #     id: top_led
+      #     effect: slow_pulse
+      #     red: 100%
+      #     green: 60%
+      #     blue: 0%
+      # - light.turn_on:
+      #     id: top_led
+      #     effect: pulse
+      #     red: 0%
+      #     green: 100%
+      #     blue: 0%
+      # - light.turn_on:
+      #     id: top_led
+      #     effect: none
+      #     red: 0%
+      #     green: 100%
+      #     blue: 0%
+      # - delay: 1s
+      # - script.execute: reset_led
+      
+external_components:
+  - source:
+      type: git
+      url: https://github.com/gnumpi/esphome_audio
+      ref: dev-next
+    components: [adf_pipeline, i2s_audio]
 # dashboard_import:
-#   package_import_url: github://tetele/onju-voice-satellite/esphome/onju-voice-microwakeword.yaml@main
+#   package_import_url: github://tetele/onju-voice-satellite/esphome/onju-voice.yaml@main
 
 esp32:
   board: esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 16MB
   framework:
+    # TODO arduino?
     type: esp-idf
     version: recommended
     sdkconfig_options:
       # need to set a s3 compatible board for the adf-sdk to compile
       # board specific code is not used though
       CONFIG_ESP32_S3_BOX_BOARD: "y"
+      CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM: "16"
+      CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM: "512"
+      CONFIG_TCPIP_RECVMBOX_SIZE: "512"
+
+      CONFIG_TCP_SND_BUF_DEFAULT: "65535"
+      CONFIG_TCP_WND_DEFAULT: "512000"
+      CONFIG_TCP_RECVMBOX_SIZE: "512"
 
 psram:
   mode: octal
   speed: 80MHz
 
+# Enable logging
+logger:
+  hardware_uart : UART0
+  level: VERBOSE
+  logs:
+    micro_wake_word: WARN
+
+# Allow OTA updates
+ota:
+  password: !secret wifi_password
+  platform: esphome
 # Allow provisioning Wi-Fi via serial
 improv_serial:
 
-globals:
-  - id: thresh_percent
-    type: float
-    initial_value: "0.03"
-    restore_value: false
-  - id: touch_calibration_values_left
-    type: uint32_t[5]
-    restore_value: false
-  - id: touch_calibration_values_center
-    type: uint32_t[5]
-    restore_value: false
-  - id: touch_calibration_values_right
-    type: uint32_t[5]
-    restore_value: false
-  - id: notification
-    type: bool
-    restore_value: false
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  manual_ip:
+    static_ip: 192.168.0.159
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
 
-interval:
-  - interval: 1s
-    then:
-      - script.execute:
-          id: calibrate_touch
-          button: 0
-      - script.execute:
-          id: calibrate_touch
-          button: 1
-      - script.execute:
-          id: calibrate_touch
-          button: 2
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device via WiFi AP.
+captive_portal:
+
+api:
+  encryption:
+    key: !secret api_key
+  # services:
+  #   - service: start_va
+  #     then:
+  #       - voice_assistant.start
+  #   - service: stop_va
+  #     then:
+  #       - voice_assistant.stop
+    # - service: notification_on
+    #   then:
+    #     - script.execute: turn_on_notification
+    # - service: notification_clear
+    #   then:
+    #     - script.execute: clear_notification
+
+globals:
+  # Global initialisation variable. Initialized to true and set to false once everything is connected. Only used to have a smooth "plugging" experience
+  - id: init_in_progress
+    type: bool
+    restore_value: no
+    initial_value: 'true'
+  # Global variable tracking the phase of the voice assistant (defined above). Initialized to not_ready
+  - id: voice_assistant_phase
+    type: int
+    restore_value: no
+    initial_value: ${voice_assist_not_ready_phase_id}
+
+# interval:
+#   - interval: 1s
+#     then:
+#       - script.execute:
+#           id: calibrate_touch
+#           button: 0
+#       - script.execute:
+#           id: calibrate_touch
+#           button: 1
+#       - script.execute:
+#           id: calibrate_touch
+#           button: 2
 
 i2s_audio:
   - id: i2s_shared
     i2s_lrclk_pin: GPIO13
     i2s_bclk_pin: GPIO18
     access_mode: duplex
+  # - id: i2s_in
+  #   i2s_lrclk_pin: GPIO5
+  #   i2s_bclk_pin: GPIO6
+  # - id: i2s_out
+  #   i2s_lrclk_pin: GPIO46
+  #   i2s_bclk_pin: GPIO9
 
 adf_pipeline:
   - platform: i2s_audio
@@ -165,173 +178,204 @@ adf_pipeline:
     id: adf_i2s_out
     i2s_audio_id: i2s_shared
     i2s_dout_pin: GPIO12
-    sample_rate: 16000
-    adf_alc: true
-    alc_max: .5
-    bits_per_sample: 32bit
-    fixed_settings: true
-    channel: left
 
   - platform: i2s_audio
     type: audio_in
     id: adf_i2s_in
     i2s_audio_id: i2s_shared
     i2s_din_pin: GPIO17
-    channel: left
     pdm: false
+    channel: left
     sample_rate: 16000
     bits_per_sample: 32bit
-    fixed_settings: true
 
-microphone:
-  - platform: adf_pipeline
-    id: onju_microphone
-    keep_pipeline_alive: true
-    gain_log2: 3
-    pipeline:
-      - adf_i2s_in
-      - self
+# adf_pipeline:
+#   - platform: i2s_audio
+#     type: audio_out
+#     id: adf_i2s_out
+#     i2s_audio_id: i2s_shared
+#     i2s_dout_pin: GPIO12
+#     sample_rate: 16000
+#     adf_alc: true
+#     alc_max: .5
+#     bits_per_sample: 32bit
+#     fixed_settings: true
+#     channel: left
+
+#   - platform: i2s_audio
+#     type: audio_in
+#     id: adf_i2s_in
+#     i2s_audio_id: i2s_shared
+#     i2s_din_pin: GPIO17
+#     channel: left
+#     pdm: false
+#     sample_rate: 16000
+#     bits_per_sample: 32bit
+#     fixed_settings: true
 
 media_player:
   - platform: adf_pipeline
-    id: onju_out
-    name: None
+    id: adf_media_player
+    name: s3-dev_media_player
+    keep_pipeline_alive: false
     internal: false
-    keep_pipeline_alive: true
     pipeline:
       - self
-      - resampler
       - adf_i2s_out
-    on_state:
-      then:
-        - lambda: |-
-            static float old_volume = -1;
-            float new_volume = id(onju_out).volume;
-            if(abs(new_volume-old_volume) > 0.0001) {
-              if(old_volume != -1) {
-                id(show_volume)->execute();
-              }
-            }
-            old_volume = new_volume;
+# media_player:
+#   - platform: i2s_audio
+#     name: None
+#     id: onju_out
+#     dac_type: external
+#     i2s_dout_pin: GPIO12
+#     mode: mono
+#     mute_pin:
+#       number: GPIO21
+#       inverted: false
+    # on_state:
+    #   then:
+    #     - lambda: |-
+    #         static float old_volume = -1;
+    #         float new_volume = id(onju_out).volume;
+    #         if(abs(new_volume-old_volume) > 0.0001) {
+    #           if(old_volume != -1) {
+    #             id(show_volume)->execute();
+    #           }
+    #         }
+    #         old_volume = new_volume;
+
+microphone:
+  - platform: adf_pipeline
+    id: adf_microphone
+    gain_log2: 3
+    keep_pipeline_alive: false
+    pipeline:
+      - adf_i2s_in
+      - self
+# microphone:
+#   - platform: i2s_audio
+#     id: onju_microphone
+#     i2s_din_pin: GPIO17
+#     adc_type: external
+#     pdm: true
+#     on_data:
+#       - logger.log:
+#           format: "Received %d bytes"
+#           args: ['x.size()']
+
 
 micro_wake_word:
   models:
     #- model: https://github.com/kahrendt/microWakeWord/releases/download/v2.1_models/alexa.json
     - model: https://github.com/kahrendt/microWakeWord/releases/download/v2.1_models/okay_nabu.json
-    #- model: https://github.com/kahrendt/microWakeWord/releases/download/v2.1_models/hey_jarvis.json
-    #- model: https://github.com/kahrendt/microWakeWord/releases/download/v2.1_models/hey_mycroft.json
-  vad:
-    model: https://github.com/kahrendt/microWakeWord/releases/download/v2.1_models/vad.json
   on_wake_word_detected:
-    - if:
-        condition: media_player.is_playing
-        then:
-          - media_player.pause
-    - voice_assistant.start:
-        wake_word: !lambda return wake_word;
-    - media_player.play_media: "${wakeup_sound_url}"
-    - wait_until:
-        not:
-          media_player.is_playing: onju_out
+      - media_player.stop:
+      - light.turn_on:
+          id: leds
+          effect: "Slow Pulse"
+      - voice_assistant.start:
 
 voice_assistant:
-  id: va
-  microphone: onju_microphone
-  media_player: onju_out
+  microphone: adf_microphone
+  media_player: adf_media_player
+
   use_wake_word: false
-  on_listening:
-    - light.turn_on:
-        id: top_led
-        blue: 100%
-        red: 100%
-        green: 100%
-        brightness: 100%
-        effect: listening
-  on_stt_vad_end:
-    - light.turn_on:
-        id: top_led
-        blue: 100%
-        red: 0%
-        green: 20%
-        brightness: 70%
-        effect: processing
-  on_tts_end:
-    - light.turn_on:
-        id: top_led
-        blue: 0%
-        red: 20%
-        green: 100%
-        effect: speaking
-  on_end:
-    - wait_until:
-        not:
-          media_player.is_playing:
-    - script.execute: reset_led
-    - if:
-        condition:
-          and:
-            - switch.is_on: use_wake_word
-            - binary_sensor.is_off: mute_switch
-        then:
-          - delay: 200ms
-          - micro_wake_word.start
-  on_timer_started:
-    - light.turn_on:
-        id: top_led
-        effect: random_twinkle
-  on_timer_finished:
-    - media_player.play_media: "${timer_finished_sound_url}"
-    - light.turn_on:
-        id: top_led
-        blue: 0%
-        red: 100%
-        green: 80%
-        effect: slow_pulse
-    - delay: 5s
-    - script.execute: reset_led
+  #vad_threshold: 3
+
+  noise_suppression_level: 4
+  auto_gain: 31dBFS
+  volume_multiplier: 4.0
+
   on_client_connected:
+    - lambda: id(init_in_progress) = false;
     - if:
         condition:
-          and:
-            - switch.is_on: use_wake_word
-            - binary_sensor.is_off: mute_switch
+          switch.is_on: use_wake_word
         then:
           - micro_wake_word.start:
-  on_client_disconnected:
-    - if:
-        condition:
-          and:
-            - switch.is_on: use_wake_word
-            - binary_sensor.is_off: mute_switch
-        then:
-          - voice_assistant.stop:
-          - micro_wake_word.stop:
-  on_error:
-    - media_player.play_media: "${error_sound_url}"
-    - light.turn_on:
-        id: top_led
-        blue: 0%
-        red: 100%
-        green: 0%
-        effect: none
-    - delay: 1s
-    - script.execute: reset_led
+          - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
+        else:
+          - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
 
-number:
-  - platform: template
-    name: "Touch threshold percentage"
-    id: touch_threshold_percentage
-    update_interval: never
-    entity_category: config
-    initial_value: 0.75
-    min_value: 0.25
-    max_value: 5
-    step: 0.05
-    optimistic: true
-    on_value:
+  on_client_disconnected:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};
+    - voice_assistant.stop
+    - micro_wake_word.stop
+
+  on_end:
       then:
-        - lambda: !lambda |-
-            id(thresh_percent) = 0.01 * x;
+        # - light.turn_off:
+        #     id: led
+        - voice_assistant.stop
+        - wait_until:
+            not:
+              voice_assistant.is_running:
+        - if:
+            condition:
+              switch.is_on: use_wake_word
+            then:
+              - micro_wake_word.start:
+  on_error:
+      then:
+        - voice_assistant.stop
+        - wait_until:
+            not:
+              voice_assistant.is_running:
+        - if:
+            condition:
+              switch.is_on: use_wake_word
+            then:
+              - micro_wake_word.start:
+
+switch:
+  - platform: template
+    name: Enable Voice Assistant
+    id: use_wake_word
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: mdi:assistant
+    # When the switch is turned on (on Home Assistant):
+    # Start the voice assistant component
+    # Set the correct phase and run the script to refresh the LED status
+    on_turn_on:
+      - logger.log: "switch on"
+      - if:
+          condition:
+            lambda: return !id(init_in_progress);
+          then:
+            - logger.log: "condition 1"
+            - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
+            - voice_assistant.stop
+            - delay: 1s
+            - if:
+                condition:
+                  not:
+                    - voice_assistant.is_running
+                then:
+                  - logger.log: "Starting MWW"
+                  #- voice_assistant.start_continuous
+                  - micro_wake_word.start:
+    on_turn_off:
+      - if:
+          condition:
+            lambda: return !id(init_in_progress);
+          then:
+            - voice_assistant.stop
+            - micro_wake_word.stop
+            - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
+
+  - platform: template
+    name: Pipeline
+    id: pipeline_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+    on_turn_off:
+      - media_player.stop
+
+    on_turn_on:
+      - media_player.play_media: "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.mp3"
+
 
 esp32_touch:
   setup_mode: false
@@ -349,112 +393,16 @@ esp32_touch:
   denoise_grade: BIT8
   denoise_cap_level: L0
 
-binary_sensor:
-  - platform: esp32_touch
-    id: volume_down
-    pin: GPIO4
-    threshold: 539000
-    on_press:
-      then:
-        - light.turn_on: left_led
-        - script.execute:
-            id: set_volume
-            volume: -0.05
-        - delay: 750ms
-        - while:
-            condition:
-              binary_sensor.is_on: volume_down
-            then:
-              - script.execute:
-                  id: set_volume
-                  volume: -0.05
-              - delay: 150ms
-    on_release:
-      then:
-        - light.turn_off: left_led
-
-  - platform: esp32_touch
-    id: volume_up
-    pin: GPIO2
-    threshold: 580000
-    on_press:
-      then:
-        - light.turn_on: right_led
-        - script.execute:
-            id: set_volume
-            volume: 0.05
-        - delay: 750ms
-        - while:
-            condition:
-              binary_sensor.is_on: volume_up
-            then:
-              - script.execute:
-                  id: set_volume
-                  volume: 0.05
-              - delay: 150ms
-    on_release:
-      then:
-        - light.turn_off: right_led
-
-  - platform: esp32_touch
-    id: action
-    pin: GPIO3
-    threshold: 751000
-    on_click:
-      - if:
-          condition:
-            or:
-              - switch.is_off: use_wake_word
-              - binary_sensor.is_on: mute_switch
-          then:
-            - logger.log:
-                tag: "action_click"
-                format: "Voice assistant is running: %s"
-                args: ['id(va).is_running() ? "yes" : "no"']
-            - if:
-                condition: media_player.is_playing
-                then:
-                  - media_player.stop
-            - if:
-                condition: voice_assistant.is_running
-                then:
-                  - voice_assistant.stop:
-                else:
-                  - voice_assistant.start:
-          else:
-            - logger.log:
-                tag: "action_click"
-                format: "Voice assistant was running with wake word detection enabled. Starting continuously"
-            - if:
-                condition: media_player.is_playing
-                then:
-                  - media_player.stop
-            - voice_assistant.stop
-            - delay: 1s
-            - script.execute: reset_led
-            - script.wait: reset_led
-            - voice_assistant.start_continuous:
-
-  - platform: gpio
-    id: mute_switch
-    pin:
-      number: GPIO38
-      mode: INPUT_PULLUP
-    name: Disable wake word
-    on_press:
-      - script.execute: turn_off_wake_word
-    on_release:
-      - script.execute: turn_on_wake_word
-
 light:
   - platform: esp32_rmt_led_strip
     id: leds
     pin: GPIO11
     chipset: SK6812
-    num_leds: 6
+    num_leds: 4
     rgb_order: grb
     rmt_channel: 0
     default_transition_length: 0s
+    disabled_by_default: false
     gamma_correct: 2.8
   - platform: partition
     id: left_led
@@ -468,243 +416,222 @@ light:
     segments:
       - id: leds
         from: 1
-        to: 4
+        to: 2
     default_transition_length: 100ms
     effects:
       - pulse:
-          name: pulse
+          name: "Slow Pulse"
           transition_length: 250ms
           update_interval: 250ms
+          min_brightness: 50%
+          max_brightness: 100%
       - pulse:
-          name: slow_pulse
-          transition_length: 1s
-          update_interval: 2s
-      - addressable_lambda:
-          name: show_volume
-          update_interval: 50ms
-          lambda: |-
-            int int_volume = int(id(onju_out).volume * 100.0f * it.size());
-            int full_leds = int_volume / 100;
-            int last_brightness = int_volume % 100;
-            int i = 0;
-            for(; i < full_leds; i++) {
-              it[i] = Color::WHITE;
-            }
-            if(i < 4) {
-              it[i++] = Color(64, 64, 64).fade_to_white(last_brightness*256/100);
-            }
-            for(; i < it.size(); i++) {
-              it[i] = Color(64, 64, 64);
-            }
-      - addressable_twinkle:
-          name: listening_ww
-          twinkle_probability: 1%
-      - addressable_twinkle:
-          name: listening
-          twinkle_probability: 45%
-      - addressable_scan:
-          name: processing
-          move_interval: 80ms
-      - addressable_flicker:
-          name: speaking
-          intensity: 35%
-      - addressable_random_twinkle:
-          name: random_twinkle
-          twinkle_probability: 45%
+          name: "Fast Pulse"
+          transition_length: 100ms
+          update_interval: 100ms
+          min_brightness: 50%
+          max_brightness: 100%
   - platform: partition
     id: right_led
     segments:
       - id: leds
-        from: 5
-        to: 5
+        from: 3
+        to: 3
     default_transition_length: 100ms
 
-script:
-  - id: reset_led
-    then:
-      - if:
-          condition:
-            - lambda: return id(notification);
-          then:
-            - light.turn_on:
-                id: top_led
-                blue: 100%
-                red: 100%
-                green: 0%
-                brightness: 100%
-                effect: slow_pulse
-          else:
-            - if:
-                condition:
-                  and:
-                    - switch.is_on: use_wake_word
-                    - switch.is_on: flicker_wake_word
-                    - binary_sensor.is_off: mute_switch
-                then:
-                  - light.turn_on:
-                      id: top_led
-                      blue: 100%
-                      red: 100%
-                      green: 0%
-                      brightness: 60%
-                      effect: listening_ww
-                else:
-                  - light.turn_off: top_led
+# script:
+#   - id: reset_led
+#     then:
+#       - if:
+#           condition:
+#             - lambda: return id(notification);
+#           then:
+#             - light.turn_on:
+#                 id: top_led
+#                 blue: 100%
+#                 red: 100%
+#                 green: 0%
+#                 brightness: 100%
+#                 effect: slow_pulse
+#           else:
+#             - if:
+#                 condition:
+#                   and:
+#                     # - switch.is_on: use_wake_word
+#                     # - switch.is_on: flicker_wake_word
+#                     # - binary_sensor.is_off: mute_switch
+#                 then:
+#                   - light.turn_on:
+#                       id: top_led
+#                       blue: 100%
+#                       red: 100%
+#                       green: 0%
+#                       brightness: 60%
+#                       effect: listening_ww
+#                 else:
+#                   - light.turn_off: top_led
 
-  - id: turn_on_notification
-    then:
-      - lambda: id(notification) = true;
-      - script.execute: reset_led
+#   - id: turn_on_notification
+#     then:
+#       - lambda: id(notification) = true;
+#       - script.execute: reset_led
 
-  - id: clear_notification
-    then:
-      - lambda: id(notification) = false;
-      - script.execute: reset_led
+#   - id: clear_notification
+#     then:
+#       - lambda: id(notification) = false;
+#       - script.execute: reset_led
 
-  - id: set_volume
-    mode: restart
-    parameters:
-      volume: float
-    then:
-      - media_player.volume_set:
-          id: onju_out
-          volume: !lambda return clamp(id(onju_out).volume+volume, 0.0f, 1.0f);
+#   - id: set_volume
+#     mode: restart
+#     parameters:
+#       volume: float
+#     then:
+#       - media_player.volume_set:
+#           id: onju_out
+#           volume: !lambda return clamp(id(onju_out).volume+volume, 0.0f, 1.0f);
 
-  - id: show_volume
-    mode: restart
-    then:
-      - light.turn_on:
-          id: top_led
-          effect: show_volume
-      - delay: 1s
-      - script.execute: reset_led
+#   - id: show_volume
+#     mode: restart
+#     then:
+#       - light.turn_on:
+#           id: top_led
+#           effect: show_volume
+#       - delay: 1s
+#       - script.execute: reset_led
 
-  - id: turn_on_wake_word
-    then:
-      - if:
-          condition:
-            and:
-              - binary_sensor.is_off: mute_switch
-              - switch.is_on: use_wake_word
-          then:
-            - micro_wake_word.start
-            - script.execute: reset_led
-          else:
-            - logger.log:
-                tag: "turn_on_wake_word"
-                format: "Trying to start listening for wake word, but %s"
-                args:
-                  [
-                    'id(mute_switch).state ? "mute switch is on" : "use wake word toggle is off"',
-                  ]
-                level: "INFO"
+#   - id: turn_on_wake_word
+#     then:
+#       - if:
+#           condition:
+#             and:
+#               - binary_sensor.is_off: mute_switch
+#               - switch.is_on: use_wake_word
+#           then:
+#             - lambda: id(va).set_use_wake_word(true);
+#             - if:
+#                 condition:
+#                   not:
+#                     media_player.is_idle:
+#                 then:
+#                   - media_player.stop:
+#             - if:
+#                 condition:
+#                   not:
+#                     - voice_assistant.is_running
+#                 then:
+#                   - voice_assistant.start_continuous
+#             - script.execute: reset_led
+#           else:
+#             - logger.log:
+#                 tag: "turn_on_wake_word"
+#                 format: "Trying to start listening for wake word, but %s"
+#                 args:
+#                   [
+#                     'id(mute_switch).state ? "mute switch is on" : "use wake word toggle is off"',
+#                   ]
+#                 level: "INFO"
 
-  - id: turn_off_wake_word
-    then:
-      - micro_wake_word.stop
-      - script.execute: reset_led
+#   - id: turn_off_wake_word
+#     then:
+#       - voice_assistant.stop
+#       - lambda: id(va).set_use_wake_word(false);
+#       - script.execute: reset_led
 
-  - id: calibrate_touch
-    parameters:
-      button: int
-    then:
-      - lambda: |-
-          static uint8_t thresh_indices[3] = {0, 0, 0};
-          static uint32_t sums[3] = {0, 0, 0};
-          static uint8_t qsizes[3] = {0, 0, 0};
-          static uint16_t consecutive_anomalies_per_button[3] = {0, 0, 0};
+#   - id: calibrate_touch
+#     parameters:
+#       button: int
+#     then:
+#       - lambda: |-
+#           static byte thresh_indices[3] = {0, 0, 0};
+#           static uint32_t sums[3] = {0, 0, 0};
+#           static byte qsizes[3] = {0, 0, 0};
+#           static int consecutive_anomalies_per_button[3] = {0, 0, 0};
 
-          uint32_t newval;
-          uint32_t* calibration_values;
-          switch(button) {
-            case 0:
-              newval = id(volume_down).get_value();
-              calibration_values = id(touch_calibration_values_left);
-              break;
-            case 1:
-              newval = id(action).get_value();
-              calibration_values = id(touch_calibration_values_center);
-              break;
-            case 2:
-              newval = id(volume_up).get_value();
-              calibration_values = id(touch_calibration_values_right);
-              break;
-            default:
-              ESP_LOGE("touch_calibration", "Invalid button ID (%d)", button);
-              return;
-          }
+#           uint32_t newval;
+#           uint32_t* calibration_values;
+#           switch(button) {
+#             case 0:
+#               newval = id(volume_down).get_value();
+#               calibration_values = id(touch_calibration_values_left);
+#               break;
+#             case 1:
+#               newval = id(action).get_value();
+#               calibration_values = id(touch_calibration_values_center);
+#               break;
+#             case 2:
+#               newval = id(volume_up).get_value();
+#               calibration_values = id(touch_calibration_values_right);
+#               break;
+#             default:
+#               ESP_LOGE("touch_calibration", "Invalid button ID (%d)", button);
+#               return;
+#           }
 
-          if(newval == 0) return;
+#           if(newval == 0) return;
 
-          //ESP_LOGD("touch_calibration", "[%d] qsize %d, sum %d, thresh_index %d, consecutive_anomalies %d", button, qsizes[button], sums[button], thresh_indices[button], consecutive_anomalies_per_button[button]);
-          //ESP_LOGD("touch_calibration", "[%d] New value is %d", button, newval);
+#           //ESP_LOGD("touch_calibration", "[%d] qsize %d, sum %d, thresh_index %d, consecutive_anomalies %d", button, qsizes[button], sums[button], thresh_indices[button], consecutive_anomalies_per_button[button]);
+#           //ESP_LOGD("touch_calibration", "[%d] New value is %d", button, newval);
 
-          if(qsizes[button] == 5) {
-            float avg = float(sums[button])/float(qsizes[button]);
-            if((fabs(float(newval)-avg)/avg) > id(thresh_percent)) {
-              consecutive_anomalies_per_button[button]++;
-              //ESP_LOGD("touch_calibration", "[%d] %d anomalies detected.", button, consecutive_anomalies_per_button[button]);
-              if(consecutive_anomalies_per_button[button] < 10)
-                return;
-            }
-          }
+#           if(qsizes[button] == 5) {
+#             float avg = float(sums[button])/float(qsizes[button]);
+#             if((fabs(float(newval)-avg)/avg) > id(thresh_percent)) {
+#               consecutive_anomalies_per_button[button]++;
+#               //ESP_LOGD("touch_calibration", "[%d] %d anomalies detected.", button, consecutive_anomalies_per_button[button]);
+#               if(consecutive_anomalies_per_button[button] < 10)
+#                 return;
+#             } 
+#           }
 
-          //ESP_LOGD("touch_calibration", "[%d] Resetting consecutive anomalies counter.", button);
-          consecutive_anomalies_per_button[button] = 0;
+#           //ESP_LOGD("touch_calibration", "[%d] Resetting consecutive anomalies counter.", button);
+#           consecutive_anomalies_per_button[button] = 0;
 
 
-          if(qsizes[button] == 5) {
-            //ESP_LOGD("touch_calibration", "[%d] Queue full, removing %d.", button, id(touch_calibration_values)[thresh_indices[button]]);
-            sums[button] -= (uint32_t) *(calibration_values+thresh_indices[button]);// id(touch_calibration_values)[thresh_indices[button]];
-            qsizes[button]--;
-          }
-          *(calibration_values+thresh_indices[button]) = newval;
-          sums[button] += newval;
-          qsizes[button]++;
-          thresh_indices[button] = (thresh_indices[button] + 1) % 5;
+#           if(qsizes[button] == 5) {
+#             //ESP_LOGD("touch_calibration", "[%d] Queue full, removing %d.", button, id(touch_calibration_values)[thresh_indices[button]]);
+#             sums[button] -= (uint32_t) *(calibration_values+thresh_indices[button]);// id(touch_calibration_values)[thresh_indices[button]];
+#             qsizes[button]--;
+#           }
+#           *(calibration_values+thresh_indices[button]) = newval;
+#           sums[button] += newval;
+#           qsizes[button]++;
+#           thresh_indices[button] = (thresh_indices[button] + 1) % 5;
 
-          //ESP_LOGD("touch_calibration", "[%d] Average value is %d", button, sums[button]/qsizes[button]);
-          uint32_t newthresh = uint32_t((sums[button]/qsizes[button]) * (1.0 + id(thresh_percent)));
-          //ESP_LOGD("touch_calibration", "[%d] Setting threshold %d", button, newthresh);
+#           //ESP_LOGD("touch_calibration", "[%d] Average value is %d", button, sums[button]/qsizes[button]);
+#           uint32_t newthresh = uint32_t((sums[button]/qsizes[button]) * (1.0 + id(thresh_percent)));
+#           //ESP_LOGD("touch_calibration", "[%d] Setting threshold %d", button, newthresh);
 
-          switch(button) {
-            case 0:
-              id(volume_down).set_threshold(newthresh);
-              break;
-            case 1:
-              id(action).set_threshold(newthresh);
-              break;
-            case 2:
-              id(volume_up).set_threshold(newthresh);
-              break;
-            default:
-              ESP_LOGE("touch_calibration", "Invalid button ID (%d)", button);
-              return;
-          }
+#           switch(button) {
+#             case 0:
+#               id(volume_down).set_threshold(newthresh);
+#               break;
+#             case 1:
+#               id(action).set_threshold(newthresh);
+#               break;
+#             case 2:
+#               id(volume_up).set_threshold(newthresh);
+#               break;
+#             default:
+#               ESP_LOGE("touch_calibration", "Invalid button ID (%d)", button);
+#               return;
+#           }
 
-switch:
-  - platform: template
-    name: Use Wake Word
-    id: use_wake_word
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
-    on_turn_on:
-      - script.execute: turn_on_wake_word
-    on_turn_off:
-      - script.execute: turn_off_wake_word
-  - platform: template
-    name: Wake Word Listening Light
-    id: flicker_wake_word
-    entity_category: config
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
-    on_turn_on:
-      - script.execute: reset_led
-    on_turn_off:
-      - script.execute: reset_led
-  - platform: gpio
-    id: dac_mute
-    restore_mode: ALWAYS_OFF
-    pin:
-      number: GPIO21
-      inverted: True
+# switch:
+#   - platform: template
+#     name: Use Wake Word
+#     id: use_wake_word
+#     optimistic: true
+#     restore_mode: RESTORE_DEFAULT_ON
+#     on_turn_on:
+#       - script.execute: turn_on_wake_word
+#     on_turn_off:
+#       - script.execute: turn_off_wake_word
+#   - platform: template
+#     name: Wake Word Listening Light
+#     id: flicker_wake_word
+#     entity_category: config
+#     optimistic: true
+#     restore_mode: RESTORE_DEFAULT_ON
+#     on_turn_on:
+#       - script.execute: reset_led
+#     on_turn_off:
+#       - script.execute: reset_led

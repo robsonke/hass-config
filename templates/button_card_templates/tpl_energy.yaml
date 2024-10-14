@@ -105,18 +105,18 @@ energy:
     unit: '€'
     circle_text: >
       [[[
-        return Math.round(states['sensor.current_price_electricity'].attributes.incl_tax * 100) / 100;
+        return Math.round(states['sensor.current_price_electricity'].state * 100) / 100;
       ]]]
     circle_input: >
       [[[
         // consider 50 cent as the highest price (hopefully)
-        return states['sensor.current_price_electricity'].attributes.incl_tax / 0.5 * 100
+        return states['sensor.current_price_electricity'].state / 0.5 * 100
       ]]]
   #custom_fields:
     # circle: >
     #   [[[
     #     let today = Math.round(states['sensor.daily_consumption_energy'].state);
-    #     let price = Math.round(states['sensor.current_price_electricity'].attributes.incl_tax * 100) / 100;
+    #     let price = Math.round(states['sensor.current_price_electricity'].state * 100) / 100;
     #     let level = states['sensor.energy_price_level'].state;
     #     let color = 'var(--green)';
     #     if (level === 'very_cheap') color = 'var(--blue)';

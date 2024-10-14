@@ -36,8 +36,6 @@ sensor:
       Authorization: !secret tibber_access_token
       Content-Type: application/json
       User-Agent: REST
-  - platform: nordpool_diff
-    nordpool_entity: sensor.nordpool_kwh_nl_eur_3_10_021
   - platform: group
     name: Meter readings
     type: last
@@ -386,14 +384,10 @@ template:
       unique_id: current_price_electricity
       unit_of_measurement: "EUR/kWh"
       attributes:
-        excl_tax: >
-          {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) }}
-        incl_tax: >
-          {{ (states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.12599) * 1.21 }}
         avg_price: >
-          {{ (state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + 0.12599) * 1.21 }}
+          {{ state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + (0.12599 * 1.21) }}
       state: >
-        {{ (states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + 0.12599) * 1.21 }}
+        {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + (0.12599 * 1.21) }}
 
     - name: "Electricity Cost Today"
       unique_id: electricity_cost_today
@@ -430,7 +424,7 @@ template:
       attributes:
         friendly_name: Average price today
       state: >-
-        {{ (((state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | sum(attribute='value') / state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | count) + 0.12599) * 1.21) | round(2, 'floor') }}
+        {{ ((state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | sum(attribute='value') / state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | count) + (0.12599 * 1.21)) | round(2, 'floor') }}
     - name: Average price tomorrow
       unique_id: average_price_tomorrow
       icon: mdi:lightning-bolt
@@ -442,7 +436,7 @@ template:
         {% if countTomorrow == 0 %}
           {{ "-" }}
         {% else %}
-          {{ (((sumTomorrow / countTomorrow) + 0.12599) * 1.21) | round(2, 'floor') }}
+          {{ ((sumTomorrow / countTomorrow) + (0.12599 * 1.21)) | round(2, 'floor') }}
         {% endif %}
 
   - binary_sensor:
