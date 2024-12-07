@@ -38,13 +38,20 @@
   },
   "device_automation": {
     "action_type": {
+      "delete_basic_charge_plan": "Ta bort grundläggande schema för laddning",
+      "delete_weekly_charge_plan": "Ta bort veckoschema för laddning",
+      "disable_basic_charge_plan": "Stäng av schema",
+      "disable_weekly_charge_plan": "Stäng av veckoschema",
+      "enable_basic_charge_plan": "Aktivera schema",
+      "enable_weekly_charge_plan": "Aktivera veckoschema",
       "override_schedule": "Åsidosätt schema",
       "pause": "Pausa laddningen",
-      "reboot": "Starta om laddaren",
+      "reboot": "Starta om laddboxen",
       "resume": "Återuppta laddningen",
-      "start": "Starta laddning",
-      "stop": "Stoppa laddning",
-      "toggle": "Växla laddning"
+      "start": "Auktorisera (starta) laddning",
+      "stop": "Avauktorisera (stoppa) laddning",
+      "toggle": "Växla laddning",
+      "update_firmware": "Uppdatera firmware"
     },
     "condition_type": {
       "authenticating": "{entity_name} autentiserar",
@@ -99,9 +106,6 @@
   },
   "entity": {
     "binary_sensor": {
-      "basic_schedule": {
-        "name": "Grundschema"
-      },
       "cable_locked": {
         "name": "Kabellås"
       },
@@ -110,9 +114,11 @@
       },
       "update_available": {
         "name": "Uppdatering tillgänglig"
-      },
-      "weekly_schedule": {
-        "name": "Veckoschema"
+      }
+    },
+    "button": {
+      "override_schedule": {
+        "name": "Åsidosätt schema"
       }
     },
     "sensor": {
@@ -135,7 +141,7 @@
         "name": "Ström"
       },
       "dynamic_charger_limit": {
-        "name": "Dynamisk laddarbegränsning"
+        "name": "Dynamisk laddboxbegränsning"
       },
       "dynamic_circuit_limit": {
         "name": "Dynamisk kretsbegränsning"
@@ -144,8 +150,8 @@
         "name": "Anledning för ingen ström",
         "state": {
           "car_not_charging": "Fordonet laddar inte",
-          "charger_disabled": "Laddaren avstängd",
-          "charger_in_error_state": "Laddaren i felläge",
+          "charger_disabled": "Laddboxen avstängd",
+          "charger_in_error_state": "Laddboxen i felläge",
           "circuit_fuse_too_low": "Kretssäkring för låg",
           "eq_too_low_current": "Equalizerström för låg",
           "ev_behaving_erratic": "Fordonsfel",
@@ -162,9 +168,9 @@
           "limited_by_local_adjustment": "Begränsad av lokal justering",
           "limited_by_offline_setting": "Begränsad av offline-läge",
           "limited_by_schedule": "Begränsad av schema",
-          "max_charger_current_too_low": "Laddarens maxström för låg",
+          "max_charger_current_too_low": "Laddboxens maxström för låg",
           "max_circuit_current_too_low": "Max kretsström för låg",
-          "max_dynamic_charger_current_too_low": "Laddarens dynamiska maxström för låg",
+          "max_dynamic_charger_current_too_low": "Laddboxens dynamiska maxström för låg",
           "max_dynamic_circuit_current_too_low": "Max dynamisk kretsström för låg",
           "max_dynamic_offline_fallback_circuit_current_too_low": "Max dynamic offline fallback circuit current too low",
           "no_current_request": "Ingen begäran om ström från sekundär enhet",
@@ -245,7 +251,7 @@
         "name": "Livstidsförbrukning"
       },
       "max_charger_limit": {
-        "name": "Max laddarbegränsning"
+        "name": "Max laddboxbegränsning"
       },
       "max_circuit_limit": {
         "name": "Max kretsbegränsning"
@@ -267,6 +273,9 @@
       }
     },
     "switch": {
+      "basic_schedule": {
+        "name": "Grundschema"
+      },
       "cable_locked_permanently": {
         "name": "Permanent kabellås"
       },
@@ -274,19 +283,25 @@
         "name": "Viloström"
       },
       "is_enabled": {
-        "name": "Laddare aktiverad"
+        "name": "Laddboxen aktiverad"
       },
       "smart_button": {
         "name": "Touch-knapp aktiverad"
       },
       "smart_charging": {
         "name": "Smart laddning"
+      },
+      "surplus": {
+        "name": "Överskottsladdning"
+      },
+      "weekly_schedule": {
+        "name": "Veckoschema"
       }
     }
   },
   "issues": {
     "currentpx_deprecation": {
-      "description": "Användningen av {argument} som fasström är utfasad och kommer inte att accepteras i framtida versioner. Konvertera dina automatiseringar och skript till att använda {recommendation} istället",
+      "description": "Användningen av {argument} som fasström är utfasad och kommer inte att accepteras i framtida versioner. Konvertera dina automatiseringar och skript till att använda {recommendation} istället.",
       "title": "Användning av {argument} i tjänstanrop"
     },
     "deprecated_service": {
@@ -294,7 +309,7 @@
       "title": "Användning av utfasad tjänst: {deprecation}"
     },
     "numeric_deprecation": {
-      "description": "Användningen av numeriskt värde för {argument} är utfasad och kommer inte att accepteras i framtida versioner. Konvertera dina automatiseringar och skript till att använda strängar {recommendation} istället",
+      "description": "Användningen av numeriskt värde för {argument} är utfasad och kommer inte att accepteras i framtida versioner. Konvertera dina automatiseringar och skript till att använda strängar {recommendation} istället.",
       "title": "Användning av numeriskt värde för {argument} i tjänstanrop"
     }
   },
@@ -328,14 +343,25 @@
       "options": {
         "delete_basic_charge_plan": "Ta bort grundläggande schema för laddning",
         "delete_weekly_charge_plan": "Ta bort veckoschema för laddning",
+        "disable_basic_charge_plan": "Stäng av schema",
+        "disable_weekly_charge_plan": "Stäng av veckoschema",
+        "enable_basic_charge_plan": "Aktivera schema",
+        "enable_weekly_charge_plan": "Aktivera veckoschema",
         "override_schedule": "Åsidosätt schema",
         "pause": "Pausa",
-        "reboot": "Starta om laddaren",
+        "reboot": "Starta om laddboxen",
         "resume": "Återuppta",
-        "start": "Starta",
-        "stop": "Stoppa",
+        "start": "Auktorisera (starta)",
+        "stop": "Avauktorisera (stoppa)",
         "toggle": "Växla",
         "update_firmware": "Uppdatera firmware"
+      }
+    },
+    "phase_mode": {
+      "options": {
+        "1_phase": "1-fas-läge",
+        "3_phase": "3-fas-läge",
+        "auto_phase": "Automatiskt fasläge"
       }
     },
     "weekday": {
@@ -352,7 +378,7 @@
   },
   "services": {
     "action_command": {
-      "description": "Skicka kommando till laddaren",
+      "description": "Skicka kommando till laddboxen",
       "fields": {
         "action_command": {
           "description": "Välj det kommando som ska köras",
@@ -368,6 +394,10 @@
     "set_basic_charge_plan": {
       "description": "Ställ in grundläggande schema för laddning",
       "fields": {
+        "current": {
+          "description": "Maximal ström i schema",
+          "name": "Maximal ström"
+        },
         "device_id": {
           "description": "Välj enhet som ska styras",
           "name": "Målenhet"
@@ -399,35 +429,49 @@
           "name": "Målenhet"
         }
       },
-      "name": "Ställ in åtkomst till laddare"
+      "name": "Ställ in åtkomst till laddbox"
     },
     "set_charger_dynamic_limit": {
-      "description": "Ställ in laddarens dynamiska gräns",
+      "description": "Ställ in laddboxens dynamiska gräns",
       "fields": {
         "current": {
           "description": "Max laddningsström",
           "name": "Ström"
         },
         "device_id": {
-          "description": "Välj en av laddarna i kretsen som ska styras.",
+          "description": "Välj en av laddboxarna i kretsen som ska styras.",
           "name": "Målenhet"
         }
       },
-      "name": "Ställ in laddarens dynamiska gräns"
+      "name": "Ställ in laddboxens dynamiska gräns"
     },
     "set_charger_max_limit": {
-      "description": "Ställ in laddarens maxgräns. Försiktighet! Bör inte användas av automatisering (kan slita ut flashminnet om det ställs in för ofta).",
+      "description": "Ställ in laddboxens maxgräns. Försiktighet! Bör inte användas av automatisering (kan slita ut flashminnet om det ställs in för ofta).",
       "fields": {
         "current": {
           "description": "Max laddningsström",
           "name": "Ström"
         },
         "device_id": {
-          "description": "Välj en av laddarna i kretsen som ska styras.",
+          "description": "Välj en av laddboxarna i kretsen som ska styras.",
           "name": "Målenhet"
         }
       },
-      "name": "Ställ in laddarens maxgräns"
+      "name": "Ställ in laddboxens maxgräns"
+    },
+    "set_charger_phase_mode": {
+      "description": "Ställ in laddboxens fasläge",
+      "fields": {
+        "device_id": {
+          "description": "Välj enhet som ska styras",
+          "name": "Målenhet"
+        },
+        "phase_mode": {
+          "description": "Laddboxens fasläge",
+          "name": "Fasläge"
+        }
+      },
+      "name": "Ställ in laddboxens fasläge"
     },
     "set_charging_cost": {
       "description": "Ställ in laddningskostnad per kWh för laddplats",
@@ -441,7 +485,7 @@
           "name": "Valuta"
         },
         "device_id": {
-          "description": "Välj en av laddarna i kretsen som ska styras.",
+          "description": "Välj en av laddboxarna i kretsen som ska styras.",
           "name": "Målenhet"
         },
         "vat": {
@@ -452,7 +496,7 @@
       "name": "Ställ in laddningskostnad"
     },
     "set_circuit_dynamic_limit": {
-      "description": "Ställ in kretsens dynamiska gräns (delad mellan laddare på den kretsen). Denna tjänst kan användas i automatiseringar.",
+      "description": "Ställ in kretsens dynamiska gräns (delad mellan laddboxarna på den kretsen). Denna tjänst kan användas i automatiseringar.",
       "fields": {
         "current_p1": {
           "description": "Max laddningsström",
@@ -467,7 +511,7 @@
           "name": "Ström fas 3"
         },
         "device_id": {
-          "description": "Välj en av laddarna i kretsen som ska styras.",
+          "description": "Välj en av laddboxarna i kretsen som ska styras.",
           "name": "Målenhet"
         },
         "time_to_live": {
@@ -493,14 +537,14 @@
           "name": "Ström fas 3"
         },
         "device_id": {
-          "description": "Välj en av laddarna i kretsen som ska styras.",
+          "description": "Välj en av laddboxarna i kretsen som ska styras.",
           "name": "Målenhet"
         }
       },
       "name": "Ställ in maxgräns för krets"
     },
     "set_circuit_offline_limit": {
-      "description": "Ställ in kretsens offlinegräns som används om laddaren är offline (reserv). Försiktighet! Bör inte användas av automatisering (kan slita ut flashminnet om det ställs in för ofta).",
+      "description": "Ställ in kretsens offlinegräns som används om laddboxen är offline (reserv). Försiktighet! Bör inte användas av automatisering (kan slita ut flashminnet om det ställs in för ofta).",
       "fields": {
         "current_p1": {
           "description": "Max laddningsström",
@@ -515,15 +559,37 @@
           "name": "Ström fas 3"
         },
         "device_id": {
-          "description": "Välj en av laddarna i kretsen som ska styras.",
+          "description": "Välj en av laddboxarna i kretsen som ska styras.",
           "name": "Målenhet"
         }
       },
       "name": "Ange offlinegräns för krets"
     },
+    "set_surplus_charging": {
+      "description": "Ställ in equalizer överskottsladdning",
+      "fields": {
+        "current": {
+          "description": "Max ström från elnätet",
+          "name": "Ström"
+        },
+        "device_id": {
+          "description": "Välj enhet som ska styras",
+          "name": "Målenhet"
+        },
+        "enable": {
+          "description": "Aktivera överskottsladdning",
+          "name": "Aktivera"
+        }
+      },
+      "name": "Ställ in överskottsladdning"
+    },
     "set_weekly_charge_plan": {
       "description": "Ställ in veckoschema för laddning",
       "fields": {
+        "current": {
+          "description": "Maximal ström i schema",
+          "name": "Maximal ström"
+        },
         "day": {
           "description": "Veckodag för detta schema",
           "name": "Veckodag"

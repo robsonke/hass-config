@@ -34,6 +34,74 @@ browser_mod:
               entities:
                 - entity: person.steffi
                   secondary_info: last-changed
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-cover-card
+                  entity: cover.bed_steffi
+                  show_tilt_position_control: false
+                  show_buttons_control: true
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                  double_tap_action:
+                    action: none
+                  secondary_info: none
+                  fill_container: false
+                  layout: horizontal
+                - type: custom:mod-card
+                  style:
+                    hui-grid-card$: |
+                      div#root {
+                        display: grid;
+                        grid-template-columns: min-content max-content;
+                      }
+                    hui-grid-card$ mushroom-entity-card$: |
+                      ha-card {
+                        border: unset;
+                        background: unset;
+                        --icon-primary-color: var(--primary-text-color);
+                        --grip-card-gap: 0;
+                      }
+                  card:
+                    type: grid
+                    square: false
+                    columns: 2
+                    cards:
+                      - type: custom:mushroom-entity-card
+                        entity: cover.bed_steffi
+                        name: Lezen
+                        primary_info: none
+                        secondary_info: none
+                        icon: mdi:book-alphabet
+                        tap_action:
+                          action: call-service
+                          service: rest_command.auping_bed
+                          data:
+                            cbu: 1
+                            motor_1_action: 0
+                            motor_1_time: 0
+                            motor_2_action: 1
+                            motor_2_time: 12000
+                            motor_3_action: 0
+                            motor_3_time: 0
+                      - type: custom:mushroom-entity-card
+                        entity: cover.bed_steffi
+                        name: TV kijken
+                        primary_info: none
+                        secondary_info: none
+                        icon: mdi:television-classic
+                        tap_action:
+                          action: call-service
+                          service: rest_command.auping_bed
+                          data:
+                            cbu: 1
+                            motor_1_action: 0
+                            motor_1_time: 0
+                            motor_2_action: 1
+                            motor_2_time: 16000
+                            motor_3_action: 0
+                            motor_3_time: 0
             - type: history-graph
               entities:
                 - entity: person.steffi

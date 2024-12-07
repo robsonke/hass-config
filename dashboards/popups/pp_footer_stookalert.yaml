@@ -2,7 +2,7 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
-    title: Stookalert en Stookwijzer
+    title: Stookwijzer
     timeout: 60000
     content:
       type: vertical-stack
@@ -12,10 +12,9 @@ browser_mod:
           refresh_interval: 30
           entities:
             - sensor.stookwijzer
+            - sensor.stookwijzer_air_quality_index
         - type: entities
           show_header_toggle: false
           entities:
             - entity: sensor.stookwijzer
               name: Niveau
-            - entity: binary_sensor.stookalert_zeeland
-              name: Stook alert

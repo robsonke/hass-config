@@ -13,11 +13,17 @@
           data:
             persistent: true
             tag: persistent
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Battery low
+          message: "\U0001F50B Low battery warning for {{sensors|replace(\"_\",\"
+            \")}}"
 - id: alarm_auto_arm_when_away
   alias: Alarm - Auto arm since we're away and all is closed
   description: We didn't enable the Guest mode and we both left, arm the house
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: zone.home
     for:
       hours: 0
@@ -100,7 +106,7 @@
   description: Change the alarm state to triggering when an important door or window
     opens
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: sensor.doors_windows_open_count
   condition:
   - condition: template
@@ -118,7 +124,7 @@
   description: Now we are in trouble, the alarm is triggered and we have not disarmed
     it. A lot of noise and lights will be activated.
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: alarm_control_panel.alarmo
     to: triggered
   action:
@@ -171,7 +177,7 @@
   description: Warn the person that walked in about the armed alarm, goal is to disarm
     asap
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: alarm_control_panel.alarmo
     to: pending
   action:
@@ -204,7 +210,7 @@
   description: Send a message that the alarm is properly disarmed and inform the person
     over speakers
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: alarm_control_panel.alarmo
     from: triggered,pending
     to: disarmed
@@ -226,7 +232,7 @@
   description: When we have disabled all automatic lighting, we reset this in the
     early morning to make sure we're back to normal the next day
   trigger:
-  - platform: time
+  - trigger: time
     at: 05:00:00
   condition:
   - condition: or
@@ -250,7 +256,7 @@
   description: Switch standard lights on when it's after 2 PM and light level too
     low
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.light_sensor_living_illuminance_lux
     below: '30'
   condition:
@@ -272,12 +278,6 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - action: notify.mobile_app_iphone_rob
-    data:
-      message: "\U0001F4A1 Verlichting automatisch aan - niet thuis"
-      data:
-        persistent: true
-        tag: persistent
   - action: script.lights_on_away
     data: {}
   - delay:
@@ -291,7 +291,7 @@
   description: Switch standard lights on when it's after 2 PM and light level too
     low
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id:
     - sensor.light_sensor_living_illuminance_lux
     below: '30'
@@ -326,40 +326,37 @@
   alias: Backup - Snapshots went stale
   description: Send a push message when the backups are failing
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.snapshots_stale
     from: 'False'
     to: 'True'
   condition: []
   action:
-  - action: notify.mobile_app_iphone_rob
+  - action: persistent_notification.create
     data:
       title: "\U0001F6A8\U0001F6A8 Snapshots are Stale \U0001F6A8\U0001F6A8"
       message: Please visit the Hass.io Google Drive Backup add-on status page for
         details.
-      data:
-        persistent: true
-        tag: persistent
 - id: calendar_trash_alert
   alias: Calendar - Afval Calendar Alert
   description: Send messages when a trash bin should be put outside
   trigger:
   - entity_id: sensor.template_gft_days_until_collection
-    platform: state
+    trigger: state
     to: '1'
     for:
       hours: 20
       minutes: 0
       seconds: 0
   - entity_id: sensor.template_rest_days_until_collection
-    platform: state
+    trigger: state
     to: '1'
     for:
       hours: 20
       minutes: 0
       seconds: 0
   - entity_id: sensor.template_paper_days_until_collection
-    platform: state
+    trigger: state
     to: '0'
     for:
       hours: 16
@@ -377,7 +374,7 @@
   alias: Doorbell - Notification Doorbell Ring
   description: Say ding dong through the speakers when doorbell rings
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.langeweide_doorbell_visitor
     from: 'off'
@@ -406,18 +403,18 @@
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
     garden
-  trigger:
-  - platform: numeric_state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.light_sensor_garden_illuminance_lux
     below: 8
-  - platform: time
-    at: 07:00
-  - platform: numeric_state
-    entity_id: sun.sun
+    trigger: numeric_state
+  - at: 07:00
+    trigger: time
+  - entity_id: sun.sun
     attribute: elevation
     below: '-3'
-  condition:
+    trigger: numeric_state
+  conditions:
   - condition: or
     conditions:
     - condition: and
@@ -465,13 +462,17 @@
       hours: 0
       minutes: 15
       seconds: 0
-  action:
+  actions:
   - action: light.turn_on
     data:
       brightness_pct: 50
     target:
       entity_id:
       - light.garden_light
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.kerst_buiten
   - action: light.turn_on
     data:
       kelvin: 2200
@@ -518,11 +519,10 @@
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights - morning
   description: Turn off lights in the garden in the morning
-  trigger:
-  - platform: time
-    at: 09:00
-  - platform: numeric_state
-    entity_id:
+  triggers:
+  - at: 09:00
+    trigger: time
+  - entity_id:
     - sensor.light_sensor_garden_illuminance_lux
     above: 5
     for:
@@ -530,11 +530,12 @@
       minutes: 5
       seconds: 0
       milliseconds: 0
-  condition:
+    trigger: numeric_state
+  conditions:
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
-  action:
+  actions:
   - action: light.turn_off
     data: {}
     target:
@@ -544,6 +545,7 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
+      - light.kerst_buiten
   - delay:
       hours: 0
       minutes: 0
@@ -571,20 +573,20 @@
   alias: Sleep - Switch to night mode manually
   description: Go to bed switch, turn off all we don't need during the night. Lights,
     music, tv, etc. And turn on the alarm
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - alarm_control_panel.alarmo
     from: disarmed
     to: armed_night
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
     - condition: time
       after: '21:00:00'
     - condition: time
       before: 05:00
-  action:
+  actions:
   - parallel:
     - action: script.sleep_well
       data: {}
@@ -602,10 +604,16 @@
       - action: light.turn_off
         target:
           entity_id: light.dimmer_hall
+        data: {}
       alias: Turn on hall light shortly
   - alias: Turn off the couch and corner light too if it's after 11 pm
-    condition: time
-    after: '22:55:00'
+    condition: or
+    conditions:
+    - condition: time
+      after: '22:55:00'
+    - condition: time
+      after: 00:00:00
+      before: 05:00:00
   - action: light.turn_off
     target:
       entity_id:
@@ -617,7 +625,7 @@
   alias: Lights - Turn off lights automatically - bedtime
   description: Turn off main lights when we're not home or already went to bed
   trigger:
-  - platform: time_pattern
+  - trigger: time_pattern
     minutes: /1
   condition:
   - condition: and
@@ -637,12 +645,6 @@
       entity_id: input_boolean.guest_mode
       state: 'off'
   action:
-  - action: notify.mobile_app_iphone_rob
-    data:
-      message: "\U0001F4A1 Verlichting automatisch uit"
-      data:
-        persistent: true
-        tag: persistent
   - action: script.sleep_well
     data: {}
   - action: light.turn_off
@@ -654,7 +656,7 @@
 - id: closet_light_turn_on
   alias: Lights - Turn on lights when closet door opens
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.door_hallcloset_openclose_contact
     from: 'off'
     to: 'on'
@@ -664,7 +666,7 @@
     target:
       entity_id: light.hallcloset_light
   - wait_for_trigger:
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.door_hallcloset_openclose_contact
       from: 'on'
       to: 'off'
@@ -674,12 +676,12 @@
       entity_id: light.hallcloset_light
 - id: lights_kitchen_turn_on_when_awake_morning
   alias: Lights - Turn on lights when hallway door opens in the early morning
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.hallwaydoor_openclose_contact
+  triggers:
+  - entity_id: binary_sensor.hallwaydoor_openclose_contact
     from: 'off'
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: time
     after: 04:00
     before: '11:00:00'
@@ -690,7 +692,7 @@
       hours: 0
       minutes: 10
       seconds: 0
-  action:
+  actions:
   - action: alarm_control_panel.alarm_disarm
     data:
       code: automation
@@ -718,15 +720,19 @@
       entity_id:
       - light.kitchendesk_light
       - light.diningtable_light
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.kerst_binnen
   mode: single
 - id: restart_ssh_addon
   alias: Hass - Restart SSH Addon
   description: Restart the ssh addon after a HA restart, required to get the hassio.addon_stdin
     to work
   trigger:
-  - platform: homeassistant
+  - trigger: homeassistant
     event: start
-  - platform: time
+  - trigger: time
     at: 01:00:00
   action:
   - delay: 00:04
@@ -743,7 +749,7 @@
   id: system_lets_encrypt
   description: Restart the lets encrypt addon, this should renew the certificate
   trigger:
-    platform: time
+    trigger: time
     at: 01:15:00
   action:
   - action: hassio.addon_restart
@@ -753,7 +759,7 @@
   id: lights_reset_disabled_accidentally
   description: Check every hour if this wasn't done by accident
   trigger:
-    platform: time_pattern
+    trigger: time_pattern
     hours: /1
   condition:
     condition: and
@@ -770,22 +776,16 @@
         entity_id: input_boolean.enable_automatic_garden_lights
         state: 'off'
   action:
-    action: notify.mobile_app_iphone_rob
+  - action: persistent_notification.create
     data:
+      title: Verlichting
       message: De automatische verlichting is uitgeschakeld, dit is mogelijk onbewust.
-      data:
-        persistent: true
-        tag: persistent
-        actions:
-        - action: URI
-          title: Open Hass
-          uri: /lovelace/0
 - id: presence_detection_message_speakers
   alias: Presence - Inform that one of us comes home
   description: Shout through speakers that somebody is arriving when the other one
     is home
   trigger:
-  - platform: state
+  - trigger: state
     for:
       seconds: 15
     entity_id:
@@ -816,7 +816,7 @@
 - id: presence_frigate_object_detection
   alias: Alarm - Notify of person events on camera
   trigger:
-  - platform: mqtt
+  - trigger: mqtt
     topic: frigate/events
   condition:
   - condition: or
@@ -865,9 +865,9 @@
 - alias: Theme - Switch to dark mode
   id: theme_switch_dark
   trigger:
-  - platform: time
+  - trigger: time
     at: '22:00:00'
-  - platform: sun
+  - trigger: sun
     event: sunset
   condition: '{{ is_state(''input_boolean.dark_mode'', ''off'') }}'
   action:
@@ -876,9 +876,9 @@
 - alias: Theme - Switch to light mode
   id: theme_switch_light
   trigger:
-  - platform: time
+  - trigger: time
     at: 09:00:00
-  - platform: sun
+  - trigger: sun
     event: sunrise
   condition: '{{ is_state(''input_boolean.dark_mode'', ''on'') }}'
   action:
@@ -887,7 +887,7 @@
 - id: theme_switch_manually
   alias: Theme - Change theme manually
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: input_boolean.dark_mode
   action:
   - action: browser_mod.set_theme
@@ -898,7 +898,7 @@
 - id: lovelace_convert_json_yaml
   alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: sensor.lovelace_size
   action:
   - action: shell_command.convert_lovelace
@@ -907,7 +907,7 @@
   alias: Vacuum - Sjorsje Bin Full
   trigger:
   - entity_id: binary_sensor.sjorsje_bin_full
-    platform: state
+    trigger: state
     to: 'on'
   action:
   - action: notify.all_phones
@@ -916,19 +916,27 @@
       data:
         persistent: true
         tag: persistent
+  - action: persistent_notification.create
+    data:
+      title: Opvangbak Sjorsje
+      message: "\U0001F9F9 Sjorsje's opvangbak zit vol"
 - alias: Vacuum - Sjorsje Battery Empty
   id: sjorsje_battery_empty
   trigger:
   - entity_id: sensor.sjorsje_battery_level
-    platform: numeric_state
+    trigger: numeric_state
     below: 20
   action:
-    action: notify.all_phones
+  - action: notify.all_phones
     data:
       message: "\U0001F50B Sjorsje's accu raakt leeg"
       data:
         persistent: true
         tag: persistent
+  - action: persistent_notification.create
+    data:
+      title: Accu Sjorsje
+      message: "\U0001F50B Sjorsje's accu raakt leeg"
 - id: '1618732336311'
   alias: Dishwasher - Dishwasher ready
   description: ''
@@ -952,7 +960,7 @@
   description: We didn't enable the Guest mode and we both left, lock the doors if
     they are not
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - zone.home
     to: '0'
@@ -979,7 +987,7 @@
   alias: Presence - Enable detection because one of us left or in night mode
   description: Activate Frigate object detection
   trigger:
-  - platform: state
+  - trigger: state
     for:
       hours: 0
       minutes: 0
@@ -987,10 +995,10 @@
     entity_id:
     - zone.home
     to: '1'
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: zone.home
     below: '2'
-  - platform: state
+  - trigger: state
     entity_id:
     - alarm_control_panel.alarmo
     from: disarmed
@@ -1021,7 +1029,7 @@
   alias: Presence - Disable detection because day starts
   description: Deactivate Frigate object detection
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - alarm_control_panel.alarmo
     from: armed_night
@@ -1044,7 +1052,7 @@
   alias: Night - Check for open windows and doors
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - alarm_control_panel.alarmo
     from: disarmed
@@ -1066,7 +1074,7 @@
   alias: Doors - Alert when frontdoor is open too long
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.frontdoor_openclose_contact
     for: '1800'
     from: 'off'
@@ -1084,7 +1092,7 @@
   alias: Doors - Nuki battery critical
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.nuki_voordeur_slot_battery_critical
     to: 'on'
     for:
@@ -1094,19 +1102,17 @@
     from: 'off'
   condition: []
   action:
-  - action: notify.all_phones
-    data_template:
+  - action: persistent_notification.create
+    data:
+      title: Batterij Nuki
       message: Let op, batterij status van het voordeur slot is kritiek!
-      data:
-        persistent: true
-        tag: persistent
   mode: single
 - id: '1623609811213'
   alias: Screens - Close screens voorraam on warm sunny days
   description: In case it's warm and sunny, close the screens in the morning but the
     one on the side a bit later
   trigger:
-  - platform: time_pattern
+  - trigger: time_pattern
     minutes: /15
   condition:
   - condition: and
@@ -1164,16 +1170,16 @@
   description: Open the screen by the end of the day or when the sun is gone or when
     it's too windy
   trigger:
-  - platform: time
+  - trigger: time
     at: '18:00:00'
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
     above: '90'
     for:
       hours: 0
       minutes: 10
       seconds: 0
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
       hours: 0
@@ -1227,19 +1233,19 @@
   description: Open the screen by the end of the day or when the sun is gone or it's
     too windy
   trigger:
-  - platform: time
+  - trigger: time
     at: '21:00'
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.openweathermap_forecast_cloud_coverage
     above: '90'
     for:
       hours: 0
       minutes: 10
       seconds: 0
-  - platform: sun
+  - trigger: sun
     event: sunset
     offset: -00:30:00
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
       hours: 0
@@ -1292,7 +1298,7 @@
   alias: Sleep - Switch to night mode automatically when home
   description: In case we're home but forgot night mode, do it for us
   trigger:
-  - platform: time
+  - trigger: time
     at: 00:30
   condition:
   - condition: state
@@ -1327,7 +1333,7 @@
   alias: Presence - Disable detection because we are both home
   description: Deactivate Frigate object detection
   trigger:
-  - platform: state
+  - trigger: state
     for: 0:00:15
     entity_id: person.rob,person.steffi
     to: home
@@ -1356,7 +1362,7 @@
   alias: Car - Lock the doors when open too long
   description: Lock the car automatically after 15 minutes
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.ix3_door_lock_state
     to: 'on'
     for: 02:00:00
@@ -1376,7 +1382,7 @@
   alias: Alarm - Disable alarm manually
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.switch_alarm_activity_action
     to: 'on'
@@ -1435,7 +1441,7 @@
   alias: Doors - Alert when backdoor is open too long
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.backdoor_openclose_contact
     for: '1800'
     from: 'off'
@@ -1453,15 +1459,15 @@
   alias: Doors - Alert when sheddoor is open too long and we're away
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.sheddoor_openclose_contact
     from: 'off'
     to: 'on'
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.sheddoor_back_openclose_contact
     from: 'off'
     to: 'on'
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.cabindoor_openclose_contact
     from: 'off'
@@ -1496,7 +1502,7 @@
   alias: Alarm - Turn on lights when person events on camera
   description: ''
   trigger:
-  - platform: mqtt
+  - trigger: mqtt
     topic: frigate/events
   condition:
   - condition: or
@@ -1565,7 +1571,7 @@
   alias: Alarm - Notify why arming failed
   description: ''
   trigger:
-  - platform: event
+  - trigger: event
     event_type: alarmo_failed_to_arm
   condition:
   - condition: template
@@ -1591,9 +1597,9 @@
   alias: Alarm - Enable guest mode when nanny or cleaner home
   description: Enable on Thursday when we're away or leaving the house
   trigger:
-  - platform: time
+  - trigger: time
     at: '12:30:00'
-  - platform: state
+  - trigger: state
     entity_id:
     - zone.home
     to: '0'
@@ -1640,11 +1646,11 @@
   description: When we come home after sunset, a few lights are on, so turn on more
     lights
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: person.rob,person.steffi
     to: home
     for: 0:00:30
-  - platform: state
+  - trigger: state
     entity_id: device_tracker.ix3
     from: not_home
     to: home
@@ -1668,7 +1674,7 @@
   alias: Lights - Turn off lights when dark - leaving
   description: We leave the house in when dark, turn off a few lights
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - zone.home
     to: '0'
@@ -1717,7 +1723,7 @@
   alias: Lights - Turn off lights when lighter
   description: Turn off lights in the morning or during the day after a darker period
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.light_sensor_living_illuminance_lux
     above: '60'
     for:
@@ -1749,7 +1755,7 @@
   alias: Music - Turn off music when we left
   description: We didn't enable the Guest mode and we both left, stop the music
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - zone.home
     to: '0'
@@ -1771,28 +1777,11 @@
       - media_player.living_room
     data: {}
   mode: single
-- id: '1636140145870'
-  alias: Fire - Stookalert active
-  description: There's a Dutch RIVM Stookalert
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.stookalert_zeeland
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - action: notify.all_phones
-    data:
-      message: Het RIVM heeft een stookalert afgegeven, kacheltje uit.
-      data:
-        persistent: true
-        tag: persistent
-  mode: single
 - id: '1636140714636'
   alias: Car - Alert when car windows open too long
   description: Lets not let the rain in for too long, again
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: binary_sensor.ix3_windows
     to: 'on'
     for:
@@ -1813,7 +1802,7 @@
   alias: System - Notify entities being offline
   description: Check for a specific list of monitored entities if they are available
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: sensor.unavailable_entities
     for:
       hours: 0
@@ -1821,17 +1810,11 @@
       seconds: 10
     from: Online
   action:
-  - action: notify.mobile_app_iphone_rob
-    data_template:
+  - action: persistent_notification.create
+    data:
+      title: Belangrijke devices
       message: "\U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable
         }}"
-      data:
-        persistent: true
-        tag: persistent
-        actions:
-        - action: URI
-          title: Open hardware
-          uri: /lovelace/6
   variables:
     from_state: '{{ states(''input_text.unavailable_entities_temp_state'') }}'
     from_state_list: '{{ from_state.split('', '') }}'
@@ -1866,7 +1849,7 @@
   alias: Lights - Turn off lights upstairs when leaving
   description: When we move away, all upstairs can be turned off
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - zone.home
     to: '0'
@@ -1885,7 +1868,7 @@
   alias: iOS - Good night
   description: Good night action from app or watch
   trigger:
-  - platform: event
+  - trigger: event
     event_type: ios.action_fired
     event_data:
       actionName: good_night
@@ -1931,7 +1914,7 @@
   alias: Alarm - Silence alarm by notification
   description: Silence alarm when beeping through push notification action when
   trigger:
-  - platform: event
+  - trigger: event
     event_type: mobile_app_notification_action
     event_data:
       action: SILENCE_ALARM
@@ -1959,7 +1942,7 @@
   alias: Heating - Turn on heating main bedroom
   description: Turn on heating before schedule turns on
   trigger:
-  - platform: time
+  - trigger: time
     at: 09:55
   condition: []
   action:
@@ -1971,7 +1954,7 @@
   alias: Heating - Turn off heating main bedroom
   description: Turn on heating after schedule turns off
   trigger:
-  - platform: time
+  - trigger: time
     at: '22:05:00'
   condition: []
   action:
@@ -2007,14 +1990,14 @@
   description: Turn on between 10h and 19h only when the temperature is too low and
     the windows are closed
   trigger:
-  - platform: homeassistant
+  - trigger: homeassistant
     event: start
-  - platform: time_pattern
+  - trigger: time_pattern
     minutes: /10
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.energy_price_level
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
     - binary_sensor.window_masterbed_2_openclose_contact
@@ -2068,19 +2051,26 @@
   alias: Garden - Turn off garden lights - evening
   description: Turn off lights in the garden in the evening but keep a few on on low
     brightness. Turn off when we go to bed, guest mode is off or otherwise at 23:00.
-  trigger:
-  - platform: time
-    at: '23:00'
-  - platform: state
-    entity_id:
+  triggers:
+  - at: '23:00'
+    trigger: time
+  - at: 01:00
+    trigger: time
+  - entity_id:
     - alarm_control_panel.alarmo
     to: armed_night
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
-  - condition: time
-    after: '22:59:00'
+  - condition: or
+    conditions:
+    - condition: time
+      after: '22:59:00'
+    - condition: time
+      after: 00:00:00
+      before: 02:00:00
   - condition: or
     conditions:
     - condition: state
@@ -2089,7 +2079,10 @@
     - condition: state
       entity_id: alarm_control_panel.alarmo
       state: armed_away
-  action:
+    - condition: time
+      after: 00:00:00
+      before: 02:00:00
+  actions:
   - delay:
       hours: 0
       minutes: 5
@@ -2100,6 +2093,7 @@
     target:
       entity_id:
       - light.veranda_light
+      - light.kerst_buiten
   - action: light.turn_off
     data: {}
     target:
@@ -2187,7 +2181,7 @@
   description: In case it's warm and sunny, close the screens in the morning but the
     one on the side a bit later
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.rate_rain_piezo
     - sensor.today_maximum_temperature
@@ -2245,18 +2239,18 @@
   description: Turn on the pool heat pump and choose a run mode (normal/silent/super
     silent) based on need and energy pricing and outdoor temperature
   trigger:
-  - platform: state
+  - trigger: state
     entity_id: sensor.today_maximum_temperature
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.pool_pump_active
     for:
       hours: 0
       minutes: 10
       seconds: 0
-  - platform: state
+  - trigger: state
     entity_id: sensor.pool_heating_temperature_diff
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.cheapest_16_hours_24h
     for:
@@ -2339,19 +2333,19 @@
   description: Disable the heatpump based on need and energy pricing. Also lower the
     expected temperature to avoid the pump itself decides to turn on.
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.energy_price_level
     attribute: percentage
     above: '115'
-  - platform: state
+  - trigger: state
     entity_id:
     - water_heater.domestic_hot_water_tank
     attribute: current_temperature
-  - platform: state
+  - trigger: state
     entity_id:
     - water_heater.domestic_hot_water_tank
     attribute: temperature
-  - platform: time_pattern
+  - trigger: time_pattern
     minutes: /15
   condition:
   - condition: or
@@ -2400,7 +2394,7 @@
     sensors. And even when it does turn on, other automations might stop that, based
     on the heating and cooling input booleans.'
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.downstairs_temperature
   condition: []
@@ -2487,7 +2481,7 @@
     action
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - cover.voorraam
     - cover.zijraam
@@ -2520,6 +2514,11 @@
       switch: switch.shelly_plug_s_8_fridge1_relay
       max_time_off: 30
       actions:
+      - action: persistent_notification.create
+        data:
+          title: Vriezer schuur!
+          message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur
+            uit!"
       - action: notify.all_phones
         data:
           message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur
@@ -2542,11 +2541,15 @@
           data:
             persistent: true
             tag: persistent
+      - action: persistent_notification.create
+        data:
+          title: Koelkast schuur!
+          message: "\U0001F9CA Let op, de koelkast staat al een half uur uit!"
 - id: '1663353341942'
   alias: System - Alert in case of heavy water usage in one day
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.water_daily
   condition:
@@ -2554,12 +2557,10 @@
     entity_id: sensor.water_daily
     above: 5
   action:
-  - action: notify.all_phones
+  - action: persistent_notification.create
     data:
+      title: Water verbruik
       message: "\U0001F4A6 Let op, we hebben vandaag al meer dan 5 kuub water verbruikt!"
-      data:
-        persistent: true
-        tag: persistent
   mode: single
 - id: '1663403485592'
   alias: HVAC - Set default temperature
@@ -2567,10 +2568,10 @@
     the hvac scheduler (lower effort in the night). Overall, heatpumps better have
     some kind of default minimum, so we never go below 18 degrees
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - schedule.hvac_schedule
-  - platform: state
+  - trigger: state
     entity_id:
     - input_number.hvac_winter_target_temperature
     - input_number.hvac_summer_target_temperature
@@ -2647,14 +2648,14 @@
     on pricing or potential PV over capacity (later). So far, using the price works
     oke, the higher the price, the more need there is for power, so the less we do.
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.energy_price_level
-  - platform: state
+  - trigger: state
     entity_id:
     - input_boolean.heating_downstairs
     - input_boolean.cooling_downstairs
-  - platform: state
+  - trigger: state
     entity_id:
     - climate.warmtepomp
   condition:
@@ -2743,7 +2744,7 @@
   alias: Presence - Disable Guest Mode when one of us comes home
   description: To avoid we forget to turn it off
   trigger:
-  - platform: state
+  - trigger: state
     for:
       seconds: 15
     entity_id:
@@ -2779,9 +2780,9 @@
   description: Turn simply on/off the heaters in both bathrooms. These are stupid
     devices with their own local thermostat, so we just turn them on to dry towells.
   trigger:
-  - platform: time
+  - trigger: time
     at: 09:00:00
-  - platform: time
+  - trigger: time
     at: '22:00:00'
   condition:
   - condition: numeric_state
@@ -2811,7 +2812,7 @@
   alias: Humidifier - Alert when bin is full
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.master_bedroom_tank_full
     to: 'on'
@@ -2827,6 +2828,10 @@
       data:
         persistent: true
         tag: persistent
+  - action: persistent_notification.create
+    data:
+      title: Ontvochtiger slaapkamer
+      message: "\U0001F4A6 De waterbak van de ontvochtiger zit vol, zsm legen"
   mode: single
 - id: '1673167830535'
   alias: Humidifier - Control the humidifier based on humidity, windows and electricity
@@ -2834,12 +2839,12 @@
   description: Turn on between 10h and 22h only when the air is too humid and the
     windows are closed
   trigger:
-  - platform: homeassistant
+  - trigger: homeassistant
     event: start
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.energy_price_level
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
     - binary_sensor.window_masterbed_2_openclose_contact
@@ -2912,7 +2917,7 @@
   alias: System - Inform Frigate off
   description: Inform when Frigate isn't running, since we won't be recording either
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.frigate_nvr_running
     to: 'off'
@@ -2928,12 +2933,16 @@
       data:
         persistent: true
         tag: persistent
+  - action: persistent_notification.create
+    data:
+      title: Frigate Addon
+      message: "\U0001F3A5 Frigate staat uit, aanzetten aub"
   mode: single
 - id: '1683057208426'
   alias: Vacuum - Alert Sjorsje offline
   description: Alert when Sjorsje is offline
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - vacuum.sjorsje
   condition:
@@ -2941,25 +2950,23 @@
     entity_id: vacuum.sjorsje
     state: unavailable
   action:
-  - action: notify.all_phones
+  - action: persistent_notification.create
     data:
+      title: Sjorsje kwijt
       message: "\U0001F5D1 Sjorsje is onbereikbaar"
-      data:
-        persistent: true
-        tag: persistent
   mode: single
 - id: '1684057104240'
   alias: Pool - Switch heating between silent and super silent
   description: Based on the target temperature and current temperature, move to silent
     or super silent mode.
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.pool_fairland_heatpump_inlet_water_temperature
-  - platform: state
+  - trigger: state
     entity_id:
     - number.pool_fairland_heatpump_target_temperature_heating
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.cheapest_16_hours_24h
   condition:
@@ -2993,7 +3000,7 @@
   alias: Pool - Alert when ph or redox values are not oke
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.pool_ph_value
     - sensor.pool_redox_value
@@ -3047,33 +3054,31 @@
       \     | int > 57600 %} true {% else %} false {% endif %}"
     alias: Only trigger this automation once per 16 hours max
   action:
-  - action: notify.mobile_app_iphone_rob
+  - action: persistent_notification.create
     data:
+      title: Zwembad waardes
       message: "\U0001F3CA De ph/orp waardes of flow van het zwembad zijn niet in
         orde."
-      data:
-        persistent: true
-        tag: persistent
   mode: single
 - id: '1684059527700'
   alias: Energy - Alert when one of the three phases is high
   description: Keep an eye on using too much power for too long
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.current_phase_1
     for:
       hours: 0
       minutes: 30
       seconds: 0
     above: 25
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.current_phase_2
     for:
       hours: 0
       minutes: 30
       seconds: 0
     above: 25
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id: sensor.current_phase_3
     for:
       hours: 0
@@ -3094,11 +3099,11 @@
   description: When one of us is at home or the guest mode is enabled, keep the deck
     unlocked. Otherwise locked.
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - person.rob
     - person.steffi
-  - platform: state
+  - trigger: state
     entity_id:
     - input_boolean.guest_mode
   condition:
@@ -3137,7 +3142,7 @@
   alias: Pool - Control the filter pump
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - schedule.pool_filter_pump_schedule
   condition:
@@ -3170,7 +3175,7 @@
   description: If the schedule is enabled and we've reached the start time, kick the
     esphome sprinkler instance
   trigger:
-  - platform: time
+  - trigger: time
     at: input_datetime.irrigation_start_time
   condition:
   - condition: state
@@ -3208,13 +3213,13 @@
   alias: BBQ - Timer notifications
   description: Warns us in case of the bbq timer runs out
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - timer.bbq
     from: active
     to: idle
     enabled: false
-  - platform: event
+  - trigger: event
     event_type: timer.finished
     event_data:
       entity_id: timer.bbq
@@ -3240,7 +3245,7 @@
   description: Beeps when the bbq is on the wrong temperature, based on the range
     set
   trigger:
-  - platform: template
+  - trigger: template
     value_template: '{% if (states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
       | int(-1) != -1 ) and states(''sensor.inkbird_ibt_2x_temperature_probe_1'')
       < 5000 and (states(''sensor.inkbird_ibt_2x_temperature_probe_1'') | round |
@@ -3273,7 +3278,7 @@
   alias: BBQ - Probe 2 alarm
   description: Beeps when the bbq has reached the target temperature
   trigger:
-  - platform: template
+  - trigger: template
     value_template: "{% if (states['sensor.inkbird_ibt_2x_temperature_probe_2'].state
       | int(-1) != -1 ) \n      and states('sensor.inkbird_ibt_2x_temperature_probe_2')
       < 5000\n      and states('sensor.inkbird_ibt_2x_temperature_probe_2') | round
@@ -3366,7 +3371,7 @@
   alias: System - Alert when addons are down
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.important_addons
     from: 'on'
@@ -3380,12 +3385,10 @@
     entity_id: binary_sensor.important_addons
     state: 'off'
   action:
-  - action: notify.mobile_app_iphone_rob
+  - action: persistent_notification.create
     data:
-      message: \U0001F4A1 Let op, er zijn addons down
-      data:
-        persistent: true
-        tag: persistent
+      title: Addons down
+      message: "\U0001F4A1 Let op, er zijn addons down"
   mode: single
 - id: '1691828355364'
   alias: Windows - Eva open and low temperature
@@ -3408,31 +3411,31 @@
   alias: Music - Control sonos bedroom
   description: ''
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: button_4_press_release
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: dial_rotate_right_step
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: dial_rotate_left_step
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: dial_rotate_left_fast
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: dial_rotate_left_slow
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: dial_rotate_right_fast
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action
     to: dial_rotate_right_slow
@@ -3512,7 +3515,7 @@
   alias: iOS - Open frontdoor
   description: Open the door from car or watch
   trigger:
-  - platform: event
+  - trigger: event
     event_type: ios.action_fired
     event_data:
       actionName: open_frontdoor
@@ -3529,15 +3532,16 @@
       code: automation
   mode: single
 - id: '1709065308888'
-  alias: Light - Turn off all in bedroom
+  alias: Light - Turn off all in bedroom and lower the beds
   description: Hold the first button on the Hue Tap to turn off all lights and music
-  trigger:
-  - platform: state
-    entity_id:
+    and lower the beds
+  triggers:
+  - entity_id:
     - sensor.hue_tap_switch_master_action
     to: button_1_hold
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - action: light.turn_off
     metadata: {}
     data: {}
@@ -3551,12 +3555,32 @@
     data: {}
     target:
       entity_id: media_player.slaapkamer_sonos
+  - action: rest_command.auping_bed
+    metadata: {}
+    data:
+      cbu: 1
+      motor_1_action: 2
+      motor_1_time: 0
+      motor_2_action: 0
+      motor_2_time: 30000
+      motor_3_action: 0
+      motor_3_time: 0
+  - action: rest_command.auping_bed
+    metadata: {}
+    data:
+      cbu: 2
+      motor_1_action: 2
+      motor_1_time: 0
+      motor_2_action: 0
+      motor_2_time: 30000
+      motor_3_action: 0
+      motor_3_time: 0
   mode: single
 - id: '1715023558828'
   alias: Doors - Unlock the front door on week days at 7:00
   description: And only when we're home
   trigger:
-  - platform: time
+  - trigger: time
     at: 07:00:00
     alias: Trigger every day at 7:00 in the morning
   condition:
@@ -3580,7 +3604,7 @@
   description: This is to avoid that the alarm switches back on after 2 hours and
     freaking us out
   trigger:
-  - platform: numeric_state
+  - trigger: numeric_state
     entity_id:
     - zone.home
     above: 0
@@ -3606,11 +3630,11 @@
   alias: Frigate / Generative AI / Notification TEST
   description: ''
   trigger:
-  - platform: mqtt
+  - trigger: mqtt
     topic: frigate/events
     payload: new
     value_template: '{{ value_json.type }}'
-  - platform: mqtt
+  - trigger: mqtt
     topic: frigate/events
     payload: update
     value_template: '{{ value_json.type }}'
@@ -3663,6 +3687,10 @@
       value: '{{ generated_content.text }}'
     target:
       entity_id: input_text.camera_analysis
+  - action: persistent_notification.create
+    data:
+      title: Camera
+      message: '{{ generated_content.text }} ![image](https://home.tigrou.nl/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
   - action: notify.mobile_app_iphone_rob
     data:
       message: ' {{ generated_content.text }} '
@@ -3684,7 +3712,7 @@
   alias: Sleep - Turn off last lights around 11 pm
   description: ''
   trigger:
-  - platform: time
+  - trigger: time
     at: '22:55:00'
   condition:
   - condition: state
@@ -3704,7 +3732,7 @@
   description: Avoid paying for delivering energy but also limit the impact on the
     power grid in case there is no need
   trigger:
-  - platform: state
+  - trigger: state
     entity_id:
     - sensor.current_price_electricity
   condition: []
@@ -3725,13 +3753,11 @@
         target:
           entity_id: number.solaredgemb_active_power_limit
         alias: Disable the solar panels
-      - action: notify.mobile_app_iphone_rob
+      - action: persistent_notification.create
         data:
+          title: Zonnepanelen
           message: "\U0001F31E De zonnepanelen zijn uitgezet vanwege een stroomprijs
             van {{ states.sensor.current_price_electricity }} cent."
-          data:
-            persistent: true
-            tag: persistent
     - conditions:
       - condition: numeric_state
         entity_id: sensor.current_price_electricity
@@ -3747,19 +3773,17 @@
         target:
           entity_id: number.solaredgemb_active_power_limit
         alias: Enable the solar panels
-      - action: notify.mobile_app_iphone_rob
+      - action: persistent_notification.create
         data:
+          title: Zonnepanelen
           message: "\U0001F31E De zonnepanelen zijn weer aangezet vanwege een stroomprijs
             van {{ states.sensor.current_price_electricity }} cent."
-          data:
-            persistent: true
-            tag: persistent
   mode: single
 - id: '1724489164994'
   alias: System - Remove state history of heavy sensors
   description: Like power consumption and production
   trigger:
-  - platform: time
+  - trigger: time
     at: 04:00:00
   condition: []
   action:
@@ -3798,3 +3822,32 @@
       battery: sensor.ipad_kitchen_battery_level
       low_percent: 25
       charger: switch.shelly_plug_s_10_relay
+- id: '1731700097529'
+  alias: Voice - Save reminders for todos
+  description: ''
+  use_blueprint:
+    path: robsonke/voice-reminder.yaml
+    input:
+      open_ai_config_entry: cf03b58d0a8b7a1b3949a78c99277abd
+      todo_list: todo.todo_reminders
+      notify_service: notify.mobile_app_iphone_rob
+      assist_command:
+      - Herinner mij {reminderDescription} om {reminderTime}
+      response_sentence_text: 'Je ontvangt een herinnering: {{trigger.slots.reminderDescription}}
+        at {{response_from_ai.response.speech.plain.speech}} o'' clock.'
+- id: '1732450018331'
+  alias: Alarm - AI Event Summary
+  description: Keep an eye on the doorbell camera and explain what is happening.
+  use_blueprint:
+    path: valentinfrlch/event_summary.yaml
+    input:
+      mode: Frigate
+      important: true
+      remember: true
+      notify_device:
+      - 9e1fc8113280a61adb50d2da08fb8dde
+      camera_entities:
+      - camera.doorbell
+      cooldown: 20
+      provider: 01JDEYNQ5SNASP96EZQVX71J66
+      model: gemini-1.5-pro

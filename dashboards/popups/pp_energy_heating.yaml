@@ -25,14 +25,25 @@ browser_mod:
           view_layout:
             grid-area: details
           cards:
-            - type: thermostat
+            # - type: thermostat
+            #   entity: climate.warmtepomp
+            #   features:
+            #     - type: "climate-hvac-modes"
+            #       hvac_modes:
+            #         - heat
+            #         - cool
+            #         - "off"
+            - type: custom:mushroom-climate-card
               entity: climate.warmtepomp
-              features:
-                - type: "climate-hvac-modes"
-                  hvac_modes:
-                    - heat
-                    - cool
-                    - "off"
+              fill_container: false
+              hvac_modes:
+                - heat
+                - cool
+                - "off"
+              show_temperature_control: true
+              collapsible_controls: false
+              icon_type: icon
+              layout: horizontal
             - type: tile
               entity: input_number.hvac_winter_target_temperature
               color: red
@@ -63,7 +74,7 @@ browser_mod:
                     - type: divider
                     - entity: schedule.hvac_schedule
                     - entity: input_boolean.enable_automatic_hvac
-                    - entity: sensor.altherma_power_usage
+                    - entity: sensor.shelly_warmtepomp_meter_total_active_power
                       name: Altherma verbruik huidig
                     - entity: sensor.altherma_heatpump_daily
                       name: Altherma verbruik vandaag

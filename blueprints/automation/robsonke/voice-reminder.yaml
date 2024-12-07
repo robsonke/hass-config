@@ -1,0 +1,158 @@
+blueprint:
+  name: Add reminders via voice assist
+  description:
+    "Add reminders via the voice assistant in Home Assistant \nRequirements:\n
+    - A fully setup OpenAI Conversation \n
+    - A todo entity that you have configured to hold the reminders"
+  domain: automation
+  author: freakshock88
+  homeassistant:
+    min_version: 2023.8.0
+  input:
+    assist_command:
+      name: Reminder time
+      description:
+        "The Assist command(s) you want to use to set a new reminder\nYou can change
+        the overall sentence to match your style and language. \n**WARNING** you **MUST**
+        include `{reminderDescription}` and `{reminderTime}`.\n
+        It is possible to create multiple sentences to trigger the automation."
+      default: Remind me to {reminderDescription} at {reminderTime}
+      selector:
+        text:
+          multiline: true
+          multiple: true
+    notify_service:
+      name: HA Companion app notify service
+      description: "The notify service for your HA Companion app that send the notification"
+      default: notify.my_phone
+    open_ai_config_entry:
+      name: OpenAI Configuration
+      description: The OpenAI configuration entry, for how to setup see this [link](https://www.home-assistant.io/integrations/openai_conversation/).
+      selector:
+        config_entry:
+          integration: openai_conversation
+    response_sentence_text:
+      name: Response sentence text
+      description:
+        "The text that is returned from Assist when a new reminder has been created \n.
+        This must include {{trigger.slots.reminderDescription}} and {{response_from_ai.response.speech.plain.speech}} to work. \n
+        Please see the example"
+      default: "You will receive a reminder about: {{trigger.slots.reminderDescription}} at {{response_from_ai.response.speech.plain.speech}} o' clock."
+    todo_list:
+      name: Name of the reminder todo list
+      selector:
+        entity:
+          filter:
+            - domain:
+                - todo
+          multiple: false
+
+variables:
+  notifyServiceEntity: !input notify_service
+  todo_list: !input todo_list
+
+trigger:
+  - platform: conversation
+    command: !input assist_command
+    id: "assist_command_triggered"
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: "dismiss_reminder"
+    id: "dismissed_reminder"
+  # Since there is no wawy to trigger on a todo due date yet, we have to trigger every minute and check
+  - platform: time_pattern
+    minutes: "/1"
+    id: "every_minute"
+
+action:
+  - alias: "Select correct trigger"
+    choose:
+      - alias: "The assist sentence was triggered"
+        conditions:
+          - alias: "Assist sentence triggered"
+            condition: trigger
+            id: "assist_command_triggered"
+        sequence:
+          - action: conversation.process
+            data:
+              agent_id: !input open_ai_config_entry
+              text: >
+                The current time is {{states.sensor.date.state}} {{states.sensor.time.state}}:00.
+                Rewrite '{{trigger.slots.reminderTime}}' to time format 'YYYY-MM-DD HH:MM:SS'. 
+                The answer should be a time in the future closest to the current time.
+                In your response return exactly 19 characters of the datetime string in format 'YYYY-MM-DD HH:MM:SS'
+            response_variable: response_from_ai
+
+          - alias: "Save reminder in todo list"
+            action: todo.add_item
+            data:
+              item: "{{trigger.slots.reminderDescription}}"
+              due_datetime: "{{ response_from_ai.response.speech.plain.speech }}"
+            target:
+              entity_id: "{{todo_list}}"
+
+          - set_conversation_response: !input response_sentence_text
+
+      - alias: "Reset the input entities of the reminder slot that was just dismissed"
+        conditions:
+          - condition: template
+            value_template: "{{ trigger.id == 'dismissed_reminder' }}"
+        sequence:
+          - variables:
+              eventMessage: >
+                {% set event = trigger.event | string %}
+                {% set message = event.split('message=')[1].split(',')[0] %}
+                {{ message }}
+          - alias: "Remove todo item"
+            action: todo.remove_item
+            data:
+              item: "{{ eventMessage }}"
+            target:
+              entity_id: todo.reminders
+
+      - alias: "The time trigger was triggered"
+        conditions:
+          - alias: "Time trigger for every minute"
+            condition: trigger
+            id: "every_minute"
+          - alias: "There are items in the todo list"
+            condition: template
+            value_template: "{{states(todo_list) |int(0) > 0}}"
+        sequence:
+          - alias: "Get reminders from todo list"
+            action: todo.get_items
+            data:
+              status: needs_action
+            target:
+              entity_id: "{{todo_list}}"
+            response_variable: itemlist
+          - alias: "Check if there is a relevant item in the list of todo items"
+            repeat:
+              for_each: "{{ itemlist[todo_list]['items'] }}"
+              sequence:
+                - condition: and
+                  conditions:
+                    - alias: "Reminder is the right time"
+                      condition: template
+                      value_template: >
+                        {% set reminderDate = repeat.item.due %}
+                        {% set reminderTimeStamp = as_timestamp(as_datetime(reminderDate)) %}
+                        {% set currentTimeStamp = as_timestamp(now())  %}
+                        {% set timeCutOffLow = currentTimeStamp - 30 %}
+                        {% set timeCutOffHigh = currentTimeStamp + 30 %}
+                        {%  set reminderRelevant = (reminderTimeStamp >= timeCutOffLow) and (reminderTimeStamp <= timeCutOffHigh) %}
+                        {{ reminderRelevant }}
+                    - alias: "Reminder needs action"
+                      condition: template
+                      value_template: "{{ repeat.item.status == 'needs_action' }}"
+                - alias: "Send notification"
+                  action: "{{ notifyServiceEntity }}"
+                  data:
+                    title: Reminder
+                    message: "{{ repeat.item.summary }}"
+                    data:
+                      actions:
+                        - action: "dismiss_reminder"
+                          title: "Dismiss"
+mode: parallel

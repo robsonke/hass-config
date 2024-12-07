@@ -253,6 +253,7 @@ sonos_downstairs:
                 - media browser
                 - grouping
                 - groups
+                - queue
               entityId: media_player.eetkamer
               entities:
                 - media_player.eetkamer
@@ -296,6 +297,7 @@ sonos_downstairs:
                 - media browser
                 - grouping
                 - groups
+                - queue
               entityId: media_player.office
               entities:
                 - media_player.office

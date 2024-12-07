@@ -28,13 +28,23 @@ browser_mod:
             - type: vertical-stack
               title: Slaapkamer
               cards:
-                - type: thermostat
+                # - type: thermostat
+                #   entity: climate.eurom_alutherm_baseboard_heater
+                #   features:
+                #     - type: "climate-hvac-modes"
+                #       hvac_modes:
+                #         - heat
+                #         - "off"
+                - type: custom:mushroom-climate-card
                   entity: climate.eurom_alutherm_baseboard_heater
-                  features:
-                    - type: "climate-hvac-modes"
-                      hvac_modes:
-                        - heat
-                        - "off"
+                  fill_container: false
+                  hvac_modes:
+                    - heat
+                    - "off"
+                  show_temperature_control: true
+                  collapsible_controls: false
+                  icon_type: icon
+                  layout: horizontal
                 - type: entities
                   show_header_toggle: false
                   entities:

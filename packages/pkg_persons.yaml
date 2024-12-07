@@ -56,17 +56,6 @@ homeassistant:
     # device_tracker.steffi_presence:
     #   friendly_name: Combined Presence Steffi
 
-# not really person related config, but have to put it somewhere
-rest_command:
-  bed:
-    url: !secret auping_url
-    method: post
-    content_type: "application/json"
-    headers:
-      X-Key: !secret auping_key
-      accept: "application/json"
-    payload: '{"CBU":{{ cbu }},"motor_1":{"Action":{{ motor_1_action }},"TimeInMs": {{ motor_1_time }} },"motor_2":{"Action":{{ motor_2_action }},"TimeInMs":{{ motor_2_time }}},"motor_3":{"Action":{{ motor_3_action }},"TimeInMs": {{ motor_3_time }}}}'
-
 sensor:
   - platform: history_stats
     name: Cat door today

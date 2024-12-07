@@ -109,54 +109,61 @@ lights_on_away:
   alias: Lights on - away
   mode: single
   sequence:
-  - service: light.turn_on
-    data: {}
+  - data: {}
     target:
       entity_id:
       - light.benedenverdieping_afwezig
-  - service: light.turn_on
-    metadata: {}
+    action: light.turn_on
+  - metadata: {}
     data:
       brightness_pct: 25
     target:
       entity_id:
       - light.socket2_light_couch
       - light.socket1_light_corner
+    action: light.turn_on
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.kerst_binnen
 lights_on_home:
   alias: Lights on - home
   sequence:
-  - service: light.turn_on
-    data: {}
+  - data: {}
     target:
       entity_id:
       - light.benedenverdieping_aanwezig
-  - service: light.turn_on
-    metadata: {}
+    action: light.turn_on
+  - metadata: {}
     data:
       brightness_pct: 25
     target:
       entity_id:
       - light.socket2_light_couch
       - light.socket1_light_corner
+    action: light.turn_on
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.kerst_binnen
   mode: single
 lights_down_stairs_off:
   alias: Lights off - downstairs
   sequence:
-  - service: light.turn_off
-    target:
+  - target:
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
       - light.diningtable_light
     data:
       transition: 2
+    action: light.turn_off
   - delay:
       hours: 0
       minutes: 0
       seconds: 1
       milliseconds: 0
-  - service: light.turn_off
-    data:
+  - data:
       transition: 2
     target:
       entity_id:
@@ -168,6 +175,11 @@ lights_down_stairs_off:
       - light.boekenkast
       - light.ledstrip_tv
       - light.diningtable_light
+    action: light.turn_off
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.kerst_binnen
   mode: single
 reload_frontend:
   alias: Reload frontend

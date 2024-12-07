@@ -226,7 +226,7 @@ browser_mod:
                       entity: sensor.ix3_remaining_battery_percent
                       unit_of_measurement: '%'
                       icon: mdi:ev-station
-                  - entity: sensor.altherma_power_usage
+                  - entity: sensor.shelly_warmtepomp_meter_total_active_power
                     icon: mdi:heat-pump
                     color_value: false
                     color_icon: true

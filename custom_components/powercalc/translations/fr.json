@@ -29,7 +29,6 @@
           "name": "Nom",
           "on_time": "Temps de fonctionnement",
           "start_time": "Heure de début",
-          "unique_id": "Identifiant Unique",
           "unit_of_measurement": "Unité de mesure",
           "update_frequency": "Fréquence de mise à jour",
           "value": "Valeur",
@@ -66,6 +65,50 @@
         "description": "Définissez une valeur de puissance fixe pour votre entité. Vous pouvez également définir une valeur de puissance par état. Par exemple :\n\n`lecture : 8.3`\n`pause : 2.25`",
         "title": "Configuration fixe"
       },
+      "global_configuration": {
+        "title": "Global configuration",
+        "description": "Setup global configuration for Powercalc. For more information see the [documentation](https://docs.powercalc.nl/configuration/global-configuration/). Additional options for energy sensors and utility meters can be provided in the next steps.",
+        "data": {
+          "create_energy_sensors": "Create energy sensors",
+          "create_utility_meters": "Create utility meters",
+          "disable_extended_attributes": "Disable extended attributes",
+          "disable_library_download": "Disable remote library download",
+          "force_update_frequency": "Force update frequency",
+          "ignore_unavailable_state": "Ignore unavailable state",
+          "include_non_powercalc_sensors": "Include non powercalc sensors",
+          "power_sensor_category": "Power sensor category",
+          "power_sensor_friendly_naming": "Power sensor friendly name pattern",
+          "power_sensor_naming": "Power sensor name pattern"
+        },
+        "data_description": {
+          "create_energy_sensors": "Whether powercalc needs to create kWh sensors",
+          "create_utility_meters": "Let powercalc create utility meters, which cycle daily, hourly etc.",
+          "disable_extended_attributes": "Disable all extra attributes powercalc adds to the power, energy and group entity states. This will help keep the database size small",
+          "disable_library_download": "Disable the Powercalc library download feature",
+          "force_update_frequency": "Interval at which the sensor state is updated, even when the power value stays the same. In seconds",
+          "ignore_unavailable_state": "Keep Powercalc sensors available, even when the source entity is unavailable",
+          "include_non_powercalc_sensors": "Control whether you want to include non powercalc sensors in groups"
+        }
+      },
+      "global_configuration_energy": {
+        "title": "Energy options",
+        "data": {
+          "energy_integration_method": "Energy integration method",
+          "energy_sensor_category": "Energy sensor category",
+          "energy_sensor_friendly_naming": "Energy sensor friendly name pattern",
+          "energy_sensor_naming": "Energy sensor name pattern",
+          "energy_sensor_precision": "Energy sensor precision",
+          "energy_sensor_unit_prefix": "Energy sensor unit prefix"
+        }
+      },
+      "global_configuration_utility_meter": {
+        "title": "Utility meter options",
+        "data": {
+          "utility_meter_net_consumption": "Utility meter net consumption",
+          "utility_meter_tariffs": "Utility meter tariffs",
+          "utility_meter_types": "Utility meter types"
+        }
+      },
       "group": {
         "data": {
           "area": "Zone",
@@ -79,8 +122,7 @@
           "hide_members": "Masquer les membres",
           "include_non_powercalc_sensors": "Include non powercalc sensors",
           "name": "Nom",
-          "sub_groups": "Sous-groupes",
-          "unique_id": "Identifiant unique"
+          "sub_groups": "Sous-groupes"
         },
         "data_description": {
           "area": "Ajoute tous les capteurs powercalc de la zone spécifiée",
@@ -104,6 +146,13 @@
         },
         "description": "Le fabricant \"{manufacturer}\" et le modèle \"{model}\" ont été automatiquement détectés pour votre appareil.{remarks}",
         "title": "Bibliothèque"
+      },
+      "library_multi_profile": {
+        "data": {
+          "model": "Select model"
+        },
+        "description": "Manufacturer \"{manufacturer}\" and model \"{model}\" were automatically detected for your device. There are multiple profiles found for the entity which can potentially be used. Please look up the exact model of your device in [Powercalc library]({library_link}) and select the correct one",
+        "title": "Library"
       },
       "linear": {
         "data": {
@@ -173,6 +222,7 @@
         "data": {
           "calculation_enabled_condition": "Condition de calcul activé",
           "energy_integration_method": "Méthode d'intégration énergétique",
+          "energy_sensor_unit_prefix": "Energy sensor unit prefix",
           "ignore_unavailable_state": "Ignorer l'état indisponible",
           "multiply_factor": "Facteur de multiplication",
           "multiply_factor_standby": "Multiply factor standby",
@@ -211,7 +261,6 @@
           "create_utility_meters": "Create utility meters",
           "entity_id": "Base entity",
           "name": "Name",
-          "unique_id": "Unique id",
           "subtract_entities": "Subtract entities"
         },
         "data_description": {
@@ -274,8 +323,7 @@
           "group": "Ajouter au groupe",
           "mode": "Stratégie de calcul",
           "name": "Nom",
-          "standby_power": "Consommation en veille",
-          "unique_id": "Identifiant unique"
+          "standby_power": "Consommation en veille"
         },
         "data_description": {
           "create_energy_sensor": "Si powercalc doit créer un capteur kWh",
@@ -283,8 +331,7 @@
           "entity_id": "Entité sur laquelle la puissance virtuelle est basée, le capteur de puissance écoutera les changements d'état de cette entité à mettre à jour",
           "group": "Fill in a custom group name to create a new group",
           "name": "Laisser vide prendra le nom de l'entité source",
-          "standby_power": "Définir la quantité d'énergie que l'appareil consomme lorsqu'il est à l'état OFF",
-          "unique_id": "Spécifiez un identifiant unique. Cela permettra de configurer plusieurs capteurs de puissance pour la même entité. Lorsqu'il n'est pas spécifié, il prendra l'identifiant unique de l'entité source"
+          "standby_power": "Définir la quantité d'énergie que l'appareil consomme lorsqu'il est à l'état OFF"
         },
         "description": "Voir le fichier readme pour plus d'informations sur les stratégies possibles et les options de configuration",
         "title": "Créer un capteur de puissance virtuel"
@@ -385,6 +432,51 @@
           "states_power": "Une paire 'état : alimentation' sur chaque ligne, voir l'exemple ci-dessus"
         }
       },
+      "global_configuration": {
+        "title": "Basic options",
+        "data": {
+          "create_energy_sensors": "Create energy sensors",
+          "create_utility_meters": "Create utility meters",
+          "disable_extended_attributes": "Disable extended attributes",
+          "disable_library_download": "Disable remote library download",
+          "force_update_frequency": "Force update frequency",
+          "ignore_unavailable_state": "Ignore unavailable state",
+          "include_non_powercalc_sensors": "Include non powercalc sensors",
+          "power_sensor_category": "Power sensor category",
+          "power_sensor_friendly_naming": "Power sensor friendly name pattern",
+          "power_sensor_naming": "Power sensor name pattern"
+        },
+        "data_description": {
+          "create_energy_sensors": "Whether powercalc needs to create kWh sensors",
+          "create_utility_meters": "Let powercalc create utility meters, which cycle daily, hourly etc.",
+          "disable_extended_attributes": "Disable all extra attributes powercalc adds to the power, energy and group entity states. This will help keep the database size small",
+          "disable_library_download": "Disable the Powercalc library download feature",
+          "force_update_frequency": "Interval at which the sensor state is updated, even when the power value stays the same. In seconds",
+          "ignore_unavailable_state": "Keep Powercalc sensors available, even when the source entity is unavailable",
+          "include_non_powercalc_sensors": "Control whether you want to include non powercalc sensors in groups"
+        }
+      },
+      "global_configuration_energy": {
+        "title": "Energy options",
+        "description": "Define the default settings for energy sensors here. See [documentation](https://docs.powercalc.nl/configuration/global-configuration/) for more information",
+        "data": {
+          "energy_integration_method": "Energy integration method",
+          "energy_sensor_category": "Energy sensor category",
+          "energy_sensor_friendly_naming": "Energy sensor friendly name pattern",
+          "energy_sensor_naming": "Energy sensor name pattern",
+          "energy_sensor_precision": "Energy sensor precision",
+          "energy_sensor_unit_prefix": "Energy sensor unit prefix"
+        }
+      },
+      "global_configuration_utility_meter": {
+        "title": "Utility meter options",
+        "description": "Define the default settings for utility meters here. See [documentation](https://docs.powercalc.nl/configuration/global-configuration/) for more information",
+        "data": {
+          "utility_meter_net_consumption": "Utility meter net consumption",
+          "utility_meter_tariffs": "Utility meter tariffs",
+          "utility_meter_types": "Utility meter types"
+        }
+      },
       "group": {
         "title": "Group options",
         "data": {
@@ -424,6 +516,10 @@
           "utility_meter_options": "Utility meter options",
           "wled": "WLED options"
         }
+      },
+      "library_options": {
+        "title": "Library options",
+        "description": "Currently the following library profile is selected: \n manufacturer: {manufacturer}\n model: {model}\n\nIf you want to change the profile, click next."
       },
       "linear": {
         "title": "Linear options",

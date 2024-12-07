@@ -38,13 +38,20 @@
   },
   "device_automation": {
     "action_type": {
+      "delete_basic_charge_plan": "Delete basic charge plan",
+      "delete_weekly_charge_plan": "Delete weekly charge plan",
+      "disable_basic_charge_plan": "Disable basic charge plan",
+      "disable_weekly_charge_plan": "Disable weekly charge plan",
+      "enable_basic_charge_plan": "Enable basic charge plan",
+      "enable_weekly_charge_plan": "Enable weekly charge plan",
       "override_schedule": "Override schedule",
       "pause": "Pause charging",
       "reboot": "Reboot charger",
       "resume": "Resume charging",
-      "start": "Start charging",
-      "stop": "Stop charging",
-      "toggle": "Toggle charging"
+      "start": "Authorize (start) charging",
+      "stop": "Deauthorize (stop) charging",
+      "toggle": "Toggle charging",
+      "update_firmware": "Update firmware"
     },
     "condition_type": {
       "authenticating": "{entity_name} is authenticating",
@@ -99,9 +106,6 @@
   },
   "entity": {
     "binary_sensor": {
-      "basic_schedule": {
-        "name": "Basic schedule"
-      },
       "cable_locked": {
         "name": "Cable lock"
       },
@@ -110,9 +114,11 @@
       },
       "update_available": {
         "name": "Update available"
-      },
-      "weekly_schedule": {
-        "name": "Weekly schedule"
+      }
+    },
+    "button": {
+      "override_schedule": {
+        "name": "Override schedule"
       }
     },
     "sensor": {
@@ -267,6 +273,9 @@
       }
     },
     "switch": {
+      "basic_schedule": {
+        "name": "Basic schedule"
+      },
       "cable_locked_permanently": {
         "name": "Cable locked permanently"
       },
@@ -281,12 +290,18 @@
       },
       "smart_charging": {
         "name": "Smart charging"
+      },
+      "surplus": {
+        "name": "Surplus charging"
+      },
+      "weekly_schedule": {
+        "name": "Weekly schedule"
       }
     }
   },
   "issues": {
     "currentpx_deprecation": {
-      "description": "The use of {argument} as phase current is deprecated and will not be accepted in future verions. Please convert your automations and scripts to use {recommendation} instead",
+      "description": "The use of {argument} as phase current is deprecated and will not be accepted in future verions. Please convert your automations and scripts to use {recommendation} instead.",
       "title": "Use of {argument} in service call"
     },
     "deprecated_service": {
@@ -294,7 +309,7 @@
       "title": "Use of deprecated service: {deprecation}"
     },
     "numeric_deprecation": {
-      "description": "The use of numeric value for {argument} is deprecated and will not be accepted in future versions. Please convert your automations and scripts to use strings {recommendation} instead",
+      "description": "The use of numeric value for {argument} is deprecated and will not be accepted in future versions. Please convert your automations and scripts to use strings {recommendation} instead.",
       "title": "Use of numeric value for {argument} in service call"
     }
   },
@@ -328,14 +343,25 @@
       "options": {
         "delete_basic_charge_plan": "Delete basic charge plan",
         "delete_weekly_charge_plan": "Delete weekly charge plan",
+        "disable_basic_charge_plan": "Disable basic charge plan",
+        "disable_weekly_charge_plan": "Disable weekly charge plan",
+        "enable_basic_charge_plan": "Enable basic charge plan",
+        "enable_weekly_charge_plan": "Enable weekly charge plan",
         "override_schedule": "Override schedule",
         "pause": "Pause",
         "reboot": "Reboot charger",
         "resume": "Resume",
-        "start": "Start",
-        "stop": "Stop",
+        "start": "Authorize (start)",
+        "stop": "Deauthorize (stop)",
         "toggle": "Toggle",
         "update_firmware": "Update firmware"
+      }
+    },
+    "phase_mode": {
+      "options": {
+        "1_phase": "1 phase mode",
+        "3_phase": "3 phase mode",
+        "auto_phase": "Auto phase mode"
       }
     },
     "weekday": {
@@ -368,6 +394,10 @@
     "set_basic_charge_plan": {
       "description": "Set basic charge plan",
       "fields": {
+        "current": {
+          "description": "Maximum current during plan",
+          "name": "Maximum current"
+        },
         "device_id": {
           "description": "Select device to be controlled",
           "name": "Target device"
@@ -429,6 +459,20 @@
       },
       "name": "Set charger max limit"
     },
+    "set_charger_phase_mode": {
+      "description": "Set charger phase mode",
+      "fields": {
+        "device_id": {
+          "description": "Select device to be controlled",
+          "name": "Target device"
+        },
+        "phase_mode": {
+          "description": "Charger phase mode",
+          "name": "Phase mode"
+        }
+      },
+      "name": "Set charger phase mode"
+    },
     "set_charging_cost": {
       "description": "Set charging cost per kWh for charger site",
       "fields": {
@@ -452,18 +496,18 @@
       "name": "Set charging cost"
     },
     "set_circuit_dynamic_limit": {
-      "description": "Set circuit dynamic limit (shared betwwen chargers on that circuit). This service can be used in automations.",
+      "description": "Set circuit dynamic limit (shared between chargers on that circuit). This service can be used in automations.",
       "fields": {
         "current_p1": {
           "description": "Max charging current",
           "name": "Current phase 1"
         },
         "current_p2": {
-          "description": "Max charging current. If disabled, the value of Current phase 1 will be used",
+          "description": "Max charging current. If disabled, the value of Current phase 1 will be used.",
           "name": "Current phase 2"
         },
         "current_p3": {
-          "description": "Max charging current. If disabled, the value of Current phase 1 will be used",
+          "description": "Max charging current. If disabled, the value of Current phase 1 will be used.",
           "name": "Current phase 3"
         },
         "device_id": {
@@ -485,11 +529,11 @@
           "name": "Current phase 1"
         },
         "current_p2": {
-          "description": "Max charging current. If disabled, the value of Current phase 1 will be used",
+          "description": "Max charging current. If disabled, the value of Current phase 1 will be used.",
           "name": "Current phase 2"
         },
         "current_p3": {
-          "description": "Max charging current. If disabled, the value of Current phase 1 will be used",
+          "description": "Max charging current. If disabled, the value of Current phase 1 will be used.",
           "name": "Current phase 3"
         },
         "device_id": {
@@ -507,11 +551,11 @@
           "name": "Current phase 1"
         },
         "current_p2": {
-          "description": "Max charging current. If disabled, the value of Current phase 1 will be used",
+          "description": "Max charging current. If disabled, the value of Current phase 1 will be used.",
           "name": "Current phase 2"
         },
         "current_p3": {
-          "description": "Max charging current. If disabled, the value of Current phase 1 will be used",
+          "description": "Max charging current. If disabled, the value of Current phase 1 will be used.",
           "name": "Current phase 3"
         },
         "device_id": {
@@ -521,9 +565,31 @@
       },
       "name": "Set circuit offline limit"
     },
+    "set_surplus_charging": {
+      "description": "Set equalizer surplus charging",
+      "fields": {
+        "current": {
+          "description": "Max additional current from grid",
+          "name": "Current"
+        },
+        "device_id": {
+          "description": "Select device to be controlled",
+          "name": "Target device"
+        },
+        "enable": {
+          "description": "Enable surplus charging",
+          "name": "Enable"
+        }
+      },
+      "name": "Set surplus charging"
+    },
     "set_weekly_charge_plan": {
       "description": "Set weekly charge plan",
       "fields": {
+        "current": {
+          "description": "Maximum current during plan",
+          "name": "Maximum current"
+        },
         "day": {
           "description": "Weekday for this schedule",
           "name": "Weekday"

@@ -54,7 +54,7 @@ class DaikinWaterTank(CoordinatorEntity, WaterHeaterEntity):
         self._management_point_type = management_point_type
         self.update_state()
         if self.supported_features & WaterHeaterEntityFeature.TARGET_TEMPERATURE:
-            _LOGGER.debug("Device '%'s: tank temperature is settable", device.name)
+            _LOGGER.debug("Device '%s': tank temperature is settable", device.name)
 
     def update_state(self) -> None:
         self._attr_name = self._device.name
@@ -213,12 +213,14 @@ class DaikinWaterTank(CoordinatorEntity, WaterHeaterEntity):
         """Return current operation ie. heat, cool, idle."""
         state = STATE_OFF
         hwtd = self.hotwatertank_data
-        if hwtd["onOffMode"]["value"] == "on":
-            state = STATE_HEAT_PUMP
-            pwf = hwtd.get("powerfulMode")
-            if pwf is not None:
-                if pwf["value"] == "on":
-                    state = STATE_PERFORMANCE
+        onoff = hwtd.get("onOffMode")
+        if onoff is not None:
+            if onoff["value"] == "on":
+                state = STATE_HEAT_PUMP
+                pwf = hwtd.get("powerfulMode")
+                if pwf is not None:
+                    if pwf["value"] == "on":
+                        state = STATE_PERFORMANCE
         _LOGGER.debug("Device '%s' hot water tank current mode '%s'", self._device.name, state)
         return state
 

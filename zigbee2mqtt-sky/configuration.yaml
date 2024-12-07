@@ -58,19 +58,7 @@ frontend:
   port: 8099
 device_options:
   legacy: false
-devices:
-  '0x00158d0007e68332':
-    friendly_name: climate_sensor_noa
-  '0x00158d000533c62a':
-    friendly_name: climate_sensor_eva
-  '0x00158d0007e7531d':
-    friendly_name: motion_sensor_toiletupstairs
-    no_occupancy_since: []
-    homeassistant: {}
-    legacy: false
-    optimistic: true
-  '0x84fd27fffecf2bce':
-    friendly_name: range_extender_extra
+devices: {}
 availability:
   active:
     timeout: 10

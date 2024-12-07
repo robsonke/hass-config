@@ -19,6 +19,19 @@ input_boolean:
 
 light:
   - platform: group
+    name: Kerst binnen
+    unique_id: christmas_inside
+    entities:
+      - light.socket4_light_spare2
+  - platform: group
+    name: Kerst buiten
+    unique_id: christmas_outside
+    entities:
+      - light.shelly_plug_s_10_relay
+      #- light.shelly_plugs_gen3_1_switch
+      - light.socket3_light_spare1
+
+  - platform: group
     name: Woonkamer
     unique_id: woonkamer
     entities:
@@ -30,6 +43,7 @@ light:
     entities:
       - light.kitchen_light
       - light.kitchencabin_light
+
   - platform: group
     name: Benedenverdieping
     unique_id: lights_downstairs
@@ -48,6 +62,7 @@ light:
       - light.kitchendesk_light
       - light.office_light
       - light.ledstrip_office
+      - light.dimmer_hall
 
   - platform: group
     name: Bovenverdieping
@@ -55,7 +70,6 @@ light:
     entities:
       - light.dimmer_masterbath
       - light.dimmer_bathroom
-      - light.dimmer_hall
       - light.dimmer_masterbed
       - light.dimmer_mastercloset
       - light.dimmer_guestroom

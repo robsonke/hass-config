@@ -41,7 +41,7 @@ dhw:
       [[[
         return entity.attributes['operation_mode'] === 'on'
         && entity.attributes['temperature'] - entity.attributes['current_temperature'] > 5
-        && states['sensor.altherma_power_usage'].state > 1000;
+        && states['sensor.shelly_warmtepomp_meter_total_active_power'].state > 1000;
       ]]]
   styles:
     custom_fields:

@@ -253,7 +253,7 @@ template:
 
   # all unavailable entities
   - trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: "/5"
     sensor:
       - unique_id: all_unavailable_entities
@@ -288,7 +288,7 @@ template:
             {{ unavail.entities }}
   # count all possible updates to one sensor
   - trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: "*"
     sensor:
     - unique_id: ha_all_updates

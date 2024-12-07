@@ -1,0 +1,141 @@
+# Bed
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+
+#
+# /api/cbu/motor/extended = POST to control the bed
+# /api/config = GET all info about the bed
+# both require the X-Key header
+#
+# CBU: 0=both bedsides in sync, 1=left side, 2=right side
+# Action: 0, 1 or 2 (stop, up or down)
+# Time: is used to set the time until stop
+#
+# To stop the bed:
+# {
+#   "CBU": 1,
+#   "motor_1": { "Action": 0, "TimeInMs": 0 },
+#   "motor_2": { "Action": 0, "TimeInMs": 0 },
+#   "motor_3": { "Action": 0, "TimeInMs": 0 }
+# }
+# Our bed uses motor 2
+# 1 = steffi
+# 2 = rob
+
+rest_command:
+  auping_bed:
+    url: !secret auping_url
+    method: post
+    content_type: "application/json"
+    headers:
+      X-Key: !secret auping_key
+      accept: "application/json"
+    payload: '{"CBU":{{ cbu }},"motor_1":{"Action":{{ motor_1_action }},"TimeInMs": {{ motor_1_time }} },"motor_2":{"Action":{{ motor_2_action }},"TimeInMs": {{ motor_2_time }} },"motor_3":{"Action":{{ motor_3_action }},"TimeInMs": {{ motor_3_time }} }}'
+
+cover:
+  - platform: template
+    covers:
+      bed_rob:
+        unique_id: bed_rob
+        device_class: shutter
+        friendly_name: "Bed Rob"
+        availability_template: "true"
+        optimistic: false
+        # set_cover_position:
+        #   action: rest_command.auping_bed
+        #   data:
+        #     cbu: 2
+        #     motor_1_action: 0
+        #     motor_1_time: 0
+        #     motor_2_action: >-
+        #       {% if position == 0 %}
+        #         {{ 2 }}
+        #       {% else %}
+        #         {{ 1 }}
+        #       {% endif %}
+        #     motor_2_time: >-
+        #       {% if position == 0 %}
+        #         {{ 30000 }}
+        #       {% else %}
+        # # it takes 24 seconds to go all up/down
+        #         {{ position / 100 * 24 * 1000 }}
+        #       {% endif %}
+        #     motor_3_action: 0
+        #     motor_3_time: 0
+        #   target: {}
+        open_cover:
+          - action: rest_command.auping_bed
+            data:
+              cbu: 2
+              motor_1_action: 0
+              motor_1_time: 0
+              motor_2_action: 1
+              motor_2_time: 30000
+              motor_3_action: 0
+              motor_3_time: 0
+            target: {}
+        close_cover:
+          - action: rest_command.auping_bed
+            data:
+              cbu: 2
+              motor_1_action: 0
+              motor_1_time: 0
+              motor_2_action: 2
+              motor_2_time: 30000
+              motor_3_action: 0
+              motor_3_time: 0
+            target: {}
+        stop_cover:
+          - action: rest_command.auping_bed
+            data:
+              cbu: 2
+              motor_1_action: 0
+              motor_1_time: 0
+              motor_2_action: 0
+              motor_2_time: 0
+              motor_3_action: 0
+              motor_3_time: 0
+            target: {}
+        icon_template: mdi:bed-double
+      bed_steffi:
+        unique_id: bed_steffi
+        device_class: shutter
+        friendly_name: "Bed Steffi"
+        availability_template: "true"
+        optimistic: false
+        open_cover:
+          - action: rest_command.auping_bed
+            data:
+              cbu: 1
+              motor_1_action: 0
+              motor_1_time: 0
+              motor_2_action: 1
+              motor_2_time: 30000
+              motor_3_action: 0
+              motor_3_time: 0
+            target: {}
+        close_cover:
+          - action: rest_command.auping_bed
+            data:
+              cbu: 1
+              motor_1_action: 0
+              motor_1_time: 0
+              motor_2_action: 2
+              motor_2_time: 30000
+              motor_3_action: 0
+              motor_3_time: 0
+            target: {}
+        stop_cover:
+          - action: rest_command.auping_bed
+            data:
+              cbu: 1
+              motor_1_action: 0
+              motor_1_time: 0
+              motor_2_action: 0
+              motor_2_time: 0
+              motor_3_action: 0
+              motor_3_time: 0
+            target: {}
+        icon_template: mdi:bed-double

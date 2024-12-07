@@ -215,7 +215,7 @@ views:
                         + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
                     ]]]
               - type: custom:button-card
-                entity: binary_sensor.stookalert_zeeland
+                entity: sensor.stookwijzer
                 template: footer
                 name: >
                   <ha-state-icon icon="mdi:fire"></ha-state-icon>
@@ -224,8 +224,18 @@ views:
                 variables:
                   notify: >
                     [[[
-                      return (entity.state === 'on' || states['sensor.stookwijzer'].state === 'rood') && states['sensor.stookwijzer'].state !== 'unavailable';
+                      return entity.state === 'code_red';
                     ]]]
+                styles:
+                  name:
+                    - color: >
+                        [[[
+                          if (entity.state === 'code_red') return 'var(--red)';
+                          if (entity.state === 'code_yellow') return 'var(--yellow)';
+                          if (entity.state === 'code_orange') return 'var(--orange)';
+                          if (entity.state === 'triggered') return 'var(--red)';
+                          return 'var(--green)'
+                        ]]]
 
 
 
@@ -531,7 +541,7 @@ views:
                 [[[
                   return states['water_heater.domestic_hot_water_tank'].attributes['operation_mode'] === 'on'
                   && states['water_heater.domestic_hot_water_tank'].attributes['temperature'] - states['water_heater.domestic_hot_water_tank'].attributes['current_temperature'] > 5
-                  && states['sensor.altherma_power_usage'].state > 1000
+                  && states['sensor.shelly_warmtepomp_meter_total_active_power'].state > 1000
                 ]]]
           - type: custom:button-card
             entity: sensor.net_power_consumption
