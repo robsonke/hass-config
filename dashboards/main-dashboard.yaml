@@ -7,7 +7,9 @@ wallpanel:
   idle_time: 0
 
 views:
+  
   - type: custom:grid-layout
+    theme: custom-dark
     path: 0
     layout:
       margin: 0

@@ -8,7 +8,7 @@ browser_mod:
       type: vertical-stack
       cards:
         - type: history-graph
-          hours_to_show: 6
+          hours_to_show: 24
           refresh_interval: 30
           entities:
             - sensor.stookwijzer

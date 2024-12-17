@@ -86,15 +86,10 @@ browser_mod:
             grid-area: details2
           cards:
             - type: history-graph
-              hours_to_show: 6
+              hours_to_show: 24
               refresh_interval: 30
               entities:
                 - sensor.altherma_operation_mode
-            # - type: logbook
-            #   title: Activiteit
-            #   entities:
-            #     - switch.climate_control
-            #     - select.operation_mode
             - type: statistics-graph
               title: Temperatuur
               period: hour

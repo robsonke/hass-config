@@ -22,6 +22,7 @@ zigbee2mqtt/state.json
 zigbee2mqtt-sky/log
 zigbee2mqtt-sky/coordinator_backup.json
 zigbee2mqtt-sky/state.json
+custom_components
 
 # And some files
 secrets.yaml

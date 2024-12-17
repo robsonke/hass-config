@@ -74,9 +74,13 @@ browser_mod:
                   name: Flow?
                 - type: custom:pool-monitor-card
                   compact: true
-                  temperature: sensor.pool_fairland_heatpump_inlet_water_temperature
-                  ph: sensor.pool_ph_value
-                  orp: sensor.pool_redox_value
+                  sensors:
+                    temperature:
+                      - entity: sensor.pool_fairland_heatpump_inlet_water_temperature
+                    ph:
+                      - entity: sensor.eps_pool_ph_level
+                    orp:
+                      - entity: sensor.eps_pool_rx_level
 
             - type: entities
               title: Warmtepomp

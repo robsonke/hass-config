@@ -49,7 +49,7 @@ pool:
     !include ../../dashboards/popups/pp_pool_garden.yaml
   state_display: >
     [[[
-      return `<span style="font-size: 1rem">${entity.state} (ph: ${states['sensor.pool_ph_value'].state}, orp: ${Number.parseFloat(states['sensor.pool_redox_value'].state).toFixed(0)})</span>`;
+      return `<span style="font-size: 1rem">${entity.state} (ph: ${states['sensor.eps_pool_ph_level'].state}, orp: ${Number.parseFloat(states['sensor.eps_pool_rx_level'].state).toFixed(0)})</span>`;
     ]]]
 
 

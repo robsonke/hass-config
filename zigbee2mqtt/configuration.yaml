@@ -215,7 +215,7 @@ devices:
     friendly_name: socket1_light_corner
   '0x00158d00075affaa':
     friendly_name: socket4_light_spare2
-    disabled: true
+    disabled: false
     homeassistant: {}
     legacy: false
     optimistic: true

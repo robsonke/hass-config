@@ -1971,7 +1971,7 @@
     input:
       heating: switch.infraroodpanel_noa
       temp_sensor: sensor.climate_sensor_noa_temperature
-      min_temp: 17
+      min_temp: 16
       set_temp: 18
       time_after: 09:00:00
       time_before: '18:00:00'
@@ -1989,7 +1989,7 @@
   alias: Heating - Control heating bedroom
   description: Turn on between 10h and 19h only when the temperature is too low and
     the windows are closed
-  trigger:
+  triggers:
   - trigger: homeassistant
     event: start
   - trigger: time_pattern
@@ -2001,8 +2001,8 @@
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
     - binary_sensor.window_masterbed_2_openclose_contact
-  condition: []
-  action:
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: time
@@ -3002,8 +3002,8 @@
   trigger:
   - trigger: state
     entity_id:
-    - sensor.pool_ph_value
-    - sensor.pool_redox_value
+    - sensor.eps_pool_ph_level
+    - sensor.eps_pool_rx_level
     - binary_sensor.pool_pump_active
     for:
       hours: 0
@@ -3016,14 +3016,14 @@
   - condition: or
     conditions:
     - condition: numeric_state
-      entity_id: sensor.pool_ph_value
+      entity_id: sensor.eps_pool_ph_level
       above: 8.5
       below: 6
     - condition: numeric_state
-      entity_id: sensor.pool_redox_value
+      entity_id: sensor.eps_pool_rx_level
       above: 850
     - condition: numeric_state
-      entity_id: sensor.pool_redox_value
+      entity_id: sensor.eps_pool_rx_level
       below: 500
     - condition: state
       entity_id: binary_sensor.pool_pump_active
@@ -3033,7 +3033,7 @@
         minutes: 30
         seconds: 0
     - condition: state
-      entity_id: sensor.pool_ph_value
+      entity_id: sensor.eps_pool_ph_level
       state: unavailable
       for:
         hours: 0
@@ -3044,7 +3044,7 @@
         hours: 0
         minutes: 30
         seconds: 0
-      entity_id: sensor.pool_redox_value
+      entity_id: sensor.eps_pool_rx_level
       state: unavailable
   - condition: state
     entity_id: binary_sensor.pool_pump_active
@@ -3711,14 +3711,14 @@
 - id: '1716926628476'
   alias: Sleep - Turn off last lights around 11 pm
   description: ''
-  trigger:
+  triggers:
   - trigger: time
     at: '22:55:00'
-  condition:
+  conditions:
   - condition: state
     entity_id: alarm_control_panel.alarmo
     state: armed_night
-  action:
+  actions:
   - action: light.turn_off
     metadata: {}
     data: {}
@@ -3726,6 +3726,7 @@
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
+      - light.kerst_binnen
   mode: single
 - id: '1718380304677'
   alias: Energy - Disable solar panels in case of negative pricing

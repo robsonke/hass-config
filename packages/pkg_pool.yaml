@@ -85,40 +85,6 @@ input_select:
       - 14. Sun White
     icon: mdi:palette
 
-# input_number:
-#   pool_light_brightness:
-#     name: Pool Light Brightness
-#     min: 0
-#     max: 100
-#     step: 1
-#   pool_light_temperature:
-#     name: Pool Light Temperature
-#     min: 1000
-#     max: 25000
-#     step: 500
-
-# Use scripts to update both the helpers and call the esphome device
-# script:
-#   pool_light_set_brightness:
-#     description: "Change the brightness of the pool lights"
-#     fields:
-#       command:
-#         description: "The brightness command, PDxxx where xxx represents a percentage"
-#         example: "PD100"
-#       value:
-#         description: "The brightness value between 0 and 100"
-#         example: "100"
-#     sequence:
-#       - service: esphome.m5stickc_pool_lights_send_uart_command
-#         data:
-#           command: "{{ command }}"
-#       - service: input_number.set_value
-#         data:
-#           value: "{{ value }}"
-#         target:
-#           entity_id: input_number.pool_light_brightness
-
-
 # and combine this into a light template
 light:
   - platform: template
@@ -198,46 +164,3 @@ lock:
       service: switch.turn_off
       target:
         entity_id: switch.pool_deck_lock
-
-# pool eps one touch scrapers
-command_line:
-  - sensor:
-      command: !secret pool_scrape_ph
-      name: Pool Ph Value
-      unit_of_measurement: "Ph"
-      scan_interval: 120
-      command_timeout: 60
-      unique_id: pool_ph_value
-  - sensor:
-      name: Pool Redox Value
-      command: !secret pool_scrape_redox
-      unit_of_measurement: "mV"
-      scan_interval: 120
-      command_timeout: 60
-      unique_id: pool_redox_value
-  # - sensor:
-  #     name: Pool Flow Value
-  #     command: !secret pool_scrape_flow
-  #     scan_interval: 120
-  #     command_timeout: 60
-  #     unique_id: pool_flow_value
-  #     value_template: >
-  #       {% if value == "Flow Ok" %}
-  #         {{ true }}
-  #       {% else %}
-  #         {{ false }}
-  #       {% endif %}
-  - sensor:
-      command: !secret pool_scrape_target_ph
-      name: Pool Ph Target Value
-      unit_of_measurement: "Ph"
-      scan_interval: 3600
-      command_timeout: 60
-      unique_id: pool_ph_target_value
-  - sensor:
-      name: Pool Redox Target Value
-      command: !secret pool_scrape_target_redox
-      unit_of_measurement: "mV"
-      scan_interval: 3600
-      command_timeout: 60
-      unique_id: pool_redox_target_value
