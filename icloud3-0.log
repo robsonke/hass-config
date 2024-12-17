@@ -3392,3 +3392,50 @@ custom_components.icloud3.support.pyicloud_ic3.PyiCloudFailedLoginException: rob
 12-17 21:50:35 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
                                           ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME 
                                           ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12-17 21:51:50 MOBAPP  icloud_iphone_rob > MobApp Trigger > Bkgnd Fetch@9:51:45p
+12-17 21:51:50 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, BKGND FETCH@9:51:45P 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+12-17 21:51:50 MOBAPP ⡇ icloud_iphone_rob > Zone > Home(2)-24.0ft > GPS-(51.50245, 3.91076/±3m)
+12-17 21:51:50 MOBAPP ⡇ icloud_iphone_rob > Results > NextUpdate-11:51:50p, Moved-0.0mi , Battery-50%, ×Went3km
+12-17 21:51:50 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME 
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12-17 21:53:00 MOBAPP  icloud_iphone_steffi > MobApp Trigger > Launch@9:52:59P
+12-17 21:53:00 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, LAUNCH@9:52:59P 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+12-17 21:53:00 MOBAPP ⡇ icloud_iphone_steffi > Zone > Home(2)-231.9ft > GPS-(51.50198, 3.91011/±6m)
+12-17 21:53:00 MOBAPP ⡇ icloud_iphone_steffi > Results > NextUpdate-11:53:00p, Moved-0.0mi , Battery-70%, ×Went3km
+12-17 21:53:00 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME 
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12-17 21:58:25 MOBAPP  icloud_iphone_steffi > MobApp Trigger > Bkgnd Fetch@9:58:23p
+12-17 21:58:25 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, BKGND FETCH@9:58:23P 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+12-17 21:58:25 MOBAPP ⡇ icloud_iphone_steffi > Zone > Home(2)-31.7ft > GPS-(51.50257, 3.91061/±5m)
+12-17 21:58:25 MOBAPP ⡇ icloud_iphone_steffi > Results > NextUpdate-11:58:25p, Moved-243.4ft , Battery-70%, ×Went3km
+12-17 21:58:25 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME 
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12-17 21:59:20 MOBAPP  icloud_iphone_rob > MobApp Trigger > Bkgnd Fetch@9:59:16p
+12-17 21:59:20 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, BKGND FETCH@9:59:16P 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+12-17 21:59:20 MOBAPP ⡇ icloud_iphone_rob > Zone > Home(2)-24.1ft > GPS-(51.50245, 3.91076/±3m)
+12-17 21:59:20 MOBAPP ⡇ icloud_iphone_rob > Results > NextUpdate-11:59:20p, Moved-0.00ft , Battery-50%, ×Went3km
+12-17 21:59:20 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_ROB, MOBAPP, CURRZONE-HOME 
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12-17 22:00:00 ------  icloud_iphone_rob > DistTo Devices >  icloud_iphone_steffi--55.8ft (2 mins)
+12-17 22:00:00 ------  icloud_iphone_steffi > DistTo Devices >  iCloud iPhone Rob--55.8ft
+12-17 22:01:40 MOBAPP  icloud_iphone_steffi > MobApp Trigger > Siri@10:01:35P
+12-17 22:01:40 MOBAPP ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, SIRI@10:01:35P 
+                                          ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+12-17 22:01:40 MOBAPP ⡇ icloud_iphone_steffi > Zone > Home(2)-31.7ft > GPS-(51.50257, 3.91061/±5m)
+12-17 22:01:40 MOBAPP ⡇ icloud_iphone_steffi > Results > NextUpdate-12:01:40a, Moved-0.0mi , Battery-70%, ×Went3km
+12-17 22:01:40 MOBAPP ⡇⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂
+                                          ⡇   ICLOUD_IPHONE_STEFFI, MOBAPP, CURRZONE-HOME 
+                                          ⡇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
