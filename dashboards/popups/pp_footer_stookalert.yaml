@@ -7,14 +7,130 @@ browser_mod:
     content:
       type: vertical-stack
       cards:
+        - type: custom:bubble-card
+          card_type: button
+          entity: sensor.stookwijzer
+          show_name: true
+          show_state: true
+          show_last_changed: false
+          show_attribute: false
+          styles: |-
+            .bubble-button-background {
+              opacity: 1 !important;
+              background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
+            }
+          name: Huidig advies
+        - type: custom:bubble-card
+          card_type: separator
+        # - type: entities
+        #   show_header_toggle: false
+        #   entities:
+        #     - entity: sensor.stookwijzer
+        #       name: Niveau
+        - type: custom:bubble-card
+          card_type: button
+          button_type: state
+          entity: sensor.stookwijzer_advies_1
+          force_icon: true
+          icon: ""
+          scrolling_effect: true
+          show_last_changed: false
+          show_attribute: true
+          attribute: time
+          name: Advies periode 1
+          sub_button:
+            - show_icon: true
+              show_attribute: false
+              show_state: false
+              show_background: false
+              state_background: false
+          styles: |
+            .bubble-button-background {
+              opacity: 1 !important;
+              background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
+            }
+            ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
+          show_state: false
+          show_name: false
+        - type: custom:bubble-card
+          card_type: button
+          button_type: state
+          entity: sensor.stookwijzer_advies_2
+          force_icon: true
+          icon: ""
+          scrolling_effect: true
+          show_last_changed: false
+          show_attribute: true
+          attribute: time
+          name: Advies periode 1
+          sub_button:
+            - show_icon: true
+              show_attribute: false
+              show_state: false
+              show_background: false
+              state_background: false
+          styles: |
+            .bubble-button-background {
+              opacity: 1 !important;
+              background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
+            }
+            ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
+          show_state: false
+          show_name: false
+        - type: custom:bubble-card
+          card_type: button
+          button_type: state
+          entity: sensor.stookwijzer_advies_3
+          force_icon: true
+          icon: ""
+          scrolling_effect: true
+          show_last_changed: false
+          show_attribute: true
+          attribute: time
+          name: Advies periode 1
+          sub_button:
+            - show_icon: true
+              show_attribute: false
+              show_state: false
+              show_background: false
+              state_background: false
+          styles: |
+            .bubble-button-background {
+              opacity: 1 !important;
+              background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
+            }
+            ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
+          show_state: false
+          show_name: false
+        - type: custom:bubble-card
+          card_type: button
+          button_type: state
+          entity: sensor.stookwijzer_advies_4
+          force_icon: true
+          icon: ""
+          scrolling_effect: true
+          show_last_changed: false
+          show_attribute: true
+          attribute: time
+          name: Advies periode 1
+          sub_button:
+            - show_icon: true
+              show_attribute: false
+              show_state: false
+              show_background: false
+              state_background: false
+          styles: |
+            .bubble-button-background {
+              opacity: 1 !important;
+              background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
+            }
+            ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
+          show_state: false
+          show_name: false
         - type: history-graph
           hours_to_show: 24
           refresh_interval: 30
           entities:
             - sensor.stookwijzer
             - sensor.stookwijzer_air_quality_index
-        - type: entities
-          show_header_toggle: false
-          entities:
-            - entity: sensor.stookwijzer
-              name: Niveau
+        

@@ -11,6 +11,7 @@ appdaemon
 backup
 deps
 tts
+themes
 downloads/*
 www/community
 www/snapshots
@@ -33,9 +34,12 @@ home-assistant.log.1
 home-assistant.log.fault
 daikin_data.json
 daikin_puredata.json
-icloud3*.log
+icloud3*.log*
 daikin_altherma_*
 frigate*
+.exports
+
 
 # And ignore the ignore for some files
 !/.storage/lovelace
+!/themes/custom_dark

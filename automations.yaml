@@ -2564,24 +2564,21 @@
   mode: single
 - id: '1663403485592'
   alias: HVAC - Set default temperature
-  description: This sets the temperature based on the heating or cooling mode plus
-    the hvac scheduler (lower effort in the night). Overall, heatpumps better have
-    some kind of default minimum, so we never go below 18 degrees
-  trigger:
-  - trigger: state
-    entity_id:
-    - schedule.hvac_schedule
+  description: This sets the temperature based on the heating or cooling mode. We
+    also reset the target temperature every night, in case somebody overruled it.
+    Overall, heatpumps better have some kind of default minimum, so we never go below
+    18 degrees
+  triggers:
   - trigger: state
     entity_id:
     - input_number.hvac_winter_target_temperature
     - input_number.hvac_summer_target_temperature
-  condition: []
-  action:
+  - trigger: time
+    at: 02:00:00
+  conditions: []
+  actions:
   - choose:
     - conditions:
-      - condition: state
-        entity_id: schedule.hvac_schedule
-        state: 'on'
       - condition: state
         entity_id: select.operation_mode
         state: heating
@@ -2595,24 +2592,6 @@
         alias: Heat - Set temperature to the winter target during the day
     - conditions:
       - condition: state
-        entity_id: schedule.hvac_schedule
-        state: 'off'
-      - condition: state
-        entity_id: select.operation_mode
-        state: heating
-      sequence:
-      - action: climate.set_temperature
-        data_template:
-          temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
-            | float -1 }}'
-        target:
-          entity_id: climate.warmtepomp
-        alias: Heat - Set temperature to 1 degree less during the night
-    - conditions:
-      - condition: state
-        entity_id: schedule.hvac_schedule
-        state: 'on'
-      - condition: state
         entity_id: select.operation_mode
         state: cooling
       sequence:
@@ -2622,23 +2601,8 @@
             | float }}'
         target:
           entity_id: climate.warmtepomp
-        alias: Cool - Set temperature to the summer target during the day
-    - conditions:
-      - condition: state
-        entity_id: schedule.hvac_schedule
-        state: 'off'
-      - condition: state
-        entity_id: select.operation_mode
-        state: cooling
-      sequence:
-      - action: climate.set_temperature
-        data_template:
-          temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
-            | float + 1}}'
-        target:
-          entity_id: climate.warmtepomp
-        alias: Cool - Set temperature to 25 degrees during the night
-    alias: Set the right target temperature, depending on day/night and season
+        alias: Cool - Set temperature to the summer target
+    alias: Set the right target temperature, depending on season
   trace:
     stored_traces: 20
   mode: single
@@ -3852,3 +3816,108 @@
       cooldown: 20
       provider: 01JDEYNQ5SNASP96EZQVX71J66
       model: gemini-1.5-pro
+- &id001
+  id: '1734980264542'
+  alias: Motion Lights - Control hall lights
+  description: ''
+  use_blueprint:
+    path: robsonke/motion-illuminance-dimmable-nightmode.yaml
+    input:
+      motion_entity:
+      - binary_sensor.hue_motion_sensor_hall_occupancy
+      lux_entity: sensor.hue_motion_sensor_hall_illuminance_lux
+      lux_level: 35
+      light_target:
+        entity_id: light.dimmer_hall
+      no_motion_wait_day: 60
+      no_motion_wait_night: 60
+      dim_time: 5
+      day_brightness: 45
+      night_brightness: 30
+      sleep_time_start_helper: '23:59:59'
+      sleep_time_end_helper: 00:00:01
+- *id001
+- id: '1735328989280'
+  alias: HVAC - Check and reset the target temp of heat pump
+  description: Temporary automation, something overrules the target temperature and
+    keeps us cold. Most likely a race condition.
+  triggers:
+  - trigger: state
+    entity_id:
+    - climate.warmtepomp
+    attribute: temperature
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: template
+    value_template: '''{{ state_attr(''climate.warmtepomp'', ''temperature'')|int
+      !=  states(''input_number.hvac_winter_target_temperature'')|int }}'''
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Target heatpump temp differs from settings, try resetting in one minute
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: select.operation_mode
+        state: heating
+      sequence:
+      - action: climate.set_temperature
+        data_template:
+          temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
+            | float }}'
+        target:
+          entity_id: climate.warmtepomp
+        alias: Heat - Set temperature to the winter target during the day
+    - conditions:
+      - condition: state
+        entity_id: select.operation_mode
+        state: cooling
+      sequence:
+      - action: climate.set_temperature
+        data_template:
+          temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
+            | float }}'
+        target:
+          entity_id: climate.warmtepomp
+        alias: Cool - Set temperature to the summer target
+    alias: Set the right target temperature, depending on season
+  mode: single
+- id: '1735414213615'
+  alias: System - check if the power in the shed is oke
+  description: Due to water in the garden, the outside power went off a few times.
+    Lets detect these moments.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.access_point_u7_outdoor_state
+    from: Connected
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - trigger: state
+    entity_id:
+    - switch.shelly_plug_s_8_fridge1_relay
+    from: 'on'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Is the power in the shed still oke? Either the Outdoor AP or fridge
+        is off / unavailable. Please check
+      title: Power issue shed?
+  mode: single

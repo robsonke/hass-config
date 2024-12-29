@@ -233,14 +233,14 @@ devices:
     friendly_name: hue_hall_switch
   '0x001788010e2549c5':
     friendly_name: hue_corridor_switch
-  '0x001788010d9f5317':
-    friendly_name: '0x001788010d9f5317'
   '0x00158d000533c62a':
     friendly_name: climate_sensor_eva
   '0x00158d0007e68332':
     friendly_name: climate_sensor_noa
   '0x00158d0007e7531d':
     friendly_name: motion_sensor_toiletupstairs
+  '0x001788010e503a66':
+    friendly_name: hue_motion_sensor_hall
 availability:
   active:
     timeout: 10

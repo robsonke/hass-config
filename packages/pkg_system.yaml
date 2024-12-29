@@ -212,6 +212,8 @@ group:
       - binary_sensor.window_masterbed_2_openclose_contact
       - binary_sensor.window_guestroom_openclose_contact
       - sensor.today_maximum_temperature
+      - sensor.hue_motion_sensor_hall_illuminance_lux
+      - binary_sensor.hue_motion_sensor_hall_occupancy
 
   ignored_entities:
     entities:
