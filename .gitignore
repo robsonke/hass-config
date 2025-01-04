@@ -16,11 +16,9 @@ downloads/*
 www/community
 www/snapshots
 www/fonts
-double-take
-zigbee2mqtt/log
-zigbee2mqtt/coordinator_backup.json
-zigbee2mqtt/state.json
+zigbee2mqtt
 custom_components
+llmvision
 
 # And some files
 secrets.yaml

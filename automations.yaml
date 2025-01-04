@@ -1596,14 +1596,14 @@
 - id: '1633552734408'
   alias: Alarm - Enable guest mode when nanny or cleaner home
   description: Enable on Thursday when we're away or leaving the house
-  trigger:
+  triggers:
   - trigger: time
     at: '12:30:00'
   - trigger: state
     entity_id:
     - zone.home
     to: '0'
-  condition:
+  conditions:
   - condition: time
     weekday:
     - thu
@@ -1615,7 +1615,7 @@
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
-  action:
+  actions:
   - action: input_boolean.turn_on
     target:
       entity_id: input_boolean.guest_mode
@@ -3854,6 +3854,7 @@
   - condition: template
     value_template: '''{{ state_attr(''climate.warmtepomp'', ''temperature'')|int
       !=  states(''input_number.hvac_winter_target_temperature'')|int }}'''
+    enabled: false
   actions:
   - action: persistent_notification.create
     metadata: {}

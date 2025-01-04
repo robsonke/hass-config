@@ -26,12 +26,11 @@ homeassistant:
     - type: homeassistant
     - type: trusted_networks
       trusted_networks:
-        - !secret kitchen_ipad_ip
+        - !secret kitchen_shelly_ip
+        - 192.168.0.221/32
       trusted_users:
-        192.168.0.76/32:
-          - 63bf7bab0d174dc6abc880085d3c4b5e
-        192.168.0.60/32:
-          - 4e66c82d531047cfbece83e7ed882e8f
+        192.168.0.215: 4e66c82d531047cfbece83e7ed882e8f
+        192.168.0.221: fea3a3dc19f743db83b7942c001b2e58
       allow_bypass_login: true
 
 assist_pipeline:
@@ -46,7 +45,6 @@ default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 192.168.0.0/24
     - 172.16.0.0/12
     - 172.30.0.0/16
     - ::1

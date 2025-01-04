@@ -67,11 +67,11 @@ browser_mod:
               variables:
                 - entity: light.palm2_light
                 - title: Palm 2
-            - type: custom:decluttering-card
-              template: light_button
-              variables:
-                - entity: light.kerst_buiten
-                - title: Kerstverlichting
+            # - type: custom:decluttering-card
+            #   template: light_button
+            #   variables:
+            #     - entity: light.kerst_buiten
+            #     - title: Kerstverlichting
 
         - type: entities
           view_layout:
