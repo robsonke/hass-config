@@ -144,44 +144,45 @@ views:
                   ha-card .content {
                     display: none !important;
                   }
-
-          # - type: custom:gap-card
-          #   height: 10
-          - type: custom:mushroom-chips-card
-            card_mod:
-              style: |
-                ha-card.type-custom-mushroom-chips-card {
-                  --chip-font-weight: normal;
-                  --chip-font-size: 0.8rem;
-                  margin: 1rem 0 0 0.5rem;
-                }
-            chips:
-              - type: template
-                entity: sensor.template_rest_days_until_collection
-                icon: mdi:trash-can
-                icon_color: '{{ state_attr(''sensor.template_rest_days_until_collection'', ''color'') }}'
-                content: |+
-                  {{ state_attr('sensor.template_rest_days_until_collection', 'text') }}
-                tap_action:
-                  !include popups/pp_sidebar_trash.yaml
-              - type: template
-                entity: sensor.template_gft_days_until_collection
-                icon: mdi:trash-can
-                icon_color: '{{ state_attr(''sensor.template_gft_days_until_collection'', ''color'') }}'
-                content: |+
-                  {{ state_attr('sensor.template_gft_days_until_collection', 'text') }}
-                tap_action:
-                  !include popups/pp_sidebar_trash.yaml
-              - type: template
-                entity: sensor.template_paper_days_until_collection
-                icon: mdi:trash-can
-                icon_color: '{{ state_attr(''sensor.template_paper_days_until_collection'', ''color'') }}'
-                content: |+
-                  {{ state_attr('sensor.template_paper_days_until_collection', 'text') }}
-                tap_action:
-                  !include popups/pp_sidebar_trash.yaml
-          # - type: custom:gap-card
-          #   height: 10
+          - type: custom:trash-card
+            entities:
+              - calendar.papierbak
+              - calendar.grijzebak
+              - calendar.groenebak
+            event_grouping: true
+            drop_todayevents_from: "10:00:00"
+            next_days: 35
+            pattern:
+              - icon: mdi:flower
+                color: light-green
+                type: organic
+                pattern: Groen
+              - icon: mdi:newspaper
+                color: blue
+                type: paper
+                pattern: Papier
+              - icon: mdi:recycle-variant
+                color: amber
+                type: recycle
+              - icon: mdi:trash-can-outline
+                color: grey
+                type: waste
+                pattern: Grijze
+              - icon: mdi:dump-truck
+                color: purple
+                type: others
+            day_style: counter
+            day_style_format: yyyy.MM.dd
+            card_style: chip
+            alignment_style: center
+            color_mode: icon
+            items_per_row: 1
+            refresh_rate: 60
+            with_label: true
+            layout: default
+            filter_events: false
+            only_all_day_events: false
+            use_summary: false
 
           #################################################
           #                                               #

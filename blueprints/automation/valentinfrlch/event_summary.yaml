@@ -1,9 +1,9 @@
 blueprint:
-  name: AI Event Summary (LLM Vision v1.3.1)
+  name: AI Event Summary (LLM Vision v1.3.7)
   author: valentinfrlch
-  description: 'AI-powered security event summaries for frigate or camera entities.  Sends
-    a notification with a preview to your phone that is updated dynamically when the
-    AI summary is available.
+  description: 'AI-powered security event summaries for frigate or camera entities.
+    Sends a notification with a preview to your phone that is updated dynamically
+    when the AI summary is available.
 
     '
   domain: automation
@@ -17,9 +17,9 @@ blueprint:
           options:
           - Frigate
           - Camera
-          sort: false
           multiple: false
           custom_value: false
+          sort: false
     important:
       name: Important (Beta)
       description: 'Use AI to classify events into ''critical'', ''normal'' and ''low''.
@@ -51,7 +51,9 @@ blueprint:
           - integration: mobile_app
     camera_entities:
       name: Camera Entities
-      description: (Camera and Frigate mode) List of camera entities to monitor
+      description: '(Camera and Frigate mode)
+
+        List of camera entities to monitor'
       default: []
       selector:
         entity:
@@ -59,10 +61,39 @@ blueprint:
           filter:
           - domain:
             - camera
+    required_zones:
+      name: Required Zone(s)
+      description: (Frigate mode only) Only run if the Frigate event occurs within
+        the specified zones (e.g., Driveway, Entry, etc.)
+      default: []
+      selector:
+        text:
+          multiline: false
+          multiple: true
+    object_type:
+      name: Included Object Type(s)
+      description: '(Frigate mode only)
+
+        Only run if frigate labels the object as one of these. (person, dog, bird,
+        etc)'
+      default: []
+      selector:
+        text:
+          multiline: false
+          multiple: true
+    ignore_stationary:
+      name: Ignore Stationary Objects
+      description: '(Frigate mode only)
+
+        Does not alert if objects are detected as stationary by Frigate.'
+      default: true
+      selector:
+        boolean: {}
     trigger_state:
       name: Trigger State
-      description: (Camera mode only) Trigger the automation when your cameras change
-        to this state.
+      description: '(Camera mode only)
+
+        Trigger the automation when your cameras change to this state.'
       default: recording
       selector:
         text:
@@ -70,8 +101,10 @@ blueprint:
           multiple: false
     motion_sensors:
       name: Motion Sensor
-      description: (Camera mode only) Set if your cameras don't change state. Use
-        the same order used for camera entities.
+      description: '(Camera mode only)
+
+        Set if your cameras don''t change state. Use the same order used for camera
+        entities.'
       default: []
       selector:
         entity:
@@ -81,17 +114,18 @@ blueprint:
             - binary_sensor
     preview_mode:
       name: Preview Mode
-      description: (Camera mode only) Choose between a live preview or a snapshot
-        of the event
+      description: '(Camera mode only)
+
+        Choose between a live preview or a snapshot of the event'
       default: Live Preview
       selector:
         select:
           options:
           - Live Preview
           - Snapshot
-          sort: false
           multiple: false
           custom_value: false
+          sort: false
     cooldown:
       name: Cooldown
       description: Time in minutes to wait before running again. Recommended for busy
@@ -105,7 +139,9 @@ blueprint:
           mode: slider
     tap_navigate:
       name: Tap Navigate
-      description: Path to navigate to when notification is opened (e.g. /lovelace/cameras)
+      description: "Path to navigate to when notification is opened (e.g. /lovelace/cameras).\nTo
+        have use the same input which was sent to the ai engine, use\n  `{{video if
+        video != '''' else image}}`"
       default: /lovelace/0
       selector:
         text:
@@ -113,7 +149,9 @@ blueprint:
           multiple: false
     duration:
       name: Duration
-      description: (Camera mode only) How long to record before analyzing (in seconds)
+      description: '(Camera mode only)
+
+        How long to record before analyzing (in seconds)'
       default: 5
       selector:
         number:
@@ -123,8 +161,9 @@ blueprint:
           mode: slider
     max_frames:
       name: Max Frames
-      description: (Camera and Frigate mode) How many frames to analyze. Picks frames
-        with the most movement.
+      description: '(Camera and Frigate mode)
+
+        How many frames to analyze. Picks frames with the most movement.'
       default: 3
       selector:
         number:
@@ -188,9 +227,9 @@ blueprint:
           options:
           - high
           - low
-          sort: false
           multiple: false
           custom_value: false
+          sort: false
     temperature:
       name: Temperature
       description: Randomness. Lower is more accurate, higher is more creative.
@@ -209,16 +248,19 @@ variables:
   notify_devices: !input notify_device
   device_name_map: "{% set ns = namespace(device_names=[]) %} {% for device_id in
     notify_devices %}\n  {% set device_name = device_attr(device_id, \"name\") %}\n
-    \ {% set sanitized_name = \"mobile_app_\" + device_name | lower | regex_replace(\"[^a-z0-9_\\-
-    ]\", \"\") | replace(\" \", \"_\") | replace(\"-\", \"_\") %}\n  {% set ns.device_names
-    = ns.device_names + [sanitized_name] %}\n{% endfor %} {{ ns.device_names }}\n"
+    \ {% set sanitized_name = \"mobile_app_\" + device_name | slugify  %}\n  {% set
+    ns.device_names = ns.device_names + [sanitized_name] %}\n{% endfor %} {{ ns.device_names
+    }}\n"
   camera_entities_list: !input camera_entities
+  required_zones_list: !input required_zones
+  object_types_list: !input object_type
+  ignore_stationary: !input ignore_stationary
   motion_sensors_list: !input motion_sensors
-  camera_entity: "{% if mode == 'Camera' %}\n  {% if motion_sensors_list and not \"camera\"
-    in trigger.entity_id %}\n    {% set index = motion_sensors_list.index(trigger.entity_id)
-    %}\n    {{ camera_entities_list[index] }}\n  {% else %}\n    {{ trigger.entity_id
-    }}\n  {% endif %}\n{% else %}\n  {{ trigger.payload_json['after']['camera'] }}\n{%
-    endif %}\n"
+  camera_entity: "{% if mode == 'Camera' %}\n  {% if motion_sensors_list and not trigger.entity_id.startswith(\"camera\")
+    %}\n    {% set index = motion_sensors_list.index(trigger.entity_id) %}\n    {{
+    camera_entities_list[index] }}\n  {% else %}\n    {{ trigger.entity_id }}\n  {%
+    endif %}\n{% else %}\n  {{ trigger.payload_json['after']['camera'] }}\n{% endif
+    %}\n"
   tag: "{% if mode == 'Frigate' %}\n  {{ trigger.payload_json['after']['camera'] +
     int(as_timestamp(now()))|string }}\n{% else %}\n  {{ camera_entity + int(as_timestamp(now()))|string
     }}\n{% endif %}\n"
@@ -241,10 +283,13 @@ variables:
     event of similar importance. Reply with these replies exactly.
 
     '
+max_exceeded: silent
+mode: single
 trigger:
 - platform: mqtt
   topic: frigate/events
   id: frigate_trigger
+  enabled: '{{mode == ''Frigate''}}'
 - platform: state
   entity_id: !input camera_entities
   to: !input trigger_state
@@ -256,12 +301,11 @@ trigger:
 condition:
 - condition: template
   value_template: "{% if mode == 'Frigate' %}\n  {{ trigger.payload_json[\"type\"]
-    == \"end\" and (state_attr(this.entity_id, 'last_triggered') is none or (now()
-    - state_attr(this.entity_id, 'last_triggered')).total_seconds() / 60 > cooldown)
-    and ('camera.' + trigger.payload_json['after']['camera']|lower) in camera_entities_list
-    }}\n{% else %}\n  {{ state_attr(this.entity_id, 'last_triggered') is none or (now()
-    - state_attr(this.entity_id, 'last_triggered')).total_seconds() / 60 > cooldown
-    }}\n{% endif %}\n"
+    == \"end\"\n     and ('camera.' + trigger.payload_json['after']['camera']|lower)
+    in camera_entities_list\n     and ((object_types_list|length) == 0 or ((trigger.payload_json['after']['label']|lower)
+    in object_types_list))\n     and (not required_zones_list or ((set(trigger.payload_json['after']['current_zones']).intersection(required_zones_list))))\n
+    \    and not (ignore_stationary and trigger.payload_json['after']['stationary'])\n
+    \ }}\n{% else %}\n  true\n{% endif %}\n"
 action:
 - choose:
   - conditions:
@@ -347,6 +391,7 @@ action:
         model: !input model
         message: !input message
         remember: !input remember
+        generate_title: !input remember
         include_filename: true
         max_frames: !input max_frames
         target_width: !input target_width
@@ -366,6 +411,7 @@ action:
         model: !input model
         message: !input message
         remember: !input remember
+        generate_title: !input remember
         include_filename: true
         max_frames: !input max_frames
         target_width: !input target_width
@@ -397,3 +443,4 @@ action:
               tag: '{{tag}}'
               group: '{{group}}'
               interruption-level: passive
+- delay: 00:{{cooldown|int}}:00

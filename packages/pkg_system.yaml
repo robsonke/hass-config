@@ -145,7 +145,7 @@ binary_sensor:
     name: All doors and windows
     device_class: opening
     entities:
-      - binary_sensor.backdoor_openclose_contact
+      - binary_sensor.backdoor_sensor_contact
       - binary_sensor.frontdoor_openclose_contact
       - binary_sensor.sheddoor_openclose_contact
       - binary_sensor.sheddoor_back_openclose_contact
@@ -165,9 +165,9 @@ binary_sensor:
     name: All doors and windows downstairs
     device_class: opening
     entities:
-      - binary_sensor.backdoor_openclose_contact
+      - binary_sensor.backdoor_sensor_contact
       - binary_sensor.frontdoor_openclose_contact
-      - binary_sensor.door_terrace_openclose_contact
+      - binary_sensor.door_terrace_sensor_contact
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
@@ -182,15 +182,15 @@ group:
   monitored_entities:
     name: Monitored Entities
     entities:
-      - binary_sensor.backdoor_openclose_contact
+      - binary_sensor.backdoor_sensor_contact
       - binary_sensor.frontdoor_openclose_contact
-      - binary_sensor.door_terrace_openclose_contact
+      - binary_sensor.door_terrace_sensor_contact
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
       - binary_sensor.windowdoor_ground_4_openclose_contact
       - sensor.light_sensor_garden
-      - binary_sensor.hallwaydoor_openclose_contact
+      - binary_sensor.hallwaydoor_sensor_contact
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_noaroom_openclose_contact
       - sensor.climate_sensor_eva_temperature
@@ -199,7 +199,7 @@ group:
       - sensor.climate_sensor_masterbedroom_temperature
       - binary_sensor.motion_sensor_toiletdownstairs_occupancy
       - binary_sensor.toiletdoorupstairs_openclose_contact
-      - binary_sensor.toiletdoordownstairs_openclose_contact
+      - binary_sensor.toiletdoordownstairs_sensor_contact
       - binary_sensor.motion_sensor_toiletupstairs_occupancy
       - binary_sensor.hue_motion_sensor_corridor1_occupancy
       - binary_sensor.hue_motion_sensor_shed_occupancy
@@ -212,7 +212,7 @@ group:
       - binary_sensor.window_masterbed_2_openclose_contact
       - binary_sensor.window_guestroom_openclose_contact
       - sensor.today_maximum_temperature
-      - sensor.hue_motion_sensor_hall_illuminance_lux
+      - sensor.hue_motion_sensor_hall_illuminance
       - binary_sensor.hue_motion_sensor_hall_occupancy
 
   ignored_entities:
@@ -412,7 +412,9 @@ sensor:
     name: hass_release_notes_rc
     resource: https://api.github.com/repos/home-assistant/core/releases?per_page=1
     value_template: >
-      {{ value_json[0].name }}
+      {% if value_json and value_json|length > 0 %}
+        {{ value_json[0].name }}
+      {% endif %}
     json_attributes:
       - body
     scan_interval: 21600

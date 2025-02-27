@@ -4,12 +4,13 @@ substitutions:
   device_description: "DIY P1 module to read your smart meter"
   ip: !secret slimmelezer_ip
 
+esp8266:
+  board: d1_mini
+  restore_from_flash: True
+
 esphome:
   name: ${device_name}
   comment: "${device_description}"
-  platform: ESP8266
-  esp8266_restore_from_flash: true
-  board: d1_mini
   name_add_mac_suffix: false
   project:
     name: zuidwijk.slimmelezer
@@ -70,18 +71,12 @@ dsmr:
 
 sensor:
   - platform: dsmr
-    # energy_delivered_lux:
-    #   name: "Energy Consumed Luxembourg"
-    #   state_class: total_increasing
     energy_delivered_tariff1:
       name: "Energy Consumed Tariff 1"
       state_class: total_increasing
     energy_delivered_tariff2:
       name: "Energy Consumed Tariff 2"
       state_class: total_increasing
-    # energy_returned_lux:
-    #   name: "Energy Produced Luxembourg"
-    #   state_class: total_increasing
     energy_returned_tariff1:
       name: "Energy Produced Tariff 1"
       state_class: total_increasing

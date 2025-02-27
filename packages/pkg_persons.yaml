@@ -32,16 +32,6 @@ notify:
       - service: mobile_app_iphone_rob
       - service: mobile_app_iphone_steffi
 
-device_tracker:
-  - platform: iphonedetect
-    consider_home: 60
-    scan_interval: 12
-    new_device_defaults:
-      track_new_devices: false
-    hosts:
-      iphonedetect_rob: !secret iphone_rob_ip
-      iphonedetect_steffi: !secret iphone_steffi_ip
-
 homeassistant:
   customize_domain:
     light:

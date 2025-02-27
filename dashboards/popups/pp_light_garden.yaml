@@ -118,6 +118,6 @@ browser_mod:
                 - entity: light.hue_lily_light_tree_2
                 - title: Boom Noa
 
-            - entity: sensor.light_sensor_garden_illuminance_lux
+            - entity: sensor.light_sensor_garden_illuminance
               name: Lichtsterkte buiten
 

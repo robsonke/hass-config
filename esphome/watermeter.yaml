@@ -22,12 +22,12 @@ substitutions:
 #Set up ESPHome
 esphome:
   name: ${device_name}
-  platform: ESP8266
-  board: d1_mini
-  
   project:
     name: dwainscheeren.watermeterkit
     version: "${watermeterkit_version}"
+
+esp8266:
+  board: d1_mini
 
 <<: !include .common.yaml
 

@@ -257,7 +257,7 @@
     low
   trigger:
   - trigger: numeric_state
-    entity_id: sensor.light_sensor_living_illuminance_lux
+    entity_id: sensor.light_sensor_living_illuminance
     below: '30'
   condition:
   - condition: and
@@ -293,7 +293,7 @@
   trigger:
   - trigger: numeric_state
     entity_id:
-    - sensor.light_sensor_living_illuminance_lux
+    - sensor.light_sensor_living_illuminance
     below: '30'
     for:
       hours: 0
@@ -405,7 +405,7 @@
     garden
   triggers:
   - entity_id:
-    - sensor.light_sensor_garden_illuminance_lux
+    - sensor.light_sensor_garden_illuminance
     below: 8
     trigger: numeric_state
   - at: 07:00
@@ -449,7 +449,7 @@
       - condition: or
         conditions:
         - condition: numeric_state
-          entity_id: sensor.light_sensor_living_illuminance_lux
+          entity_id: sensor.light_sensor_living_illuminance
           below: 8
         - condition: numeric_state
           entity_id: sun.sun
@@ -469,10 +469,6 @@
     target:
       entity_id:
       - light.garden_light
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.kerst_buiten
   - action: light.turn_on
     data:
       kelvin: 2200
@@ -515,6 +511,11 @@
       kelvin: 2200
     target:
       entity_id: light.hue_lights_garden
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.kerst_buiten
+    data: {}
   mode: single
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights - morning
@@ -523,7 +524,7 @@
   - at: 09:00
     trigger: time
   - entity_id:
-    - sensor.light_sensor_garden_illuminance_lux
+    - sensor.light_sensor_garden_illuminance
     above: 5
     for:
       hours: 0
@@ -545,7 +546,6 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
-      - light.kerst_buiten
   - delay:
       hours: 0
       minutes: 0
@@ -568,6 +568,7 @@
     target:
       entity_id:
       - light.garden_light
+      - light.kerst_buiten
   mode: single
 - id: lights_turn_off_bedtime_manual
   alias: Sleep - Switch to night mode manually
@@ -677,7 +678,7 @@
 - id: lights_kitchen_turn_on_when_awake_morning
   alias: Lights - Turn on lights when hallway door opens in the early morning
   triggers:
-  - entity_id: binary_sensor.hallwaydoor_openclose_contact
+  - entity_id: binary_sensor.hallwaydoor_sensor_contact
     from: 'off'
     to: 'on'
     trigger: state
@@ -711,7 +712,7 @@
         target:
           entity_id: media_player.eetkamer
   - condition: numeric_state
-    entity_id: sensor.light_sensor_living_illuminance_lux
+    entity_id: sensor.light_sensor_living_illuminance
     below: '60'
   - action: light.turn_on
     data:
@@ -1314,7 +1315,7 @@
     entity_id: light.socket2_light_couch
     state: 'off'
   - condition: state
-    entity_id: binary_sensor.hallwaydoor_openclose_contact
+    entity_id: binary_sensor.hallwaydoor_sensor_contact
     state: 'off'
   action:
   - action: script.sleep_well
@@ -1442,7 +1443,7 @@
   description: ''
   trigger:
   - trigger: state
-    entity_id: binary_sensor.backdoor_openclose_contact
+    entity_id: binary_sensor.backdoor_sensor_contact
     for: '1800'
     from: 'off'
     to: 'on'
@@ -1664,7 +1665,7 @@
       entity_id: light.livingfront_light
       state: 'off'
     - condition: numeric_state
-      entity_id: sensor.light_sensor_living_illuminance_lux
+      entity_id: sensor.light_sensor_living_illuminance
       below: '30'
   action:
   - action: script.lights_on_home
@@ -1724,7 +1725,7 @@
   description: Turn off lights in the morning or during the day after a darker period
   trigger:
   - trigger: numeric_state
-    entity_id: sensor.light_sensor_living_illuminance_lux
+    entity_id: sensor.light_sensor_living_illuminance
     above: '60'
     for:
       hours: 0
@@ -2093,7 +2094,6 @@
     target:
       entity_id:
       - light.veranda_light
-      - light.kerst_buiten
   - action: light.turn_off
     data: {}
     target:
@@ -2123,7 +2123,9 @@
   - action: light.turn_off
     data: {}
     target:
-      entity_id: light.hue_lights_garden
+      entity_id:
+      - light.hue_lights_garden
+      - light.kerst_buiten
   mode: single
 - id: '1645647196286'
   alias: Windows - Masterbedroom1 open and low temperature
@@ -3163,7 +3165,7 @@
     input:
       motion_entity:
       - binary_sensor.hue_motion_sensor_corridor1_occupancy
-      lux_entity: sensor.hue_motion_sensor_corridor1_illuminance_lux
+      lux_entity: sensor.hue_motion_sensor_corridor1_illuminance
       lux_level: 10
       light_target:
         entity_id: light.dimmer_corridor
@@ -3278,7 +3280,7 @@
     input:
       motion_entity:
       - binary_sensor.hue_motion_sensor_shed_occupancy
-      lux_entity: sensor.hue_motion_sensor_shed_illuminance_lux
+      lux_entity: sensor.hue_motion_sensor_shed_illuminance
       lux_level: 250
       dim_time: 0
       no_motion_wait_day: 600
@@ -3297,7 +3299,7 @@
     input:
       motion_entity:
       - binary_sensor.hue_motion_sensor_shower_occupancy
-      lux_entity: sensor.hue_motion_sensor_shower_illuminance_lux
+      lux_entity: sensor.hue_motion_sensor_shower_illuminance
       lux_level: 250
       light_target:
         entity_id: light.dimmer_master_closetbath
@@ -3316,7 +3318,7 @@
     path: robsonke/toilet-light-control.yaml
     input:
       motion_entity: binary_sensor.motion_sensor_toiletdownstairs_occupancy
-      door_entity: binary_sensor.toiletdoordownstairs_openclose_contact
+      door_entity: binary_sensor.toiletdoordownstairs_sensor_contact
       light_target: light.toilet_downstairs_light
       no_motion_wait: 20
       night_brightness: 40
@@ -3374,37 +3376,37 @@
 - id: '1706294943705'
   alias: Music - Control sonos bedroom
   description: ''
-  trigger:
+  triggers:
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: button_4_press_release
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: dial_rotate_right_step
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: dial_rotate_left_step
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: dial_rotate_left_fast
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: dial_rotate_left_slow
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: dial_rotate_right_fast
   - trigger: state
     entity_id:
-    - sensor.hue_tap_switch_master_action
+    - sensor.hue_tap_switch_master_action_type
     to: dial_rotate_right_slow
-  condition: []
-  action:
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: template
@@ -3825,7 +3827,7 @@
     input:
       motion_entity:
       - binary_sensor.hue_motion_sensor_hall_occupancy
-      lux_entity: sensor.hue_motion_sensor_hall_illuminance_lux
+      lux_entity: sensor.hue_motion_sensor_hall_illuminance
       lux_level: 35
       light_target:
         entity_id: light.dimmer_hall
@@ -3921,4 +3923,39 @@
       message: Is the power in the shed still oke? Either the Outdoor AP or fridge
         is off / unavailable. Please check
       title: Power issue shed?
+  mode: single
+- id: '1736593579794'
+  alias: DHW - Correct the target temperature when it goes loko
+  description: Temporary automation, something overrules the target temperature and
+    keeps us cold. Most likely a race condition.
+  triggers:
+  - trigger: state
+    entity_id:
+    - water_heater.domestic_hot_water_tank
+    attribute: temperature
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: template
+    value_template: '''{{ state_attr(''water_heater.domestic_hot_water_tank'', ''temperature'')|int
+      > 46 }}'''
+    enabled: true
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Target hot water temp above 46 degrees, try resetting in one minute
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - action: water_heater.set_temperature
+    metadata: {}
+    data:
+      temperature: 45
+    target:
+      entity_id: water_heater.domestic_hot_water_tank
   mode: single
