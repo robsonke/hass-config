@@ -377,8 +377,8 @@ sonos_upstairs:
           heightPercentage: 100
           mediaBrowserItemsPerRow: 3
           dynamicVolumeSlider: true
-          dynamicVolumeSliderThreshold: 40
-          dynamicVolumeSliderMax: 40
+          dynamicVolumeSliderThreshold: 20
+          dynamicVolumeSliderMax: 20
           replaceHttpWithHttpsForThumbnails: true
           card_mod:
             style: |

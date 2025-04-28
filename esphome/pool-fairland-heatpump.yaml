@@ -1,5 +1,6 @@
 # see https://github.com/rstcologne/ESP-Home-Fairland-Heatpump
 # and https://community.home-assistant.io/t/controlling-a-fairland-pool-heatpump-eliminating-tuya/579467
+# and https://github.com/spdr870/fairland_iphcr45_modbus/blob/master/readme.md
 
 esphome:
   name: pool-fairland-heatpump
@@ -19,7 +20,7 @@ esp32:
 logger:
   baud_rate: 0
   hardware_uart: UART0
-  level: INFO
+  level: DEBUG
   #level: VERBOSE #makes uart stream available in esphome logstream
 
 uart:
@@ -46,7 +47,7 @@ modbus_controller:
     ## the Modbus device addr
     address: 0x0001
     modbus_id: modbus1
-    update_interval: 5s
+    update_interval: 20s
     
 
 light:

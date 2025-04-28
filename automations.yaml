@@ -503,7 +503,7 @@
       milliseconds: 0
   - action: light.turn_on
     data:
-      brightness_pct: 35
+      brightness_pct: 40
     target:
       entity_id: light.veranda_light
   - action: light.turn_on
@@ -1174,7 +1174,7 @@
   - trigger: time
     at: '18:00:00'
   - trigger: numeric_state
-    entity_id: sensor.openweathermap_forecast_cloud_coverage
+    entity_id: sensor.openweathermap_cloud_coverage
     above: '90'
     for:
       hours: 0
@@ -1237,7 +1237,7 @@
   - trigger: time
     at: '21:00'
   - trigger: numeric_state
-    entity_id: sensor.openweathermap_forecast_cloud_coverage
+    entity_id: sensor.openweathermap_cloud_coverage
     above: '90'
     for:
       hours: 0
@@ -2187,7 +2187,7 @@
     entity_id:
     - sensor.rate_rain_piezo
     - sensor.today_maximum_temperature
-    - sensor.openweathermap_forecast_cloud_coverage
+    - sensor.openweathermap_cloud_coverage
   condition:
   - condition: and
     conditions:

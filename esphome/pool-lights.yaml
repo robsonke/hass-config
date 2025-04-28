@@ -1,5 +1,5 @@
 substitutions:
-  devicename: "m5stickc-pool-lights"
+  devicename: "pool-lights"
   ip: !secret m5stickc_pool_lights_ip
 
 esphome:
