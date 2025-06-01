@@ -5,7 +5,7 @@ GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictH
 git add .
 git status
 
-read -p "Enter the Description for the Change: " -i "Minor Updates" -e CHANGE_MSG
+read -r -p "Enter the Description for the Change: " -i "Minor Updates" -e CHANGE_MSG
 
 git commit -m "${CHANGE_MSG}"
 git push origin master

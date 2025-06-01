@@ -14,12 +14,12 @@ browser_mod:
               name: Boodschappen in mandje
             - entity: sensor.picnic_cart_total_price
               name: Prijs winkelmandje
-            - entity: sensor.picnic_selected_slot_max_order_time
+            - entity: sensor.picnic_max_order_time_of_selected_slot
               name: Laatste bestelmoment
-            - entity: sensor.picnic_next_delivery_slot_start
+            - entity: sensor.picnic_start_of_selected_slot
               name: Eerste volgende levering
-            - entity: sensor.picnic_selected_slot_min_order_value
+            - entity: sensor.picnic_minimum_order_value_for_selected_slot
               name: Minimale bedrag
             - type: divider
-            - entity: sensor.picnic_last_order_total_price
+            - entity: sensor.picnic_total_price_of_last_order
               name: Prijs laatste bestelling

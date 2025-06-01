@@ -23,9 +23,9 @@ picnic:
       ]]]
   state_display: >
     [[[
-      let deliveryDate = states['sensor.picnic_selected_slot_start'].state;
-      if (states['sensor.picnic_selected_slot_start'].state === "unknown")
-        deliveryDate = states['sensor.picnic_next_delivery_slot_start'].state;
+      let deliveryDate = states['sensor.picnic_start_of_selected_slot'].state;
+      if (states['sensor.picnic_start_of_selected_slot'].state === "unknown")
+        deliveryDate = states['sensor.picnic_expected_start_of_next_delivery'].state;
       if (deliveryDate && deliveryDate !== 'unknown')
         return html`
           <ha-relative-time

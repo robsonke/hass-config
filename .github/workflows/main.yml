@@ -19,10 +19,14 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v7
         env:
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+          VALIDATE_YAML: true
+          FILTER_REGEX_EXCLUDE: '^(custom_components/|blueprints/|esphome/custom_components/|esphome/archive/|www/|.vscode/)'
+          DISABLE_LINTERS: >
+            CHECKOV  
+            GITHUB_ACTIONS
   home-assistant:
     name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
     runs-on: ubuntu-latest

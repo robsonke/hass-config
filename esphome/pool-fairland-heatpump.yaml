@@ -20,7 +20,7 @@ esp32:
 logger:
   baud_rate: 0
   hardware_uart: UART0
-  level: DEBUG
+  level: INFO
   #level: VERBOSE #makes uart stream available in esphome logstream
 
 uart:

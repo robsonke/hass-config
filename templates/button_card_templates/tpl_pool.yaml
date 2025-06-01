@@ -18,11 +18,12 @@ pool:
       ]]]
     circle_input: >
       [[[
+        if (!states['sensor.pool_fairland_heatpump_inlet_water_temperature'] || states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state === 'unavailable') return 100;
         return states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state / states['number.pool_fairland_heatpump_target_temperature_heating'].state * 100;
       ]]]
     circle_text: >
       [[[
-        if (states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state === 'unavailable') return '-';
+        if (!states['sensor.pool_fairland_heatpump_inlet_water_temperature'] || states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state === 'unavailable') return '-';
         return states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state;
       ]]]
     unit: "°C"
@@ -34,8 +35,10 @@ pool:
             [[[
               let color = '';
               if (states['binary_sensor.pool_pump_active'].state === 'on') color = 'var(--blue)';
-              if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 0) color = 'var(--orange)';
-              if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 79) color = 'var(--red)';
+              if (states['sensor.pool_fairland_heatpump_speed_percentage']) {
+                if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 0) color = 'var(--orange)';
+                if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 79) color = 'var(--red)';
+              }
               return color;
             ]]]
         - animation: '[[[ if (entity.state === "Moving") return "blink 2s ease infinite"; return "none"; ]]]'
@@ -49,6 +52,7 @@ pool:
     !include ../../dashboards/popups/pp_pool_garden.yaml
   state_display: >
     [[[
+      if (!states['sensor.eps_pool_ph_level'] || !states['sensor.eps_pool_rx_level']) return `<span style="font-size: 1rem">${entity.state}</span>`;
       return `<span style="font-size: 1rem">${entity.state} (ph: ${states['sensor.eps_pool_ph_level'].state}, orp: ${Number.parseFloat(states['sensor.eps_pool_rx_level'].state).toFixed(0)})</span>`;
     ]]]
 
