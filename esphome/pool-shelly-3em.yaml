@@ -50,9 +50,9 @@ sensor:
     frequency: 60Hz
     phase_a:
       name: Pool Shelly 3EM Phase A
-      voltage: Voltage
-      current: Current
-      active_power: Active Power
+      voltage: Voltage Phase A
+      current: Current Phase A
+      active_power: Active Power Phase A
       #power_factor: Power Factor
       #forward_active_energy: Forward Active Energy
       #reverse_active_energy: Reverse Active Energy
@@ -63,9 +63,9 @@ sensor:
         phase_angle: 164
     phase_b:
       name: Pool Shelly 3EM Phase B
-      voltage: Voltage
-      current: Current
-      active_power: Active Power
+      voltage: Voltage Phase B
+      current: Current Phase B
+      active_power: Active Power Phase B
       #power_factor: Power Factor
       #forward_active_energy: Forward Active Energy
       #reverse_active_energy: Reverse Active Energy
@@ -76,9 +76,9 @@ sensor:
         phase_angle: 156
     phase_c:
       name: Pool Shelly 3EM Phase C
-      voltage: Voltage
-      current: Current
-      active_power: Active Power
+      voltage: Voltage Phase C
+      current: Current Phase C
+      active_power: Active Power Phase C
       #power_factor: Power Factor
       #forward_active_energy: Forward Active Energy
       #reverse_active_energy: Reverse Active Energy
@@ -89,6 +89,6 @@ sensor:
         phase_angle: 156
     neutral:
       name: Pool Shelly 3EM Neutral
-      current: Current
+      current: Current Neutral
       calibration:
         current_gain: 266842892

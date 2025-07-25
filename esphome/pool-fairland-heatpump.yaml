@@ -14,7 +14,7 @@ substitutions:
 esp32:
   board: m5stick-c
   framework:
-    type: arduino
+    type: esp-idf
 
 # Enable logging
 logger:
@@ -78,16 +78,6 @@ light:
 remote_transmitter:
   pin: GPIO9
   carrier_duty_percent: 50%
-
-# sensor:
-#   - platform: axp192
-#     address: 0x34
-#     i2c_id: bus_a
-#     model: M5STICKC
-#     update_interval: 30s
-#     battery_level:
-#       name: "Battery Level"
-#       id: "battery_level"
 
 spi:
   clk_pin: GPIO13

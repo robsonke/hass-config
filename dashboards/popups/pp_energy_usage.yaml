@@ -41,7 +41,7 @@ browser_mod:
                 - type: gauge
                   name: Energie productie
                   unit: kW
-                  entity: sensor.solaredgemb_dc_power
+                  entity: sensor.solaredge_dc_power
                   min: 0
                   needle: true
                   severity:
@@ -198,7 +198,7 @@ browser_mod:
                   use_metadata: false
                   color_value: true
                 solar:
-                  entity: sensor.solaredgemb_dc_power
+                  entity: sensor.solaredge_dc_power
                   display_zero_state: true
                 home:
                   entity: sensor.net_power_consumption

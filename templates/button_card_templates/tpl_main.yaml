@@ -215,20 +215,6 @@ sonos_downstairs:
         timeout: 60000
         title: Sonos - Muziek
         content:
-          # type: "custom:sonos-card"
-          # name: "Sonos"
-          # entities:
-          #   - media_player.eetkamer
-          #   - media_player.living_room
-          #   - media_player.office
-          # background: cover
-          # card_mod:
-          #   style: |
-          #     ha-card.type-custom-sonos-card {
-          #       --sns-button-icon-color: var(--primary-color);
-          #       --sns-player-background: transparant;
-          #       --sns-card-primary-text-color: #fff;
-          #     }
           type: custom:layout-card
           layout_type: custom:grid-layout
           layout:
@@ -341,22 +327,9 @@ sonos_upstairs:
     browser_mod:
       service: browser_mod.popup
       data:
-        #size: wide
         timeout: 60000
         title: Sonos - Muziek
         content:
-          # type: "custom:sonos-card"
-          # name: "Sonos"
-          # entities:
-          #   - media_player.slaapkamer_sonos
-          # background: cover
-          # card_mod:
-          #   style: |
-          #     ha-card.type-custom-sonos-card {
-          #       --sns-button-icon-color: var(--primary-color);
-          #       --sns-player-background: transparant;
-          #       --sns-card-primary-text-color: #fff;
-          #     }
           type: custom:sonos-card
           sections:
             - player

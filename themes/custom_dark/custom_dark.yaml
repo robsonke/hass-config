@@ -173,6 +173,36 @@ custom-dark:
       padding-top: calc(var(--header-height) + env(safe-area-inset-top));
     }
 
+  card-mod-root-yaml: |
+    #################################################
+    #                                               #
+    #              lovelace-navbar-card             #
+    #                                               #
+    #################################################
+    .: |
+      /* Add padding to the left (or other sides, depending on your navbar position) for desktop screens */
+      @media (min-width: 768px) {
+        hui-sections-view {
+          padding-left: 100px !important;
+        }
+      }
+
+      /* Add bottom padding for mobile screens to prevent cards from overlapping with the navbar */
+      @media (max-width: 767px) {
+        hui-sections-view:after {
+          content: "";
+          display: block;
+          height: 80px;
+          width: 100%;
+          background-color: transparent; 
+        }
+      }
+      /* Hide the main tabs in the upper bar */
+      .toolbar > sl-tab-group {
+        pointer-events: none;
+        opacity: 0;
+      }
+
   card-mod-view-yaml: |
     .: |
       hui-view {
@@ -267,8 +297,8 @@ custom-dark:
         @media screen and (max-width: 800px) {
           hui-grid-card {
             position: absolute;
-            right: 4vw;
-            top: 17vw;
+            right: 1vw;
+            top: 15vw;
             min-height: auto;
           }
         }
@@ -280,7 +310,7 @@ custom-dark:
         /* phone */
         @media screen and (max-width: 800px) {
           #root {
-            padding: 0 0 0 30%;
+            /*padding: 0 0 0 30%;*/
           }
         }
   card-mod-card: |

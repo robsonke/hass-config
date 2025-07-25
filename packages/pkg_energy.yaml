@@ -365,7 +365,7 @@ template:
       unit_of_measurement: kW
       device_class: power
       state_class: measurement
-      state: "{{ states('sensor.solaredgemb_dc_power')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
+      state: "{{ states('sensor.solaredge_dc_power')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
     # same sensor but with other unit of measurement
     - unique_id: power_consumption_watt
       attributes:

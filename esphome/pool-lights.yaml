@@ -6,13 +6,11 @@ esphome:
   name: ${devicename}
   friendly_name: ${devicename}
   comment: "RS485 Pool light control"
-  #includes:
-    #- uart_read_line_sensor.h
 
 esp32:
   board: m5stick-c
   framework:
-    type: arduino
+    type: esp-idf
 
 <<: !include .common.yaml
 
@@ -139,14 +137,6 @@ sensor:
     name: "Power Usage Pool Lights"
     entity_id: sensor.pool_shelly_3em_phase_c_active_power
     id: "pool_shelly_3em_phase_c_active_power"
-  - platform: axp192
-    address: 0x34
-    i2c_id: bus_a
-    model: M5STICKC
-    update_interval: 30s
-    battery_level:
-      name: "M5Stick Battery Level"
-      id: "m5stick_batterylevel"
 
 spi:
   clk_pin: GPIO13

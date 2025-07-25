@@ -31,6 +31,14 @@ browser_mod:
             - type: horizontal-stack
               cards:
                 - type: custom:button-card
+                  name: Activeer sproei planning
+                  entity: input_boolean.irrigation_plan_enable
+                  show_state: false
+                  styles:
+                    card:
+                      - height: 100px
+                      - width: 200px
+                - type: custom:button-card
                   name: Sproeien
                   entity: switch.irrigation_main_switch
                   show_state: false
@@ -56,14 +64,6 @@ browser_mod:
                     service: switch.toggle
                     service_data:
                       entity_id: switch.auto_advance_next_zone
-                - type: custom:button-card
-                  name: Activeer sproei planning
-                  entity: input_boolean.irrigation_plan_enable
-                  show_state: false
-                  styles:
-                    card:
-                      - height: 100px
-                      - width: 200px
                   
             - type: entities
               entities:

@@ -7,13 +7,12 @@ wallpanel:
   idle_time: 0
 
 views:
-  
   - type: custom:grid-layout
     theme: custom-dark
     path: 0
     layout:
       margin: 0
-      grid-gap: calc(var(--grid-card-gap) * 1)
+      #grid-gap: calc(var(--grid-card-gap) * 1)
       grid-template-columns: repeat(4, 1fr) 0
       grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
       grid-template-areas: |
@@ -55,6 +54,109 @@ views:
         styles: #extra_styles fix, only works from second button card
           card:
             - display: none
+      - type: custom:anchor-card
+        anchor_id: top
+        timeout: 200
+        offset: -50
+      - type: custom:navbar-card
+        styles: |
+          .navbar.desktop.bottom {
+            left: 170px;
+          }
+          .navbar.desktop div.route:nth-child(1), .navbar.desktop div.route:nth-child(2),
+            .navbar.desktop div.route:nth-child(3) {
+            display: none !important;
+          }
+        desktop:
+          position: bottom
+        routes:
+          - icon: mdi:arrow-up-bold-box-outline
+            icon_selected: mdi:arrow-up-bold-box
+            url: /main-dashboard/0?anchor=top
+            label: Huis
+            selected: |
+              [[[
+                const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+                const hasAnchor = window.location.search.includes("anchor=top");
+                return matchesPath && hasAnchor;
+              ]]]
+          - icon: mdi:sofa-outline
+            icon_selected: mdi:sofa
+            url: /main-dashboard/0?anchor=downstairs-anchor
+            label: Beneden
+            selected: |
+              [[[
+                const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+                const hasAnchor = window.location.search.includes("anchor=downstairs-anchor");
+                return matchesPath && hasAnchor;
+              ]]]
+          - icon: mdi:bed-double-outline
+            icon_selected: mdi:bed-double
+            url: /main-dashboard/0?anchor=upstairs-anchor
+            label: Boven
+            selected: |
+              [[[
+                const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+                const hasAnchor = window.location.search.includes("anchor=upstairs-anchor");
+                return matchesPath && hasAnchor;
+              ]]]
+          # - icon: mdi:flower-tulip-outline
+          #   icon_selected: mdi:flower-tulip
+          #   url: /main-dashboard/0?anchor=garden-anchor
+          #   label: Tuin
+          #   selected: |
+          #     [[[
+          #       const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+          #       const hasAnchor = window.location.search.includes("anchor=garden-anchor");
+          #       return matchesPath && hasAnchor;
+          #     ]]]
+          - icon: mdi:cog-outline
+            icon_selected: mdi:cog
+            url: null
+            tap_action:
+              !include popups/pp_footer_system.yaml
+            label: Settings
+            badge:
+              color: var(--accent-color)
+              show: |
+                [[[
+                  return (parseInt(states['sensor.unavailable_entities'].attributes['count'])
+                          + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1)) > 0;
+                ]]]
+              count: |
+                [[[
+                  return parseInt(states['sensor.unavailable_entities'].attributes['count'])
+                          + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
+                ]]]
+          - icon: mdi:repeat-off
+            icon_selected: mdi:repeat-off
+            url: null
+            tap_action:
+              !include popups/pp_footer_update.yaml
+            label: Updates
+            hidden: |
+              [[[
+                return parseInt(states['sensor.all_updates'].state) === 0;
+              ]]]
+            badge:
+              show: true
+              color: var(--accent-color)
+              count: |
+                [[[
+                  return parseInt(states['sensor.all_updates'].state);
+                ]]]
+          - icon: mdi:fire
+            icon_selected: mdi:fire
+            url: null
+            tap_action:
+              !include popups/pp_footer_stookalert.yaml
+            label: Stookwijzer
+            badge:
+              show: |
+                [[[
+                  return states['sensor.stookwijzer'].state === 'code_red';
+                ]]]
+              color: var(--accent-color)
 
       #################################################
       #                                               #
@@ -65,22 +167,30 @@ views:
         view_layout:
           grid-area: sidebar
         cards:
-          - type: custom:button-card
-            entity: sensor.template_sidebar_time
-            card_mod:
-              style: |
-                div.name-state {
-                  display: none;
-                }
-            tap_action:
-              action: call-service
-              service: script.reload_frontend
-            template: sidebar_template
-          - type: custom:button-card
+          - type: custom:clock-weather-card
             entity: weather.weather_langeweide_ecowitt
             tap_action:
               !include popups/pp_sidebar_weather.yaml
-            template: weather
+            hold_action:
+              action: call-service
+              service: script.reload_frontend
+            sun_entity: sun.sun
+            weather_icon_type: line
+            animated_icon: true
+            forecast_rows: 5
+            locale: nl
+            time_pattern: HH:mm
+            time_format: 24
+            date_pattern: cccc d MMMM
+            hide_today_section: false
+            hide_forecast_section: false
+            show_humidity: false
+            hide_clock: false
+            hide_date: false
+            hourly_forecast: false
+            use_browser_time: false
+            time_zone: Europe/Amsterdam
+            show_decimal: false
 
           - type: custom:gap-card
             height: 20
@@ -189,56 +299,56 @@ views:
           #           Sidebar Footer Icons                #
           #                                               #
           #################################################
-          - type: grid
-            columns: 3
-            cards:
-              - type: custom:button-card
-                template: footer
-                name: >
-                  <ha-state-icon icon="mdi:repeat-off"></ha-state-icon>
-                tap_action:
-                  !include popups/pp_footer_update.yaml
-                triggers_update:
-                  - sensor.all_updates
-                variables:
-                  notify: >
-                    [[[
-                      return parseInt(states['sensor.all_updates'].state);
-                    ]]]
-              - type: custom:button-card
-                template: footer
-                name: >
-                  <ha-state-icon icon="mdi:cog"></ha-state-icon>
-                tap_action:
-                  !include popups/pp_footer_system.yaml
-                variables:
-                  notify: >
-                    [[[
-                      return parseInt(states['sensor.unavailable_entities'].attributes['count'])
-                        + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
-                    ]]]
-              - type: custom:button-card
-                entity: sensor.stookwijzer
-                template: footer
-                name: >
-                  <ha-state-icon icon="mdi:fire"></ha-state-icon>
-                tap_action:
-                  !include popups/pp_footer_stookalert.yaml
-                variables:
-                  notify: >
-                    [[[
-                      return entity.state === 'code_red';
-                    ]]]
-                styles:
-                  name:
-                    - color: >
-                        [[[
-                          if (entity.state === 'code_red') return 'var(--red)';
-                          if (entity.state === 'code_yellow') return 'var(--yellow)';
-                          if (entity.state === 'code_orange') return 'var(--orange)';
-                          if (entity.state === 'triggered') return 'var(--red)';
-                          return 'var(--green)'
-                        ]]]
+          # - type: grid
+          #   columns: 3
+          #   cards:
+          #     - type: custom:button-card
+          #       template: footer
+          #       name: >
+          #         <ha-state-icon icon="mdi:repeat-off"></ha-state-icon>
+          #       tap_action:
+          #         !include popups/pp_footer_update.yaml
+          #       triggers_update:
+          #         - sensor.all_updates
+          #       variables:
+          #         notify: >
+          #           [[[
+          #             return parseInt(states['sensor.all_updates'].state);
+          #           ]]]
+          #     - type: custom:button-card
+          #       template: footer
+          #       name: >
+          #         <ha-state-icon icon="mdi:cog"></ha-state-icon>
+          #       tap_action:
+          #         !include popups/pp_footer_system.yaml
+          #       variables:
+          #         notify: >
+          #           [[[
+          #             return parseInt(states['sensor.unavailable_entities'].attributes['count'])
+          #               + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
+          #           ]]]
+          #     - type: custom:button-card
+          #       entity: sensor.stookwijzer
+          #       template: footer
+          #       name: >
+          #         <ha-state-icon icon="mdi:fire"></ha-state-icon>
+          #       tap_action:
+          #         !include popups/pp_footer_stookalert.yaml
+          #       variables:
+          #         notify: >
+          #           [[[
+          #             return entity.state === 'code_red';
+          #           ]]]
+          #       styles:
+          #         name:
+          #           - color: >
+          #               [[[
+          #                 if (entity.state === 'code_red') return 'var(--red)';
+          #                 if (entity.state === 'code_yellow') return 'var(--yellow)';
+          #                 if (entity.state === 'code_orange') return 'var(--orange)';
+          #                 if (entity.state === 'triggered') return 'var(--red)';
+          #                 return 'var(--green)'
+          #               ]]]
 
 
 
@@ -255,16 +365,28 @@ views:
           grid-area: downstairs
         columns: 2
         cards:
-          - type: custom:button-card
-            entity: light.lights_downstairs
-            name: Verlichting
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/pp_light_downstairs.yaml
-            hold_action:
-              action: none
+          - type: vertical-stack
+            card_mod:
+              style: |
+                :host {
+                  /* removing the gap between the anchor and normal card*/
+                  --vertical-stack-card-gap: 0;
+                }
+            cards:
+              - type: custom:anchor-card
+                anchor_id: downstairs-anchor
+                timeout: 200
+                offset: -100
+              - type: custom:button-card
+                entity: light.lights_downstairs
+                name: Verlichting
+                template:
+                  - light_group
+                group_expand: true
+                tap_action:
+                  !include popups/pp_light_downstairs.yaml
+                hold_action:
+                  action: none
           - type: custom:button-card
             entity: sensor.indoor_temperature
             name: Warmtepomp
@@ -286,7 +408,6 @@ views:
                 [[[
                   return states['select.operation_mode'].state === 'cooling' && states['switch.climate_control'].state === 'on'
                 ]]]
-
           - type: custom:button-card
             entity: media_player.music_downstairs
             name: Muziek
@@ -302,7 +423,7 @@ views:
             template:
               - door_window_group_downstairs
             group_expand: true
-
+          
 
       #################################################
       #                                               #
@@ -402,10 +523,22 @@ views:
           grid-area: garden1
         columns: 2
         cards:
-          - type: custom:button-card
-            entity: sensor.pool_deck_status
-            template: pool
-            name: Zwembad
+          - type: vertical-stack
+            card_mod:
+              style: |
+                :host {
+                  /* removing the gap between the anchor and normal card*/
+                  --vertical-stack-card-gap: 0;
+                }
+            cards:
+              - type: custom:anchor-card
+                anchor_id: garden-anchor
+                timeout: 200
+                offset: -100
+              - type: custom:button-card
+                entity: sensor.pool_deck_status
+                template: pool
+                name: Zwembad
           - type: custom:button-card
             entity: light.lights_garden
             name: Tuin
@@ -469,16 +602,28 @@ views:
           grid-area: upstairs
         columns: 2
         cards:
-          - type: custom:button-card
-            entity: light.lights_upstairs
-            name: Verlichting
-            template:
-              - light_group
-            group_expand: true
-            tap_action:
-              !include popups/pp_light_upstairs.yaml
-            hold_action:
-              action: none
+          - type: vertical-stack
+            card_mod:
+              style: |
+                :host {
+                  /* removing the gap between the anchor and normal card*/
+                  --vertical-stack-card-gap: 0;
+                }
+            cards:
+              - type: custom:anchor-card
+                anchor_id: upstairs-anchor
+                timeout: 200
+                offset: -100
+              - type: custom:button-card
+                entity: light.lights_upstairs
+                name: Verlichting
+                template:
+                  - light_group
+                group_expand: true
+                tap_action:
+                  !include popups/pp_light_upstairs.yaml
+                hold_action:
+                  action: none
           - type: custom:button-card
             entity: sensor.climate_sensor_masterbedroom_temperature
             name: Klimaat
@@ -551,7 +696,7 @@ views:
             triggers_update:
               - sensor.daily_consumption_energy
               - sensor.energy_price_level
-              - sensor.solaredgemb_dc_power
+              - sensor.solaredge_dc_power
               - sensor.electricity_cost_today
             name: Energie
             template:

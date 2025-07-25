@@ -3328,7 +3328,7 @@
   use_blueprint:
     path: robsonke/toilet-light-control.yaml
     input:
-      motion_entity: binary_sensor.motion_sensor_toiletupstairs_occupancy
+      motion_entity: binary_sensor.hue_motion_sensor_toiletupstairs_occupancy
       door_entity: binary_sensor.toiletdoorupstairs_openclose_contact
       light_target: light.toilet_upstairs_light
       no_motion_wait: 5
@@ -3710,7 +3710,7 @@
         entity_id: sensor.current_price_electricity
         below: 0
       - condition: state
-        entity_id: number.solaredgemb_active_power_limit
+        entity_id: number.solaredge_active_power_limit
         state: '100'
       sequence:
       - action: number.set_value
@@ -3718,7 +3718,7 @@
         data:
           value: '0'
         target:
-          entity_id: number.solaredgemb_active_power_limit
+          entity_id: number.solaredge_active_power_limit
         alias: Disable the solar panels
       - action: persistent_notification.create
         data:
@@ -3730,7 +3730,7 @@
         entity_id: sensor.current_price_electricity
         above: 0
       - condition: state
-        entity_id: number.solaredgemb_active_power_limit
+        entity_id: number.solaredge_active_power_limit
         state: '0'
       sequence:
       - action: number.set_value
@@ -3738,7 +3738,7 @@
         data:
           value: '100'
         target:
-          entity_id: number.solaredgemb_active_power_limit
+          entity_id: number.solaredge_active_power_limit
         alias: Enable the solar panels
       - action: persistent_notification.create
         data:

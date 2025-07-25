@@ -139,7 +139,7 @@ energy:
         - color: >
             [[[
               let color = 'var(--red)';
-              if (states['sensor.solaredgemb_dc_power'].state/1000 > entity.state)
+              if (states['sensor.solaredge_dc_power'].state/1000 > entity.state)
                 color = 'var(--green)';
               return color;
             ]]]
@@ -153,5 +153,5 @@ energy:
             ]]]
   state_display: >
     [[[
-      return `<span style="font-size: 1rem">-${Number.parseFloat(entity.state).toFixed(3)} / +${(Number.parseFloat(states['sensor.solaredgemb_dc_power'].state) / 1000 ).toFixed(3)} kW</span>`;
+      return `<span style="font-size: 1rem">-${Number.parseFloat(entity.state).toFixed(3)} / +${(Number.parseFloat(states['sensor.solaredge_dc_power'].state) / 1000 ).toFixed(3)} kW</span>`;
     ]]]

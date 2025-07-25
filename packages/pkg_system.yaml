@@ -200,7 +200,7 @@ group:
       - binary_sensor.motion_sensor_toiletdownstairs_occupancy
       - binary_sensor.toiletdoorupstairs_openclose_contact
       - binary_sensor.toiletdoordownstairs_sensor_contact
-      - binary_sensor.motion_sensor_toiletupstairs_occupancy
+      - binary_sensor.hue_motion_sensor_toiletupstairs_occupancy
       - binary_sensor.hue_motion_sensor_corridor1_occupancy
       - binary_sensor.hue_motion_sensor_shed_occupancy
       - binary_sensor.hue_motion_sensor_shower_occupancy
@@ -221,26 +221,6 @@ group:
       - sensor.althermasensors
 
 template:
-  - sensor:
-    - unique_id: sidebar_time
-      state: template
-      attributes:
-        time: >
-          {% set hours = now().strftime('%H') %}
-          {% set minutes = now().strftime('%M') %}
-          <span class="time">
-            {{ hours }}<span class="time-colon">:</span>{{ minutes }}
-          </span>
-        date: |
-          <b>
-          {%- if strptime(states('sensor.date'), '%Y-%m-%d').day != null %}
-          {%- set days = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'] %}
-          {%- set months = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
-          'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'] %}
-            {{- days[now().weekday()] }}, {{ strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
-          {%- endif -%}
-          </b>
-
   # important entities
   - sensor:
     - unique_id: unavailable_entities
@@ -275,19 +255,19 @@ template:
           {{ unavail.value }}
         attributes:
           friendly_name: "All Unavailable Entities"
-          entities: >
-            {% set ignore_time = 15 %}
-            {% set unavail = namespace(entities=[]) %}
-            {% set entities = states|rejectattr('domain','eq','group')
-              |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-              |rejectattr('state', 'equalto', '')
-              |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
-            {% for item in entities %}
-              {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
-                {% set unavail.entities = unavail.entities + [item] %}
-              {% endif %}
-            {% endfor %}
-            {{ unavail.entities }}
+          # entities: >
+          #   {% set ignore_time = 15 %}
+          #   {% set unavail = namespace(entities=[]) %}
+          #   {% set entities = states|rejectattr('domain','eq','group')
+          #     |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+          #     |rejectattr('state', 'equalto', '')
+          #     |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
+          #   {% for item in entities %}
+          #     {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
+          #       {% set unavail.entities = unavail.entities + [item] %}
+          #     {% endif %}
+          #   {% endfor %}
+          #   {{ unavail.entities }}
   # count all possible updates to one sensor
   - trigger:
     - trigger: time_pattern

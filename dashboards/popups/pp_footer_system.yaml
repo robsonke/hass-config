@@ -74,6 +74,22 @@ browser_mod:
                     - entity: sensor.glances_data_used_percent
                       icon: mdi:server
                       name: Disk Usage
+                
+            - type: custom:auto-entities
+              card:
+                type: entities
+                title: Belangrijke entities offline
+              show_empty: false
+              filter:
+                include:
+                  - group: group.monitored_entities
+                    state: 'unavailable'
+                  - group: group.monitored_entities
+                    state: 'unknown'
+                  - group: group.monitored_entities
+                    state: 'none'
+              sort:
+                method: name
             # - type: entities
             #   title: Synology NAS
             #   show_header_toggle: false
