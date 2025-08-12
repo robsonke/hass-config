@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Lint Code Base
         uses: github/super-linter@v7
         env:
@@ -35,7 +35,7 @@ jobs:
         version: ["stable"]
     steps:
       - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🚀 Run Home Assistant Configuration Check
         uses: frenck/action-home-assistant@v1
         with:
