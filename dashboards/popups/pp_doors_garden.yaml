@@ -2,6 +2,7 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
     title: Deuren in de tuin
     timeout: 60000
     content:

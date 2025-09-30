@@ -101,24 +101,6 @@
     target:
       entity_id: alarm_control_panel.alarmo
   mode: single
-- id: alarm_trigger_when_armed_away
-  alias: Alarm - Trigger when door and window status change
-  description: Change the alarm state to triggering when an important door or window
-    opens
-  trigger:
-  - trigger: state
-    entity_id: sensor.doors_windows_open_count
-  condition:
-  - condition: template
-    value_template: '{{ trigger.to_state.state | int > trigger.from_state.state |
-      int }}'
-  - condition: state
-    entity_id: alarm_control_panel.alarmo
-    state: armed_away,armed_home,armed_night
-  action:
-  - action: alarm_control_panel.alarm_trigger
-    entity_id: alarm_control_panel.alarmo
-  mode: single
 - id: alarm_triggered_alert
   alias: Alarm - Triggered BEEP BEEP BEEP
   description: Now we are in trouble, the alarm is triggered and we have not disarmed
@@ -165,7 +147,7 @@
         action: script.sonos_say
       - action: script.sonos_play_sound
         data:
-          mp3_url: https://home.tigrou.nl/local/sounds/alarm2.mp3
+          mp3_url: http://192.168.0.40:8123/local/sounds/alarm2.mp3
           volume: 40
           sonos_entity: media_player.living_room
   - action: input_boolean.turn_off
@@ -201,7 +183,7 @@
         value_template: '{{ repeat.index <= 10 }}'
       sequence:
       - data:
-          mp3_url: https://home.tigrou.nl/local/sounds/pending_alarm.mp3
+          mp3_url: http://192.168.0.40:8123/local/sounds/pending_alarm.mp3
           volume: 40
           sonos_entity: media_player.living_room
         action: script.sonos_play_sound
@@ -322,21 +304,6 @@
     data: {}
   - delay: '1'
   mode: single
-- id: backup_snapshots_stale
-  alias: Backup - Snapshots went stale
-  description: Send a push message when the backups are failing
-  trigger:
-  - trigger: state
-    entity_id: binary_sensor.snapshots_stale
-    from: 'False'
-    to: 'True'
-  condition: []
-  action:
-  - action: persistent_notification.create
-    data:
-      title: "\U0001F6A8\U0001F6A8 Snapshots are Stale \U0001F6A8\U0001F6A8"
-      message: Please visit the Hass.io Google Drive Backup add-on status page for
-        details.
 - id: calendar_trash_alert
   alias: Calendar - Afval Calendar Alert
   description: Send messages when a trash bin should be put outside
@@ -385,12 +352,12 @@
       data:
         volume: 30
         sonos_entity: media_player.eetkamer
-        mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+        mp3_url: http://192.168.0.40:8123/local/sounds/doorbell2.mp3
     - action: script.sonos_play_sound
       data:
         volume: 30
-        sonos_entity: media_player.woonkamer
-        mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+        sonos_entity: media_player.woonkamer_ma_sonos
+        mp3_url: http://192.168.0.40:8123/local/sounds/doorbell2.mp3
   - condition: time
     after: 06:00:00
     before: '22:00:00'
@@ -398,7 +365,7 @@
     data:
       volume: 20
       sonos_entity: media_player.slaapkamer_sonos
-      mp3_url: https://home.tigrou.nl/local/sounds/doorbell2.mp3
+      mp3_url: http://192.168.0.40:8123/local/sounds/doorbell2.mp3
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -858,7 +825,7 @@
         de {{ trigger.payload_json["after"]["camera"] }} camera
       data:
         persistent: true
-        image: https://home.tigrou.nl/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        image: http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: camera.{{trigger.payload_json["after"]["camera"]}}
@@ -938,24 +905,6 @@
     data:
       title: Accu Sjorsje
       message: "\U0001F50B Sjorsje's accu raakt leeg"
-- id: '1618732336311'
-  alias: Dishwasher - Dishwasher ready
-  description: ''
-  use_blueprint:
-    path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
-    input:
-      power_sensor: sensor.vaatwasser_switch_current_consumption
-      actions:
-      - action: notify.all_phones
-        data:
-          message: De vaatwasser is klaar
-          data:
-            persistent: true
-            tag: persistent
-      - action: tts.google_translate_say
-        entity_id: media_player.office_googlehome
-        data_template:
-          message: De vaatwasser is klaar
 - id: '1620203713941'
   alias: Locks - Auto lock the doors
   description: We didn't enable the Guest mode and we both left, lock the doors if
@@ -1382,12 +1331,11 @@
 - id: '1625773685228'
   alias: Alarm - Disable alarm manually
   description: ''
-  trigger:
+  triggers:
   - trigger: state
     entity_id:
-    - sensor.switch_alarm_activity_action
-    to: 'on'
-  condition:
+    - event.switch_alarm_activity_action
+  conditions:
   - condition: not
     conditions:
     - condition: device
@@ -1395,7 +1343,7 @@
       domain: alarm_control_panel
       entity_id: alarm_control_panel.alarmo
       type: is_disarmed
-  action:
+  actions:
   - device_id: 29fa064f108236608f9f0d8f063dbc17
     domain: alarm_control_panel
     entity_id: alarm_control_panel.alarmo
@@ -1535,7 +1483,7 @@
       value_template: '{{ trigger.payload_json[''after''][''camera''] == ''bijkeuken''
         }}'
   - condition: numeric_state
-    entity_id: sensor.light_sensor_garden
+    entity_id: sensor.light_sensor_garden_illuminance
     below: '10'
   - condition: state
     entity_id: light.garden_light
@@ -1646,7 +1594,7 @@
   alias: Lights - Turn on lights when dark - arriving
   description: When we come home after sunset, a few lights are on, so turn on more
     lights
-  trigger:
+  triggers:
   - trigger: state
     entity_id: person.rob,person.steffi
     to: home
@@ -1655,19 +1603,16 @@
     entity_id: device_tracker.ix3
     from: not_home
     to: home
-  condition:
+  conditions:
   - condition: and
     conditions:
-    - condition: state
-      entity_id: zone.home
-      state: '0'
     - condition: state
       entity_id: light.livingfront_light
       state: 'off'
     - condition: numeric_state
       entity_id: sensor.light_sensor_living_illuminance
       below: '30'
-  action:
+  actions:
   - action: script.lights_on_home
     data: {}
   mode: single
@@ -1814,8 +1759,7 @@
   - action: persistent_notification.create
     data:
       title: Belangrijke devices
-      message: "\U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable
-        }}"
+      message: " \U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable }}"
   variables:
     from_state: '{{ states(''input_text.unavailable_entities_temp_state'') }}'
     from_state_list: '{{ from_state.split('', '') }}'
@@ -2168,7 +2112,7 @@
     path: robsonke/window-open-temperature.yaml
     input:
       temp_sensor: sensor.climate_sensor_noa_temperature
-      window_sensor: binary_sensor.window_noa_openclose_sensor
+      window_sensor: binary_sensor.window_noaroom_openclose_contact
       min_temp: 15
       actions:
       - action: notify.all_phones
@@ -3377,41 +3321,26 @@
   alias: Music - Control sonos bedroom
   description: ''
   triggers:
+  - value_template: "{{ \n  is_state_attr('event.hue_tap_switch_master_action', 'event_type',
+      'press_release') \n  and \n  is_state_attr('event.hue_tap_switch_master_action',
+      'button', 'button_4') \n}}\n"
+    trigger: template
   - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action_type
-    to: button_4_press_release
+    to: rotate
   - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action_type
-    to: dial_rotate_right_step
-  - trigger: state
-    entity_id:
-    - sensor.hue_tap_switch_master_action_type
-    to: dial_rotate_left_step
-  - trigger: state
-    entity_id:
-    - sensor.hue_tap_switch_master_action_type
-    to: dial_rotate_left_fast
-  - trigger: state
-    entity_id:
-    - sensor.hue_tap_switch_master_action_type
-    to: dial_rotate_left_slow
-  - trigger: state
-    entity_id:
-    - sensor.hue_tap_switch_master_action_type
-    to: dial_rotate_right_fast
-  - trigger: state
-    entity_id:
-    - sensor.hue_tap_switch_master_action_type
-    to: dial_rotate_right_slow
+    to: step
   conditions: []
   actions:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ trigger.to_state.state == "button_4_press_release" }}'
-        alias: Button pressed
+        value_template: "{{ \n  is_state_attr('event.hue_tap_switch_master_action',
+          'event_type', 'press_release') \n  and \n  is_state_attr('event.hue_tap_switch_master_action',
+          'button', 'button_4') \n}}\n"
       sequence:
       - alias: If sonos plays, stop, otherwise play radio 2
         choose:
@@ -3427,12 +3356,14 @@
             data: {}
             alias: Stop playing
         default:
+        - alias: Reset the volume
+          action: media_player.volume_set
+          data:
+            volume_level: 0.1
+          entity_id: media_player.slaapkamer_sonos
         - alias: Play radio 2 on sonos
           action: media_player.play_media
-          metadata: {}
           data:
-            media_content_id: x-rincon-mp3radio://icecast.omroep.nl/radio2-bb-aac
-            media_content_type: music
             metadata:
               title: NPO Radio 2
               thumbnail: https://upload.wikimedia.org/wikipedia/commons/b/b3/NPO_Radio_2_logo.png
@@ -3440,16 +3371,19 @@
             extra:
               thumb: https://upload.wikimedia.org/wikipedia/commons/b/b3/NPO_Radio_2_logo.png
               title: NPO Radio 2
+            media:
+              media_content_id: x-rincon-mp3radio://icecast.omroep.nl/radio2-bb-aac
+              media_content_type: music
+              metadata: {}
           target:
             entity_id: media_player.slaapkamer_sonos
     - conditions:
       - condition: and
         alias: Is sonos playing and did we turn the knob to the left
         conditions:
-        - condition: template
-          value_template: '{{ trigger.to_state.state == "dial_rotate_left_step" or
-            trigger.to_state.state == "dial_rotate_left_fast" or trigger.to_state.state
-            == "dial_rotate_left_slow" }}'
+        - condition: state
+          entity_id: sensor.hue_tap_switch_master_action_direction
+          state: left
         - condition: state
           entity_id: media_player.slaapkamer_sonos
           state: playing
@@ -3457,16 +3391,15 @@
       - action: media_player.volume_set
         data_template:
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
-            - 0.03}}'
+            - 0.01}}'
         entity_id: media_player.slaapkamer_sonos
     - conditions:
       - condition: and
         alias: Is sonos playing and did we turn the knob to the right
         conditions:
-        - condition: template
-          value_template: '{{ trigger.to_state.state == "dial_rotate_right_step" or
-            trigger.to_state.state == "dial_rotate_right_fast" or trigger.to_state.state
-            == "dial_rotate_right_slow" }}'
+        - condition: state
+          entity_id: sensor.hue_tap_switch_master_action_direction
+          state: right
         - condition: state
           entity_id: media_player.slaapkamer_sonos
           state: playing
@@ -3474,7 +3407,7 @@
       - action: media_player.volume_set
         data_template:
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
-            + 0.03}}'
+            + 0.01}}'
         entity_id: media_player.slaapkamer_sonos
   mode: single
 - id: '1707053269958'
@@ -3496,51 +3429,6 @@
       entity_id: alarm_control_panel.alarmo
     data:
       code: automation
-  mode: single
-- id: '1709065308888'
-  alias: Light - Turn off all in bedroom and lower the beds
-  description: Hold the first button on the Hue Tap to turn off all lights and music
-    and lower the beds
-  triggers:
-  - entity_id:
-    - sensor.hue_tap_switch_master_action
-    to: button_1_hold
-    trigger: state
-  conditions: []
-  actions:
-  - action: light.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id:
-      - light.dimmer_master_closetbath
-      - light.bedroom_sonos_light
-      - light.dimmer_masterbed
-  - action: media_player.media_stop
-    metadata: {}
-    data: {}
-    target:
-      entity_id: media_player.slaapkamer_sonos
-  - action: rest_command.auping_bed
-    metadata: {}
-    data:
-      cbu: 1
-      motor_1_action: 2
-      motor_1_time: 0
-      motor_2_action: 0
-      motor_2_time: 30000
-      motor_3_action: 0
-      motor_3_time: 0
-  - action: rest_command.auping_bed
-    metadata: {}
-    data:
-      cbu: 2
-      motor_1_action: 2
-      motor_1_time: 0
-      motor_2_action: 0
-      motor_2_time: 30000
-      motor_3_action: 0
-      motor_3_time: 0
   mode: single
 - id: '1715023558828'
   alias: Doors - Unlock the front door on week days at 7:00
@@ -3656,12 +3544,12 @@
   - action: persistent_notification.create
     data:
       title: Camera
-      message: '{{ generated_content.text }} ![image](https://home.tigrou.nl/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
+      message: '{{ generated_content.text }} ![image](http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
   - action: notify.mobile_app_iphone_rob
     data:
       message: ' {{ generated_content.text }} '
       data:
-        image: https://home.tigrou.nl/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        image: http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: '{{ camera_entity }}'
@@ -3768,9 +3656,9 @@
       - sensor.power_produced_phase_1
       - sensor.power_consumed_phase_1
       - sensor.winecooler_switch_current_consumption
-      - sensor.pool_shelly_3em_phase_a_active_power
-      - sensor.pool_shelly_3em_phase_b_active_power
-      - sensor.pool_shelly_3em_phase_c_active_power
+      - sensor.pool_shelly_3em_active_power_phase_a
+      - sensor.pool_shelly_3em_active_power_phase_b
+      - sensor.pool_shelly_3em_active_power_phase_c
       - sensor.electricity_cost_today
       - sensor.power_langeweide_28
       - sensor.power_production_langeweide_28
@@ -3789,19 +3677,6 @@
       battery: sensor.ipad_kitchen_battery_level
       low_percent: 25
       charger: switch.shelly_plug_s_10_relay
-- id: '1731700097529'
-  alias: Voice - Save reminders for todos
-  description: ''
-  use_blueprint:
-    path: robsonke/voice-reminder.yaml
-    input:
-      open_ai_config_entry: cf03b58d0a8b7a1b3949a78c99277abd
-      todo_list: todo.todo_reminders
-      notify_service: notify.mobile_app_iphone_rob
-      assist_command:
-      - Herinner mij {reminderDescription} om {reminderTime}
-      response_sentence_text: 'Je ontvangt een herinnering: {{trigger.slots.reminderDescription}}
-        at {{response_from_ai.response.speech.plain.speech}} o'' clock.'
 - id: '1732450018331'
   alias: Alarm - AI Event Summary
   description: Keep an eye on the doorbell camera and explain what is happening.

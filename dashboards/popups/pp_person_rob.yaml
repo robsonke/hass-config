@@ -2,12 +2,12 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
+    initial_style: wide
     title: Rob
-    size: wide
-    #timeout: 60000
-    style: |-
-      --popup-padding-x: 0px;
-      --popup-padding-y: 0px;
+    # style: |-
+    #   --popup-padding-x: 0px;
+    #   --popup-padding-y: 0px;
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout

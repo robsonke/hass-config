@@ -3,9 +3,9 @@ substitutions:
   friendly_name: "Onju Voice Satellite 3"
   project_version: "1.1.0"
   device_description: "Onju Voice Satellite 3 with ESPHome software and microWakeWord"
-  wakeup_sound_url: "https://home.tigrou.nl/local/sounds/wakeup.mp3" # New Notification #7 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/736267/
-  error_sound_url: "https://home.tigrou.nl/local/sounds/error.mp3" # Error #8 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734442/
-  timer_finished_sound_url: "https://home.tigrou.nl/local/sounds/timer_finished.mp3" # New Notification #6 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734445/
+  wakeup_sound_url: "http://192.168.0.40:8123/local/sounds/wakeup.mp3" # New Notification #7 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/736267/
+  error_sound_url: "http://192.168.0.40:8123/local/sounds/error.mp3" # Error #8 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734442/
+  timer_finished_sound_url: "http://192.168.0.40:8123/local/sounds/timer_finished.mp3" # New Notification #6 by UNIVERSFIELD https://freesound.org/people/UNIVERSFIELD/sounds/734445/
   
 external_components:
   - source:

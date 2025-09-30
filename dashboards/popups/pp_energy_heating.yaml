@@ -2,8 +2,9 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
+    initial_style: wide
     title: Koeling en verwarming beneden
-    size: wide
     timeout: 60000
     content:
       type: custom:layout-card

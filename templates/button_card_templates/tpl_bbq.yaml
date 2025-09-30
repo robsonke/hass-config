@@ -10,12 +10,15 @@ bbq:
   variables:
     consider_on: >
       [[[
+        if (!entity.state) return false;
         return entity.state > 50;
       ]]]
     icon: mdi:grill
     unit: "°C"
     circle_input: >
       [[[
+        let probe1 = states['sensor.inkbird_ibt_2x_temperature_probe_1'].state;
+        if (probe1 === undefined || probe1 === 'unavailable') return 0;
         return states['sensor.inkbird_ibt_2x_temperature_probe_1'].state / states['input_number.grill_alert_high'].state * 100;
       ]]]
     circle_text: >
@@ -49,6 +52,7 @@ bbq:
         - color: >
             [[[
               let color = '';
+              if (!states[entity].state) return color;
               if (states[entity].state > 50) color = 'var(--orange)';
               if (states[entity].state > 100) color = 'var(--red)';
               return color;

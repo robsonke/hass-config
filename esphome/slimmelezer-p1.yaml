@@ -86,51 +86,86 @@ sensor:
     power_delivered:
       name: "Power Consumed"
       accuracy_decimals: 3
+      # Apply default filters on all sensors, this limits the number of state changes in HA
+      filters:
+        - throttle: 5s
+        - delta: 1
     power_returned:
       name: "Power Produced"
       accuracy_decimals: 3
+      filters:
+        - throttle: 5s
+        - delta: 1
     electricity_failures:
       name: "Electricity Failures"
       icon: mdi:alert
+      filters:
+        - throttle: 60s
     electricity_long_failures:
       name: "Long Electricity Failures"
       icon: mdi:alert
+      filters:
+        - throttle: 60s
     voltage_l1:
       name: "Voltage Phase 1"
+      filters:
+        - delta: 1
+        - throttle: 60s
     voltage_l2:
       name: "Voltage Phase 2"
+      filters:
+        - delta: 1
+        - throttle: 60s
     voltage_l3:
       name: "Voltage Phase 3"
+      filters:
+        - delta: 1
+        - throttle: 60s
     current_l1:
       name: "Current Phase 1"
+      filters:
+        - throttle: 60s
+        - delta: 1
     current_l2:
       name: "Current Phase 2"
+      filters:
+        - throttle: 60s
+        - delta: 1
     current_l3:
       name: "Current Phase 3"
+      filters:
+        - throttle: 60s
+        - delta: 1
     power_delivered_l1:
       name: "Power Consumed Phase 1"
       accuracy_decimals: 3
+      filters:
+        - throttle: 5s
     power_delivered_l2:
       name: "Power Consumed Phase 2"
       accuracy_decimals: 3
+      filters:
+        - throttle: 5s
     power_delivered_l3:
       name: "Power Consumed Phase 3"
       accuracy_decimals: 3
+      filters:
+        - throttle: 5s
     power_returned_l1:
       name: "Power Produced Phase 1"
       accuracy_decimals: 3
+      filters:
+        - throttle: 5s
     power_returned_l2:
       name: "Power Produced Phase 2"
       accuracy_decimals: 3
+      filters:
+        - throttle: 5s
     power_returned_l3:
       name: "Power Produced Phase 3"
       accuracy_decimals: 3
-    # gas_delivered:
-    #   name: "Gas Consumed"
-    #   state_class: total_increasing
-    # gas_delivered_be:
-    #   name: "Gas Consumed Belgium"
-    #   state_class: total_increasing
+      filters:
+        - throttle: 5s
   - platform: uptime
     name: "SlimmeLezer Uptime"
   - platform: wifi_signal
@@ -143,8 +178,6 @@ text_sensor:
       name: "DSMR Identification"
     p1_version:
       name: "DSMR Version"
-    # p1_version_be:
-    #   name: "DSMR Version Belgium"
   - platform: wifi_info
     ip_address:
       name: "SlimmeLezer IP Address"

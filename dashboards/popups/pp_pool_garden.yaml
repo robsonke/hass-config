@@ -2,9 +2,10 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
+    initial_style: wide
     title: Zwembad
     timeout: 120000
-    size: wide
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout
@@ -106,11 +107,11 @@ browser_mod:
               card_mod:
                 class: header
               entities:
-                - entity: sensor.pool_shelly_3em_phase_b_active_power
+                - entity: sensor.pool_shelly_3em_active_power_phase_b
                   name: Pomp & roldek
-                - entity: sensor.pool_shelly_3em_phase_a_active_power
+                - entity: sensor.pool_shelly_3em_active_power_phase_a
                   name: Warmtepomp
-                - entity: sensor.pool_shelly_3em_phase_c_active_power
+                - entity: sensor.pool_shelly_3em_active_power_phase_c
                   name: Verlichting
             - type: entities
               title: Aansturing

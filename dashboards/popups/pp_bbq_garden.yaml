@@ -2,11 +2,12 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
     title: BBQ
     timeout: 120000
-    size: wide
-    style: |
-      --popup-max-width: 1200px;
+    initial_style: wide
+    # style: |
+    #   --popup-max-width: 1200px;
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout

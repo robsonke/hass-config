@@ -449,23 +449,23 @@ views:
                 icon:
                   - color: >
                       [[[
-                        if (entity.state === 'disarmed') return 'var(--green)';
-                        if (entity.state === 'arming') return 'var(--yellow)';
-                        if (entity.state === 'armed_away' || entity.state === 'armed_night') return 'var(--orange)';
-                        if (entity.state === 'triggered') return 'var(--red)';
+                        if (entity?.state === 'disarmed') return 'var(--green)';
+                        if (entity?.state === 'arming') return 'var(--yellow)';
+                        if (entity?.state === 'armed_away' || entity?.state === 'armed_night') return 'var(--orange)';
+                        if (entity?.state === 'triggered') return 'var(--red)';
                         return 'var(--green)'
                       ]]]
-                  - animation: '[[[ if (entity.state === "arming" || entity.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
+                  - animation: '[[[ if (entity?.state === "arming" || entity?.state === "triggered") return "blink 2s ease infinite"; return "none"; ]]]'
           - type: custom:button-card
-            entity: device_tracker.ix3
+            entity: sensor.ehhatdgg_status
             template:
-              - circle
+              - simple
             tap_action:
               !include popups/pp_car_ix3.yaml
             name: BMW iX3
             triggers_update:
-              - binary_sensor.ix3_connection_status
-              - binary_sensor.ix3_charging_status
+              # - binary_sensor.ix3_connection_status
+              # - binary_sensor.ix3_charging_status
               - sensor.ehhatdgg_status
             styles:
               entity_picture:
@@ -476,13 +476,13 @@ views:
                 icon:
                   - color: >
                       [[[
-                        let plugged = states['sensor.ehhatdgg_status'].state;
+                        let plugged = states['sensor.ehhatdgg_status']?.state;
                         if (plugged === 'disconnected') return 'var(--custom-button-card-color-off)';
                         return 'var(--state-icon-active-color)';
                       ]]]
                   - animation: >
                       [[[
-                        let charging = states['sensor.ehhatdgg_status'].state;
+                        let charging = states['sensor.ehhatdgg_status']?.state;
                         if (charging === 'charging') return 'blink 4s ease infinite';
                         return 'none';
                       ]]]
@@ -493,14 +493,14 @@ views:
                     - opacity: 0.4
                     - filter: grayscale(100%)
             variables:
-              circle_input: >
-                [[[ return Math.round(states['sensor.ix3_remaining_battery_percent'].state); ]]]
+              # circle_input: >
+              #   [[[ return Math.round(states['sensor.ix3_remaining_battery_percent']?.state) || 0; ]]]
               consider_on: >
                 [[[
-                  return states['binary_sensor.ix3_charging_status'].state == 'on';
+                  return states['sensor.ehhatdgg_status'].state == 'charging';
                 ]]]
-            state_display: >
-              [[[ return html`<span>${entity.state} (${states['sensor.ix3_remaining_range_electric'].state} km)</span>`;  ]]]
+            # state_display: >
+            #   [[[ return html`<span>${entity?.state} (${states['sensor.ix3_remaining_range_electric']?.state} km)</span>`;  ]]]
           - type: custom:button-card
             entity: cover.covers_downstairs
             name: Screens

@@ -106,6 +106,8 @@ sensor:
       internal: true
       unit_of_measurement: "V"
       icon: mdi:flash-outline
+      filters:
+        - delta: 1
     power:
       name: "${channel_1} power"
       id: power

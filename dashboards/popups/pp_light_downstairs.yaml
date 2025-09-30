@@ -2,9 +2,10 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
+    initial_style: wide
     title: Verlichting beneden
     timeout: 60000
-    size: wide
     content:
       type: custom:layout-card
       layout_type: custom:grid-layout

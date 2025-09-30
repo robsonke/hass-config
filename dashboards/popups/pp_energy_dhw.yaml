@@ -35,37 +35,37 @@ browser_mod:
                         - "on"
                         - performance
                         - "off"
-                - type: 'custom:simple-thermostat'
-                  entity: water_heater.domestic_hot_water_tank
-                  layout:
-                    step: row
-                  step_size: 1
-                  decimals: 0
-                  service:
-                    domain: water_heater
-                    service: set_temperature
-                  header:
-                    name: Warm water
-                    icon: mdi:bathtub-outline
-                  hide:
-                    temperature: true
-                    state: true
-                  sensors:
-                    - entity: water_heater.domestic_hot_water_tank
-                      name: Temperature
-                      attribute: temperature
-                      unit: °
-                    - entity: water_heater.domestic_hot_water_tank
-                      name: Current Temperature
-                      attribute: current_temperature
-                      unit: °
-                    - entity: sensor.altherma_operation_mode
-                      name: Warmtepomp
-                    - entity: water_heater.domestic_hot_water_tank
-                      name: Current Mode
-                      attribute: operation_mode
-                    - entity: binary_sensor.hot_water_tank_state
-                      name: Status pomp
+                # - type: 'custom:simple-thermostat'
+                #   entity: water_heater.domestic_hot_water_tank
+                #   layout:
+                #     step: row
+                #   step_size: 1
+                #   decimals: 0
+                #   service:
+                #     domain: water_heater
+                #     service: set_temperature
+                #   header:
+                #     name: Warm water
+                #     icon: mdi:bathtub-outline
+                #   hide:
+                #     temperature: true
+                #     state: true
+                #   sensors:
+                #     - entity: water_heater.domestic_hot_water_tank
+                #       name: Temperature
+                #       attribute: temperature
+                #       unit: °
+                #     - entity: water_heater.domestic_hot_water_tank
+                #       name: Current Temperature
+                #       attribute: current_temperature
+                #       unit: °
+                #     - entity: sensor.altherma_operation_mode
+                #       name: Warmtepomp
+                #     - entity: water_heater.domestic_hot_water_tank
+                #       name: Current Mode
+                #       attribute: operation_mode
+                #     - entity: binary_sensor.hot_water_tank_state
+                #       name: Status pomp
                 - type: entities
                   entities:
                     - entity: water_heater.domestic_hot_water_tank

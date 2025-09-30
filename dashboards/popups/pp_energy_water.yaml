@@ -2,8 +2,9 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
+    initial_style: wide
     title: Waterverbruik
-    size: wide
     timeout: 60000
     content:
       type: custom:layout-card
@@ -26,13 +27,3 @@ browser_mod:
             grid-area: details
           cards:
             - type: energy-water-graph
-            # - chart_type: bar
-            #   period: hour
-            #   days_to_show: 1
-            #   type: statistics-graph
-            #   title: Water usage
-            #   stat_types:
-            #     - state
-            #   entities:
-            #     - entity: sensor.water_hourly
-            #       name: Hourly water usage

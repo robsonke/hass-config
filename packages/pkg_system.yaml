@@ -62,6 +62,8 @@ input_boolean:
 input_text:
   camera_analysis:
     name: Camera Event Analysis
+  unavailable_entities_temp_state:
+    name: Temp variable used in an automation
 
 # Custom homekit config currently not supported by the integration page
 homekit:
@@ -116,9 +118,7 @@ binary_sensor:
       - binary_sensor.esphome_running
       - binary_sensor.mariadb_running
       - binary_sensor.mosquitto_broker_running
-      - binary_sensor.a_better_presence_running
       - binary_sensor.frigate_nvr_running
-      - binary_sensor.z_wave_js_to_mqtt_running
       - binary_sensor.home_assistant_addon_ecowitt2mqtt_running
       - binary_sensor.appdaemon_running
 
@@ -189,7 +189,7 @@ group:
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
       - binary_sensor.windowdoor_ground_4_openclose_contact
-      - sensor.light_sensor_garden
+      - sensor.light_sensor_garden_illuminance
       - binary_sensor.hallwaydoor_sensor_contact
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_noaroom_openclose_contact
@@ -217,7 +217,6 @@ group:
 
   ignored_entities:
     entities:
-      - binary_sensor.updater
       - sensor.althermasensors
 
 template:

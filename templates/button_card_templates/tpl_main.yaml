@@ -137,6 +137,32 @@ cats:
           .datetime="${entity.last_updated}"
         ></ha-relative-time>`
     ]]]
+  tap_action:
+    action: fire-dom-event
+    browser_mod:
+      service: browser_mod.popup
+      data:
+        size: normal
+        timeout: 60000
+        title: Boris en Puk
+        content:
+          type: vertical-stack
+          cards:
+            - type: custom:more-info-card
+              entity: binary_sensor.motion_sensor_cats_occupancy
+              title: Luikje
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.boris_tracker_battery
+                  name: Batterij tracker Boris
+            - type: map
+              default_zoom: 16
+              hours_to_show: 12
+              entities:
+                - device_tracker.boris_tracker
+              theme_mode: dark
+
 
 #################################################
 #                                               #

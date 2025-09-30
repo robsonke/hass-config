@@ -2,6 +2,7 @@ action: fire-dom-event
 browser_mod:
   service: browser_mod.popup
   data:
+    type: custom:popup-card
     title: Stookwijzer
     timeout: 60000
     content:
@@ -22,11 +23,6 @@ browser_mod:
           name: Huidig advies
         - type: custom:bubble-card
           card_type: separator
-        # - type: entities
-        #   show_header_toggle: false
-        #   entities:
-        #     - entity: sensor.stookwijzer
-        #       name: Niveau
         - type: custom:bubble-card
           card_type: button
           button_type: state

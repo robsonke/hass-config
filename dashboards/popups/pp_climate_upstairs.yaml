@@ -3,7 +3,8 @@ browser_mod:
   service: browser_mod.popup
   data:
     title: Slaapkamers klimaat
-    size: wide
+    type: custom:popup-card
+    initial_style: wide
     timeout: 60000
     content:
       type: custom:layout-card
