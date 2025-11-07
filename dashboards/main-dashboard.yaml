@@ -128,6 +128,18 @@ views:
                   return parseInt(states['sensor.unavailable_entities'].attributes['count'])
                           + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
                 ]]]
+          - icon: mdi:fire
+            icon_selected: mdi:fire
+            url: null
+            tap_action:
+              !include popups/pp_footer_stookalert.yaml
+            label: Stookwijzer
+            badge:
+              show: |
+                [[[
+                  return states['sensor.stookwijzer'].state === 'code_red';
+                ]]]
+              color: var(--accent-color)
           - icon: mdi:repeat-off
             icon_selected: mdi:repeat-off
             url: null
@@ -145,18 +157,6 @@ views:
                 [[[
                   return parseInt(states['sensor.all_updates'].state);
                 ]]]
-          - icon: mdi:fire
-            icon_selected: mdi:fire
-            url: null
-            tap_action:
-              !include popups/pp_footer_stookalert.yaml
-            label: Stookwijzer
-            badge:
-              show: |
-                [[[
-                  return states['sensor.stookwijzer'].state === 'code_red';
-                ]]]
-              color: var(--accent-color)
 
       #################################################
       #                                               #
@@ -391,22 +391,22 @@ views:
             entity: sensor.indoor_temperature
             name: Warmtepomp
             template:
-              - climate
-              - icon_temp
+              - climate_downstairs
             triggers_update: climate.warmtepomp
             tap_action:
               !include popups/pp_energy_heating.yaml
             hold_action:
               action: none
             variables:
-              icon: "mdi:radiator"
               heating: >
                 [[[
-                  return states['select.operation_mode'].state === 'heating' && states['switch.climate_control'].state === 'on'
+                  return states['select.operation_mode'].state === 'heating';
+                  // && states['switch.climate_control'].state === 'on'
                 ]]]
               cooling: >
                 [[[
-                  return states['select.operation_mode'].state === 'cooling' && states['switch.climate_control'].state === 'on'
+                  return states['select.operation_mode'].state === 'cooling';
+                  // && states['switch.climate_control'].state === 'on'
                 ]]]
           - type: custom:button-card
             entity: media_player.music_downstairs
@@ -628,7 +628,7 @@ views:
             entity: sensor.climate_sensor_masterbedroom_temperature
             name: Klimaat
             template:
-              - climate
+              - climate_upstairs
               - icon_temp
             triggers_update:
               - switch.kasa_infrarood_slaapkamer
@@ -640,6 +640,14 @@ views:
             hold_action:
               action: none
             variables:
+              aa_target: >
+                [[[
+                  return states['climate.eurom_alutherm_baseboard_heater'].attributes['temperature'];
+                ]]]
+              aa_current: >
+                [[[
+                  return states['climate.eurom_alutherm_baseboard_heater'].attributes['current_temperature'];
+                ]]]
               heating: >
                 [[[
                   let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off' && states['sensor.eurom_alutherm_power'].state > 50;

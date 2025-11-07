@@ -830,39 +830,6 @@
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: camera.{{trigger.payload_json["after"]["camera"]}}
   mode: single
-- alias: Theme - Switch to dark mode
-  id: theme_switch_dark
-  trigger:
-  - trigger: time
-    at: '22:00:00'
-  - trigger: sun
-    event: sunset
-  condition: '{{ is_state(''input_boolean.dark_mode'', ''off'') }}'
-  action:
-    entity_id: input_boolean.dark_mode
-    action: input_boolean.turn_on
-- alias: Theme - Switch to light mode
-  id: theme_switch_light
-  trigger:
-  - trigger: time
-    at: 09:00:00
-  - trigger: sun
-    event: sunrise
-  condition: '{{ is_state(''input_boolean.dark_mode'', ''on'') }}'
-  action:
-    entity_id: input_boolean.dark_mode
-    action: input_boolean.turn_off
-- id: theme_switch_manually
-  alias: Theme - Change theme manually
-  trigger:
-  - trigger: state
-    entity_id: input_boolean.dark_mode
-  action:
-  - action: browser_mod.set_theme
-    data_template:
-      theme: custom-dark
-      dark: "{% if is_state(\"input_boolean.dark_mode\", \"on\") %}\n  dark\n{% else
-        %}\n  light\n{% endif %}\n"
 - id: lovelace_convert_json_yaml
   alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
   trigger:
@@ -1759,7 +1726,8 @@
   - action: persistent_notification.create
     data:
       title: Belangrijke devices
-      message: " \U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable }}"
+      message: " \U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable
+        }}"
   variables:
     from_state: '{{ states(''input_text.unavailable_entities_temp_state'') }}'
     from_state_list: '{{ from_state.split('', '') }}'
@@ -2422,35 +2390,6 @@
           entity_id: select.operation_mode
   trace:
     stored_traces: 20
-- id: '1662889733680'
-  alias: Screens - Disable the automatic control of the screens in case of a manual
-    action
-  description: ''
-  trigger:
-  - trigger: state
-    entity_id:
-    - cover.voorraam
-    - cover.zijraam
-    alias: When the position of the screens change
-    attribute: current_position
-  condition:
-  - condition: and
-    conditions:
-    - condition: template
-      value_template: '{{ trigger.to_state.context.parent_id == none }}'
-    - condition: template
-      value_template: '{{ trigger.to_state.context.user_id == none }}'
-      enabled: true
-    - condition: template
-      value_template: '{{ trigger.to_state.context.id != none }}'
-    alias: Only in case of a manual user interaction
-  action:
-  - action: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id: input_boolean.enable_automatic_screens
-    alias: Disable the automatic screens control for today
-  mode: single
 - id: '1663352793600'
   alias: System - Alert when the shed fridge is off too long
   description: ''
@@ -2557,7 +2496,7 @@
   description: This controls whether the heatpump should be turned on or not. Based
     on pricing or potential PV over capacity (later). So far, using the price works
     oke, the higher the price, the more need there is for power, so the less we do.
-  trigger:
+  triggers:
   - trigger: state
     entity_id:
     - sensor.energy_price_level
@@ -2568,7 +2507,7 @@
   - trigger: state
     entity_id:
     - climate.warmtepomp
-  condition:
+  conditions:
   - condition: state
     entity_id: input_boolean.enable_automatic_hvac
     state: 'on'
@@ -2576,8 +2515,9 @@
   - condition: template
     value_template: '{{ trigger.from_state.state != "unavailable" and trigger.to_state.state
       != "unavailable" }}'
-  action:
-  - choose:
+  actions:
+  - alias: Turn on when needed and the price is oke, otherwise default off
+    choose:
     - conditions:
       - condition: or
         conditions:
@@ -2591,13 +2531,20 @@
           below: 91
           alias: Or in case the price is low, probably giving the same result
         alias: Check if the price is oke
-      - condition: not
-        alias: Only when we are in heating or cooling mode
+      - alias: Only when we are in heating or cooling mode
+        condition: not
         conditions:
-        - condition: state
-          entity_id: climate.warmtepomp
-          attribute: hvac_action
-          state: 'off'
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: climate.warmtepomp
+            attribute: hvac_action
+            state: 'off'
+          - condition: state
+            entity_id: climate.warmtepomp
+            attribute: hvac_action
+            state: idle
+          alias: The heatpump is either off or idle
       - condition: or
         alias: And only when the generic thermostat said we need to heat or cool
         conditions:
@@ -2645,7 +2592,6 @@
       data: {}
       target:
         entity_id: switch.climate_control
-    alias: Turn on when needed and the price is oke, otherwise default off
   trace:
     stored_traces: 20
   mode: single
@@ -3391,7 +3337,7 @@
       - action: media_player.volume_set
         data_template:
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
-            - 0.01}}'
+            - 0.02}}'
         entity_id: media_player.slaapkamer_sonos
     - conditions:
       - condition: and
@@ -3407,7 +3353,7 @@
       - action: media_player.volume_set
         data_template:
           volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
-            + 0.01}}'
+            + 0.02}}'
         entity_id: media_player.slaapkamer_sonos
   mode: single
 - id: '1707053269958'
@@ -3668,15 +3614,6 @@
       domains: weather
       entity_globs: sensor.*voltage* sensor.shelly_*_power sensor.*detection_fps
   mode: single
-- id: '1726401797955'
-  alias: System - Wallpanel Battery Management
-  description: Disable charging when reaching 80%
-  use_blueprint:
-    path: robsonke/wallpanel_battery_management.yaml
-    input:
-      battery: sensor.ipad_kitchen_battery_level
-      low_percent: 25
-      charger: switch.shelly_plug_s_10_relay
 - id: '1732450018331'
   alias: Alarm - AI Event Summary
   description: Keep an eye on the doorbell camera and explain what is happening.

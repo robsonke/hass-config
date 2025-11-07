@@ -56,28 +56,32 @@ browser_mod:
           view_layout:
             grid-area: rain
           cards:
-            - type: custom:mini-graph-card
-              entities:
-                - entity: sensor.rate_rain_piezo
-              show:
-                labels: true
-                #graph: bar
-              hour24: true
+            - type: history-graph
               hours_to_show: 24
-              line_width: 2
-              points_per_hour: 10
-              show_points: false
-              color_thresholds:
-                - value: 0
-                  color: blue
-                - value: 3
-                  color: darkorange
-                - value: 8
-                  color: darkred
-
-              yaxis:
-                - min: 0
-                  decimals: 0
+              refresh_interval: 30
+              entities:
+                - sensor.rate_rain_piezo
+            # - type: custom:mini-graph-card
+            #   entities:
+            #     - entity: sensor.rate_rain_piezo
+            #   show:
+            #     labels: true
+            #     #graph: bar
+            #   hour24: true
+            #   hours_to_show: 24
+            #   line_width: 2
+            #   points_per_hour: 10
+            #   show_points: false
+            #   color_thresholds:
+            #     - value: 0
+            #       color: blue
+            #     - value: 3
+            #       color: darkorange
+            #     - value: 8
+            #       color: darkred
+            #   yaxis:
+            #     - min: 0
+            #       decimals: 0
             - type: 'custom:buien-rain-forecast'
               long: !secret longitude_coordinate
               lat: !secret latitude_coordinate

@@ -4,13 +4,31 @@
 #                                               #
 #################################################
 
-climate:
+climate_downstairs:
+  # show_state: false
+  show_label: true
   template:
-    - simple
-  show_state: true
+    - circle
+    - icon_temp
   variables:
     consider_on: >
-      [[[ return false; ]]]
+      [[[ return states['switch.climate_control'].state === 'on'; ]]]
+    circle_text: >
+      [[[
+        return states['sensor.downstairs_temperature'].state;
+      ]]]
+    circle_input: >
+      [[[
+        // get target per season
+        if (states['select.operation_mode'].state === 'heating') {
+          let target = states['input_number.hvac_winter_target_temperature'].state;
+          return states['sensor.downstairs_temperature'].state / target * 100;
+        }
+        // summer
+        let target = states['input_number.hvac_summer_target_temperature'].state;
+        return target / states['sensor.downstairs_temperature'].state * 100;
+      ]]]
+    unit: '°C'
   custom_fields:
     info: >
       [[[ {
@@ -18,12 +36,53 @@ climate:
       return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
       <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
 
-  styles:
-    custom_fields:
-      icon:
-        - fill: "#9da0a2"
-    state:
-      - color: rgba(0, 0, 0, 0)
+climate_upstairs:
+  show_state: false
+  template:
+    - circle
+    - icon_temp
+  variables:
+    consider_on: >
+      [[[ return states['climate.eurom_alutherm_baseboard_heater'].state === 'on'; ]]]
+    circle_text: >
+      [[[
+        return states['climate.eurom_alutherm_baseboard_heater'].attributes['current_temperature'];
+      ]]]
+    circle_input: >
+      [[[
+        // let target = states['climate.eurom_alutherm_baseboard_heater'].attributes['temperature'];
+        // let current = states['climate.eurom_alutherm_baseboard_heater'].attributes['current_temperature'];
+        return variables.aa_current / variables.aa_target * 100;
+      ]]]
+    unit: '°C'
+  custom_fields:
+    info: >
+      [[[ {
+      const temperature = Math.round(entity.state * 10) / 10;
+      return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
+      <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
+
+
+# climate:
+#   template:
+#     - simple
+#   show_state: true
+#   show_name: true
+#   variables:
+#     consider_on: >
+#       [[[ return false; ]]]
+#   custom_fields:
+#     info: >
+#       [[[ {
+#       const temperature = Math.round(entity.state * 10) / 10;
+#       return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
+#       <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
+#   styles:
+#     custom_fields:
+#       icon:
+#         - fill: "#9da0a2"
+#     state:
+#       - color: rgba(0, 0, 0, 0)
 
 #################################################
 #                                               #
@@ -33,7 +92,7 @@ climate:
 
 dhw:
   template:
-    - climate
+    - simple
   show_state: true
   show_name: true
   variables:
@@ -43,6 +102,7 @@ dhw:
         && entity.attributes['temperature'] - entity.attributes['current_temperature'] > 5
         && states['sensor.shelly_warmtepomp_meter_total_active_power'].state > 1000;
       ]]]
+    unit: '°C'
   styles:
     custom_fields:
       icon:
@@ -109,8 +169,9 @@ energy:
       ]]]
     circle_input: >
       [[[
-        // consider 50 cent as the highest price (hopefully)
-        return states['sensor.current_price_electricity'].state / 0.5 * 100
+        // compare with max price
+        let maxPrice = states['sensor.electricity_price_langeweide_28'].attributes['max_price'];
+        return states['sensor.current_price_electricity'].state / maxPrice * 100
       ]]]
   #custom_fields:
     # circle: >

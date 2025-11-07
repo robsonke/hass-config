@@ -87,11 +87,11 @@ custom-dark:
       # browser_mod.popup
       dialog-backdrop-filter: blur(0.5em) brightness(0.75)
       popup-background-color: rgba(34,38,39,0.9)
-      popup-border-width: 1px
-      popup-border-radius: 1em
+      # popup-border-width: 1px
+      # popup-border-radius: 1em
       tablet-popup-header-color: rgba(200, 218, 222, 0.05)
-      tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
-      tablet-popup-button-padding: 0.1em 2em 1.8em 2em
+      # tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
+      # tablet-popup-button-padding: 0.1em 2em 1.8em 2em
       tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)
 
       # tiles
@@ -142,11 +142,11 @@ custom-dark:
       # browser_mod.popup
       dialog-backdrop-filter: blur(0.5em) brightness(0.75)
       popup-background-color: var(--primary-background-color)
-      popup-border-width: 1px
-      popup-border-radius: 1em
+      # popup-border-width: 1px
+      # popup-border-radius: 1em
       tablet-popup-header-color: rgba(200, 218, 222, 0.05)
-      tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
-      tablet-popup-button-padding: 0.1em 2em 1.8em 2em
+      # tablet-popup-content-padding: 1.4em 2.2em 1.6em 1.5em
+      # tablet-popup-button-padding: 0.1em 2em 1.8em 2em
       tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)
 
       # tiles
@@ -322,9 +322,9 @@ custom-dark:
       line-height: initial;
       cursor: default;
     }
-    .content .card-content {
+    /*.content .card-content {
       padding: var(--tablet-popup-content-padding);
-    }
+    }*/
     :host {
       /* remove borders around ha-card */
       --ha-card-border-width: 0;

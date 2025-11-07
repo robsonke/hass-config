@@ -6,10 +6,6 @@ browser_mod:
     initial_style: wide
     title: Update Info
     timeout: 60000
-    style: |-
-      --popup-padding-x: 24px;
-      --popup-padding-y: 20px;
-      --popup-border-radius: 1em;
     content:
       type: grid
       columns: 1

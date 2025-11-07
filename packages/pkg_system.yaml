@@ -267,6 +267,17 @@ template:
           #     {% endif %}
           #   {% endfor %}
           #   {{ unavail.entities }}
+  # Storage for Bubble Card Modules
+  - trigger:
+      - trigger: event
+        event_type: bubble_card_update_modules
+    sensor:
+      - name: "Bubble Card Modules"
+        state: "saved"
+        icon: "mdi:puzzle"
+        attributes:
+          modules: "{{ trigger.event.data.modules }}"
+          last_updated: "{{ trigger.event.data.last_updated }}"
   # count all possible updates to one sensor
   - trigger:
     - trigger: time_pattern
@@ -297,85 +308,85 @@ template:
       unit_of_measurement: "Update(s)"
 
   # Regular counters
-  - sensor:
-    - unique_id: count_automations
-      attributes:
-        friendly_name: Automations count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.automation | count }}
-    - unique_id: count_device_trackers
-      attributes:
-        friendly_name: Device Trackers count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.device_tracker | count }}
-    - unique_id: count_lights
-      attributes:
-        friendly_name: Lights count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.light | count }}
-    - unique_id: count_binary_sensors
-      attributes:
-        friendly_name: Binary Sensors count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.binary_sensor | count }}
-    - unique_id: count_sensors
-      attributes:
-        friendly_name: Sensors count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.sensor | count }}
-    - unique_id: count_switches
-      attributes:
-        friendly_name: Switches count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.switch | count }}
-    - unique_id: count_zones
-      attributes:
-        friendly_name: Zone count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.zone | count }}
-    - unique_id: count_cameras
-      attributes:
-        friendly_name: Camera count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.camera | count }}
-    - unique_id: count_media_players
-      attributes:
-        friendly_name: Media Players count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.media_player | count }}
-    - unique_id: count_scripts
-      attributes:
-        friendly_name: Scripts count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.script | count }}
-    - unique_id: count_locks
-      attributes:
-        friendly_name: Locks count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.lock | count }}
-    - unique_id: count_vacuums
-      attributes:
-        friendly_name: Vacuum count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.vacuum | count }}
-    - unique_id: count_zwaves
-      attributes:
-        friendly_name: ZWave count
-      state: >
-        {% set dummy = states("sensor.date") %}
-        {{ states.zwave | count }}
+  # - sensor:
+  #   - unique_id: count_automations
+  #     attributes:
+  #       friendly_name: Automations count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.automation | count }}
+  #   - unique_id: count_device_trackers
+  #     attributes:
+  #       friendly_name: Device Trackers count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.device_tracker | count }}
+  #   - unique_id: count_lights
+  #     attributes:
+  #       friendly_name: Lights count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.light | count }}
+  #   - unique_id: count_binary_sensors
+  #     attributes:
+  #       friendly_name: Binary Sensors count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.binary_sensor | count }}
+  #   - unique_id: count_sensors
+  #     attributes:
+  #       friendly_name: Sensors count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.sensor | count }}
+  #   - unique_id: count_switches
+  #     attributes:
+  #       friendly_name: Switches count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.switch | count }}
+  #   - unique_id: count_zones
+  #     attributes:
+  #       friendly_name: Zone count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.zone | count }}
+  #   - unique_id: count_cameras
+  #     attributes:
+  #       friendly_name: Camera count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.camera | count }}
+  #   - unique_id: count_media_players
+  #     attributes:
+  #       friendly_name: Media Players count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.media_player | count }}
+  #   - unique_id: count_scripts
+  #     attributes:
+  #       friendly_name: Scripts count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.script | count }}
+  #   - unique_id: count_locks
+  #     attributes:
+  #       friendly_name: Locks count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.lock | count }}
+  #   - unique_id: count_vacuums
+  #     attributes:
+  #       friendly_name: Vacuum count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.vacuum | count }}
+  #   - unique_id: count_zwaves
+  #     attributes:
+  #       friendly_name: ZWave count
+  #     state: >
+  #       {% set dummy = states("sensor.date") %}
+  #       {{ states.zwave | count }}
 
 sensor:
   - platform: rest

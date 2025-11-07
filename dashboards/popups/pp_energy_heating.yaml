@@ -59,6 +59,8 @@ browser_mod:
                 - type: "target-temperature"
                 - type: "numeric-input"
                   style: "buttons"
+            - type: tile
+              entity: sensor.shelly_warmtepomp_meter_total_active_power
 
             - type: custom:expander-card
               title: Settings
@@ -99,8 +101,12 @@ browser_mod:
               chart_type: line
               entities:
                 - entity: sensor.climate_sensor_living_temperature
-                  name: Temperatuur Woonkamer
+                  name: Woonkamer
                 - entity: sensor.climate_sensor_office_temperature
                   name: Kantoor
                 - entity: sensor.climate_sensor_kitchen_temperature
                   name: Keuken
+                - entity: sensor.indoor_temperature
+                  name: Thermostaat
+                - entity: sensor.downstairs_temperature
+                  name: Gemiddeld
