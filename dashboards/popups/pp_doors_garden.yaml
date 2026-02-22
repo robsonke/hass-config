@@ -17,9 +17,6 @@ browser_mod:
           - entity_id: binary_sensor.sheddoor_openclose_contact
             options:
               secondary_info: last-changed
-          - entity_id: binary_sensor.sheddoor_back_openclose_contact
-            options:
-              secondary_info: last-changed
           - entity_id: binary_sensor.cabindoor_openclose_contact
             options:
               secondary_info: last-changed

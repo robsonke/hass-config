@@ -46,13 +46,13 @@ climate_upstairs:
       [[[ return states['climate.eurom_alutherm_baseboard_heater'].state === 'on'; ]]]
     circle_text: >
       [[[
-        return states['climate.eurom_alutherm_baseboard_heater'].attributes['current_temperature'];
+        return states['sensor.upstairs_temperature'].state;
       ]]]
     circle_input: >
       [[[
         // let target = states['climate.eurom_alutherm_baseboard_heater'].attributes['temperature'];
         // let current = states['climate.eurom_alutherm_baseboard_heater'].attributes['current_temperature'];
-        return variables.aa_current / variables.aa_target * 100;
+        return variables.current / variables.target * 100;
       ]]]
     unit: '°C'
   custom_fields:
@@ -62,27 +62,6 @@ climate_upstairs:
       return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
       <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
 
-
-# climate:
-#   template:
-#     - simple
-#   show_state: true
-#   show_name: true
-#   variables:
-#     consider_on: >
-#       [[[ return false; ]]]
-#   custom_fields:
-#     info: >
-#       [[[ {
-#       const temperature = Math.round(entity.state * 10) / 10;
-#       return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20.5" stroke="var(--custom-circle-stroke-color)" stroke-width="1.5" fill="#FFFFFF08" style="transform: rotate(-90deg); transform-origin: 50% 50%;" />
-#       <text x="50%" y="54%" fill="var(--custom-circle-text-color)" font-size="10" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${temperature}°C</text></svg>`; } ]]]
-#   styles:
-#     custom_fields:
-#       icon:
-#         - fill: "#9da0a2"
-#     state:
-#       - color: rgba(0, 0, 0, 0)
 
 #################################################
 #                                               #

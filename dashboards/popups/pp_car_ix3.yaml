@@ -32,16 +32,16 @@ browser_mod:
                 - type: state-icon
                   entity: binary_sensor.ix3_door_lock_state
                   tap_action: more-info
-                  hold_action:
-                    action: call-service
-                    service: lock.lock
-                    target:
-                      entity_id: lock.ix3_lock
+                  # hold_action:
+                  #   action: call-service
+                  #   service: lock.lock
+                  #   target:
+                  #     entity_id: lock.ix3_lock
                   style:
                     top: 88.5%
                     left: 10%
                 - type: state-label
-                  entity: binary_sensor.ix3_door_lock_state
+                  entity: sensor.ix3_doors_condition
                   style:
                     top: 95.5%
                     left: 10%

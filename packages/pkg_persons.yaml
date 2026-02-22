@@ -30,7 +30,9 @@ notify:
     name: all_phones
     services:
       - service: mobile_app_iphone_rob
-      - service: mobile_app_iphone_steffi
+      # wrong name, but oke
+      - service: mobile_app_iphone
+      #- service: mobile_app_iphone_steffi
 
 homeassistant:
   customize_domain:
@@ -41,10 +43,6 @@ homeassistant:
       entity_picture: "/local/images/rob_icon-mirror.png"
     person.steffi:
       entity_picture: "/local/images/steffi_icon.png"
-    # device_tracker.rob_presence:
-    #   friendly_name: Combined Presence Rob
-    # device_tracker.steffi_presence:
-    #   friendly_name: Combined Presence Steffi
 
 sensor:
   - platform: history_stats

@@ -26,7 +26,7 @@ browser_mod:
           view_layout:
             grid-area: frontdoor
           cards:
-            - type: custom:frigate-card
+            - type: custom:advanced-camera-card
               dimensions:
                 aspect_ratio_mode: unconstrained
               entities:
@@ -40,6 +40,8 @@ browser_mod:
                   image:
                     enabled: false
                   camera_ui:
+                    enabled: false
+                  media_player:
                     enabled: false
                 style: overlay
                 position: top
@@ -96,9 +98,6 @@ browser_mod:
                     options:
                       secondary_info: last-changed
                   - entity_id: binary_sensor.sheddoor_openclose_contact
-                    options:
-                      secondary_info: last-changed
-                  - entity_id: binary_sensor.sheddoor_back_openclose_contact
                     options:
                       secondary_info: last-changed
                   - entity_id: binary_sensor.cabindoor_openclose_contact

@@ -7,7 +7,7 @@ browser_mod:
     title: Noa
     timeout: 180000
     content:
-      type: custom:frigate-card
+      type: custom:advanced-camera-card
       dimensions:
         aspect_ratio_mode: unconstrained
       view:
@@ -22,6 +22,8 @@ browser_mod:
             enabled: false
           fullscreen:
             enabled: true
+          media_player:
+            enabled: false
         style: overlay
         position: top
       timeline:

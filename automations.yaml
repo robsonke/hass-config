@@ -470,7 +470,7 @@
       milliseconds: 0
   - action: light.turn_on
     data:
-      brightness_pct: 40
+      brightness_pct: 25
     target:
       entity_id: light.veranda_light
   - action: light.turn_on
@@ -492,7 +492,7 @@
     trigger: time
   - entity_id:
     - sensor.light_sensor_garden_illuminance
-    above: 5
+    above: 10
     for:
       hours: 0
       minutes: 5
@@ -1302,6 +1302,11 @@
   - trigger: state
     entity_id:
     - event.switch_alarm_activity_action
+    not_from:
+    - unknown
+    not_to:
+    - unavailable
+    - unknown
   conditions:
   - condition: not
     conditions:
@@ -1377,10 +1382,6 @@
   trigger:
   - trigger: state
     entity_id: binary_sensor.sheddoor_openclose_contact
-    from: 'off'
-    to: 'on'
-  - trigger: state
-    entity_id: binary_sensor.sheddoor_back_openclose_contact
     from: 'off'
     to: 'on'
   - trigger: state
@@ -1882,7 +1883,7 @@
   use_blueprint:
     path: robsonke/heating.yaml
     input:
-      heating: switch.infraroodpanel_noa
+      heating: switch.infrarood_noa
       temp_sensor: sensor.climate_sensor_noa_temperature
       min_temp: 16
       set_temp: 18
@@ -2753,7 +2754,7 @@
   use_blueprint:
     path: robsonke/heating.yaml
     input:
-      heating: switch.kasa_infrarood_eva
+      heating: switch.infrarood_eva
       temp_sensor: sensor.climate_sensor_eva_temperature
       min_temp: 16
       set_temp: 18
@@ -3162,25 +3163,6 @@
       message: 'Let op: Het vlees op de barbecue is nu {{ states[''sensor.inkbird_ibt_2x_temperature_probe_2''].state
         | round }} graden.'
   mode: single
-- id: '1690914761794'
-  alias: Motion Lights - Control shed lights
-  description: Turn on the light in the shed once entering and turn off after a while
-  use_blueprint:
-    path: robsonke/motion-illuminance-dimmable-nightmode.yaml
-    input:
-      motion_entity:
-      - binary_sensor.hue_motion_sensor_shed_occupancy
-      lux_entity: sensor.hue_motion_sensor_shed_illuminance
-      lux_level: 250
-      dim_time: 0
-      no_motion_wait_day: 600
-      day_brightness: 100
-      light_target:
-        entity_id:
-        - light.shed_light
-      night_time_start_helper: '22:00:00'
-      night_time_end_helper: 07:00:00
-      night_brightness: 100
 - id: '1690920817114'
   alias: Motion Lights - Control shower & closet light
   description: ''
@@ -3601,7 +3583,7 @@
       - sensor.power_consumed_phase_2
       - sensor.power_produced_phase_1
       - sensor.power_consumed_phase_1
-      - sensor.winecooler_switch_current_consumption
+      - sensor.winecooler_switch_power
       - sensor.pool_shelly_3em_active_power_phase_a
       - sensor.pool_shelly_3em_active_power_phase_b
       - sensor.pool_shelly_3em_active_power_phase_c
@@ -3771,3 +3753,23 @@
     target:
       entity_id: water_heater.domestic_hot_water_tank
   mode: single
+- id: '1766775549186'
+  alias: Motion Lights - Control new shed lights
+  description: Turn on the light in the shed once entering and turn off after a while
+  use_blueprint:
+    path: robsonke/motion-illuminance-dimmable-nightmode.yaml
+    input:
+      motion_entity:
+      - binary_sensor.hue_motion_sensor_shed_occupancy
+      - binary_sensor.motion_sensor_shed_occupancy
+      lux_entity: sensor.hue_motion_sensor_shed_illuminance
+      lux_level: 1000
+      dim_time: 0
+      no_motion_wait_day: 600
+      day_brightness: 100
+      light_target:
+        entity_id: light.shed_switch_1
+      night_time_start_helper: '21:00:00'
+      night_time_end_helper: 07:00:00
+      night_brightness: 100
+      no_motion_wait_night: 60

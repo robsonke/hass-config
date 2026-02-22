@@ -9,29 +9,31 @@
 #
 
 cover:
-  # A fake garage door to fool Homekit for carplay support
-  - platform: template
-    covers:
-      front_door:
-        unique_id: "front_door"
-        device_class: garage
-        friendly_name: "Voordeur"
-        value_template: "{{ is_state('binary_sensor.frontdoor_openclose_contact', 'on') }}"
-        open_cover:
-          - action: lock.open
-            target:
-              entity_id: lock.nuki_voordeur_slot_lock
-        close_cover:
-          - action: lock.lock
-            target:
-              entity_id: lock.nuki_voordeur_slot_lock
-
   - platform: group
     name: Screens
     unique_id: covers_downstairs
     entities:
       - cover.zijraam
       - cover.voorraam
+
+# A fake garage door to fool Homekit for carplay support
+template:
+- cover:
+  - unique_id: front_door
+    device_class: garage
+    open_cover:
+    - action: lock.open
+      target:
+        entity_id:
+        - lock.nuki_voordeur_slot_lock
+    close_cover:
+    - action: lock.lock
+      target:
+        entity_id:
+        - lock.nuki_voordeur_slot_lock
+    default_entity_id: cover.front_door
+    name: Voordeur
+    state: "{{ is_state('binary_sensor.frontdoor_openclose_contact', 'on') }}"
 
 input_boolean:
   enable_automatic_screens:

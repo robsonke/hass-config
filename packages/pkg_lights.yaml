@@ -20,12 +20,12 @@ input_boolean:
 light:
   - platform: group
     name: Kerst binnen
-    unique_id: christmas_inside
+    unique_id: kerst_binnen
     entities:
       - light.socket4_light_spare2
   - platform: group
     name: Kerst buiten
-    unique_id: christmas_outside
+    unique_id: kerst_buiten
     entities:
       - light.shelly_plug_s_10_relay
       #- light.shelly_plugs_gen3_1_switch

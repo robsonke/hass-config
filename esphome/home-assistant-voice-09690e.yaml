@@ -1,8 +1,10 @@
 substitutions:
   name: home-assistant-voice-09690e
   friendly_name: Home Assistant Voice Office
+# packages:
+#   Nabu Casa.Home Assistant Voice PE: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml
 packages:
-  Nabu Casa.Home Assistant Voice PE: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml
+  Nabu Casa.Home Assistant Voice PE: github://esphome/voice-kit/home-assistant-voice.factory.yaml
 esphome:
   name: ${name}
   name_add_mac_suffix: false

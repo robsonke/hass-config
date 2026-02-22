@@ -294,65 +294,7 @@ views:
             only_all_day_events: false
             use_summary: false
 
-          #################################################
-          #                                               #
-          #           Sidebar Footer Icons                #
-          #                                               #
-          #################################################
-          # - type: grid
-          #   columns: 3
-          #   cards:
-          #     - type: custom:button-card
-          #       template: footer
-          #       name: >
-          #         <ha-state-icon icon="mdi:repeat-off"></ha-state-icon>
-          #       tap_action:
-          #         !include popups/pp_footer_update.yaml
-          #       triggers_update:
-          #         - sensor.all_updates
-          #       variables:
-          #         notify: >
-          #           [[[
-          #             return parseInt(states['sensor.all_updates'].state);
-          #           ]]]
-          #     - type: custom:button-card
-          #       template: footer
-          #       name: >
-          #         <ha-state-icon icon="mdi:cog"></ha-state-icon>
-          #       tap_action:
-          #         !include popups/pp_footer_system.yaml
-          #       variables:
-          #         notify: >
-          #           [[[
-          #             return parseInt(states['sensor.unavailable_entities'].attributes['count'])
-          #               + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
-          #           ]]]
-          #     - type: custom:button-card
-          #       entity: sensor.stookwijzer
-          #       template: footer
-          #       name: >
-          #         <ha-state-icon icon="mdi:fire"></ha-state-icon>
-          #       tap_action:
-          #         !include popups/pp_footer_stookalert.yaml
-          #       variables:
-          #         notify: >
-          #           [[[
-          #             return entity.state === 'code_red';
-          #           ]]]
-          #       styles:
-          #         name:
-          #           - color: >
-          #               [[[
-          #                 if (entity.state === 'code_red') return 'var(--red)';
-          #                 if (entity.state === 'code_yellow') return 'var(--yellow)';
-          #                 if (entity.state === 'code_orange') return 'var(--orange)';
-          #                 if (entity.state === 'triggered') return 'var(--red)';
-          #                 return 'var(--green)'
-          #               ]]]
-
-
-
-
+            
       #################################################
       #                                               #
       #                  Downstairs                   #
@@ -392,7 +334,6 @@ views:
             name: Warmtepomp
             template:
               - climate_downstairs
-            triggers_update: climate.warmtepomp
             tap_action:
               !include popups/pp_energy_heating.yaml
             hold_action:
@@ -411,10 +352,6 @@ views:
           - type: custom:button-card
             entity: media_player.music_downstairs
             name: Muziek
-            triggers_update:
-              - media_player.eetkamer
-              - media_player.office
-              - media_player.living_room
             template:
               - sonos_downstairs
           - type: custom:button-card
@@ -459,14 +396,10 @@ views:
           - type: custom:button-card
             entity: sensor.ehhatdgg_status
             template:
-              - simple
+              - circle
             tap_action:
               !include popups/pp_car_ix3.yaml
             name: BMW iX3
-            triggers_update:
-              # - binary_sensor.ix3_connection_status
-              # - binary_sensor.ix3_charging_status
-              - sensor.ehhatdgg_status
             styles:
               entity_picture:
                 - width: 45%
@@ -493,14 +426,15 @@ views:
                     - opacity: 0.4
                     - filter: grayscale(100%)
             variables:
-              # circle_input: >
-              #   [[[ return Math.round(states['sensor.ix3_remaining_battery_percent']?.state) || 0; ]]]
+              icon: mdi:car
+              circle_input: >
+                [[[ return Math.round(states['sensor.state_of_charge_predicted_on_bmw_side']?.state) || 0; ]]]
               consider_on: >
                 [[[
                   return states['sensor.ehhatdgg_status'].state == 'charging';
                 ]]]
-            # state_display: >
-            #   [[[ return html`<span>${entity?.state} (${states['sensor.ix3_remaining_range_electric']?.state} km)</span>`;  ]]]
+            state_display: >
+              [[[ return html`<span>${entity?.state} (${states['sensor.ix3_remaining_electric_range_km']?.state} km)</span>`;  ]]]
           - type: custom:button-card
             entity: cover.covers_downstairs
             name: Screens
@@ -580,12 +514,6 @@ views:
             show_label: true
           - type: custom:button-card
             entity: sensor.inkbird_ibt_2x_temperature_probe_1
-            triggers_update:
-              - timer.bbq
-              - sensor.inkbird_ibt_2x_temperature_probe_2
-              - input_number.grill_alert_low
-              - input_number.grill_alert_high
-              - input_number.grill_probe_2_target
             template: bbq
             name: BBQ
             show_label: true
@@ -630,21 +558,16 @@ views:
             template:
               - climate_upstairs
               - icon_temp
-            triggers_update:
-              - switch.kasa_infrarood_slaapkamer
-              - switch.shelly_plug_kachel_slaapkamer
-              - switch.infraroodpanel_eva
-              - climate.eurom_alutherm_baseboard_heater
             tap_action:
               !include popups/pp_climate_upstairs.yaml
             hold_action:
               action: none
             variables:
-              aa_target: >
+              target: >
                 [[[
                   return states['climate.eurom_alutherm_baseboard_heater'].attributes['temperature'];
                 ]]]
-              aa_current: >
+              current: >
                 [[[
                   return states['climate.eurom_alutherm_baseboard_heater'].attributes['current_temperature'];
                 ]]]
@@ -652,14 +575,12 @@ views:
                 [[[
                   let heating = states['select.eurom_alutherm_capacity'].state !== 'unavailable' && states['select.eurom_alutherm_capacity'].state !== 'Off' && states['sensor.eurom_alutherm_power'].state > 50;
                   heating = heating || (states['sensor.shelly_plug_badkamer_verwarming_power'].state > 50 || states['sensor.shelly_plug_douche_verwarming_power'].state > 50);
-                  heating = heating || states['switch.kasa_infrarood_eva'].state === 'on' || states['switch.infraroodpanel_noa'].state === 'on'
+                  heating = heating || states['switch.infrarood_eva'].state === 'on' || states['switch.infrarood_noa'].state === 'on'
                   return heating;
                 ]]]
           - type: custom:button-card
             entity: media_player.music_upstairs
             name: Muziek
-            triggers_update:
-              - media_player.slaapkamer_sonos
             template:
               - sonos_upstairs
           - type: custom:button-card
@@ -687,7 +608,6 @@ views:
             template:
               - icon_temp
               - dhw
-            triggers_update: water_heater.domestic_hot_water_tank
             tap_action:
               !include popups/pp_energy_dhw.yaml
             hold_action:
@@ -701,11 +621,6 @@ views:
                 ]]]
           - type: custom:button-card
             entity: sensor.net_power_consumption
-            triggers_update:
-              - sensor.daily_consumption_energy
-              - sensor.energy_price_level
-              - sensor.solaredge_dc_power
-              - sensor.electricity_cost_today
             name: Energie
             template:
               - energy
@@ -714,7 +629,6 @@ views:
 
           - type: custom:button-card
             entity: sensor.water_meter_current_usage
-            triggers_update: sensor.water_daily
             name: Water
             template:
               - simple

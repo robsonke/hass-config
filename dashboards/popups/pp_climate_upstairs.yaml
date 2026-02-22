@@ -49,11 +49,11 @@ browser_mod:
             - type: entities
               show_header_toggle: false
               entities:
-                - entity: switch.kasa_infrarood_eva
+                - entity: switch.infrarood_eva
                   name: Infraroodpanel Eva
             - type: conditional
               conditions:
-                - entity: switch.kasa_infrarood_eva
+                - entity: switch.infrarood_eva
                   state_not: "off"
               card:
                 type: entities
@@ -63,16 +63,16 @@ browser_mod:
             - type: entities
               show_header_toggle: false
               entities:
-                - entity: switch.infraroodpanel_noa
+                - entity: switch.infrarood_noa
             - type: conditional
               conditions:
-                - entity: switch.infraroodpanel_noa
+                - entity: switch.infrarood_noa
                   state_not: "off"
               card:
                 type: entities
                 show_header_toggle: false
                 entities:
-                  - entity: sensor.infraroodpanel_noa_current_consumption
+                  - entity: sensor.infrarood_noa_current_consumption
 
             - type: entities
               show_header_toggle: false

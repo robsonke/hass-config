@@ -14,7 +14,21 @@ template:
         friendly_name: Pool Pump Active
       state: >
         {{ states('sensor.pool_shelly_3em_active_power_phase_b') | float > 20 }}
-
+  - lock:
+    - unique_id: aquadeck_rol_dek
+      name: Aquadeck rol dek
+      lock:
+      - action: switch.turn_on
+        target:
+          entity_id:
+          - switch.pool_deck_lock
+      unlock:
+      - action: switch.turn_off
+        target:
+          entity_id:
+          - switch.pool_deck_lock
+      optimistic: false
+      state: "{{ is_state('switch.pool_deck_lock', 'on') }}"
   - sensor:
     - name: "Pool Pump Frequency Level"
       icon: mdi:fan-chevron-down
@@ -51,6 +65,37 @@ template:
       state: >
         {{ states('number.pool_fairland_heatpump_target_temperature_heating') | int(default=0) - states('sensor.pool_fairland_heatpump_inlet_water_temperature') | int(default=0) }}
 
+  - light:
+    - unique_id: pool_light
+      turn_on:
+      - action: light.turn_on
+        target:
+          entity_id:
+          - light.pool_lights_pool_lights
+      turn_off:
+      - action: light.turn_off
+        target:
+          entity_id:
+          - light.pool_lights_pool_lights
+      set_level:
+      - action: esphome.m5stickc_pool_lights_send_uart_command
+        data_template:
+          command: PD{{ '%03d' % (brightness / 255 * 100) | float | round(0) }}
+      set_rgb:
+      - action: esphome.m5stickc_pool_lights_set_color
+        data:
+          color: PC{{ '%03d' % r }}{{ '%03d' % g }}{{ '%03d' % b }}
+      set_effect:
+      - action: esphome.m5stickc_pool_lights_send_uart_command
+        data_template:
+          command: PS{{ effect[:2] }}
+      default_entity_id: light.pool_light
+      name: Pool Light
+      effect_list: '{{ state_attr(''input_select.pool_light_program_options'', ''options'')
+        }}'
+      effect: '{{ states.input_select.pool_light_program_options.state }}'
+      state: '{{ states.light.pool_lights_pool_lights.state }}'
+
 # en/disable all automations for pool
 input_boolean:
   enable_pool_automations:
@@ -85,48 +130,6 @@ input_select:
       - 14. Sun White
     icon: mdi:palette
 
-# and combine this into a light template
-light:
-  - platform: template
-    lights:
-      pool_light:
-        friendly_name: "Pool Light"
-        unique_id: pool_light
-        #level_template: "{{ states.input_number.pool_light_brightness.state|int }}"
-        value_template: "{{ states.light.pool_lights_pool_lights.state }}"
-        # temperature_template: "{{states.input_number.pool_light_temperature.state | int}}"
-        effect_list_template: "{{ state_attr('input_select.pool_light_program_options', 'options') }}"
-        effect_template: "{{ states.input_select.pool_light_program_options.state }}"
-        turn_on:
-          action: light.turn_on
-          target:
-            entity_id: light.pool_lights_pool_lights
-        turn_off:
-          action: light.turn_off
-          target:
-            entity_id: light.pool_lights_pool_lights
-        set_level:
-          action: esphome.m5stickc_pool_lights_send_uart_command
-          #service: script.pool_light_set_brightness
-          data_template:
-            command: >-
-              PD{{ '%03d' % (brightness / 255 * 100) | float | round(0) }}
-            # value: >- 
-            #   {{ (brightness / 255 * 100) | float | round(0) }}
-        set_rgb:
-          action: esphome.m5stickc_pool_lights_set_color
-          data:
-            color: "PC{{ '%03d' % r }}{{ '%03d' % g }}{{ '%03d' % b }}"
-        # set_temperature:
-        #   service: esphome.m5stickc_pool_lights_send_uart_command
-        #   data_template:
-        #     command: >-
-        #       PT{{ (color_temp * 50 + 500 ) | float | round(0) }}
-        set_effect:
-          - action: esphome.m5stickc_pool_lights_send_uart_command
-            data_template:
-              command: PS{{ effect[:2] }}
-
 sensor:
   # Warmtepomp
   - platform: integration
@@ -153,16 +156,4 @@ sensor:
     unit_prefix: k
     round: 2
 
-lock:
-  - platform: template
-    unique_id: aquadeck_rol_dek
-    name: Aquadeck rol dek
-    value_template: "{{ is_state('switch.pool_deck_lock', 'on') }}"
-    lock:
-      action: switch.turn_on
-      target:
-        entity_id: switch.pool_deck_lock
-    unlock:
-      action: switch.turn_off
-      target:
-        entity_id: switch.pool_deck_lock
+

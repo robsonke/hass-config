@@ -138,7 +138,6 @@ binary_sensor:
     device_class: opening
     entities:
       - binary_sensor.sheddoor_openclose_contact
-      - binary_sensor.sheddoor_back_openclose_contact
       - binary_sensor.cabindoor_openclose_contact
   - platform: group
     unique_id: doors_and_windows
@@ -148,7 +147,7 @@ binary_sensor:
       - binary_sensor.backdoor_sensor_contact
       - binary_sensor.frontdoor_openclose_contact
       - binary_sensor.sheddoor_openclose_contact
-      - binary_sensor.sheddoor_back_openclose_contact
+      - binary_sensor.cabindoor_openclose_contact
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact

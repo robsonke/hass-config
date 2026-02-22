@@ -13,9 +13,6 @@ browser_mod:
       cards:
         - type: custom:button-card
           entity: sensor.hass_version_installed
-          triggers_update:
-            - sensor.hass_version_latest
-            - sensor.hass_release_notes
           template:
             - updates_hass
         - type: custom:auto-entities

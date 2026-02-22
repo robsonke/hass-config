@@ -124,7 +124,7 @@ browser_mod:
           view_layout:
             grid-area: camera
           cards:
-            - type: custom:frigate-card
+            - type: custom:advanced-camera-card
               dimensions:
                 aspect_ratio_mode: unconstrained
               view:

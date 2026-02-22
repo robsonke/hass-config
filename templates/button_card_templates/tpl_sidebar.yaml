@@ -1,32 +1,3 @@
-
-#################################################
-#                                               #
-#                 BASE_SIDEBAR                  #
-#                                               #
-#################################################
-
-base_sidebar:
-  show_name: true
-  styles:
-    card:
-      - font-family: Sf Display
-      - border-radius: var(--custom-button-card-border-radius)
-      - color: var(--sidebar-font-color)
-    name:
-      - justify-self: start
-      - align-self: left
-  triggers_update: sensor.time
-  extra_styles: |
-    #card {
-      padding: 1vw 1vw 0 1vw;
-      border-width: 0;
-    }
-    #container {
-      border: 1px solid;
-      border-radius: 8px;
-      border-color: var(--sidebar-border-color);
-    }
-
 #################################################
 #                                               #
 #                    SIDEBAR                    #

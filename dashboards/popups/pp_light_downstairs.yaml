@@ -116,8 +116,8 @@ browser_mod:
               variables:
                 - title: Toilet
                 - entity: light.toilet_downstairs_light
-            # - type: custom:decluttering-card
-            #   template: light_button
-            #   variables:
-            #     - title: Kerstverlichting
-            #     - entity: light.kerst_binnen
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
+                - title: Kerstverlichting
+                - entity: light.kerst_binnen

@@ -34,7 +34,7 @@ homeassistant:
         fd4a:9fa0:9a73:665f:34:f808:f582:d99f: fea3a3dc19f743db83b7942c001b2e58
       allow_bypass_login: true
     - type: homeassistant
-    
+
 
 assist_pipeline:
   debug_recording_dir: /config/downloads

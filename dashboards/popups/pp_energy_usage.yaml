@@ -118,7 +118,7 @@ browser_mod:
                 - entity: sensor.nordpool_kwh_nl_eur_3_10_021
                   data_generator: |
                     return entity.attributes.raw_today.map((entry) => {
-                      let value = (entry.value + (0.1228));
+                      let value = (entry.value + (0.1108));
                       return [new Date(entry.start), value];
                     });
                   type: column
@@ -160,7 +160,7 @@ browser_mod:
                     let hour = new Date().getHours();
                     if (hour >= 13) {
                       return entity.attributes.raw_tomorrow.map((entry) => {
-                        let value = (entry.value + (0.1228));
+                        let value = (entry.value + (0.1108));
                         return [new Date(entry.start), value];
                       });
                     }

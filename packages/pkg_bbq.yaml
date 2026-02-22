@@ -43,22 +43,21 @@ input_boolean:
     icon: mdi:grill-outline
     initial: true
 
-sensor:
-  - platform: template
-    sensors:
-      target_alert_temp_probe_1:
-        friendly_name: "Grill Temp Alert"
-        value_template: >-
-          {% if (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int(default=0)) < (states('input_number.grill_alert_low') | int) or (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int(default=0))  > (states('input_number.grill_alert_high') | int) %}
-            Alert
-          {% else %}
-            Normal
-          {% endif %}
-      target_alert_temp_probe_2:
-        friendly_name: "Probe 2 Target Alert"
-        value_template: >-
-          {% if (states('sensor.inkbird_ibt_2x_temperature_probe_2') | int(default=0)) >= (states('input_number.grill_probe_2_target') | int(default=0)) %}
-            Alert
-          {% else %}
-            Normal
-          {% endif %}
+template:
+  - sensor:
+    - default_entity_id: sensor.target_alert_temp_probe_1
+      name: Grill Temp Alert
+      state: >-
+        {% if (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int(default=0)) < (states('input_number.grill_alert_low') | int) or (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int(default=0))  > (states('input_number.grill_alert_high') | int) %}
+          Alert
+        {% else %}
+          Normal
+        {% endif %}
+    - default_entity_id: sensor.target_alert_temp_probe_2
+      name: Probe 2 Target Alert
+      state: >-
+        {% if (states('sensor.inkbird_ibt_2x_temperature_probe_2') | int(default=0)) >= (states('input_number.grill_probe_2_target') | int(default=0)) %}
+          Alert
+        {% else %}
+          Normal
+        {% endif %}

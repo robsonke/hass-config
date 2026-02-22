@@ -126,6 +126,8 @@ blueprint:
   source_url: https://gist.github.com/robsonke/73f7c683ac6f87a7e9e5fe67f2f7e660
 mode: restart
 max_exceeded: silent
+trace:
+  stored_traces: 50
 variables:
   local_night_end: !input night_time_end_helper
   local_night_start: !input night_time_start_helper
@@ -141,7 +143,7 @@ variables:
     {{ local_day_brightness }}
     {% else %} {{ local_night_brightness }} {% endif %}
 trigger:
-  platform: state
+  trigger: state
   entity_id: !input motion_entity
   from: 'off'
   to: 'on'
@@ -158,7 +160,7 @@ action:
   data:
     brightness_pct: '{{ local_current_brightness }}'
 - wait_for_trigger:
-    platform: state
+    trigger: state
     entity_id: !input motion_entity
     from: 'on'
 - delay: ' {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
