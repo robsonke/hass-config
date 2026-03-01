@@ -176,7 +176,7 @@ sonos:
   variables:
     unit: ''
     state: >
-      [[[ 
+      [[[
         if (!entity.attributes.entity_id) return false;
         return entity === undefined || entity.attributes.entity_id.map(e => states[e]).filter(state => state.state === 'playing').length > 0 ? 'Playing' : 'Pause';
       ]]]
@@ -267,6 +267,7 @@ sonos_downstairs:
                 - groups
                 - queue
               entityId: media_player.eetkamer
+              #entityPlatform: music_assistant
               entities:
                 - media_player.eetkamer
                 - media_player.living_room
@@ -284,17 +285,21 @@ sonos_downstairs:
                     - player: media_player.living_room
               topFavorites:
                 - 'NPO Radio 2'
-              artworkAsBackground: true
-              hideVolumeCogwheel: false
-              skipApplyButtonWhenGrouping: true
+              player:
+                artworkAsBackground: true
+              volumes:
+                hideCogwheel: false
+              grouping:
+                skipApplyButton: true
+              mediaBrowser:
+                itemsPerRow: 3
+                replaceHttpWithHttpsForThumbnails: true
               adjustVolumeRelativeToMainPlayer: true
               widthPercentage: 100
               heightPercentage: 100
-              mediaBrowserItemsPerRow: 3
               dynamicVolumeSlider: true
               dynamicVolumeSliderThreshold: 40
               dynamicVolumeSliderMax: 40
-              replaceHttpWithHttpsForThumbnails: true
               card_mod:
                 style: |
                   ha-card {
@@ -328,17 +333,21 @@ sonos_downstairs:
                     - player: media_player.living_room
               topFavorites:
                 - 'Techno'
-              artworkAsBackground: true
-              hideVolumeCogwheel: false
-              skipApplyButtonWhenGrouping: true
+              player:
+                artworkAsBackground: true
+              volumes:
+                hideCogwheel: false
+              grouping:
+                skipApplyButton: true
+              mediaBrowser:
+                itemsPerRow: 3
+                replaceHttpWithHttpsForThumbnails: true
               adjustVolumeRelativeToMainPlayer: true
               widthPercentage: 100
               heightPercentage: 100
-              mediaBrowserItemsPerRow: 3
               dynamicVolumeSlider: true
               dynamicVolumeSliderThreshold: 40
               dynamicVolumeSliderMax: 40
-              replaceHttpWithHttpsForThumbnails: true
               card_mod:
                 style: |
                   ha-card {
@@ -368,17 +377,21 @@ sonos_upstairs:
             - media_player.slaapkamer_sonos
           topFavorites:
             - 'NPO Radio 2'
-          artworkAsBackground: true
-          hideVolumeCogwheel: false
-          skipApplyButtonWhenGrouping: true
+          player:
+            artworkAsBackground: true
+          volumes:
+            hideCogwheel: false
+          grouping:
+            skipApplyButton: true
+          mediaBrowser:
+            itemsPerRow: 3
+            replaceHttpWithHttpsForThumbnails: true
           adjustVolumeRelativeToMainPlayer: true
           widthPercentage: 100
           heightPercentage: 100
-          mediaBrowserItemsPerRow: 3
           dynamicVolumeSlider: true
           dynamicVolumeSliderThreshold: 20
           dynamicVolumeSliderMax: 20
-          replaceHttpWithHttpsForThumbnails: true
           card_mod:
             style: |
               ha-card {

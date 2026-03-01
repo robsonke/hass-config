@@ -29,8 +29,23 @@ browser_mod:
             - type: custom:decluttering-card
               template: light_button
               variables:
+                - entity: light.roofceiling_garden_light
+                - title: Overkapping Spots
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
+                - entity: light.veranda_light
+                - title: Blokhut Spots
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
                 - entity: light.shed_light
-                - title: Schuur
+                - title: Schuur Voor
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
+                - entity: light.shed_switch_1
+                - title: Schuur Achter
             - type: divider
             - type: custom:decluttering-card
               template: light_button
@@ -42,11 +57,6 @@ browser_mod:
               variables:
                 - entity: light.woodshed_light
                 - title: Houthok
-            - type: custom:decluttering-card
-              template: light_button
-              variables:
-                - entity: light.veranda_light
-                - title: Veranda
             - type: custom:decluttering-card
               template: light_button
               variables:
@@ -68,11 +78,11 @@ browser_mod:
               variables:
                 - entity: light.palm2_light
                 - title: Palm 2
-            - type: custom:decluttering-card
-              template: light_button
-              variables:
-                - entity: light.kerst_buiten
-                - title: Kerstverlichting
+            # - type: custom:decluttering-card
+            #   template: light_button
+            #   variables:
+            #     - entity: light.kerst_buiten
+            #     - title: Kerstverlichting
 
         - type: entities
           view_layout:

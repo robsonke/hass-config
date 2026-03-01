@@ -41,3 +41,5 @@ frigate*
 # And ignore the ignore for some files
 !/.storage/lovelace
 !/themes/custom_dark
+
+.claude/settings.local.json

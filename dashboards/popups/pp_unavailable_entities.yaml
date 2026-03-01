@@ -1,0 +1,55 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    type: custom:popup-card
+    title: Offline Entities
+    timeout: 60000
+    content:
+      type: vertical-stack
+      cards:
+        - type: custom:auto-entities
+          card:
+            type: entities
+            title: Unavailable Entities
+            show_header_toggle: false
+            card_mod:
+              class: content
+          show_empty: false
+          filter:
+            include:
+              - group: group.monitored_entities
+                state: 'unavailable'
+                options:
+                  secondary_info: last-changed
+              - group: group.monitored_entities
+                state: 'unknown'
+                options:
+                  secondary_info: last-changed
+              - group: group.monitored_entities
+                state: 'none'
+                options:
+                  secondary_info: last-changed
+          sort:
+            method: name
+
+        - type: entities
+          show_header_toggle: false
+          entities:
+            - type: custom:fold-entity-row
+              head:
+                type: section
+                label: Raw Attributes
+              entities:
+                - type: attribute
+                  entity: sensor.unavailable_entities
+                  name: Unit of Measurement
+                  attribute: unit_of_measurement
+                - type: attribute
+                  entity: sensor.unavailable_entities
+                  name: Icon
+                  attribute: icon
+                - type: attribute
+                  entity: sensor.unavailable_entities
+                  name: State Class
+                  attribute: state_class

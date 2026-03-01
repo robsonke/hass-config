@@ -35,11 +35,13 @@ browser_mod:
                 - entity: sensor.hass_version_installed
                   name: Versie
                   icon: mdi:home-assistant
-                - type: attribute
-                  entity: sensor.unavailable_entities
+                - entity: sensor.unavailable_entities
                   name: Offline belangrijke entities
-                  attribute: count
                   icon: mdi:alert-circle
+                  type: custom:template-entity-row
+                  state: "{{ state_attr('sensor.unavailable_entities', 'count') }}"
+                  tap_action:
+                    !include pp_unavailable_entities.yaml
                 - type: attribute
                   entity: binary_sensor.important_addons
                   name: Offline Addons
@@ -75,7 +77,7 @@ browser_mod:
                     - entity: sensor.glances_data_used_percent
                       icon: mdi:server
                       name: Disk Usage
-                
+
             - type: custom:auto-entities
               card:
                 type: entities
