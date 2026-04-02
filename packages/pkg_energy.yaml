@@ -338,6 +338,7 @@ utility_meter:
 template:
   - sensor:
     - unique_id: daily_consumption_energy
+      name: "Daily Consumption Energy"
       attributes:
         friendly_name: "Daily Consumption Energy"
       unit_of_measurement: kWh
@@ -345,6 +346,7 @@ template:
       state_class: total_increasing
       state: "{{ states('sensor.daily_energy_offpeak')|float + states('sensor.daily_energy_peak')|float }}"
     - unique_id: monthly_consumption_energy
+      name: "Monthly Consumption Energy"
       attributes:
         friendly_name: "Monthly Consumption Energy"
       unit_of_measurement: kWh
@@ -352,6 +354,7 @@ template:
       state_class: total_increasing
       state: "{{ states('sensor.monthly_energy_offpeak')|float + states('sensor.monthly_energy_peak')|float }}"
     - unique_id: yearly_consumption_energy
+      name: "Yearly Consumption Energy"
       attributes:
         friendly_name: "Yearly Consumption Energy"
       unit_of_measurement: kWh
@@ -359,8 +362,8 @@ template:
       state_class: total_increasing
       state: "{{ states('sensor.yearly_energy_offpeak')|float + states('sensor.yearly_energy_peak')|float }}"
     - unique_id: net_power_consumption
+      name: "Net Power Consumption"
       attributes:
-        friendly_name: "Net Power Consumption"
         icon: "mdi:home-lightning-bolt-outline"
       unit_of_measurement: kW
       device_class: power
@@ -368,12 +371,14 @@ template:
       state: "{{ states('sensor.solaredge_dc_power')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
     # same sensor but with other unit of measurement
     - unique_id: power_consumption_watt
+      name: Power Consumption Watt
       attributes:
         friendly_name: Power Consumption Watt
       unit_of_measurement: 'W'
       state: "{{ states('sensor.power_consumption') | float(default=0) * 1000 | round(0) }}"
     # convert the uptime one to a real value
     - unique_id: ha_uptime
+      name: 'HA uptime minutes'
       attributes:
         friendly_name: 'HA uptime minutes'
       icon: mdi:arrow-up-circle-outline

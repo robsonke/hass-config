@@ -36,15 +36,15 @@ browser_mod:
               variables:
                 - entity: light.veranda_light
                 - title: Blokhut Spots
+            # - type: custom:decluttering-card
+            #   template: light_button
+            #   variables:
+            #     - entity: light.shed_light_front
+            #     - title: Schuur Voor
             - type: custom:decluttering-card
               template: light_button
               variables:
-                - entity: light.shed_light
-                - title: Schuur Voor
-            - type: custom:decluttering-card
-              template: light_button
-              variables:
-                - entity: light.shed_switch_1
+                - entity: light.shed_light_back
                 - title: Schuur Achter
             - type: divider
             - type: custom:decluttering-card

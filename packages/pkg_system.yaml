@@ -213,6 +213,7 @@ group:
       - sensor.today_maximum_temperature
       - sensor.hue_motion_sensor_hall_illuminance
       - binary_sensor.hue_motion_sensor_hall_occupancy
+      - binary_sensor.window_office_openclose_contact
 
   ignored_entities:
     entities:

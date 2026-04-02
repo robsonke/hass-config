@@ -8,6 +8,24 @@
 # https://github.com/robsonke/hass-config
 #
 
+lovelace:
+  mode: storage
+  dashboards:
+    lovelace-mushroom:
+      mode: yaml
+      filename: dashboards/mushroom-dashboard.yaml
+      title: Mushroom
+      icon: mdi:mushroom
+      show_in_sidebar: true
+      require_admin: false
+    lovelace-main:
+      mode: yaml
+      filename: dashboards/main-dashboard.yaml
+      title: Home
+      icon: mdi:home
+      show_in_sidebar: true
+      require_admin: false
+
 homeassistant:
   packages: !include_dir_named packages
   name: Home

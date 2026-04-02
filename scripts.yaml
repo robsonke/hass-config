@@ -78,7 +78,7 @@ sleep_well:
       - light.ledstrip_office
       - light.keuken
       - light.woonkamer
-      - light.boekenkast
+      - light.ledstrip_book
       - light.ledstrip_tv
     action: light.turn_off
   - data:
@@ -172,7 +172,7 @@ lights_down_stairs_off:
       - light.keuken
       - light.woonkamer
       - light.kitchendesk_light
-      - light.boekenkast
+      - light.ledstrip_book
       - light.ledstrip_tv
       - light.diningtable_light
     action: light.turn_off

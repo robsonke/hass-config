@@ -1,0 +1,496 @@
+button_card_templates: !include_dir_merge_named ../templates/button_card_templates
+decluttering_templates: !include ../templates/decluttering_templates.yaml
+
+wallpanel:
+  enabled: true
+  hide_toolbar: false
+  idle_time: 0
+
+views:
+  - type: sections
+    title: Mushroom
+    path: mushroom
+    theme: Frosted Glass Dark
+    max_columns: 4
+
+    # Navbar card — fixed position at bottom of screen
+    cards:
+      - type: custom:navbar-card
+        desktop:
+          position: bottom
+        routes:
+          - icon: mdi:cog-outline
+            icon_selected: mdi:cog
+            url: null
+            tap_action:
+              !include popups/pp_footer_system.yaml
+            label: Settings
+            badge:
+              color: var(--accent-color)
+              show: |
+                [[[
+                  return (parseInt(states['sensor.unavailable_entities'].attributes['count'])
+                          + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1)) > 0;
+                ]]]
+              count: |
+                [[[
+                  return parseInt(states['sensor.unavailable_entities'].attributes['count'])
+                          + (states['binary_sensor.important_addons'].state === 'on' ? 0 : 1);
+                ]]]
+          - icon: mdi:fire
+            icon_selected: mdi:fire
+            url: null
+            tap_action:
+              !include popups/pp_footer_stookalert.yaml
+            label: Stookwijzer
+            badge:
+              show: |
+                [[[
+                  return states['sensor.stookwijzer'].state === 'code_red';
+                ]]]
+              color: var(--accent-color)
+          - icon: mdi:repeat-off
+            icon_selected: mdi:repeat-off
+            url: null
+            tap_action:
+              !include popups/pp_footer_update.yaml
+            label: Updates
+            hidden: |
+              [[[
+                return parseInt(states['sensor.all_updates'].state) === 0;
+              ]]]
+            badge:
+              show: true
+              color: var(--accent-color)
+              count: |
+                [[[
+                  return parseInt(states['sensor.all_updates'].state);
+                ]]]
+
+    sections:
+
+      ##################################################
+      #                                                #
+      #              Status Chips                      #
+      #                                                #
+      ##################################################
+
+      - column_span: 4
+        cards:
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: alarm-control-panel
+                entity: alarm_control_panel.alarmo
+                tap_action:
+                  !include popups/pp_alarm.yaml
+              - type: entity
+                entity: person.rob
+                tap_action:
+                  !include popups/pp_person_rob.yaml
+              - type: entity
+                entity: person.steffi
+                tap_action:
+                  !include popups/pp_person_steffi.yaml
+              - type: template
+                icon: mdi:door-open
+                content: "{{ states('sensor.open_windows_and_doors') }}"
+                icon_color: >
+                  {% if states('sensor.open_windows_and_doors') | int(0) > 0 %}orange{% else %}disabled{% endif %}
+                tap_action:
+                  !include popups/pp_doors_downstairs.yaml
+              - type: template
+                icon: mdi:lightning-bolt
+                content: "{{ states('sensor.net_power_consumption') | int(0) }} W"
+                icon_color: >
+                  {% set p = states('sensor.net_power_consumption') | float(0) %}
+                  {% if p > 0 %}red{% elif p < 0 %}green{% else %}grey{% endif %}
+                tap_action:
+                  !include popups/pp_energy_usage.yaml
+              - type: template
+                icon: mdi:update
+                content: "{{ states('sensor.all_updates') }}"
+                icon_color: >
+                  {% if states('sensor.all_updates') | int(0) > 0 %}orange{% else %}disabled{% endif %}
+                tap_action:
+                  !include popups/pp_footer_update.yaml
+                conditions:
+                  - condition: state
+                    entity: sensor.all_updates
+                    state_not: "0"
+
+      ##################################################
+      #                                                #
+      #              Weer & Mensen                     #
+      #                                                #
+      ##################################################
+
+      - title: Weer & Mensen
+        cards:
+          - type: custom:clock-weather-card
+            entity: weather.weather_langeweide_ecowitt
+            tap_action:
+              !include popups/pp_sidebar_weather.yaml
+            hold_action:
+              action: call-service
+              service: script.reload_frontend
+            sun_entity: sun.sun
+            weather_icon_type: line
+            animated_icon: true
+            forecast_rows: 5
+            locale: nl
+            time_pattern: HH:mm
+            time_format: 24
+            date_pattern: cccc d MMMM
+            hide_today_section: false
+            hide_forecast_section: false
+            show_humidity: false
+            hide_clock: false
+            hide_date: false
+            hourly_forecast: false
+            use_browser_time: false
+            time_zone: Europe/Amsterdam
+            show_decimal: false
+
+          - type: custom:mushroom-person-card
+            entity: person.rob
+            layout: horizontal
+            tap_action:
+              !include popups/pp_person_rob.yaml
+
+          - type: custom:mushroom-person-card
+            entity: person.steffi
+            layout: horizontal
+            tap_action:
+              !include popups/pp_person_steffi.yaml
+
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                entity: camera.evabed
+                show_entity_picture: true
+                hide_state: true
+                tap_action:
+                  !include popups/pp_person_eva.yaml
+                icon_tap_action:
+                  !include popups/pp_person_eva.yaml
+              - type: tile
+                entity: camera.noabed
+                show_entity_picture: true
+                hide_state: true
+                tap_action:
+                  !include popups/pp_person_noa.yaml
+                icon_tap_action:
+                  !include popups/pp_person_noa.yaml
+
+          - type: custom:mushroom-vacuum-card
+            entity: vacuum.sjorsje
+            icon_animation: true
+            layout: horizontal
+
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.guest_mode
+            icon: mdi:account-multiple
+            name: Gastmodus
+            layout: horizontal
+
+          - type: custom:trash-card
+            entities:
+              - calendar.papierbak
+              - calendar.grijzebak
+              - calendar.groenebak
+            event_grouping: true
+            drop_todayevents_from: "10:00:00"
+            next_days: 35
+            pattern:
+              - icon: mdi:flower
+                color: light-green
+                type: organic
+                pattern: Groen
+              - icon: mdi:newspaper
+                color: blue
+                type: paper
+                pattern: Papier
+              - icon: mdi:recycle-variant
+                color: amber
+                type: recycle
+              - icon: mdi:trash-can-outline
+                color: grey
+                type: waste
+                pattern: Grijze
+              - icon: mdi:dump-truck
+                color: purple
+                type: others
+            day_style: counter
+            day_style_format: yyyy.MM.dd
+            card_style: chip
+            alignment_style: center
+            color_mode: icon
+            items_per_row: 1
+            refresh_rate: 60
+            with_label: true
+            layout: default
+            filter_events: false
+            only_all_day_events: false
+            use_summary: false
+
+      ##################################################
+      #                                                #
+      #              Huis                              #
+      #                                                #
+      ##################################################
+
+      - title: Huis
+        cards:
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.alarmo
+            states:
+              - disarmed
+              - armed_night
+              - armed_away
+            tap_action:
+              !include popups/pp_alarm.yaml
+
+          - type: custom:mushroom-template-card
+            primary: BMW iX3
+            secondary: >
+              {{ states('sensor.ehhatdgg_status') | replace('_', ' ') }}
+              · {{ states('sensor.ix3_remaining_electric_range_km') }} km
+            icon: mdi:car-electric
+            icon_color: >
+              {% set s = states('sensor.ehhatdgg_status') %}
+              {% if s == 'charging' %}blue
+              {% elif s == 'disconnected' %}grey
+              {% else %}green{% endif %}
+            badge_icon: >
+              {% if states('sensor.ehhatdgg_status') == 'charging' %}mdi:battery-charging{% endif %}
+            badge_color: green
+            layout: horizontal
+            tap_action:
+              !include popups/pp_car_ix3.yaml
+
+          - type: custom:mushroom-cover-card
+            entity: cover.covers_downstairs
+            name: Screens
+            show_buttons_control: true
+            show_position_control: false
+            layout: horizontal
+            tap_action:
+              !include popups/pp_covers.yaml
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.picnic_cart_items_count
+            icon: mdi:cart
+            name: Picnic
+            layout: horizontal
+            tap_action:
+              !include popups/pp_picnic.yaml
+
+      ##################################################
+      #                                                #
+      #              Beneden                           #
+      #                                                #
+      ##################################################
+
+      - title: Beneden
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.lights_downstairs
+            name: Verlichting
+            show_brightness_control: true
+            show_color_temp_control: false
+            show_color_control: false
+            collapsible_controls: true
+            layout: horizontal
+            tap_action:
+              !include popups/pp_light_downstairs.yaml
+
+          - type: custom:mushroom-climate-card
+            entity: climate.warmtepomp
+            name: Warmtepomp
+            hvac_modes:
+              - heat
+              - cool
+              - "off"
+            show_temperature_control: true
+            collapsible_controls: true
+            layout: horizontal
+            tap_action:
+              !include popups/pp_energy_heating.yaml
+
+          - type: custom:mushroom-media-player-card
+            entity: media_player.music_downstairs
+            name: Muziek
+            use_media_info: true
+            show_volume_level: true
+            collapsible_controls: true
+            media_controls:
+              - play_pause_stop
+              - previous
+              - next
+            layout: horizontal
+
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.doors_and_windows_downstairs
+            icon: mdi:door
+            name: Deuren
+            layout: horizontal
+            tap_action:
+              !include popups/pp_doors_downstairs.yaml
+
+      ##################################################
+      #                                                #
+      #              Boven                             #
+      #                                                #
+      ##################################################
+
+      - title: Boven
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.lights_upstairs
+            name: Verlichting
+            show_brightness_control: true
+            show_color_temp_control: false
+            show_color_control: false
+            collapsible_controls: true
+            layout: horizontal
+            tap_action:
+              !include popups/pp_light_upstairs.yaml
+
+          - type: custom:mushroom-template-card
+            primary: Klimaat
+            secondary: >
+              {{ state_attr('climate.eurom_alutherm_baseboard_heater', 'current_temperature') | round(1) }}°C
+            icon: mdi:thermometer
+            icon_color: >
+              {% set power = states('sensor.eurom_alutherm_power') | float(0) %}
+              {% set badkamer = states('sensor.shelly_plug_badkamer_verwarming_power') | float(0) %}
+              {% set douche = states('sensor.shelly_plug_douche_verwarming_power') | float(0) %}
+              {% set eva = states('switch.infrarood_eva') %}
+              {% set noa = states('switch.infrarood_noa') %}
+              {% if power > 50 or badkamer > 50 or douche > 50 or eva == 'on' or noa == 'on' %}red{% else %}blue{% endif %}
+            layout: horizontal
+            tap_action:
+              !include popups/pp_climate_upstairs.yaml
+
+          - type: custom:mushroom-media-player-card
+            entity: media_player.music_upstairs
+            name: Muziek
+            use_media_info: true
+            show_volume_level: true
+            collapsible_controls: true
+            media_controls:
+              - play_pause_stop
+              - previous
+              - next
+            layout: horizontal
+
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.doors_and_windows_upstairs
+            icon: mdi:window-open
+            name: Ramen
+            layout: horizontal
+            tap_action:
+              !include popups/pp_doors_upstairs.yaml
+
+      ##################################################
+      #                                                #
+      #              Tuin                              #
+      #                                                #
+      ##################################################
+
+      - title: Tuin
+        column_span: 2
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Zwembad
+            secondary: "{{ states('sensor.pool_deck_status') }}"
+            icon: mdi:pool
+            icon_color: >
+              {% if states('binary_sensor.pool_pump_active') == 'on' %}blue{% else %}grey{% endif %}
+            layout: horizontal
+            tap_action:
+              !include popups/pp_pool_garden.yaml
+
+          - type: custom:mushroom-light-card
+            entity: light.lights_garden
+            name: Verlichting
+            show_brightness_control: true
+            show_color_temp_control: false
+            show_color_control: false
+            collapsible_controls: true
+            layout: horizontal
+            tap_action:
+              !include popups/pp_light_garden.yaml
+
+          - type: custom:mushroom-entity-card
+            entity: switch.irrigatie_zones
+            icon: mdi:sprinkler
+            name: Beregening
+            layout: horizontal
+            tap_action:
+              !include popups/pp_irrigation_garden.yaml
+
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.doors_and_windows_garden
+            icon: mdi:gate
+            name: Deuren
+            layout: horizontal
+            tap_action:
+              !include popups/pp_doors_garden.yaml
+
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.motion_sensor_cats_occupancy
+            icon: mdi:cat
+            name: Boris & Puk
+            layout: horizontal
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.inkbird_ibt_2x_temperature_probe_1
+            icon: mdi:grill
+            name: BBQ
+            layout: horizontal
+            tap_action:
+              !include popups/pp_bbq_garden.yaml
+
+      ##################################################
+      #                                                #
+      #              Energie                           #
+      #                                                #
+      ##################################################
+
+      - title: Energie
+        column_span: 2
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Warm water
+            secondary: >
+              {{ state_attr('water_heater.domestic_hot_water_tank', 'current_temperature') | round(0) | int }}°C
+              / {{ state_attr('water_heater.domestic_hot_water_tank', 'temperature') | round(0) | int }}°C
+            icon: mdi:water-boiler
+            icon_color: >
+              {% set mode = state_attr('water_heater.domestic_hot_water_tank', 'operation_mode') %}
+              {% set target = state_attr('water_heater.domestic_hot_water_tank', 'temperature') | float(0) %}
+              {% set current = state_attr('water_heater.domestic_hot_water_tank', 'current_temperature') | float(0) %}
+              {% if mode == 'on' and (target - current) > 5 %}red{% else %}grey{% endif %}
+            layout: horizontal
+            tap_action:
+              !include popups/pp_energy_dhw.yaml
+
+          - type: custom:mushroom-template-card
+            primary: Energie
+            secondary: "{{ states('sensor.net_power_consumption') | int(0) }} W"
+            icon: mdi:lightning-bolt
+            icon_color: >
+              {% set p = states('sensor.net_power_consumption') | float(0) %}
+              {% if p > 0 %}red{% elif p < 0 %}green{% else %}grey{% endif %}
+            layout: horizontal
+            tap_action:
+              !include popups/pp_energy_usage.yaml
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.water_meter_current_usage
+            icon: mdi:water
+            name: Water
+            layout: horizontal
+            tap_action:
+              !include popups/pp_energy_water.yaml

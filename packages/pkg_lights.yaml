@@ -55,7 +55,7 @@ light:
       - light.ledstrip_tv
       - light.toilet_downstairs_light
       - light.dining_light
-      - light.boekenkast
+      - light.ledstrip_book
       - light.diningtable_light
       - light.kitchen_light
       - light.kitchencabin_light
@@ -119,7 +119,7 @@ light:
       - light.socket1_light_corner
       - light.ledstrip_tv
       - light.dining_light
-      - light.boekenkast
+      - light.ledstrip_book
       - light.kitchen_light
       - light.kitchencabin_light
       - light.ledstrip_office
@@ -131,5 +131,5 @@ light:
       - light.socket1_light_corner
       - light.ledstrip_tv
       - light.dining_light
-      - light.boekenkast
+      - light.ledstrip_book
       - light.ledstrip_office

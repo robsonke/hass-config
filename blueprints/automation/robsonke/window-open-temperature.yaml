@@ -23,10 +23,10 @@ blueprint:
           mode: slider
     window_sensor:
       name: Window / Door Sensor
-      description: Window Binary Sensor to check if opened. Entity can also be a group
-        of window/door entities.
+      description: Window Binary Sensor(s) to check if opened. Supports multiple entities.
       selector:
-        entity: {}
+        entity:
+          multiple: true
     actions:
       name: Actions when it's too cold
       description: Actions (e.g. pushing a notification, TTS announcement, ...)
@@ -54,6 +54,7 @@ condition:
 - condition: state
   entity_id: !input 'window_sensor'
   state: 'on'
+  match: any
 action:
 - choose: []
   default: !input 'actions'

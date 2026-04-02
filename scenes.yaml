@@ -136,7 +136,7 @@
       supported_features: 44
       assumed_state: false
       state: 'on'
-    light.boekenkast:
+    light.ledstrip_book:
       min_color_temp_kelvin: 1501
       max_color_temp_kelvin: 8000
       min_mireds: 125

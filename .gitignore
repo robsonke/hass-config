@@ -23,6 +23,7 @@ llmvision
 # And some files
 secrets.yaml
 esphome/secrets.yaml
+esphome/archive
 frigate.yml
 rtsp-simple-server.yml
 known_devices.yaml
@@ -42,4 +43,5 @@ frigate*
 !/.storage/lovelace
 !/themes/custom_dark
 
-.claude/settings.local.json
+.claude/
+.cache/

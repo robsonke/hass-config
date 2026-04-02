@@ -30,13 +30,8 @@ browser_mod:
               image: /local/images/bmwix3_icon.png
               elements:
                 - type: state-icon
-                  entity: binary_sensor.ix3_door_lock_state
+                  entity: binary_sensor.ix3_front_driver_side_door_status
                   tap_action: more-info
-                  # hold_action:
-                  #   action: call-service
-                  #   service: lock.lock
-                  #   target:
-                  #     entity_id: lock.ix3_lock
                   style:
                     top: 88.5%
                     left: 10%
@@ -47,25 +42,25 @@ browser_mod:
                     left: 10%
                     font-size: 0.8em
                 - type: state-icon
-                  entity: binary_sensor.ix3_windows
+                  entity: sensor.ix3_front_driver_side_window_status
                   tap_action: more-info
                   style:
                     top: 88.5%
                     left: 20%
                 - type: state-label
-                  entity: binary_sensor.ix3_windows
+                  entity: sensor.ix3_front_driver_side_window_status
                   style:
                     top: 95.5%
                     left: 20%
                     font-size: 0.8em
                 - type: state-icon
-                  entity: binary_sensor.ix3_lids
+                  entity: binary_sensor.ix3_trunk_lid_status
                   tap_action: more-info
                   style:
                     top: 88.5%
                     left: 30%
                 - type: state-label
-                  entity: binary_sensor.ix3_lids
+                  entity: binary_sensor.ix3_trunk_lid_status
                   style:
                     top: 95.5%
                     left: 30%
@@ -83,24 +78,24 @@ browser_mod:
                     left: 40%
                     font-size: 0.8em
                 - type: state-icon
-                  entity: binary_sensor.ix3_condition_based_services
+                  entity: sensor.ix3_service_next_inspection_date
                   tap_action: more-info
                   style:
                     top: 88.5%
                     left: 50%
                 - type: state-label
-                  entity: binary_sensor.ix3_condition_based_services
+                  entity: sensor.ix3_service_next_inspection_date
                   style:
                     top: 95.5%
                     left: 50%
                     font-size: 0.8em
                 - type: conditional
                   conditions:
-                    - entity: binary_sensor.ix3_connection_status
-                      state: 'on'
+                    - entity: sensor.ix3_charging_connector_status
+                      state_not: 'DISCONNECTED'
                   elements:
                     - type: state-icon
-                      entity: binary_sensor.ix3_connection_status
+                      entity: sensor.ix3_charging_connector_status
                       tap_action: more-info
                       icon: mdi:ev-plug-type2
                       style:
@@ -108,18 +103,18 @@ browser_mod:
                         left: 60%
                 - type: conditional
                   conditions:
-                    - entity: binary_sensor.ix3_charging_status
-                      state: 'on'
+                    - entity: sensor.charging_status
+                      state_not: 'NOT_CHARGING'
                   elements:
                     - type: state-label
-                      entity: sensor.ix3_charging_end_time
+                      entity: sensor.ix3_calculated_remaining_charging_time
                       prefix: ''
                       style:
                         top: 93.5%
                         right: '-5%'
                         font-size: 0.8em
                 - type: custom:circle-sensor-card
-                  entity: sensor.ix3_remaining_battery_percent
+                  entity: sensor.state_of_charge_last_known
                   max: 100
                   min: 0
                   stroke_width: 15
@@ -140,7 +135,7 @@ browser_mod:
                     height: 4em
                     transform: none
                 - type: custom:circle-sensor-card
-                  entity: sensor.ix3_remaining_range_electric
+                  entity: sensor.ix3_remaining_electric_range_km
                   max: 370
                   min: 0
                   stroke_width: 15
@@ -323,6 +318,6 @@ browser_mod:
           dark_mode: true
           hours_to_show: 24
           entities:
-            - device_tracker.ix3
+            - device_tracker.ix3_location
           view_layout:
             grid-area: map
