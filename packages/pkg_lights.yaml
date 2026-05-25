@@ -55,6 +55,7 @@ light:
       - light.ledstrip_tv
       - light.toilet_downstairs_light
       - light.dining_light
+      - light.eva_corridor_light
       - light.ledstrip_book
       - light.diningtable_light
       - light.kitchen_light
@@ -119,6 +120,7 @@ light:
       - light.socket1_light_corner
       - light.ledstrip_tv
       - light.dining_light
+      - light.eva_corridor_light
       - light.ledstrip_book
       - light.kitchen_light
       - light.kitchencabin_light

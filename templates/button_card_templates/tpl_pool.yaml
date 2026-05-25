@@ -18,13 +18,13 @@ pool:
       ]]]
     circle_input: >
       [[[
-        if (!states['sensor.pool_fairland_heatpump_inlet_water_temperature'] || states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state === 'unavailable') return 100;
-        return states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state / states['number.pool_fairland_heatpump_target_temperature_heating'].state * 100;
+        if (!states['sensor.fairland_zwembad_wpu_temp_inlet'] || states['sensor.fairland_zwembad_wpu_temp_inlet'].state === 'unavailable') return 100;
+        return states['sensor.fairland_zwembad_wpu_temp_inlet'].state / states['number.fairland_zwembad_wpu_target_temperature_heating'].state * 100;
       ]]]
     circle_text: >
       [[[
-        if (!states['sensor.pool_fairland_heatpump_inlet_water_temperature'] || states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state === 'unavailable') return '-';
-        return states['sensor.pool_fairland_heatpump_inlet_water_temperature'].state;
+        if (!states['sensor.fairland_zwembad_wpu_temp_inlet'] || states['sensor.fairland_zwembad_wpu_temp_inlet'].state === 'unavailable') return '-';
+        return states['sensor.fairland_zwembad_wpu_temp_inlet'].state;
       ]]]
     unit: "°C"
     icon: mdi:pool
@@ -35,9 +35,9 @@ pool:
             [[[
               let color = '';
               if (states['binary_sensor.pool_pump_active'].state === 'on') color = 'var(--blue)';
-              if (states['sensor.pool_fairland_heatpump_speed_percentage']) {
-                if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 0) color = 'var(--orange)';
-                if (states['sensor.pool_fairland_heatpump_speed_percentage'].state > 79) color = 'var(--red)';
+              if (states['sensor.fairland_zwembad_wpu_compressor_percent']) {
+                if (states['sensor.fairland_zwembad_wpu_compressor_percent'].state > 0) color = 'var(--orange)';
+                if (states['sensor.fairland_zwembad_wpu_compressor_percent'].state > 79) color = 'var(--red)';
               }
               return color;
             ]]]

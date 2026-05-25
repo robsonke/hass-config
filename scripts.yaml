@@ -2,12 +2,12 @@ flash_office:
   alias: Flash Office On
   sequence:
   - action: light.turn_on
-    data:
+    target:
       entity_id: light.office_light
   - delay:
       seconds: 1
   - action: light.turn_off
-    data:
+    target:
       entity_id: light.office_light
   - action: script.turn_on
     data:
@@ -18,10 +18,7 @@ flash_office_loop:
   alias: Flash Lights loop
   sequence:
   - delay:
-      hours: 0
-      minutes: 0
       seconds: 2
-      milliseconds: 0
   - action: script.turn_on
     data:
       entity_id: script.flash_office
@@ -31,7 +28,7 @@ sonos_say:
   alias: Sonos TTS script
   sequence:
   - action: media_player.play_media
-    data_template:
+    data:
       announce: true
       media_content_id: media-source://tts/tts.piper?message="{{ message }}"&language=nl_NL
       media_content_type: music
@@ -65,15 +62,13 @@ sleep_well:
     data:
       transition: 2
   - delay:
-      hours: 0
-      minutes: 0
       seconds: 1
-      milliseconds: 0
   - data:
       transition: 2
     target:
       entity_id:
       - light.dining_light
+      - light.eva_corridor_light
       - light.office_light
       - light.ledstrip_office
       - light.keuken
@@ -87,10 +82,7 @@ sleep_well:
       message: Slaap lekker
     action: script.sonos_say
   - delay:
-      hours: 0
-      minutes: 0
       seconds: 3
-      milliseconds: 0
   - target:
       entity_id: light.kitchendesk_light
     data: {}
@@ -114,8 +106,7 @@ lights_on_away:
       entity_id:
       - light.benedenverdieping_afwezig
     action: light.turn_on
-  - metadata: {}
-    data:
+  - data:
       brightness_pct: 25
     target:
       entity_id:
@@ -134,8 +125,7 @@ lights_on_home:
       entity_id:
       - light.benedenverdieping_aanwezig
     action: light.turn_on
-  - metadata: {}
-    data:
+  - data:
       brightness_pct: 25
     target:
       entity_id:
@@ -159,22 +149,19 @@ lights_down_stairs_off:
       transition: 2
     action: light.turn_off
   - delay:
-      hours: 0
-      minutes: 0
       seconds: 1
-      milliseconds: 0
   - data:
       transition: 2
     target:
       entity_id:
       - light.dining_light
+      - light.eva_corridor_light
       - light.ledstrip_office
       - light.keuken
       - light.woonkamer
       - light.kitchendesk_light
       - light.ledstrip_book
       - light.ledstrip_tv
-      - light.diningtable_light
     action: light.turn_off
   - action: light.turn_off
     target:
@@ -203,7 +190,7 @@ lights_off_upstairs:
   - action: light.turn_off
     data: {}
     target:
-      entity_id: group.lights_upstairs
+      entity_id: light.lights_upstairs
   mode: single
   icon: mdi:lamps-outline
 googlehome_play_sound:
@@ -212,34 +199,34 @@ googlehome_play_sound:
   icon: mdi:play
   sequence:
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: true
   - action: media_player.volume_set
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       volume_level: '{{ volume }}'
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false
   - action: media_player.play_media
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       media_content_type: music
       media_content_id: '{{ mp3_url }}'
   - delay:
       seconds: '{{ delay }}'
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: true
   - action: media_player.volume_set
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       volume_level: '{{ volume_restore }}'
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false
 googlehome_say:
@@ -248,32 +235,32 @@ googlehome_say:
   icon: mdi:play
   sequence:
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: true
   - action: media_player.volume_set
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       volume_level: '{{ volume | float }}'
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false
   - action: tts.google_translate_say
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       message: '{{ message }}'
   - delay:
       seconds: '{{ delay | float }}'
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: true
   - action: media_player.volume_set
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       volume_level: '{{ volume_restore | float }}'
   - action: media_player.volume_mute
-    data_template:
+    data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false

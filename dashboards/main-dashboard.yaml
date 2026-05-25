@@ -76,7 +76,7 @@ views:
             label: Huis
             selected: |
               [[[
-                const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+                const matchesPath = window.location.pathname == "/main-dashboard/0";
                 const hasAnchor = window.location.search.includes("anchor=top");
                 return matchesPath && hasAnchor;
               ]]]
@@ -86,7 +86,7 @@ views:
             label: Beneden
             selected: |
               [[[
-                const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+                const matchesPath = window.location.pathname == "/main-dashboard/0";
                 const hasAnchor = window.location.search.includes("anchor=downstairs-anchor");
                 return matchesPath && hasAnchor;
               ]]]
@@ -96,7 +96,7 @@ views:
             label: Boven
             selected: |
               [[[
-                const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+                const matchesPath = window.location.pathname == "/main-dashboard/0";
                 const hasAnchor = window.location.search.includes("anchor=upstairs-anchor");
                 return matchesPath && hasAnchor;
               ]]]
@@ -106,7 +106,7 @@ views:
           #   label: Tuin
           #   selected: |
           #     [[[
-          #       const matchesPath = window.location.pathname == "/main-dashboard/0"; 
+          #       const matchesPath = window.location.pathname == "/main-dashboard/0";
           #       const hasAnchor = window.location.search.includes("anchor=garden-anchor");
           #       return matchesPath && hasAnchor;
           #     ]]]
@@ -294,7 +294,7 @@ views:
             only_all_day_events: false
             use_summary: false
 
-            
+
       #################################################
       #                                               #
       #                  Downstairs                   #
@@ -360,7 +360,7 @@ views:
             template:
               - door_window_group_downstairs
             group_expand: true
-          
+
 
       #################################################
       #                                               #
@@ -517,6 +517,10 @@ views:
             template: bbq
             name: BBQ
             show_label: true
+          - type: custom:button-card
+            entity: lawn_mower.navimow_i108
+            template: lawn_mower
+            name: Grasmaaier
 
       #################################################
       #                                               #

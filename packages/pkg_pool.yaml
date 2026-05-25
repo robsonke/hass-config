@@ -34,12 +34,12 @@ template:
       icon: mdi:fan-chevron-down
       unique_id: pool_pump_frequency_level
       state: >
-        {% set pumpPower = states('sensor.pool_shelly_3em_active_power_phase_b') | float(default=0) %}
-        {% if pumpPower > 800 %}
+        {% set pumpPower = states('sensor.pool_shelly_3em_active_power_phase_b') | int(default=0) %}
+        {% if pumpPower > 775 %}
           FULL (3)
-        {% elif pumpPower > 680 and pumpPower < 775 %}
+        {% elif pumpPower > 620 and pumpPower <= 775 %}
           NORMAL (2)
-        {% elif pumpPower > 520 and pumpPower < 620 %}
+        {% elif pumpPower > 520 and pumpPower <= 620 %}
           LOW (1)
         {% else %}
           OFF
@@ -61,9 +61,9 @@ template:
       attributes:
         friendly_name: Pool Heating Temperature Diff
         has_diff: >
-          {{ states('number.pool_fairland_heatpump_target_temperature_heating') | int(default=0) - states('sensor.pool_fairland_heatpump_inlet_water_temperature') | int(default=0) > 0 }}
+          {{ states('number.fairland_zwembad_wpu_target_temperature_heating') | int(default=0) - states('sensor.fairland_zwembad_wpu_temp_inlet') | int(default=0) > 0 }}
       state: >
-        {{ states('number.pool_fairland_heatpump_target_temperature_heating') | int(default=0) - states('sensor.pool_fairland_heatpump_inlet_water_temperature') | int(default=0) }}
+        {{ states('number.fairland_zwembad_wpu_target_temperature_heating') | int(default=0) - states('sensor.fairland_zwembad_wpu_temp_inlet') | int(default=0) }}
 
   - light:
     - unique_id: pool_light
@@ -95,6 +95,54 @@ template:
         }}'
       effect: '{{ states.input_select.pool_light_program_options.state }}'
       state: '{{ states.light.pool_lights_pool_lights.state }}'
+
+  - select:
+    - name: "Fairland Zwembad WPU Power Mode"
+      unique_id: fairland_zwembad_wpu_power_mode
+      icon: mdi:fan
+      state: >
+        {% set v = states('sensor.fairland_zwembad_wpu_mode') | int(-1) %}
+        {{ {0: 'Normal', 1: 'Silence', 2: 'Super Silence', 3: 'Turbo'}.get(v, 'unknown') }}
+      options: "{{ ['Normal', 'Silence', 'Super Silence', 'Turbo'] }}"
+      select_option:
+        - action: modbus.write_register
+          data:
+            hub: waveshare_rs485
+            slave: 1
+            address: 1
+            value: >
+              {{ {'Normal': 0, 'Silence': 1, 'Super Silence': 2, 'Turbo': 3}[option] }}
+    - name: "Fairland Zwembad WPU Operating Mode"
+      unique_id: fairland_zwembad_wpu_operating_mode
+      icon: mdi:sun-snowflake-variant
+      state: >
+        {% set v = states('sensor.fairland_zwembad_wpu_operating_mode') | int(-1) %}
+        {{ {0: 'Auto', 1: 'Heating', 2: 'Cooling'}.get(v, 'unknown') }}
+      options: "{{ ['Auto', 'Heating', 'Cooling'] }}"
+      select_option:
+        - action: modbus.write_register
+          data:
+            hub: waveshare_rs485
+            slave: 1
+            address: 0
+            value: >
+              {{ {'Auto': 0, 'Heating': 1, 'Cooling': 2}[option] }}
+
+  - number:
+    - name: "Fairland Zwembad WPU Target Temperature Heating"
+      unique_id: fairland_zwembad_wpu_target_temperature_heating
+      icon: mdi:sun-thermometer-outline
+      device_class: temperature
+      unit_of_measurement: "°C"
+      min: 18
+      max: 32
+      step: 1
+      state: >
+        {{ states('sensor.fairland_zwembad_wpu_heating_temp_setpoint') }}
+      set_value:
+        - action: script.fairland_zwembad_wpu_set_target_temperature
+          data:
+            temperature: "{{ value }}"
 
 # en/disable all automations for pool
 input_boolean:
@@ -155,5 +203,178 @@ sensor:
     method: left
     unit_prefix: k
     round: 2
+
+modbus:
+- name: waveshare_rs485
+  type: tcp
+  host: 192.168.0.177
+  port: 502
+  delay: 2
+  timeout: 5
+  binary_sensors:
+    - name: "Fairland Zwembad WPU Status"
+      unique_id: "fairland_wpu_status"
+      address: 0
+      scan_interval: 10
+      slave: 1
+    - name: "Fairland Pool Malfunction Status"
+      unique_id: "fairland_wpu_mal"
+      address: 16
+      scan_interval: 10
+      slave: 1
+      input_type: discrete_input
+    - name: "Fairland Pool E3 Status"
+      unique_id: "fairland_wpu_e3"
+      address: 51
+      scan_interval: 10
+      slave: 1
+      input_type: discrete_input
+  sensors:
+    - name: "Fairland Zwembad WPU Operating Mode"
+      unique_id: "fairland_wpu_operating_mode"
+      address: 0
+      scan_interval: 10
+      slave: 1
+      input_type: holding
+    - name: "Fairland Zwembad WPU Mode"
+      unique_id: "fairland_wpu_mode"
+      address: 1
+      scan_interval: 10
+      slave: 1
+      input_type: holding
+    - name: "Fairland Zwembad WPU Compressor Percent"
+      unique_id: "fairland_wpu_compressor_percent"
+      address: 0
+      scan_interval: 10
+      slave: 1
+      input_type: input
+      state_class: "measurement"
+      unit_of_measurement: "%"
+    - name: "Fairland Zwembad WPU Temp Inlet"
+      unique_id: "fairland_wpu_water_inlet_temp"
+      address: 3
+      scan_interval: 10
+      slave: 1
+      input_type: input
+      precision: 1
+      offset: -30
+      scale: 0.5
+      state_class: "measurement"
+      device_class: "temperature"
+      unit_of_measurement: "°C"
+    - name: "Fairland Zwembad WPU Temp Outlet"
+      unique_id: "fairland_wpu_water_outlet_temp"
+      address: 4
+      scan_interval: 10
+      slave: 1
+      input_type: input
+      precision: 1
+      offset: -30
+      scale: 0.5
+      state_class: "measurement"
+      device_class: "temperature"
+      unit_of_measurement: "°C"
+    - name: "Fairland Zwembad WPU Heating Temp Setpoint"
+      unique_id: "fairland_wpu_heating_temp"
+      address: 3
+      scan_interval: 10
+      slave: 1
+      input_type: holding
+      precision: 1
+      offset: -30
+      scale: 0.5
+      state_class: "measurement"
+      device_class: "temperature"
+      unit_of_measurement: "°C"
+    - name: "Fairland Zwembad WPU Compressor Amp "
+      unique_id: "fairland_wpu_compressor_amp"
+      address: 11
+      scan_interval: 10
+      slave: 1
+      input_type: input
+      scale: 0.1
+      precision: 2
+      state_class: "measurement"
+      device_class: "current"
+      unit_of_measurement: "A"
+    - name: "Fairland Zwembad WPU PFC Volt "
+      unique_id: "fairland_wpu_pfc_volt"
+      address: 2
+      scan_interval: 10
+      slave: 1
+      input_type: input
+      state_class: "measurement"
+      device_class: "voltage"
+      unit_of_measurement: "V"
+    - name: "Fairland Zwembad WPU Ambient Temp"
+      unique_id: "fairland_wpu_ambient_temp"
+      address: 5
+      scan_interval: 10
+      slave: 1
+      input_type: input
+      precision: 1
+      offset: -30
+      scale: 0.5
+      state_class: "measurement"
+      device_class: "temperature"
+      unit_of_measurement: "°C"
+
+  switches:
+    - name: "Fairland Zwembad WPU Aan/Uit Schakelaar"
+      unique_id: "fairland_zwembad_wpu_aan_uit_schakelaar"
+      slave: 1
+      address: 0
+      command_on: 1
+      command_off: 0
+      write_type: coil
+      verify:
+        input_type: coil
+        address: 0
+        delay: 1
+        state_on: 1
+        state_off: 0
+
+  climates:
+    - name: "Fairland Zwembad Climate"
+      unique_id: "fairland_zwembad_climate"
+      #temperature_unit: "C"
+      address: 3
+      precision: 2
+      temp_step: 1
+      min_temp: 18
+      max_temp: 32
+      input_type: input
+      scale: 0.5
+      offset: -30
+      target_temp_register: 3
+      scan_interval: 10
+      hvac_mode_register:
+        address: 0
+        values:
+          state_heat: 1
+          state_cool: 2
+          state_auto: 0
+      fan_mode_register:
+        address: 1
+        values:
+          state_fan_high: 3
+          state_fan_low: 2
+          state_fan_middle: 1
+          state_fan_medium: 0
+
+script:
+  fairland_zwembad_wpu_set_target_temperature:
+    description: "Set Fairland heatpump target heating temperature"
+    fields:
+      temperature:
+        description: Target temperature in °C
+        example: "25"
+    sequence:
+      - action: modbus.write_register
+        data:
+          hub: waveshare_rs485
+          slave: 1
+          address: 3
+          value: "{{ ((temperature | float(18) + 30) * 2) | int }}"
 
 

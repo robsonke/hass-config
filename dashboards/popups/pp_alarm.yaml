@@ -109,7 +109,7 @@ browser_mod:
                 - type: 'custom:webrtc-camera'
                   entity: camera.bijkeuken_camera_webrtc
                 - type: 'custom:webrtc-camera'
-                  entity: camera.reoachterdeur_camera_webrtc
+                  entity: camera.reoijkant_camera_webrtc
                 - type: 'custom:webrtc-camera'
                   entity: camera.reoachtertuin_camera_webrtc
                 - type: 'custom:webrtc-camera'

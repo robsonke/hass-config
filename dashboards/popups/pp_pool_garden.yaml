@@ -77,7 +77,7 @@ browser_mod:
                   compact: true
                   sensors:
                     temperature:
-                      - entity: sensor.pool_fairland_heatpump_inlet_water_temperature
+                      - entity: sensor.fairland_zwembad_wpu_temp_inlet
                     ph:
                       - entity: sensor.eps_pool_ph_level
                     orp:
@@ -89,18 +89,20 @@ browser_mod:
               card_mod:
                 class: header
               entities:
-                - entity: switch.pool_fairland_heatpump_power_switch
+                - entity: switch.fairland_zwembad_wpu_aan_uit_schakelaar
                   name: Warmtepomp
-                - entity: select.pool_fairland_heatpump_power_mode
+                - entity: select.fairland_zwembad_wpu_power_mode
                   name: Smart of Silent mode
-                - entity: number.pool_fairland_heatpump_target_temperature_heating
+                - entity: number.fairland_zwembad_wpu_target_temperature_heating
                   name: Gewenste temperatuur
-                - entity: sensor.pool_fairland_heatpump_inlet_water_temperature
+                - entity: sensor.fairland_zwembad_wpu_temp_inlet
                   name: Ingaande temperatuur
-                - entity: sensor.pool_fairland_heatpump_outlet_water_temperature
+                - entity: sensor.fairland_zwembad_wpu_temp_outlet
                   name: Uitgaande temperatuur
-                - entity: sensor.pool_fairland_heatpump_speed_percentage
+                - entity: sensor.fairland_zwembad_wpu_compressor_percent
                   name: Vermogen warmtepomp
+                - entity: select.fairland_zwembad_wpu_operating_mode
+                  name: Bedrijfsmodus
             - type: entities
               title: Energie
               show_header_toggle: false
@@ -119,6 +121,12 @@ browser_mod:
               entities:
                 - entity: input_boolean.enable_pool_automations
                   name: Activeer aansturing?
+            - type: entities
+              title: Warmtepomp climate
+              show_header_toggle: false
+              entities:
+                - entity: climate.fairland_zwembad_climate
+                  name: Thermostaat
 
         - type: vertical-stack
           view_layout:
@@ -139,11 +147,13 @@ browser_mod:
                     enabled: false
                   fullscreen:
                     enabled: true
+                  media_player:
+                    enabled: false
                 style: overlay
                 position: top
               timeline:
                 window_seconds: 3600
-                media: all
+                events_media_type: all
               cameras:
                 - camera_entity: camera.zwembad
                   live_provider: ha

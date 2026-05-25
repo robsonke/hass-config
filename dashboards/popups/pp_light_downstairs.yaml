@@ -109,6 +109,14 @@ browser_mod:
             - type: custom:decluttering-card
               template: light_button
               variables:
+                - entity: light.eva_corridor_light
+                - title: Gang Eva
+
+            - type: divider
+
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
                 - entity: light.dimmer_hall
                 - title: Hal
             - type: custom:decluttering-card

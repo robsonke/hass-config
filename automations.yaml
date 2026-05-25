@@ -212,6 +212,34 @@
       volume: 20
       message: Het alarm is uitgeschakeld
   mode: single
+- id: alarm_auto_disarm_when_guest_mode
+  alias: Alarm - Disarm automatically when guest mode is enabled
+  description: When we enable guest mode (e.g. remotely while away), make sure the
+    alarm is disarmed so guests can enter
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.guest_mode
+    from: 'off'
+    to: 'on'
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: disarmed
+  actions:
+  - action: notify.all_phones
+    data:
+      message: ⏰ Gastmodus is geactiveerd, het alarm wordt gedeactiveerd.
+      data:
+        persistent: true
+        tag: persistent
+  - action: alarm_control_panel.alarm_disarm
+    data:
+      code: automation
+    target:
+      entity_id: alarm_control_panel.alarmo
+  mode: single
 - id: reset_lights_automation
   alias: Lights - Reset lights automation
   description: When we have disabled all automatic lighting, we reset this in the
@@ -646,7 +674,7 @@
       entity_id: binary_sensor.door_hallcloset_openclose_contact
       from: 'on'
       to: 'off'
-    timeout: "00:15:00"
+    timeout: 00:15:00
     continue_on_timeout: true
   - action: light.turn_off
     data: {}
@@ -817,7 +845,7 @@
   - condition: or
     conditions:
     - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''achterdeur''
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''zijkant''
         }}'
     - condition: template
       value_template: '{{ trigger.payload_json[''after''][''camera''] == ''terras''
@@ -935,7 +963,7 @@
   - action: switch.turn_on
     target:
       entity_id:
-      - switch.achterdeur_detect
+      - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
       - switch.bijkeuken_detect
@@ -966,7 +994,7 @@
   - action: switch.turn_off
     target:
       entity_id:
-      - switch.achterdeur_detect
+      - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
       - switch.bijkeuken_detect
@@ -1279,7 +1307,7 @@
   - action: switch.turn_off
     target:
       entity_id:
-      - switch.achterdeur_detect
+      - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
       - switch.bijkeuken_detect
@@ -1316,6 +1344,7 @@
     - event.switch_alarm_activity_action
     not_from:
     - unknown
+    - unavailable
     not_to:
     - unavailable
     - unknown
@@ -1453,7 +1482,7 @@
   - condition: or
     conditions:
     - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''achterdeur''
+      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''zijkant''
         }}'
     - condition: template
       value_template: '{{ trigger.payload_json[''after''][''camera''] == ''terras''
@@ -1647,6 +1676,7 @@
       - light.livingback_light
       - light.kitchen_light
       - light.dining_light
+      - light.eva_corridor_light
       - light.socket2_light_couch
       - light.socket1_light_corner
     data:
@@ -1774,6 +1804,7 @@
         - light.livingback_light
         - light.livingfront_light
         - light.dining_light
+        - light.eva_corridor_light
         - light.garden_light
         - light.kitchen_light
       activated: input_boolean.alarm_active
@@ -2209,44 +2240,44 @@
       - action: switch.turn_on
         data: {}
         target:
-          entity_id: switch.pool_fairland_heatpump_power_switch
+          entity_id: switch.fairland_zwembad_wpu_aan_uit_schakelaar
       - choose:
         - conditions:
-          - condition: numeric_state
+          - alias: If we are about to get close to the target temperature
+            condition: numeric_state
             entity_id: sensor.pool_heating_temperature_diff
-            above: 2
-            alias: If we are about to get close to the target temperature
+            above: 4
           sequence:
           - action: select.select_option
             metadata: {}
             data:
               option: Normal
             target:
-              entity_id: select.pool_fairland_heatpump_power_mode
+              entity_id: select.fairland_zwembad_wpu_power_mode
         - conditions:
-          - condition: numeric_state
+          - alias: If we are about to get closer to the target temperature
+            condition: numeric_state
             entity_id: sensor.pool_heating_temperature_diff
-            above: 1
-            alias: If we are about to get closer to the target temperature
+            above: 2
           sequence:
           - action: select.select_option
             metadata: {}
             data:
               option: Silence
             target:
-              entity_id: select.pool_fairland_heatpump_power_mode
+              entity_id: select.fairland_zwembad_wpu_power_mode
         default:
         - action: select.select_option
           metadata: {}
           data:
             option: Super Silence
           target:
-            entity_id: select.pool_fairland_heatpump_power_mode
+            entity_id: select.fairland_zwembad_wpu_power_mode
     default:
     - action: switch.turn_off
       data: {}
       target:
-        entity_id: switch.pool_fairland_heatpump_power_switch
+        entity_id: switch.fairland_zwembad_wpu_aan_uit_schakelaar
   mode: single
   max_exceeded: silent
   trace:
@@ -2399,27 +2430,6 @@
           entity_id: select.operation_mode
   trace:
     stored_traces: 20
-- id: '1663352793600'
-  alias: System - Alert when the shed fridge is off too long
-  description: ''
-  use_blueprint:
-    path: robsonke/device-off-warning.yaml
-    input:
-      switch: switch.shelly_plug_s_8_fridge1_relay
-      max_time_off: 30
-      actions:
-      - action: persistent_notification.create
-        data:
-          title: Vriezer schuur!
-          message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur
-            uit!"
-      - action: notify.all_phones
-        data:
-          message: "\U0001F9CA Let op, de vriezer in de schuur staat al een half uur
-            uit!"
-          data:
-            persistent: true
-            tag: persistent
 - id: '1663352887163'
   alias: System - Alert when the kitchen cooling is off too long
   description: ''
@@ -2827,10 +2837,10 @@
   triggers:
   - trigger: state
     entity_id:
-    - sensor.pool_fairland_heatpump_inlet_water_temperature
+    - sensor.fairland_zwembad_wpu_temp_inlet
   - trigger: state
     entity_id:
-    - number.pool_fairland_heatpump_target_temperature_heating
+    - number.fairland_zwembad_wpu_target_temperature_heating
   - trigger: state
     entity_id:
     - binary_sensor.cheapest_16_hours_24h
@@ -2842,9 +2852,9 @@
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ states.number.pool_fairland_heatpump_target_temperature_heating.state
-          | int(default=0) - states.sensor.pool_fairland_heatpump_inlet_water_temperature.state
-          | int(default=0) > 0 }}'
+        value_template: '{{ states.number.fairland_zwembad_wpu_target_temperature_heating.state
+          | int(default=0) - states.sensor.fairland_zwembad_wpu_temp_inlet.state |
+          int(default=0) > 0 }}'
         alias: If we are about to get close to the target temperature
       sequence:
       - action: select.select_option
@@ -2852,14 +2862,14 @@
         data:
           option: Super Silence
         target:
-          entity_id: select.pool_fairland_heatpump_power_mode
+          entity_id: select.fairland_zwembad_wpu_power_mode
     default:
     - action: select.select_option
       metadata: {}
       data:
         option: Silence
       target:
-        entity_id: select.pool_fairland_heatpump_power_mode
+        entity_id: select.fairland_zwembad_wpu_power_mode
   mode: single
 - id: '1684057174715'
   alias: Pool - Alert when ph or redox values are not oke
@@ -3180,7 +3190,7 @@
       motion_entity:
       - binary_sensor.hue_motion_sensor_shower_occupancy
       lux_entity: sensor.hue_motion_sensor_shower_illuminance
-      lux_level: 250
+      lux_level: 400
       light_target:
         entity_id: light.dimmer_master_closetbath
       dim_time: 10
@@ -3457,33 +3467,30 @@
     entity_id: input_boolean.guest_mode
     state: 'off'
   actions:
-  - action: camera.snapshot
+  - action: ai_task.generate_data
     metadata: {}
     data:
-      filename: downloads/latest_front_{{ camera_entity }}.jpg
-    target:
-      entity_id: '{{ camera_entity }}'
-  - action: google_generative_ai_conversation.generate_content
-    metadata: {}
-    data:
-      image_filename: downloads/latest_front_{{ camera_entity }}.jpg
-      prompt: Very briefly describe what you see in this image from my security camera.
-        Your message needs to be short to fit in a phone notification. Don't describe
-        stationary objects, plants or buildings. And please answer in Dutch.
+      task_name: frigate_camera_description
+      instructions: Very briefly describe what you see in this image from my security
+        camera. Your message needs to be short to fit in a phone notification. Don't
+        describe stationary objects, plants or buildings. And please answer in Dutch.
+      attachments:
+        media_content_id: media-source://camera/{{ camera_entity }}
+        media_content_type: image/jpeg
     response_variable: generated_content
   - action: input_text.set_value
     metadata: {}
     data:
-      value: '{{ generated_content.text }}'
+      value: '{{ generated_content.data }}'
     target:
       entity_id: input_text.camera_analysis
   - action: persistent_notification.create
     data:
       title: Camera
-      message: '{{ generated_content.text }} ![image](http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
+      message: '{{ generated_content.data }} ![image](http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
   - action: notify.mobile_app_iphone_rob
     data:
-      message: ' {{ generated_content.text }} '
+      message: ' {{ generated_content.data }} '
       data:
         image: http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
@@ -3537,18 +3544,11 @@
         entity_id: number.solaredge_active_power_limit
         state: '100'
       sequence:
-      - action: number.set_value
-        metadata: {}
-        data:
-          value: '0'
-        target:
-          entity_id: number.solaredge_active_power_limit
-        alias: Disable the solar panels
       - action: persistent_notification.create
         data:
           title: Zonnepanelen
           message: "\U0001F31E De zonnepanelen zijn uitgezet vanwege een stroomprijs
-            van {{ states.sensor.current_price_electricity }} cent."
+            van {{ states('sensor.current_price_electricity') }} cent."
     - conditions:
       - condition: numeric_state
         entity_id: sensor.current_price_electricity
@@ -3568,7 +3568,7 @@
         data:
           title: Zonnepanelen
           message: "\U0001F31E De zonnepanelen zijn weer aangezet vanwege een stroomprijs
-            van {{ states.sensor.current_price_electricity }} cent."
+            van {{ states('sensor.current_price_electricity') }} cent."
   mode: single
 - id: '1724489164994'
   alias: System - Remove state history of heavy sensors
@@ -3771,13 +3771,58 @@
       - binary_sensor.hue_motion_sensor_shed_occupancy
       - binary_sensor.motion_sensor_shed_occupancy
       lux_entity: sensor.hue_motion_sensor_shed_illuminance
-      lux_level: 200
+      lux_level: 600
       dim_time: 30
       no_motion_wait_day: 600
       day_brightness: 100
       light_target:
-        entity_id: light.shed_light_back
+        entity_id:
+        - light.shed_light_back
+        - light.shed_light_front
       night_time_start_helper: '21:00:00'
       night_time_end_helper: 07:00:00
       night_brightness: 100
       no_motion_wait_night: 300
+- id: shed_switch_sync
+  alias: Lights - Keep both shed lights in sync
+  description: If one of the two switches changes state, the other follows, but only
+    if they are not already in the same state. This is to avoid loops and to allow
+    manual override of one of the switches without breaking the automation.
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.shed_switch_1
+    - switch.shed_switch_2
+    to:
+    - 'on'
+    - 'off'
+  variables:
+    other_switch: "{% if trigger.entity_id == 'switch.shed_switch_1' %}\n  switch.shed_switch_2\n{%
+      else %}\n  switch.shed_switch_1\n{% endif %}\n"
+  conditions:
+  - condition: template
+    value_template: '{{ states(other_switch) != trigger.to_state.state }}'
+  actions:
+  - action: switch.turn_{{ trigger.to_state.state }}
+    target:
+      entity_id: '{{ other_switch }}'
+  mode: single
+
+- id: evabed_sound_detection_armed_night
+  alias: "Eva Bed Sound Detection - Armed Night"
+  trigger:
+    platform: event
+    event_type: frigate_events
+    event_data:
+      type: sound
+      camera: evabed
+  condition:
+    condition: state
+    entity_id: alarm_control_panel.alarmo
+    state: armed_night
+  action:
+    - action: notify.all_phones
+      data:
+        title: "⚠️ Sound Detected"
+        message: "Noise detected in Eva's room"
+        critical: true

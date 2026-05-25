@@ -1,0 +1,50 @@
+#################################################
+#                                               #
+#                    MOWER                      #
+#                                               #
+#################################################
+
+lawn_mower:
+  template:
+    - circle
+  variables:
+    icon: mdi:robot-mower
+    unit: "%"
+    consider_on: >
+      [[[
+        return entity.state === 'mowing' || entity.state === 'returning' || entity.state === 'edging';
+      ]]]
+    circle_input: >
+      [[[
+        if (entity.attributes.battery === undefined || entity.attributes.battery === null) return 0;
+        return entity.attributes.battery;
+      ]]]
+    circle_text: >
+      [[[
+        if (entity.attributes.battery === undefined || entity.attributes.battery === null) return '-';
+        return entity.attributes.battery;
+      ]]]
+  state_display: >
+    [[[
+      const stateMap = {
+        'mowing': 'Maaien',
+        'docked': 'Slaapt',
+        'paused': 'Gepauzeerd',
+        'returning': 'Terugkeren',
+        'error': 'Fout',
+        'edging': 'Rand maaien'
+      };
+      return stateMap[entity.state] || entity.state;
+    ]]]
+  styles:
+    custom_fields:
+      icon:
+        - color: >
+            [[[
+              if (entity.state === 'error') return 'var(--red)';
+              if (entity.state === 'mowing' || entity.state === 'edging') return 'var(--green)';
+              if (entity.state === 'returning') return 'var(--blue)';
+              return '';
+            ]]]
+  tap_action:
+    !include ../../dashboards/popups/pp_mower.yaml

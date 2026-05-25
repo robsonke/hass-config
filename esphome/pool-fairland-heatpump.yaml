@@ -41,13 +41,17 @@ uart:
   
 modbus:
   id: modbus1
+  send_wait_time: 1000ms
 
 modbus_controller:
   - id: fairland
     ## the Modbus device addr
     address: 0x0001
     modbus_id: modbus1
-    update_interval: 20s
+    command_throttle: 300ms
+    update_interval: 30s
+    max_cmd_retries: 1
+    offline_skip_updates: 2
     
 
 light:
@@ -182,6 +186,7 @@ select:
     modbus_controller_id: fairland
     address: 0x0
     value_type: U_WORD
+    skip_updates: 5
     optionsmap: 
       "Auto": 0
       "Heating": 1
@@ -194,6 +199,7 @@ select:
     modbus_controller_id: fairland
     address: 0x1
     value_type: U_WORD
+    skip_updates: 5
     optionsmap: 
       "Super Silence": 2
       "Silence": 1
@@ -209,8 +215,10 @@ number:
     name: "Target Temperature Heating"
     id: target_temperature_heating
     icon: "mdi:sun-thermometer-outline"
+    register_type: holding
     address: 0x3
     value_type: U_WORD
+    skip_updates: 5
     unit_of_measurement: "°C"
     min_value: 18
     max_value: 32
@@ -227,6 +235,7 @@ number:
     register_type: holding
     address: 0x2
     value_type: U_WORD
+    skip_updates: 5
     unit_of_measurement: "°C"
     min_value: 18
     max_value: 32
@@ -243,6 +252,7 @@ number:
     register_type: holding
     address: 0x4
     value_type: U_WORD
+    skip_updates: 5
     unit_of_measurement: "°C"
     min_value: 18
     max_value: 32
@@ -390,7 +400,7 @@ sensor:
       } else {
       return 0.0;
       }    
-    update_interval: 1s
+    update_interval: 10s
 
 ###################################################
 # Elements with Modbus Operation read 02 / write NA

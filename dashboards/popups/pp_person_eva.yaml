@@ -16,10 +16,16 @@ browser_mod:
         buttons:
           frigate:
             enabled: false
-          snapshots:
+          timeline:
             enabled: true
-          camera_ui:
+          clips:
+            enabled: true
+          recordings:
+            enabled: true
+          snapshots:
             enabled: false
+          camera_ui:
+            enabled: true
           fullscreen:
             enabled: true
           media_player:
@@ -28,9 +34,18 @@ browser_mod:
         position: top
       cameras:
         - camera_entity: camera.evabed
-          live_provider: ha
-          frigate:
-            camera_name: Eva
+          # live_provider: ha
+          # frigate:
+          #   camera_name: Eva
+      timeline:
+        window_seconds: 3600
+        events_media_type: all
+        show_recordings: true
+        controls:
+          thumbnails:
+            mode: below
+          # next_previous:
+          #   style: chevrons
       media_viewer:
         controls:
           thumbnails:

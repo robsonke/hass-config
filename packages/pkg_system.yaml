@@ -72,7 +72,7 @@ homekit:
       include_entities:
         - cover.front_door
         - input_boolean.guest_mode
-        - light.hal
+        - light.dimmer_hall
         - light.keuken
         - light.kitchendesk_light
         - light.office_light
@@ -81,9 +81,10 @@ homekit:
         - light.dining_light
         - light.diningtable_light
         - light.livingback_light
-        - light.livingfrpmt_light
+        - light.livingfront_light
         - light.woonkamer
-        - light.hoofdslaapkamer
+        - light.dimmer_masterbed
+        - light.eva_corridor_light
         - media_player.office
         - media_player.living_room
         - media_player.eetkamer
@@ -151,7 +152,6 @@ binary_sensor:
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
-      - binary_sensor.windowdoor_ground_4_openclose_contact
       - binary_sensor.window_office_openclose_contact
       - binary_sensor.door_hallcloset_openclose_contact
       - binary_sensor.window_noaroom_openclose_contact
@@ -170,7 +170,6 @@ binary_sensor:
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
-      - binary_sensor.windowdoor_ground_4_openclose_contact
       - binary_sensor.window_office_openclose_contact
 
 group:
@@ -187,7 +186,6 @@ group:
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
-      - binary_sensor.windowdoor_ground_4_openclose_contact
       - sensor.light_sensor_garden_illuminance
       - binary_sensor.hallwaydoor_sensor_contact
       - binary_sensor.window_eva_openclose_contact

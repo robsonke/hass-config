@@ -114,9 +114,6 @@ browser_mod:
                   - entity_id: binary_sensor.windowdoor_ground_3_openclose_contact
                     options:
                       secondary_info: last-changed
-                  - entity_id: binary_sensor.windowdoor_ground_4_openclose_contact
-                    options:
-                      secondary_info: last-changed
                   - type: section
                     label: Overig
                   - entity_id: binary_sensor.hallwaydoor_sensor_contact

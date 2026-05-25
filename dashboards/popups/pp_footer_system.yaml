@@ -74,7 +74,7 @@ browser_mod:
                     - entity: sensor.memory_use_percent
                       icon: mdi:memory
                       name: Memory
-                    - entity: sensor.glances_data_used_percent
+                    - entity: sensor.disk_use_percent
                       icon: mdi:server
                       name: Disk Usage
 
@@ -130,7 +130,7 @@ browser_mod:
                 - entity: switch.evabed_detect
                 - entity: switch.noabed_detect
                 - entity: switch.bijkeuken_detect
-                - entity: switch.achterdeur_detect
+                - entity: switch.zijkant_detect
                 - entity: switch.terras_detect
                 - entity: switch.doorbell_detect
                 - entity: switch.veranda_detect
