@@ -19,6 +19,7 @@ www/fonts
 zigbee2mqtt
 custom_components
 llmvision
+solcast_solar
 
 # And some files
 secrets.yaml
@@ -45,3 +46,4 @@ frigate*
 
 .claude/
 .cache/
+.superpowers/
