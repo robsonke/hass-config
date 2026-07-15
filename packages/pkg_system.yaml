@@ -92,16 +92,6 @@ homekit:
         - alarm_control_panel.alarmo
         - binary_sensor.template_people_home_and_awake
 
-lovelace:
-  mode: storage
-  dashboards:
-    main-dashboard:
-      mode: yaml
-      title: Main Dashboard
-      icon: mdi:view-dashboard-variant
-      show_in_sidebar: true
-      filename: dashboards/main-dashboard.yaml
-
 frontend:
   themes: !include_dir_merge_named ../themes
   extra_module_url:
@@ -230,6 +220,12 @@ template:
       unit_of_measurement: entities
       state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
 
+    - unique_id: evabed_sound_level_alert_threshold
+      attributes:
+        friendly_name: "Evabed Sound Level Alert Threshold"
+      unit_of_measurement: dB
+      state: "{{ (states('sensor.evabed_sound_level_mean') | float(default=-70)) + 2.5 * (states('sensor.evabed_sound_level_std_dev') | float(default=5)) }}"
+
   # all unavailable entities
   - trigger:
     - trigger: time_pattern
@@ -252,19 +248,6 @@ template:
           {{ unavail.value }}
         attributes:
           friendly_name: "All Unavailable Entities"
-          # entities: >
-          #   {% set ignore_time = 15 %}
-          #   {% set unavail = namespace(entities=[]) %}
-          #   {% set entities = states|rejectattr('domain','eq','group')
-          #     |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-          #     |rejectattr('state', 'equalto', '')
-          #     |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
-          #   {% for item in entities %}
-          #     {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
-          #       {% set unavail.entities = unavail.entities + [item] %}
-          #     {% endif %}
-          #   {% endfor %}
-          #   {{ unavail.entities }}
   # Storage for Bubble Card Modules
   - trigger:
       - trigger: event
@@ -305,87 +288,6 @@ template:
         {{ expand(states.update) | selectattr('state', 'in', ['on']) | list | count }}
       unit_of_measurement: "Update(s)"
 
-  # Regular counters
-  # - sensor:
-  #   - unique_id: count_automations
-  #     attributes:
-  #       friendly_name: Automations count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.automation | count }}
-  #   - unique_id: count_device_trackers
-  #     attributes:
-  #       friendly_name: Device Trackers count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.device_tracker | count }}
-  #   - unique_id: count_lights
-  #     attributes:
-  #       friendly_name: Lights count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.light | count }}
-  #   - unique_id: count_binary_sensors
-  #     attributes:
-  #       friendly_name: Binary Sensors count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.binary_sensor | count }}
-  #   - unique_id: count_sensors
-  #     attributes:
-  #       friendly_name: Sensors count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.sensor | count }}
-  #   - unique_id: count_switches
-  #     attributes:
-  #       friendly_name: Switches count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.switch | count }}
-  #   - unique_id: count_zones
-  #     attributes:
-  #       friendly_name: Zone count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.zone | count }}
-  #   - unique_id: count_cameras
-  #     attributes:
-  #       friendly_name: Camera count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.camera | count }}
-  #   - unique_id: count_media_players
-  #     attributes:
-  #       friendly_name: Media Players count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.media_player | count }}
-  #   - unique_id: count_scripts
-  #     attributes:
-  #       friendly_name: Scripts count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.script | count }}
-  #   - unique_id: count_locks
-  #     attributes:
-  #       friendly_name: Locks count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.lock | count }}
-  #   - unique_id: count_vacuums
-  #     attributes:
-  #       friendly_name: Vacuum count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.vacuum | count }}
-  #   - unique_id: count_zwaves
-  #     attributes:
-  #       friendly_name: ZWave count
-  #     state: >
-  #       {% set dummy = states("sensor.date") %}
-  #       {{ states.zwave | count }}
-
 sensor:
   - platform: rest
     name: hass_release_notes
@@ -412,3 +314,21 @@ sensor:
       - 'time'
       - 'date'
       - 'date_time'
+
+  - platform: statistics
+    unique_id: evabed_sound_level_mean
+    name: Evabed Sound Level Mean
+    entity_id: sensor.evabed_sound_level
+    state_characteristic: mean
+    max_age:
+      minutes: 20
+    sampling_size: 500
+
+  - platform: statistics
+    unique_id: evabed_sound_level_std_dev
+    name: Evabed Sound Level Std Dev
+    entity_id: sensor.evabed_sound_level
+    state_characteristic: standard_deviation
+    max_age:
+      minutes: 20
+    sampling_size: 500

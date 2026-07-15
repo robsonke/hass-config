@@ -86,35 +86,38 @@ browser_mod:
             grid-area: camera
           columns: 1
           cards:
-            - type: custom:swipe-card
-              start_card: 1
-              parameters:
-                roundLengths: true
-                effect: coverflow
-                speed: 650
-                spaceBetween: 20
-                threshold: 7
-                coverflowEffect:
-                  rotate: 80
-                  depth: 300
-                loop: true
-                navigation:
-                  nextEl: ".swiper-button-next"
-                  prevEl: ".swiper-button-prev"
-              cards:
-                - type: 'custom:webrtc-camera'
-                  entity: camera.langeweide_doorbell_clear
-                - type: 'custom:webrtc-camera'
-                  entity: camera.reoveranda_camera_webrtc
-                - type: 'custom:webrtc-camera'
-                  entity: camera.bijkeuken_camera_webrtc
-                - type: 'custom:webrtc-camera'
-                  entity: camera.reoijkant_camera_webrtc
-                - type: 'custom:webrtc-camera'
-                  entity: camera.reoachtertuin_camera_webrtc
-                - type: 'custom:webrtc-camera'
-                  entity: camera.zwembad_camera_webrtc
-                - type: 'custom:webrtc-camera'
-                  entity: camera.eva_camera_webrtc
-                - type: 'custom:webrtc-camera'
-                  entity: camera.noa_camera_webrtc
+            - type: custom:advanced-camera-card
+              dimensions:
+                aspect_ratio_mode: unconstrained
+              entities:
+                - entity: binary_sensor.langeweide_doorbell_visitor
+                - entity: binary_sensor.langeweide_doorbell_motion
+                - entity: binary_sensor.langeweide_doorbell_person
+              menu:
+                buttons:
+                  frigate:
+                    enabled: false
+                  image:
+                    enabled: false
+                  camera_ui:
+                    enabled: false
+                  media_player:
+                    enabled: false
+                style: overlay
+                position: top
+              view:
+                default: live
+              live:
+                controls:
+                  thumbnails:
+                    mode: below
+                    media: snapshots
+              cameras:
+                - camera_entity: camera.langeweide_doorbell_clear
+                  live_provider: ha
+                  frigate:
+                    camera_name: Voordeur
+              media_viewer:
+                controls:
+                  next_previous:
+                    style: chevrons

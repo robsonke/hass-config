@@ -34,6 +34,18 @@ browser_mod:
             - type: custom:decluttering-card
               template: light_button
               variables:
+                - entity: light.roofceiling_table_light
+                - title: Overkapping Tafel
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
+                - entity: light.lights_wall_shed
+                - title: Overkapping Wand
+                
+
+            - type: custom:decluttering-card
+              template: light_button
+              variables:
                 - entity: light.veranda_light
                 - title: Blokhut Spots
             # - type: custom:decluttering-card

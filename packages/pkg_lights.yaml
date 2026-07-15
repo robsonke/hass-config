@@ -86,6 +86,9 @@ light:
     entities:
       - light.garden_light
       - light.veranda_light
+      - light.lights_wall_shed
+      - light.roofceiling_table_light
+      - light.roofceiling_garden_light
       - light.hue_lily_light_fence_1
       - light.hue_lily_light_fence_2
       - light.hue_lily_light_fence_3

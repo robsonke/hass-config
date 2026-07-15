@@ -484,13 +484,10 @@ views:
             hold_action:
               action: none
           - type: custom:button-card
-            entity: switch.irrigatie_zones
-            name: Beregening
+            entity: media_player.muziek_tuin
+            name: Muziek
             template:
-              - irrigation
-            group_expand: true
-            tap_action:
-              !include popups/pp_irrigation_garden.yaml
+              - sonos_garden
           - type: custom:button-card
             entity: binary_sensor.doors_and_windows_garden
             name: Deuren
@@ -513,7 +510,7 @@ views:
                 - font-size: 11px
             show_label: true
           - type: custom:button-card
-            entity: sensor.inkbird_ibt_2x_temperature_probe_1
+            entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
             template: bbq
             name: BBQ
             show_label: true
@@ -521,6 +518,14 @@ views:
             entity: lawn_mower.navimow_i108
             template: lawn_mower
             name: Grasmaaier
+          - type: custom:button-card
+            entity: switch.irrigatie_zones
+            name: Beregening
+            template:
+              - irrigation
+            group_expand: true
+            tap_action:
+              !include popups/pp_irrigation_garden.yaml
 
       #################################################
       #                                               #
@@ -632,7 +637,7 @@ views:
               !include popups/pp_energy_usage.yaml
 
           - type: custom:button-card
-            entity: sensor.water_meter_current_usage
+            entity: sensor.watermeter_water_usage
             name: Water
             template:
               - simple

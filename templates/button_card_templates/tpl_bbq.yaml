@@ -17,9 +17,9 @@ bbq:
     unit: "°C"
     circle_input: >
       [[[
-        let probe1 = states['sensor.inkbird_ibt_2x_temperature_probe_1'].state;
-        if (probe1 === undefined || probe1 === 'unavailable') return 0;
-        return states['sensor.inkbird_ibt_2x_temperature_probe_1'].state / states['input_number.grill_alert_high'].state * 100;
+        let dome = states['sensor.tuin_bbq_dome_thermometer_ambient_temperature'].state;
+        if (dome === undefined || dome === 'unavailable') return 0;
+        return states['sensor.tuin_bbq_dome_thermometer_ambient_temperature'].state / states['number.tuin_bbq_dome_thermometer_ambient_maximum_temperature'].state * 100;
       ]]]
     circle_text: >
       [[[
@@ -30,9 +30,11 @@ bbq:
       ]]]
   state_display: >
     [[[
-      let probe1 = entity.state;
-      let probe2 = states['sensor.inkbird_ibt_2x_temperature_probe_2'].state;
+      let dome = entity.state;
+      let probe1 = states['sensor.probe_1_temperature'].state;
+      let probe2 = states['sensor.probe_2_temperature'].state;
       // in case of an unavailable bluetooth connection or a disconnected probe...
+      if (dome === undefined || dome === 'unavailable' || dome > 700) dome = '-';
       if (probe1 === undefined || probe1 === 'unavailable' || probe1 > 700) probe1 = '-';
       if (probe2 === undefined || probe2 === 'unavailable' || probe2 > 700) probe2 = '-';
 
@@ -42,8 +44,9 @@ bbq:
         let minutesLeft = Math.round((finishAt - Date.now()) / 1000 / 60);
         timer = ` (🕓 ${minutesLeft} min)`;
       }
-      let probe2Text = (probe2 !== '-') ? ` / ${probe2}${variables.unit}` : '';
-      return html`<span>${probe1}${variables.unit} ${probe2Text}${timer}</span>`;
+      let probeText = [probe1, probe2].filter(p => p !== '-').map(p => `${p}${variables.unit}`).join(' / ');
+      if (probeText) probeText = ` / ${probeText}`;
+      return html`<span>${dome}${variables.unit}${probeText}${timer}</span>`;
     ]]]
   styles:
     custom_fields:

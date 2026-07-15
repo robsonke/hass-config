@@ -106,6 +106,8 @@ browser_mod:
                   name: Kantoor
                 - entity: sensor.climate_sensor_kitchen_temperature
                   name: Keuken
+                - entity: sensor.climate_sensor_evadownstairs_temperature
+                  name: Slaapkamer Eva
                 - entity: sensor.indoor_temperature
                   name: Thermostaat
                 - entity: sensor.downstairs_temperature

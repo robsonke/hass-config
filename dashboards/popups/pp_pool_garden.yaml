@@ -158,7 +158,9 @@ browser_mod:
                 - camera_entity: camera.zwembad
                   live_provider: ha
                   frigate:
-                    camera_name: Noa
+                    camera_name: Zwembad
+                  ptz:
+                    enabled: false
               media_viewer:
                 controls:
                   thumbnails:

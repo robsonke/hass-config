@@ -52,3 +52,10 @@ sensor:
     type: count
     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
+  - platform: history_stats
+    name: Bijkeuken cat sightings today
+    entity_id: binary_sensor.bijkeuken_cat_occupancy
+    state: "on"
+    type: count
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"

@@ -488,7 +488,7 @@ views:
               !include popups/pp_energy_usage.yaml
 
           - type: custom:mushroom-entity-card
-            entity: sensor.water_meter_current_usage
+            entity: sensor.watermeter_water_usage
             icon: mdi:water
             name: Water
             layout: horizontal

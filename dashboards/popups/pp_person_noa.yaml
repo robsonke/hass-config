@@ -34,6 +34,8 @@ browser_mod:
           live_provider: ha
           frigate:
             camera_name: Noa
+          ptz:
+            enabled: false
       media_viewer:
         controls:
           thumbnails:

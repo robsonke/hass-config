@@ -508,6 +508,11 @@
       entity_id: light.veranda_light
   - action: light.turn_on
     data:
+      brightness_pct: 40
+    target:
+      entity_id: light.lights_wall_shed
+  - action: light.turn_on
+    data:
       color_temp_kelvin: 2200
     target:
       entity_id: light.hue_lights_garden
@@ -546,6 +551,7 @@
       - light.woodshed_light
       - light.palm1_light
       - light.palm2_light
+      - light.lights_wall_shed
   - delay:
       hours: 0
       minutes: 0
@@ -730,26 +736,6 @@
     target:
       entity_id:
       - light.kerst_binnen
-  mode: single
-- id: restart_ssh_addon
-  alias: Hass - Restart SSH Addon
-  description: Restart the ssh addon after a HA restart, required to get the hassio.addon_stdin
-    to work
-  triggers:
-  - trigger: homeassistant
-    event: start
-  - trigger: time
-    at: 01:00:00
-  actions:
-  - delay: 00:04
-  - action: hassio.addon_restart
-    data:
-      addon: a0d7b954_ssh
-  - delay: 00:01
-  - action: hassio.addon_stdin
-    data:
-      addon: a0d7b954_ssh
-      input: bash /config/cast.sh
   mode: single
 - alias: System - Let's Encrypt Renewal
   id: system_lets_encrypt
@@ -966,7 +952,6 @@
       - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
-      - switch.bijkeuken_detect
       - switch.zwembad_detect
     data: {}
   - condition: state
@@ -997,7 +982,6 @@
       - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
-      - switch.bijkeuken_detect
       - switch.evabed_detect
       - switch.noabed_detect
       - switch.zwembad_detect
@@ -1310,7 +1294,6 @@
       - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
-      - switch.bijkeuken_detect
       - switch.evabed_detect
       - switch.noabed_detect
       - switch.zwembad_detect
@@ -1512,9 +1495,10 @@
         persistent: true
         tag: persistent
         push:
-          sound: alarm.caf
-          critical: 1
-          volume: 1
+          sound:
+            name: alarm.caf
+            critical: 1
+            volume: 1
           interruption-level: critical
   - delay:
       hours: 0
@@ -1905,7 +1889,7 @@
     path: Techwolf12/watermeter.yaml
     input:
       counter: counter.watermeter_consumption_counter
-      watermeterkit: sensor.water_meter_total_consumption
+      watermeterkit: sensor.watermeter_total_water_usage
 - id: '1642265273034'
   alias: Heating - Turn on heating main bedroom
   description: Turn on heating before schedule turns on
@@ -2061,6 +2045,7 @@
     target:
       entity_id:
       - light.veranda_light
+      - light.lights_wall_shed
   - action: light.turn_off
     data: {}
     target:
@@ -2211,6 +2196,13 @@
       hours: 0
       minutes: 1
       seconds: 0
+  - trigger: state
+    entity_id:
+    - binary_sensor.pool_pump_active
+    to:
+    - 'on'
+    from:
+    - 'off'
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -2221,6 +2213,10 @@
   - condition: numeric_state
     entity_id: sensor.today_maximum_temperature
     above: 15
+  - condition: state
+    entity_id: binary_sensor.pool_pump_active
+    state:
+    - 'on'
   actions:
   - choose:
     - conditions:
@@ -2870,7 +2866,7 @@
         option: Silence
       target:
         entity_id: select.fairland_zwembad_wpu_power_mode
-  mode: single
+  mode: restart
 - id: '1684057174715'
   alias: Pool - Alert when ph or redox values are not oke
   description: ''
@@ -3115,30 +3111,34 @@
       volume: 30
       message: Barbecue timer biep!
   mode: single
-- id: '1690718896889'
-  alias: BBQ - Probe 1 alarm
-  description: Beeps when the bbq is on the wrong temperature, based on the range
-    set
+- id: '1720370000001'
+  alias: BBQ - Dome alarm
+  description: Waarschuwt wanneer de BBQ dome temperatuur buiten het ingestelde
+    bereik komt
   triggers:
-  - trigger: template
-    value_template: '{% if (states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
-      | int(-1) != -1 ) and states(''sensor.inkbird_ibt_2x_temperature_probe_1'')
-      < 5000 and (states(''sensor.inkbird_ibt_2x_temperature_probe_1'') | round |
-      int > states(''input_number.grill_alert_high'') | round | int or states(''sensor.inkbird_ibt_2x_temperature_probe_1'')
-      | round | int < states(''input_number.grill_alert_low'') | round | int) %} true
-      {% endif %}'
+  - trigger: state
+    entity_id: sensor.dome_alert_temp
+    to: Alert
   conditions:
   - condition: state
     entity_id: input_boolean.enable_bbq_automations
     state: 'on'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+      state: unavailable
+    - condition: state
+      entity_id: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+      state: unknown
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_probe_1_alarm.attributes.last_triggered,
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_dome_alarm.attributes.last_triggered,
       0) | int > 60 }}'
   actions:
   - action: notify.all_phones
     data:
-      message: '♨️ BBQ Temperatuur te hoog of laag: {{ states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
-        | round }}°C'
+      message: '♨️ BBQ Temperatuur te hoog of laag: {{ states[''sensor.tuin_bbq_dome_thermometer_ambient_temperature''].state
+        | round(default=0) }}°C'
       data:
         persistent: true
         tag: persistent
@@ -3146,40 +3146,8 @@
     data:
       sonos_entity: media_player.eetkamer
       volume: 30
-      message: 'Let op: De barbecue temperatuur is {{ states[''sensor.inkbird_ibt_2x_temperature_probe_1''].state
-        | round }} graden!'
-  mode: single
-- id: '1690720476474'
-  alias: BBQ - Probe 2 alarm
-  description: Beeps when the bbq has reached the target temperature
-  triggers:
-  - trigger: template
-    value_template: "{% if (states['sensor.inkbird_ibt_2x_temperature_probe_2'].state
-      | int(-1) != -1 ) \n      and states('sensor.inkbird_ibt_2x_temperature_probe_2')
-      < 5000\n      and states('sensor.inkbird_ibt_2x_temperature_probe_2') | round
-      | int >= states('input_number.grill_probe_2_target') | round | int \n    %}
-      true {% endif %}"
-  conditions:
-  - condition: state
-    entity_id: input_boolean.enable_bbq_automations
-    state: 'on'
-  - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_probe_2_alarm.attributes.last_triggered,
-      0) | int > 60 }}'
-  actions:
-  - action: notify.all_phones
-    data:
-      message: "\U0001F356 Het vlees op de BBQ is nu {{ states['sensor.inkbird_ibt_2x_temperature_probe_2'].state
-        | round }}°C"
-      data:
-        persistent: true
-        tag: persistent
-  - action: script.sonos_say
-    data:
-      sonos_entity: media_player.eetkamer
-      volume: 30
-      message: 'Let op: Het vlees op de barbecue is nu {{ states[''sensor.inkbird_ibt_2x_temperature_probe_2''].state
-        | round }} graden.'
+      message: 'Let op: De barbecue temperatuur is {{ states[''sensor.tuin_bbq_dome_thermometer_ambient_temperature''].state
+        | round(default=0) }} graden!'
   mode: single
 - id: '1690920817114'
   alias: Motion Lights - Control shower & closet light
@@ -3190,7 +3158,7 @@
       motion_entity:
       - binary_sensor.hue_motion_sensor_shower_occupancy
       lux_entity: sensor.hue_motion_sensor_shower_illuminance
-      lux_level: 400
+      lux_level: 600
       light_target:
         entity_id: light.dimmer_master_closetbath
       dim_time: 10
@@ -3620,8 +3588,7 @@
       cooldown: 20
       provider: 01JDEYNQ5SNASP96EZQVX71J66
       model: gemini-1.5-pro
-- &id001
-  id: '1734980264542'
+- id: '1734980264542'
   alias: Motion Lights - Control hall lights
   description: ''
   use_blueprint:
@@ -3640,7 +3607,6 @@
       night_brightness: 30
       sleep_time_start_helper: '23:59:59'
       sleep_time_end_helper: 00:00:01
-- *id001
 - id: '1735328989280'
   alias: HVAC - Check and reset the target temp of heat pump
   description: Temporary automation, something overrules the target temperature and
@@ -3807,22 +3773,93 @@
     target:
       entity_id: '{{ other_switch }}'
   mode: single
-
 - id: evabed_sound_detection_armed_night
-  alias: "Eva Bed Sound Detection - Armed Night"
-  trigger:
-    platform: event
-    event_type: frigate_events
-    event_data:
-      type: sound
-      camera: evabed
-  condition:
-    condition: state
-    entity_id: alarm_control_panel.alarmo
-    state: armed_night
-  action:
-    - action: notify.all_phones
+  alias: Eva Bed Sound Detection - Avond/Nacht
+  description: Detecteert nood-geluiden (huilen, gillen, schreeuwen, hoesten) via
+    Frigate's audio classificatie tussen 19:30 en 07:00. Stuurt direct een melding
+    en escaleert naar een kritieke melding als het geluid binnen 2 minuten nog 2x
+    terugkomt.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.evabed_crying_sound
+    - binary_sensor.evabed_scream_sound
+    - binary_sensor.evabed_yell_sound
+    - binary_sensor.evabed_cough_sound
+    to: 'on'
+  - trigger: numeric_state
+    entity_id: sensor.evabed_sound_level
+    above: sensor.evabed_sound_level_alert_threshold
+    for: '00:00:10'
+  conditions:
+  - condition: time
+    after: '19:30:00'
+    before: '07:00:00'
+  - condition: template
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.eva_bed_sound_detection_armed_night.attributes.last_triggered,
+      0) | int > 300 }}'
+  actions:
+  - variables:
+      sound_labels:
+        binary_sensor.evabed_crying_sound: huilen
+        binary_sensor.evabed_scream_sound: gillen
+        binary_sensor.evabed_yell_sound: schreeuwen
+        binary_sensor.evabed_cough_sound: hoesten
+        sensor.evabed_sound_level: ongewoon hard geluid
+      sound_label: '{{ sound_labels.get(trigger.entity_id, ''geluid'') }}'
+  - action: camera.snapshot
+    target:
+      entity_id: camera.evabed
+    data:
+      filename: /config/www/messages/evabed_sound.jpg
+  - action: notify.all_phones
+    data:
+      title: "\U0001F50A Geluid bij Eva"
+      message: Eva maakt geluid ({{ sound_label }})
       data:
-        title: "⚠️ Sound Detected"
-        message: "Noise detected in Eva's room"
-        critical: true
+        persistent: true
+        tag: eva-sound
+        image: http://192.168.0.40:8123/local/messages/evabed_sound.jpg?t={{ now().timestamp()
+          }}
+  - repeat:
+      count: 2
+      sequence:
+      - wait_for_trigger:
+        - trigger: state
+          entity_id:
+          - binary_sensor.evabed_crying_sound
+          - binary_sensor.evabed_scream_sound
+          - binary_sensor.evabed_yell_sound
+          - binary_sensor.evabed_cough_sound
+          to: 'on'
+        - trigger: numeric_state
+          entity_id: sensor.evabed_sound_level
+          above: sensor.evabed_sound_level_alert_threshold
+          for: '00:00:10'
+        timeout: 00:02:00
+      - if:
+        - condition: template
+          value_template: '{{ wait.trigger is none }}'
+        then:
+        - stop: Geluid hield niet aan - geen escalatie nodig
+  - action: camera.snapshot
+    target:
+      entity_id: camera.evabed
+    data:
+      filename: /config/www/messages/evabed_sound.jpg
+  - action: notify.all_phones
+    data:
+      title: ⚠️ Aanhoudend geluid bij Eva
+      message: Eva maakt al even geluid, ga even kijken!
+      data:
+        persistent: true
+        tag: eva-sound
+        image: http://192.168.0.40:8123/local/messages/evabed_sound.jpg?t={{ now().timestamp()
+          }}
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+          interruption-level: critical
+  mode: single

@@ -344,7 +344,7 @@ template:
       unit_of_measurement: kWh
       device_class: energy
       state_class: total_increasing
-      state: "{{ states('sensor.daily_energy_offpeak')|float + states('sensor.daily_energy_peak')|float }}"
+      state: "{{ states('sensor.daily_energy_offpeak')|float(0) + states('sensor.daily_energy_peak')|float(0) }}"
     - unique_id: monthly_consumption_energy
       name: "Monthly Consumption Energy"
       attributes:
@@ -352,7 +352,7 @@ template:
       unit_of_measurement: kWh
       device_class: energy
       state_class: total_increasing
-      state: "{{ states('sensor.monthly_energy_offpeak')|float + states('sensor.monthly_energy_peak')|float }}"
+      state: "{{ states('sensor.monthly_energy_offpeak')|float(0) + states('sensor.monthly_energy_peak')|float(0) }}"
     - unique_id: yearly_consumption_energy
       name: "Yearly Consumption Energy"
       attributes:
@@ -360,7 +360,7 @@ template:
       unit_of_measurement: kWh
       device_class: energy
       state_class: total_increasing
-      state: "{{ states('sensor.yearly_energy_offpeak')|float + states('sensor.yearly_energy_peak')|float }}"
+      state: "{{ states('sensor.yearly_energy_offpeak')|float(0) + states('sensor.yearly_energy_peak')|float(0) }}"
     - unique_id: net_power_consumption
       name: "Net Power Consumption"
       attributes:

@@ -16,6 +16,7 @@ downloads/*
 www/community
 www/snapshots
 www/fonts
+www/messages
 zigbee2mqtt
 custom_components
 llmvision

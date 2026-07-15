@@ -74,6 +74,121 @@ browser_mod:
             - type: energy-usage-graph
             - type: energy-devices-detail-graph
               max_devices: 5
+            - type: custom:apexcharts-card
+              header:
+                title: Solar forecast
+                show: true
+                show_states: true
+                colorize_states: true
+              apex_config:
+                chart:
+                  height: 300px
+                tooltip:
+                  enabled: true
+                  shared: true
+                  followCursor: true
+              graph_span: 24h
+              span:
+                start: day
+              yaxis:
+                - id: capacity
+                  show: true
+                  opposite: true
+                  decimals: 0
+                  max: 100
+                  min: 0
+                  apex_config:
+                    tickAmount: 10
+                - id: kWh
+                  show: true
+                  min: 0
+                  apex_config:
+                    tickAmount: 10
+                - id: header_only
+                  show: false
+              series:
+                - entity: sensor.solcast_pv_forecast_power_now
+                  name: Solar Power (now)
+                  type: line
+                  stroke_width: 2
+                  float_precision: 2
+                  color: Orange
+                  yaxis_id: kWh
+                  unit: kW
+                  extend_to: now
+                  show:
+                    legend_value: true
+                    in_header: false
+                  group_by:
+                    func: avg
+                    duration: 5m
+                - entity: sensor.solcast_pv_forecast_forecast_today
+                  name: Forecast
+                  color: Grey
+                  opacity: 0.3
+                  stroke_width: 0
+                  type: area
+                  time_delta: +15min
+                  extend_to: false
+                  yaxis_id: kWh
+                  show:
+                    legend_value: false
+                    in_header: false
+                  data_generator: |
+                    return entity.attributes.detailedForecast.map((entry) => {
+                          return [new Date(entry.period_start), entry.pv_estimate];
+                        });
+                - entity: sensor.solcast_pv_forecast_forecast_today
+                  name: Forecast 10%
+                  color: Grey
+                  opacity: 0.3
+                  stroke_width: 0
+                  type: area
+                  time_delta: +15min
+                  extend_to: false
+                  yaxis_id: kWh
+                  show:
+                    legend_value: false
+                    in_header: false
+                  data_generator: |
+                    return entity.attributes.detailedForecast.map((entry) => {
+                          return [new Date(entry.period_start), entry.pv_estimate10];
+                        });
+                - entity: sensor.solaredge_energy_today
+                  yaxis_id: header_only
+                  name: Today Actual
+                  stroke_width: 2
+                  color: Orange
+                  show:
+                    legend_value: true
+                    in_header: true
+                    in_chart: false
+                - entity: sensor.solcast_pv_forecast_forecast_today
+                  yaxis_id: header_only
+                  name: Today Forecast
+                  color: Grey
+                  show:
+                    legend_value: true
+                    in_header: true
+                    in_chart: false
+                - entity: sensor.solcast_pv_forecast_forecast_today
+                  attribute: estimate10
+                  yaxis_id: header_only
+                  name: Today Forecast 10%
+                  color: Grey
+                  opacity: 0.3
+                  show:
+                    legend_value: true
+                    in_header: true
+                    in_chart: false
+                - entity: sensor.solcast_pv_forecast_forecast_remaining_today
+                  yaxis_id: header_only
+                  name: Remaining
+                  color: Grey
+                  show:
+                    legend_value: true
+                    in_header: true
+                    in_chart: false
             - type: entities
               entities:
                 - entity: sensor.power_consumed
@@ -256,4 +371,3 @@ browser_mod:
               watt_threshold: 1000
               transparency_zero_lines: 0
               disable_dots: false
-              

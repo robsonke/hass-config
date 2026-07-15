@@ -8,26 +8,6 @@
 # https://github.com/robsonke/hass-config
 #
 
-# ranges for probes
-input_number:
-  grill_alert_low:
-      name: Grill Low Temperature
-      min: 80
-      max: 350
-      step: 5
-
-  grill_alert_high:
-      name: Grill High Temperature
-      min: 80
-      max: 350
-      step: 5
-
-  grill_probe_2_target:
-      name: Probe 2 Target Temperature
-      min: 40
-      max: 100
-      step: 1
-
 # a timer to use as a kookwekker
 timer:
   bbq:
@@ -45,18 +25,10 @@ input_boolean:
 
 template:
   - sensor:
-    - default_entity_id: sensor.target_alert_temp_probe_1
-      name: Grill Temp Alert
+    - default_entity_id: sensor.dome_alert_temp
+      name: Dome Temp Alert
       state: >-
-        {% if (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int(default=0)) < (states('input_number.grill_alert_low') | int) or (states('sensor.inkbird_ibt_2x_temperature_probe_1') | int(default=0))  > (states('input_number.grill_alert_high') | int) %}
-          Alert
-        {% else %}
-          Normal
-        {% endif %}
-    - default_entity_id: sensor.target_alert_temp_probe_2
-      name: Probe 2 Target Alert
-      state: >-
-        {% if (states('sensor.inkbird_ibt_2x_temperature_probe_2') | int(default=0)) >= (states('input_number.grill_probe_2_target') | int(default=0)) %}
+        {% if (states('sensor.tuin_bbq_dome_thermometer_ambient_temperature') | float(default=0)) < (states('number.tuin_bbq_dome_thermometer_ambient_minimum_temperature') | float(default=0)) or (states('sensor.tuin_bbq_dome_thermometer_ambient_temperature') | float(default=0)) > (states('number.tuin_bbq_dome_thermometer_ambient_maximum_temperature') | float(default=400)) %}
           Alert
         {% else %}
           Normal

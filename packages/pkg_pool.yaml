@@ -13,7 +13,7 @@ template:
       attributes:
         friendly_name: Pool Pump Active
       state: >
-        {{ states('sensor.pool_shelly_3em_active_power_phase_b') | float > 20 }}
+        {{ states('sensor.pool_shelly_3em_active_power_phase_b') | float(0) > 20 }}
   - lock:
     - unique_id: aquadeck_rol_dek
       name: Aquadeck rol dek
@@ -94,7 +94,7 @@ template:
       effect_list: '{{ state_attr(''input_select.pool_light_program_options'', ''options'')
         }}'
       effect: '{{ states.input_select.pool_light_program_options.state }}'
-      state: '{{ states.light.pool_lights_pool_lights.state }}'
+      state: '{{ is_state("light.pool_lights_pool_lights", "on") }}'
 
   - select:
     - name: "Fairland Zwembad WPU Power Mode"

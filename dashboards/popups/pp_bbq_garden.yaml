@@ -28,42 +28,34 @@ browser_mod:
           view_layout:
             grid-area: temperature
           cards:
-            - type: horizontal-stack
+            - type: custom:bubble-card
+              card_type: button
+              button_type: slider
+              entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+              name: Dome
+              icon: mdi:thermometer
+              min_value: 0
+              max_value: 400
+              read_only_slider: true
+              styles: |
+                .bubble-icon-container {
+                  background: ${(hass.states['sensor.dome_alert_temp']?.state === 'Alert') ? '#e74c3c' : 'var(--bubble-icon-background-color)'} !important;
+                }
+                .bubble-button-card-container {
+                  opacity: ${(state === 'unavailable' || state === 'unknown') ? 0.4 : 1} !important;
+                }
+
+            - type: vertical-stack
               cards:
-                - type: vertical-stack
-                  cards:
-                    - type: gauge
-                      name: BBQ Temperatuur
-                      entity: sensor.inkbird_ibt_2x_temperature_probe_1
-                      needle: true
-                      min: 0
-                      max: 400
-                      severity:
-                        green: 70
-                        yellow: 130
-                        red: 200
-                    - type: glance
-                      entities:
-                        - entity: sensor.target_alert_temp_probe_1
-                      show_name: false
-                      show_icon: false
-                - type: vertical-stack
-                  cards:
-                    - type: gauge
-                      name: Vlees Temperatuur
-                      entity: sensor.inkbird_ibt_2x_temperature_probe_2
-                      needle: true
-                      min: 0
-                      max: 120
-                      severity:
-                        green: 0
-                        yellow: 70
-                        red: 100
-                    - type: glance
-                      entities:
-                        - entity: sensor.target_alert_temp_probe_2
-                      show_name: false
-                      show_icon: false
+                - type: custom:bubble-card
+                  card_type: separator
+                  name: Vlees voorspelling
+                - type: custom:probe-ability-card
+                  entity: sensor.tuin_bbq_probe_ability_time_remaining
+                  probe_sensors:
+                    - sensor.probe_1_temperature
+                    - sensor.probe_2_temperature
+                  ambient_sensor: sensor.tuin_bbq_dome_thermometer_ambient_temperature
 
             - type: vertical-stack
               cards:
@@ -89,41 +81,39 @@ browser_mod:
 
             - type: vertical-stack
               cards:
-                - type: entities
-                  title: BBQ Targets
-                  show_header_toggle: false
-                  entities:
-                    - entity: input_number.grill_alert_low
+                - type: custom:bubble-card
+                  card_type: separator
+                  name: Doelen
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:bubble-card
+                      card_type: button
+                      button_type: slider
+                      entity: number.tuin_bbq_dome_thermometer_ambient_minimum_temperature
                       name: Minimaal
-                    - entity: input_number.grill_alert_high
+                    - type: custom:bubble-card
+                      card_type: button
+                      button_type: slider
+                      entity: number.tuin_bbq_dome_thermometer_ambient_maximum_temperature
                       name: Maximaal
 
             - type: vertical-stack
               cards:
-                - type: entities
-                  title: Vlees Targets
-                  show_header_toggle: false
-                  entities:
-                    - entity: input_number.grill_probe_2_target
-                      name: Vlees
-
-            - type: vertical-stack
-              cards:
-                - type: entities
-                  title: Notificaties
-                  show_header_toggle: false
-                  entities:
-                    - entity: input_boolean.enable_bbq_automations
-                      name: Alle notificaties?
-                    - entity: automation.bbq_timer_notifications
-                      tap_action:
-                        action: toggle
-                    - entity: automation.bbq_probe_1_alarm
-                      tap_action:
-                        action: toggle
-                    - entity: automation.bbq_probe_2_alarm
-                      tap_action:
-                        action: toggle
+                - type: custom:bubble-card
+                  card_type: separator
+                  name: Notificaties
+                - type: custom:bubble-card
+                  card_type: button
+                  entity: input_boolean.enable_bbq_automations
+                  name: Alle notificaties?
+                - type: custom:bubble-card
+                  card_type: button
+                  entity: automation.bbq_timer_notifications
+                  name: Timer
+                - type: custom:bubble-card
+                  card_type: button
+                  entity: automation.bbq_dome_alarm
+                  name: Dome alarm
 
         - type: vertical-stack
           view_layout:
@@ -131,10 +121,12 @@ browser_mod:
           cards:
             - type: custom:mini-graph-card
               entities:
-                - entity: sensor.inkbird_ibt_2x_temperature_probe_1
-                  name: BBQ
-                - entity: sensor.inkbird_ibt_2x_temperature_probe_2
-                  name: Vlees
+                - entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+                  name: Dome
+                - entity: sensor.probe_1_temperature
+                  name: Vlees 1
+                - entity: sensor.probe_2_temperature
+                  name: Vlees 2
               show:
                 labels: true
               color_thresholds:

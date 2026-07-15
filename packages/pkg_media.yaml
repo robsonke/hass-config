@@ -22,3 +22,9 @@ media_player:
     unique_id: music_upstairs
     entities:
       - media_player.slaapkamer_sonos
+  - platform: group
+    name: Muziek tuin
+    unique_id: music_garden
+    entities:
+      - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+      #- media_player.sonos_roam  # can be unavailable when offline
