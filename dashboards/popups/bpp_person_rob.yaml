@@ -1,0 +1,135 @@
+# Bubble Card native pop-up (#person-rob) - Rob presence tile.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1150px
+hash: '#person-rob'
+name: Rob
+icon: mdi:account
+cards:
+- type: custom:layout-card
+  layout_type: custom:grid-layout
+  layout:
+    grid-template-columns: 50% 50%
+    grid-template-rows: auto
+    grid-template-areas: '"presence map"
+
+      '
+    mediaquery:
+      '(max-width: 800px)':
+        grid-template-columns: auto
+        grid-template-rows: auto
+        grid-template-areas: '"presence"
+
+          "map"
+
+          '
+  cards:
+  - type: vertical-stack
+    view_layout:
+      grid-area: presence
+    cards:
+    - type: entities
+      card_mod:
+        class: content
+      entities:
+      - entity: person.rob
+        secondary_info: last-changed
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-cover-card
+        entity: cover.bed_rob
+        show_tilt_position_control: false
+        show_buttons_control: true
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+        secondary_info: none
+        fill_container: false
+        layout: horizontal
+      - type: custom:mod-card
+        style:
+          hui-grid-card$: "div#root {\n  display: grid;\n  grid-template-columns: min-content max-content;\n}\n"
+          hui-grid-card$ mushroom-entity-card$: "ha-card {\n  border: unset;\n  background: unset;\n  --icon-primary-color: var(--primary-text-color);\n  --grip-card-gap: 0;\n}\n"
+        card:
+          type: grid
+          square: false
+          columns: 2
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: cover.bed_rob
+            name: Lezen
+            primary_info: none
+            secondary_info: none
+            icon: mdi:book-alphabet
+            tap_action:
+              action: call-service
+              service: rest_command.auping_bed
+              data:
+                cbu: 2
+                motor_1_action: 0
+                motor_1_time: 0
+                motor_2_action: 1
+                motor_2_time: 14000
+                motor_3_action: 0
+                motor_3_time: 0
+          - type: custom:mushroom-entity-card
+            entity: cover.bed_rob
+            name: TV kijken
+            primary_info: none
+            secondary_info: none
+            icon: mdi:television-classic
+            tap_action:
+              action: call-service
+              service: rest_command.auping_bed
+              data:
+                cbu: 2
+                motor_1_action: 0
+                motor_1_time: 0
+                motor_2_action: 1
+                motor_2_time: 17000
+                motor_3_action: 0
+                motor_3_time: 0
+    - type: history-graph
+      entities:
+      - entity: person.rob
+    - type: history-graph
+      title: Presence Graphs Rob
+      hours_to_show: 12
+      refresh_interval: 30
+      entities:
+      - device_tracker.iphone_rob
+      - device_tracker.icloud_iphone_rob
+      - device_tracker.iphonedetect_rob
+      - device_tracker.apple_watch_rob
+    - type: glance
+      show_state: false
+      entities:
+      - entity: device_tracker.iphonedetect_rob
+        name: Router
+        icon: mdi:wifi
+        style: "state-badge {\n  color: {{ '#3182b7' if is_state(config.entity, 'home') else '#3c3f3f' }};\n}\n"
+      - entity: device_tracker.icloud_iphone_rob
+        name: iCloud
+        icon: mdi:account
+        style: "state-badge {\n  color: {{ '#3182b7' if is_state(config.entity, 'home') else '#3c3f3f' }};\n}\n"
+      - entity: device_tracker.iphone_rob
+        name: GPS
+        icon: mdi:cellphone
+        style: "state-badge {\n  color: {{ '#3182b7' if is_state(config.entity, 'home') else '#3c3f3f' }};\n}\n"
+  - type: map
+    default_zoom: 16
+    dark_mode: true
+    hours_to_show: 12
+    entities:
+    - person.rob
+    view_layout:
+      grid-area: map
+    card_mod:
+      style:
+        .: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n}\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n}\nha-card {\n  border-top: 2px solid #1a1a1a;\n  border-radius: 0;\n  transition: none;\n  margin-bottom: -4px !important;\n  height: 25em !important;\n}\n"
+        ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom: 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}"

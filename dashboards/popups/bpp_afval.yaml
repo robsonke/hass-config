@@ -1,0 +1,63 @@
+# Bubble Card native pop-up (hash #afval) — the three trash chips open this.
+# Included from dashboards/bubble-dashboard.yaml as `- !include popups/bpp_afval.yaml`.
+# (bpp_ = Bubble pop-up card; the plain pp_*.yaml files are browser_mod action includes.)
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 720px
+hash: '#afval'
+name: Afvalkalender
+icon: mdi:trash-can-outline
+cards:
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: sensor.template_gft_days_until_collection
+    name: Groene bak · GFT
+    icon: mdi:recycle
+    show_state: false
+    show_attribute: true
+    attribute: text
+    sub_button:
+      - entity: sensor.afvalinfo_home_gft
+        show_state: true
+        show_name: false
+        show_icon: false
+        show_background: true
+    styles: |
+      .bubble-icon-container { background: ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || '#46c77a'} !important; }
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: sensor.template_paper_days_until_collection
+    name: Papier
+    icon: mdi:newspaper-variant-outline
+    show_state: false
+    show_attribute: true
+    attribute: text
+    sub_button:
+      - entity: sensor.afvalinfo_home_papier
+        show_state: true
+        show_name: false
+        show_icon: false
+        show_background: true
+    styles: |
+      .bubble-icon-container { background: ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} !important; }
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: sensor.template_rest_days_until_collection
+    name: Grijze bak · Restafval
+    icon: mdi:trash-can-outline
+    show_state: false
+    show_attribute: true
+    attribute: text
+    sub_button:
+      - entity: sensor.afvalinfo_home_restafval
+        show_state: true
+        show_name: false
+        show_icon: false
+        show_background: true
+    styles: |
+      .bubble-icon-container { background: ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || '#8a8f98'} !important; }

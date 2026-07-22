@@ -1,0 +1,146 @@
+# Bubble Card native pop-up (hash #systeem) — migrated from pp_footer_system.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1150px
+hash: '#systeem'
+name: System & Settings
+icon: mdi:cog
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 60% 40%
+      grid-template-rows: auto
+      grid-template-areas: |
+        "system settings"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "system"
+            "settings"
+    cards:
+      - type: vertical-stack
+        view_layout:
+          grid-area: system
+        cards:
+          - type: entities
+            title: Home Assistant
+            show_header_toggle: false
+            card_mod:
+              class: header
+            entities:
+              - entity: sensor.hass_version_installed
+                name: Versie
+                icon: mdi:home-assistant
+              - entity: sensor.unavailable_entities
+                name: Offline belangrijke entities
+                icon: mdi:alert-circle
+                type: custom:template-entity-row
+                state: "{{ state_attr('sensor.unavailable_entities', 'count') }}"
+                tap_action:
+                  !include pp_unavailable_entities.yaml
+              - type: attribute
+                entity: binary_sensor.important_addons
+                name: Offline Addons
+                attribute: count
+                icon: mdi:alert-circle
+              - entity: sensor.uptime
+                name: Uptime
+                icon: mdi:update
+              - entity: sensor.database_size
+                name: Database Size
+                icon: mdi:database
+              - type: custom:bar-card
+                width: 55%
+                height: 2em
+                decimal: 0
+                unit_of_measurement: '%'
+                positions: &bar_card_positions
+                  icon: outside
+                  indicator: 'off'
+                  name: outside
+                severity: &bar_card_severity
+                  - color: '#6d2525'
+                    from: 85
+                    to: 999
+                entity_row: true
+                entities:
+                  - entity: sensor.processor_use
+                    name: CPU
+                    icon: mdi:chip
+                  - entity: sensor.memory_use_percent
+                    icon: mdi:memory
+                    name: Memory
+                  - entity: sensor.disk_use_percent
+                    icon: mdi:server
+                    name: Disk Usage
+
+          - type: custom:auto-entities
+            card:
+              type: entities
+              title: Belangrijke entities offline
+            show_empty: false
+            filter:
+              include:
+                - group: group.monitored_entities
+                  state: 'unavailable'
+                - group: group.monitored_entities
+                  state: 'unknown'
+                - group: group.monitored_entities
+                  state: 'none'
+            sort:
+              method: name
+          - type: entities
+            title: Internet
+            show_header_toggle: false
+            card_mod:
+              class: header
+            entities:
+              - type: custom:uptime-card
+                entity: binary_sensor.internet_ping
+                icon: mdi:raspberry-pi
+                name: Internet Status
+                icon_adaptive_color: true
+                title_adaptive_color: true
+                status_adaptive_color: true
+                hours_to_show: 24
+                alignment:
+                  status: spaced
+                  header: center
+                show:
+                  footer: false
+
+      - type: vertical-stack
+        view_layout:
+          grid-area: settings
+        cards:
+          - type: entities
+            show_header_toggle: false
+            title: Automatische acties
+            entities:
+              - entity: input_boolean.enable_automatic_lights
+              - entity: input_boolean.enable_automatic_garden_lights
+              - entity: input_boolean.enable_automatic_screens
+              - entity: input_boolean.enable_automatic_hvac
+          - type: entities
+            entities:
+              - entity: switch.evabed_detect
+              - entity: switch.noabed_detect
+              - entity: switch.bijkeuken_detect
+              - entity: switch.zijkant_detect
+              - entity: switch.terras_detect
+              - entity: switch.doorbell_detect
+              - entity: switch.veranda_detect
+              - entity: switch.zwembad_detect
+            title: Camera detectie
+            show_header_toggle: false
+            state_color: false
+          - type: entities
+            show_header_toggle: false
+            title: Theme
+            entities:
+              - entity: input_boolean.dark_mode

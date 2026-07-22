@@ -66,9 +66,9 @@ views:
             button_type: state            # shows current condition text under "Weer"
             entity: weather.weather_langeweide_ecowitt
             name: Weer
-            tap_action: !include popups/pp_sidebar_weather.yaml
+            tap_action: { action: navigate, navigation_path: '#weer' }
             button_action:
-              tap_action: !include popups/pp_sidebar_weather.yaml
+              tap_action: { action: navigate, navigation_path: '#weer' }
             weather_forecast:
               type: daily
               max_days: 5
@@ -146,9 +146,16 @@ views:
                     entity: alarm_control_panel.alarmo
                     name: Alarm
                     icon: mdi:shield-check
-                    tap_action: !include popups/pp_alarm.yaml
+                    tap_action: { action: navigate, navigation_path: '#alarm' }
                     button_action:
-                      tap_action: !include popups/pp_alarm.yaml
+                      tap_action: { action: navigate, navigation_path: '#alarm' }
+                    sub_button:
+                      - icon: mdi:weather-night   # arm the alarm in night mode
+                        tap_action:
+                          action: perform-action
+                          perform_action: alarm_control_panel.alarm_arm_night
+                          target:
+                            entity_id: alarm_control_panel.alarmo
                     modules: [bubble_neon_icon_only]
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
@@ -193,9 +200,9 @@ views:
                     icon: mdi:cog
                     show_name: false
                     show_state: false
-                    tap_action: !include popups/pp_footer_system.yaml
+                    tap_action: { action: navigate, navigation_path: '#systeem' }
                     button_action:
-                      tap_action: !include popups/pp_footer_system.yaml
+                      tap_action: { action: navigate, navigation_path: '#systeem' }
                     bubble_badges:
                       badges:
                         - name: Unavailable entities
@@ -222,10 +229,10 @@ views:
                     entity: person.rob
                     name: Rob
                     show_entity_picture: true
-                    tap_action: !include popups/pp_person_rob.yaml
+                    tap_action: { action: navigate, navigation_path: '#person-rob' }
                     button_action:
-                      tap_action: !include popups/pp_person_rob.yaml
-                    icon_tap_action: !include popups/pp_person_rob.yaml
+                      tap_action: { action: navigate, navigation_path: '#person-rob' }
+                    icon_tap_action: { action: navigate, navigation_path: '#person-rob' }
                     bubble_badges:
                       badges:
                         - name: Thuis
@@ -255,10 +262,10 @@ views:
                     entity: person.steffi
                     name: Steffi
                     show_entity_picture: true
-                    tap_action: !include popups/pp_person_steffi.yaml
+                    tap_action: { action: navigate, navigation_path: '#person-steffi' }
                     button_action:
-                      tap_action: !include popups/pp_person_steffi.yaml
-                    icon_tap_action: !include popups/pp_person_steffi.yaml
+                      tap_action: { action: navigate, navigation_path: '#person-steffi' }
+                    icon_tap_action: { action: navigate, navigation_path: '#person-steffi' }
                     bubble_badges:
                       badges:
                         - name: Thuis
@@ -292,10 +299,10 @@ views:
                     entity: binary_sensor.eva_bed_presence
                     name: Eva
                     show_entity_picture: true
-                    tap_action: !include popups/pp_person_eva.yaml
+                    tap_action: { action: navigate, navigation_path: '#person-eva' }
                     button_action:
-                      tap_action: !include popups/pp_person_eva.yaml
-                    icon_tap_action: !include popups/pp_person_eva.yaml
+                      tap_action: { action: navigate, navigation_path: '#person-eva' }
+                    icon_tap_action: { action: navigate, navigation_path: '#person-eva' }
                     modules: [bubble_neon_icon_only]
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
@@ -311,10 +318,10 @@ views:
                     entity: binary_sensor.noa_bed_presence
                     name: Noa
                     show_entity_picture: true
-                    tap_action: !include popups/pp_person_noa.yaml
+                    tap_action: { action: navigate, navigation_path: '#person-noa' }
                     button_action:
-                      tap_action: !include popups/pp_person_noa.yaml
-                    icon_tap_action: !include popups/pp_person_noa.yaml
+                      tap_action: { action: navigate, navigation_path: '#person-noa' }
+                    icon_tap_action: { action: navigate, navigation_path: '#person-noa' }
                     modules: [bubble_neon_icon_only]
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
@@ -354,6 +361,9 @@ views:
               entity: sensor.template_gft_days_until_collection
               name: Groene bak
               icon: mdi:recycle
+              tap_action: { action: navigate, navigation_path: '#afval' }
+              button_action:
+                tap_action: { action: navigate, navigation_path: '#afval' }
               show_state: false
               show_attribute: true
               attribute: text
@@ -397,6 +407,9 @@ views:
               entity: sensor.template_paper_days_until_collection
               name: Papier
               icon: mdi:newspaper-variant-outline
+              tap_action: { action: navigate, navigation_path: '#afval' }
+              button_action:
+                tap_action: { action: navigate, navigation_path: '#afval' }
               show_state: false
               show_attribute: true
               attribute: text
@@ -440,6 +453,9 @@ views:
               entity: sensor.template_rest_days_until_collection
               name: Grijze bak
               icon: mdi:trash-can-outline
+              tap_action: { action: navigate, navigation_path: '#afval' }
+              button_action:
+                tap_action: { action: navigate, navigation_path: '#afval' }
               show_state: false
               show_attribute: true
               attribute: text
@@ -483,9 +499,9 @@ views:
               entity: sensor.stookwijzer
               name: Stookwijzer
               icon: mdi:fire
-              tap_action: !include popups/pp_footer_stookalert.yaml
+              tap_action: { action: navigate, navigation_path: '#stookwijzer' }
               button_action:
-                tap_action: !include popups/pp_footer_stookalert.yaml
+                tap_action: { action: navigate, navigation_path: '#stookwijzer' }
               modules: [bubble_neon_icon_only]
               styles: |
                 @media (max-width: 767px) {
@@ -499,9 +515,9 @@ views:
               entity: sensor.all_updates
               name: Updates
               icon: mdi:package-up
-              tap_action: !include popups/pp_footer_update.yaml
+              tap_action: { action: navigate, navigation_path: '#updates' }
               button_action:
-                tap_action: !include popups/pp_footer_update.yaml
+                tap_action: { action: navigate, navigation_path: '#updates' }
               bubble_badges:
                 badges:
                   - name: Update count
@@ -528,9 +544,9 @@ views:
               entity: sensor.picnic_cart_items_count
               name: Picnic
               icon: mdi:cart
-              tap_action: !include popups/pp_picnic.yaml
+              tap_action: { action: navigate, navigation_path: '#picnic' }
               button_action:
-                tap_action: !include popups/pp_picnic.yaml
+                tap_action: { action: navigate, navigation_path: '#picnic' }
               bubble_badges:
                 badges:
                   - name: Cart count
@@ -556,6 +572,40 @@ views:
                   .bubble-button-card, .bubble-button { justify-content: center !important; }
                 }
               grid_options: { columns: 6, rows: 1 }
+          # ── Bubble Card native pop-ups (each in its own popups/bpp_*.yaml) ──
+          #    (widths set per-file via width_desktop; mobile = full-width)
+          - !include popups/bpp_afval.yaml           # #afval  ← 3 trash chips
+          - !include popups/bpp_doors_downstairs.yaml # #deuren-beneden ← Deuren (Beneden)
+          - !include popups/bpp_doors_upstairs.yaml  # #ramen-boven ← Ramen (Boven)
+          - !include popups/bpp_doors_garden.yaml    # #deuren-tuin ← Deuren (Tuin)
+          - !include popups/bpp_covers.yaml          # #screens ← Screens
+          - !include popups/bpp_energy_water.yaml    # #water ← Water
+          - !include popups/bpp_person_rob.yaml      # #person-rob ← Rob
+          - !include popups/bpp_person_steffi.yaml   # #person-steffi ← Steffi
+          - !include popups/bpp_person_eva.yaml      # #person-eva ← Eva
+          - !include popups/bpp_person_noa.yaml      # #person-noa ← Noa
+          - !include popups/bpp_music_downstairs.yaml  # #muziek-beneden
+          - !include popups/bpp_music_upstairs.yaml  # #muziek-boven
+          - !include popups/bpp_music_garden.yaml  # #muziek-tuin
+          - !include popups/bpp_cats.yaml  # #katten ← Boris&Puk
+          - !include popups/bpp_light_downstairs.yaml  # #verlichting-beneden
+          - !include popups/bpp_energy_heating.yaml # #klimaat-beneden
+          - !include popups/bpp_light_upstairs.yaml # #verlichting-boven
+          - !include popups/bpp_climate_upstairs.yaml  # #klimaat-boven
+          - !include popups/bpp_energy_usage.yaml   # #energie
+          - !include popups/bpp_energy_dhw.yaml     # #warm-water
+          - !include popups/bpp_pool_garden.yaml    # #zwembad
+          - !include popups/bpp_light_garden.yaml   # #verlichting-tuin
+          - !include popups/bpp_bbq_garden.yaml     # #bbq
+          - !include popups/bpp_mower.yaml          # #grasmaaier
+          - !include popups/bpp_irrigation_garden.yaml  # #beregening
+          - !include popups/bpp_car_ix3.yaml        # #auto
+          - !include popups/bpp_alarm.yaml          # #alarm
+          - !include popups/bpp_system.yaml  # #systeem
+          - !include popups/bpp_stookalert.yaml  # #stookwijzer
+          - !include popups/bpp_update.yaml  # #updates
+          - !include popups/bpp_picnic.yaml         # #picnic
+          - !include popups/bpp_weather.yaml  # #weer
       # ───────────────────────────── BENEDEN ─────────────────────────────────
       - type: grid
         cards:
@@ -581,9 +631,9 @@ views:
             button_type: state
             entity: light.lights_downstairs
             name: Verlichting
-            tap_action: !include popups/pp_light_downstairs.yaml
+            tap_action: { action: navigate, navigation_path: '#verlichting-beneden' }
             button_action:
-              tap_action: !include popups/pp_light_downstairs.yaml
+              tap_action: { action: navigate, navigation_path: '#verlichting-beneden' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -604,9 +654,9 @@ views:
             entity: sensor.indoor_temperature   # heat pump indoor readout
             name: Klimaat
             icon: mdi:heat-pump
-            tap_action: !include popups/pp_energy_heating.yaml
+            tap_action: { action: navigate, navigation_path: '#klimaat-beneden' }
             button_action:
-              tap_action: !include popups/pp_energy_heating.yaml
+              tap_action: { action: navigate, navigation_path: '#klimaat-beneden' }
             modules: [bubble_neon_icon_only]
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
@@ -625,50 +675,9 @@ views:
                   data:
                     group: media_player.music_downstairs
                     command: play_pause
-            tap_action: &music_downstairs
-              action: fire-dom-event
-              browser_mod:
-                service: browser_mod.popup
-                data:
-                  size: normal
-                  timeout: 60000
-                  title: Sonos - Beneden
-                  content:
-                    type: custom:decluttering-card
-                    template: sonos_popup
-                    variables:
-                      - main_player: media_player.eetkamer
-                      - entities:
-                          - media_player.eetkamer
-                          - media_player.living_room
-                          - media_player.eva_eva
-                          - media_player.office
-                          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-                          - media_player.sonos_roam
-                          - media_player.macbook
-                      - groups:
-                          - name: Woon + Eet
-                            entities:
-                              - player: media_player.eetkamer
-                              - player: media_player.living_room
-                          - name: Beneden
-                            media: ''
-                            entities:
-                              - player: media_player.eetkamer
-                              - player: media_player.office
-                              - player: media_player.living_room
-                              - player: media_player.macbook
-                      - sections:
-                          - player
-                          - volumes
-                          - media browser
-                          - grouping
-                          - groups
-                          - queue
-                      - vol_threshold: 40
-                      - vol_max: 40
+            tap_action: { action: navigate, navigation_path: '#muziek-beneden' }
             button_action:
-              tap_action: *music_downstairs
+              tap_action: { action: navigate, navigation_path: '#muziek-beneden' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -692,9 +701,9 @@ views:
             entity: binary_sensor.doors_and_windows_downstairs
             name: Deuren
             icon: mdi:door
-            tap_action: !include popups/pp_doors_downstairs.yaml
+            tap_action: { action: navigate, navigation_path: '#deuren-beneden' }
             button_action:
-              tap_action: !include popups/pp_doors_downstairs.yaml
+              tap_action: { action: navigate, navigation_path: '#deuren-beneden' }
             modules: [bubble_neon_icon_only]
             # subtitle shows a count instead of Open/Closed (no negative red)
             styles: |
@@ -728,9 +737,9 @@ views:
             button_type: state
             entity: light.lights_upstairs
             name: Verlichting
-            tap_action: !include popups/pp_light_upstairs.yaml
+            tap_action: { action: navigate, navigation_path: '#verlichting-boven' }
             button_action:
-              tap_action: !include popups/pp_light_upstairs.yaml
+              tap_action: { action: navigate, navigation_path: '#verlichting-boven' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -751,9 +760,9 @@ views:
             entity: climate.eurom_alutherm_baseboard_heater
             name: Klimaat
             icon: mdi:thermostat
-            tap_action: !include popups/pp_climate_upstairs.yaml
+            tap_action: { action: navigate, navigation_path: '#klimaat-boven' }
             button_action:
-              tap_action: !include popups/pp_climate_upstairs.yaml
+              tap_action: { action: navigate, navigation_path: '#klimaat-boven' }
             modules: [bubble_neon_icon_only]
             styles: |
               /* show the master-bedroom room temperature (the heater has none) */
@@ -779,33 +788,9 @@ views:
                   data:
                     group: media_player.music_upstairs
                     command: play_pause
-            tap_action: &music_upstairs
-              action: fire-dom-event
-              browser_mod:
-                service: browser_mod.popup
-                data:
-                  size: normal
-                  timeout: 60000
-                  title: Sonos - Boven
-                  content:
-                    type: custom:decluttering-card
-                    template: sonos_popup
-                    variables:
-                      - main_player: media_player.slaapkamer_sonos
-                      - entities:
-                          - media_player.slaapkamer_sonos
-                      - groups: []
-                      - vol_threshold: 20
-                      - vol_max: 20
-                      # single idle player → omit the queue section (see template note)
-                      - sections:
-                          - player
-                          - volumes
-                          - media browser
-                          - grouping
-                          - groups
+            tap_action: { action: navigate, navigation_path: '#muziek-boven' }
             button_action:
-              tap_action: *music_upstairs
+              tap_action: { action: navigate, navigation_path: '#muziek-boven' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -829,9 +814,9 @@ views:
             entity: binary_sensor.doors_and_windows_upstairs
             name: Ramen
             icon: mdi:window-closed-variant
-            tap_action: !include popups/pp_doors_upstairs.yaml
+            tap_action: { action: navigate, navigation_path: '#ramen-boven' }
             button_action:
-              tap_action: !include popups/pp_doors_upstairs.yaml
+              tap_action: { action: navigate, navigation_path: '#ramen-boven' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-state { font-size: 0 !important; }
@@ -867,9 +852,9 @@ views:
             entity: sensor.net_power_consumption
             name: Energie
             icon: mdi:solar-power
-            tap_action: !include popups/pp_energy_usage.yaml
+            tap_action: { action: navigate, navigation_path: '#energie' }
             button_action:
-              tap_action: !include popups/pp_energy_usage.yaml
+              tap_action: { action: navigate, navigation_path: '#energie' }
             sub_button:
               - entity: sensor.electricity_cost_today   # € spent today
                 show_state: true
@@ -946,9 +931,9 @@ views:
             entity: sensor.watermeter_water_usage
             name: Water
             icon: mdi:water
-            tap_action: !include popups/pp_energy_water.yaml
+            tap_action: { action: navigate, navigation_path: '#water' }
             button_action:
-              tap_action: !include popups/pp_energy_water.yaml
+              tap_action: { action: navigate, navigation_path: '#water' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -969,9 +954,9 @@ views:
             entity: water_heater.domestic_hot_water_tank
             name: Warm water
             icon: mdi:water-boiler
-            tap_action: !include popups/pp_energy_dhw.yaml
+            tap_action: { action: navigate, navigation_path: '#warm-water' }
             button_action:
-              tap_action: !include popups/pp_energy_dhw.yaml
+              tap_action: { action: navigate, navigation_path: '#warm-water' }
             modules: [bubble_neon_icon_only]
             styles: |
               /* orange only when actually heating the tank — same logic as the
@@ -1016,9 +1001,9 @@ views:
             entity: sensor.pool_deck_status
             name: Zwembad
             icon: mdi:pool
-            tap_action: !include popups/pp_pool_garden.yaml
+            tap_action: { action: navigate, navigation_path: '#zwembad' }
             button_action:
-              tap_action: !include popups/pp_pool_garden.yaml
+              tap_action: { action: navigate, navigation_path: '#zwembad' }
             modules: [bubble_neon_icon_only]
             styles: |
               /* light up (cyan) when the pool cover is open — like the main dashboard */
@@ -1046,9 +1031,9 @@ views:
             entity: light.lights_garden
             name: Verlichting
             icon: mdi:outdoor-lamp
-            tap_action: !include popups/pp_light_garden.yaml
+            tap_action: { action: navigate, navigation_path: '#verlichting-tuin' }
             button_action:
-              tap_action: !include popups/pp_light_garden.yaml
+              tap_action: { action: navigate, navigation_path: '#verlichting-tuin' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -1078,38 +1063,9 @@ views:
                   data:
                     group: media_player.muziek_tuin
                     command: play_pause
-            tap_action: &music_garden
-              action: fire-dom-event
-              browser_mod:
-                service: browser_mod.popup
-                data:
-                  size: normal
-                  timeout: 60000
-                  title: Sonos - Tuin
-                  content:
-                    type: custom:decluttering-card
-                    template: sonos_popup
-                    variables:
-                      - main_player: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-                      - entities:
-                          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-                          - media_player.sonos_roam
-                      - groups:
-                          - name: Tuin
-                            entities:
-                              - player: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-                              - player: media_player.sonos_roam
-                      - sections:
-                          - player
-                          - volumes
-                          - media browser
-                          - grouping
-                          - groups
-                          - queue
-                      - vol_threshold: 30
-                      - vol_max: 30
+            tap_action: { action: navigate, navigation_path: '#muziek-tuin' }
             button_action:
-              tap_action: *music_garden
+              tap_action: { action: navigate, navigation_path: '#muziek-tuin' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-button-background {
@@ -1133,9 +1089,9 @@ views:
             entity: binary_sensor.doors_and_windows_garden
             name: Deuren
             icon: mdi:door-sliding
-            tap_action: !include popups/pp_doors_garden.yaml
+            tap_action: { action: navigate, navigation_path: '#deuren-tuin' }
             button_action:
-              tap_action: !include popups/pp_doors_garden.yaml
+              tap_action: { action: navigate, navigation_path: '#deuren-tuin' }
             modules: [bubble_neon_icon_only]
             styles: |
               .bubble-state { font-size: 0 !important; }
@@ -1153,43 +1109,9 @@ views:
             icon: mdi:cat
             modules: [bubble_neon_icon_only]
             grid_options: { columns: 6, rows: 2 }
-            tap_action: &boris_popup
-              action: fire-dom-event
-              browser_mod:
-                service: browser_mod.popup
-                data:
-                  size: normal
-                  timeout: 60000
-                  title: Boris en Puk
-                  content:
-                    type: vertical-stack
-                    cards:
-                      - type: custom:bubble-card
-                        card_type: button
-                        card_layout: large
-                        button_type: state
-                        entity: binary_sensor.motion_sensor_cats_occupancy
-                        name: Luikje
-                        icon: mdi:cat
-                        show_state: true
-                        show_last_changed: true
-                        styles: |
-                          .bubble-button-background {
-                            opacity: 1 !important;
-                            background-color: ${(state === 'on' ? '#2ecc71' : state === 'off' ? '#7f8c8d' : '#e74c3c')} !important;
-                          }
-                      - type: custom:bubble-card
-                        card_type: separator
-                      - type: custom:bubble-card
-                        card_type: button
-                        card_layout: large
-                        button_type: state
-                        entity: sensor.cat_door_today
-                        name: Vandaag door het luikje
-                        icon: mdi:door
-                        show_state: true
+            tap_action: { action: navigate, navigation_path: '#katten' }
             button_action:
-              tap_action: *boris_popup
+              tap_action: { action: navigate, navigation_path: '#katten' }
           - type: custom:bubble-card
             card_type: button
             card_layout: large
@@ -1204,9 +1126,9 @@ views:
                 background-color: ${(parseFloat(state) > 50 ? 'rgba(235, 95, 45, 0.55)' : 'transparent')} !important;
               }
             grid_options: { columns: 6, rows: 2 }
-            tap_action: !include popups/pp_bbq_garden.yaml
+            tap_action: { action: navigate, navigation_path: '#bbq' }
             button_action:
-              tap_action: !include popups/pp_bbq_garden.yaml
+              tap_action: { action: navigate, navigation_path: '#bbq' }
           - type: custom:bubble-card
             card_type: button
             card_layout: large
@@ -1241,9 +1163,9 @@ views:
                 background-color: ${(state === 'mowing' ? 'rgba(70, 200, 120, 0.42)' : 'transparent')} !important;
               }
             grid_options: { columns: 6, rows: 2 }
-            tap_action: !include popups/pp_mower.yaml
+            tap_action: { action: navigate, navigation_path: '#grasmaaier' }
             button_action:
-              tap_action: !include popups/pp_mower.yaml
+              tap_action: { action: navigate, navigation_path: '#grasmaaier' }
           - type: custom:bubble-card
             card_type: button
             card_layout: large
@@ -1251,9 +1173,9 @@ views:
             entity: switch.irrigatie_zones
             name: Beregening
             icon: mdi:sprinkler-variant
-            tap_action: !include popups/pp_irrigation_garden.yaml
+            tap_action: { action: navigate, navigation_path: '#beregening' }
             button_action:
-              tap_action: !include popups/pp_irrigation_garden.yaml
+              tap_action: { action: navigate, navigation_path: '#beregening' }
             modules: [bubble_neon_icon_only]
             styles: |
               /* blue when watering is active or a plan is enabled */
@@ -1300,9 +1222,9 @@ views:
             entity: device_tracker.ix3_location
             name: BMW iX3
             icon: mdi:car-electric
-            tap_action: !include popups/pp_car_ix3.yaml
+            tap_action: { action: navigate, navigation_path: '#auto' }
             button_action:
-              tap_action: !include popups/pp_car_ix3.yaml
+              tap_action: { action: navigate, navigation_path: '#auto' }
             sub_button:
               - entity: sensor.ix3_remaining_electric_range_km
                 show_state: true
@@ -1357,17 +1279,22 @@ views:
           - type: custom:bubble-card
             card_type: button
             card_layout: large
-            button_type: name
+            button_type: state
             entity: cover.covers_downstairs
             name: Screens
             icon: mdi:blinds
-            show_state: false
-            show_attribute: true
-            attribute: current_position
-            tap_action: !include popups/pp_covers.yaml
+            show_state: true
+            tap_action: { action: navigate, navigation_path: '#screens' }
             button_action:
-              tap_action: !include popups/pp_covers.yaml
+              tap_action: { action: navigate, navigation_path: '#screens' }
             modules: [bubble_neon_icon_only]
+            styles: |
+              /* subtitle = per-screen position + a flag when automation is off */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const d = id => { const p = hass.states[id]?.attributes?.current_position; return p == null ? '?' : (p === 0 ? 'dicht' : (p === 100 ? 'open' : p + '%')); }; const auto = hass.states['input_boolean.enable_automatic_screens']?.state === 'on'; return 'Voor ' + d('cover.voorraam') + ' · Zij ' + d('cover.zijraam') + (auto ? '' : ' · handmatig'); })()}";
+              }
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1454,6 +1381,6 @@ views:
                 icon_selected: mdi:fire
                 url: null
                 tap_action:
-                  !include popups/pp_footer_stookalert.yaml
+                  { action: navigate, navigation_path: '#stookwijzer' }
                 label: Stookwijzer
             grid_options: { columns: full, rows: 1 }

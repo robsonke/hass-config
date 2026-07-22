@@ -1,0 +1,43 @@
+# Bubble Card native pop-up (hash #muziek-beneden) — Muziek tile (Beneden). Sonos.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 760px
+hash: '#muziek-beneden'
+name: Sonos - Beneden
+icon: mdi:music
+cards:
+  - type: custom:decluttering-card
+    template: sonos_popup
+    variables:
+      - main_player: media_player.eetkamer
+      - entities:
+          - media_player.eetkamer
+          - media_player.living_room
+          - media_player.eva_eva
+          - media_player.office
+          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+          - media_player.sonos_roam
+          - media_player.macbook
+      - groups:
+          - name: Woon + Eet
+            entities:
+              - player: media_player.eetkamer
+              - player: media_player.living_room
+          - name: Beneden
+            media: ''
+            entities:
+              - player: media_player.eetkamer
+              - player: media_player.office
+              - player: media_player.living_room
+              - player: media_player.macbook
+      - sections:
+          - player
+          - volumes
+          - media browser
+          - grouping
+          - groups
+          - queue
+      - vol_threshold: 40
+      - vol_max: 40

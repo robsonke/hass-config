@@ -1,0 +1,74 @@
+# Bubble Card native pop-up (hash #deuren-beneden) — Deuren tile (Beneden).
+# Included from bubble-dashboard.yaml as `- !include popups/bpp_doors_downstairs.yaml`.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 760px
+hash: '#deuren-beneden'
+name: Deuren en ramen beneden
+icon: mdi:door
+cards:
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - type: section
+        label: Voordeur
+      - entity: binary_sensor.langeweide_doorbell_visitor
+        name: Deurbel ding
+        secondary_info: last-changed
+      - binary_sensor.frontdoor_openclose_contact
+      - entity: binary_sensor.langeweide_doorbell_motion
+        name: Laatste beweging
+        secondary_info: last-changed
+      - entity: binary_sensor.langeweide_doorbell_person
+        name: Laatste persoon
+        secondary_info: last-changed
+  - type: custom:auto-entities
+    card:
+      show_icon: true
+      type: entities
+    filter:
+      include:
+        - type: section
+          label: Buitendeuren
+        - entity_id: binary_sensor.backdoor_sensor_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.frontdoor_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.door_terrace_sensor_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.sheddoor_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.cabindoor_openclose_contact
+          options:
+            secondary_info: last-changed
+        - type: section
+          label: Kiep/kantel ramen
+        - entity_id: binary_sensor.windowdoor_ground_1_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.windowdoor_ground_2_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.windowdoor_ground_3_openclose_contact
+          options:
+            secondary_info: last-changed
+        - type: section
+          label: Overig
+        - entity_id: binary_sensor.hallwaydoor_sensor_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.window_office_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.door_hallcloset_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.toiletdoordownstairs_sensor_contact
+          options:
+            secondary_info: last-changed

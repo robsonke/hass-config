@@ -1,0 +1,35 @@
+# Bubble Card native pop-up (hash #ramen-boven) — Ramen tile (Boven).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 760px
+hash: '#ramen-boven'
+name: Deuren en ramen boven
+icon: mdi:window-closed-variant
+cards:
+  - type: custom:auto-entities
+    card:
+      show_icon: false
+      type: entities
+    filter:
+      include:
+        - type: section
+          label: Master bedroom
+        - entity_id: binary_sensor.window_masterbed_1_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.window_masterbed_2_openclose_contact
+          options:
+            secondary_info: last-changed
+        - type: section
+          label: Overig
+        - entity_id: binary_sensor.window_eva_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.window_noaroom_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.window_guestroom_openclose_contact
+          options:
+            secondary_info: last-changed

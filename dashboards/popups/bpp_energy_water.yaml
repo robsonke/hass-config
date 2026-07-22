@@ -1,0 +1,11 @@
+# Bubble Card native pop-up (hash #water) — Water tile (Energie & water).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 920px
+hash: '#water'
+name: Waterverbruik
+icon: mdi:water
+cards:
+  - type: energy-water-graph

@@ -1,0 +1,34 @@
+# Bubble Card native pop-up (hash #katten) — Boris&Puk tile (Tuin). Cat flap.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 560px
+hash: '#katten'
+name: Boris en Puk
+icon: mdi:cat
+cards:
+  - type: custom:bubble-card
+    card_type: button
+    card_layout: large
+    button_type: state
+    entity: binary_sensor.motion_sensor_cats_occupancy
+    name: Luikje
+    icon: mdi:cat
+    show_state: true
+    show_last_changed: true
+    styles: |
+      .bubble-button-background {
+        opacity: 1 !important;
+        background-color: ${(state === 'on' ? '#2ecc71' : state === 'off' ? '#7f8c8d' : '#e74c3c')} !important;
+      }
+  - type: custom:bubble-card
+    card_type: separator
+  - type: custom:bubble-card
+    card_type: button
+    card_layout: large
+    button_type: state
+    entity: sensor.cat_door_today
+    name: Vandaag door het luikje
+    icon: mdi:door
+    show_state: true

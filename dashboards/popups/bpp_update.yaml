@@ -1,0 +1,30 @@
+# Bubble Card native pop-up (hash #updates) — migrated from pp_footer_update.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 680px
+hash: '#updates'
+name: Update Info
+icon: mdi:package-up
+cards:
+  - type: grid
+    columns: 1
+    square: false
+    cards:
+      - type: custom:button-card
+        entity: sensor.hass_version_installed
+        template:
+          - updates_hass
+      - type: custom:auto-entities
+        card:
+          type: vertical-stack
+        card_param: cards
+        filter:
+          include:
+            - entity_id: update.*
+              state: 'on'
+              options:
+                type: custom:mushroom-update-card
+                entities:
+                  - this.entity_id

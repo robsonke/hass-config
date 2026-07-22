@@ -1,0 +1,45 @@
+# Bubble Card native pop-up (#person-noa) - Noa presence tile.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1100px
+hash: '#person-noa'
+name: Noa
+icon: mdi:cctv
+cards:
+- type: custom:advanced-camera-card
+  dimensions:
+    aspect_ratio_mode: unconstrained
+  view:
+    default: live
+  menu:
+    buttons:
+      frigate:
+        enabled: false
+      snapshots:
+        enabled: true
+      camera_ui:
+        enabled: false
+      fullscreen:
+        enabled: true
+      media_player:
+        enabled: false
+    style: overlay
+    position: top
+  timeline:
+    window_seconds: 3600
+    media: all
+  cameras:
+  - camera_entity: camera.noabed
+    live_provider: ha
+    frigate:
+      camera_name: Noa
+    ptz:
+      enabled: false
+  media_viewer:
+    controls:
+      thumbnails:
+        mode: below
+      next_previous:
+        style: chevrons

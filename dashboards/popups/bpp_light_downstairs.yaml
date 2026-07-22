@@ -1,0 +1,132 @@
+# Bubble Card native pop-up (hash #verlichting-beneden) — migrated from pp_light_downstairs.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1000px
+hash: '#verlichting-beneden'
+name: Verlichting beneden
+icon: mdi:lightbulb-group
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 1fr 1fr
+      grid-template-rows: auto
+      grid-template-areas: |
+        "part1 part2"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "part1"
+            "part2"
+    cards:
+      - type: entities
+        view_layout:
+          grid-area: part1
+        entities:
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.kitchen_light
+              - title: Keuken
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.kitchencabin_light
+              - title: Keukenkast
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.kitchendesk_light
+              - title: Kookeiland
+
+          - type: divider
+
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - title: Achter
+              - entity: light.livingback_light
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - title: Voor
+              - entity: light.livingfront_light
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - title: Bank
+              - entity: light.socket2_light_couch
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - title: Hoeklamp
+              - entity: light.socket1_light_corner
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - title: Ledstrip TV
+              - entity: light.ledstrip_tv
+          - type: divider
+
+      - type: entities
+        view_layout:
+          grid-area: part2
+        entities:
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.dining_light
+              - title: Eetkamer
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.diningtable_light
+              - title: Eettafel
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.ledstrip_book
+              - title: Boekenkast
+
+          - type: divider
+
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.office_light
+              - title: Kantoor
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.ledstrip_office
+              - title: Led Bureau
+
+          - type: divider
+
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.eva_corridor_light
+              - title: Gang Eva
+
+          - type: divider
+
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - entity: light.dimmer_hall
+              - title: Hal
+          - type: custom:decluttering-card
+            template: light_button
+            variables:
+              - title: Toilet
+              - entity: light.toilet_downstairs_light
+          # - type: custom:decluttering-card
+          #   template: light_button
+          #   variables:
+          #     - title: Kerstverlichting
+          #     - entity: light.kerst_binnen

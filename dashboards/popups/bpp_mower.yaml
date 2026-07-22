@@ -1,0 +1,56 @@
+# Bubble Card native pop-up (hash #grasmaaier) — migrated from pp_mower.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1050px
+hash: '#grasmaaier'
+name: Grasmaaier
+icon: mdi:robot-mower
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 1fr 1fr
+      grid-template-rows: auto
+      grid-template-areas: |
+        "card card"
+        "history battery"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "card"
+            "history"
+            "battery"
+    cards:
+      - type: custom:lawn-mower-card
+        view_layout:
+          grid-area: card
+        entity: lawn_mower.navimow_i108
+        battery: sensor.navimow_i108_battery
+        show_name: true
+        show_status: true
+        show_toolbar: true
+        show_shortcuts: false
+        animated: true
+        image: /local/images/navimow_mower.png
+
+      - type: history-graph
+        view_layout:
+          grid-area: history
+        title: Maaiactiviteit (7 dagen)
+        hours_to_show: 168
+        entities:
+          - entity: lawn_mower.navimow_i108
+            name: Status
+
+      - type: history-graph
+        view_layout:
+          grid-area: battery
+        title: Accu (48 uur)
+        hours_to_show: 48
+        entities:
+          - entity: sensor.navimow_i108_battery
+            name: Accu

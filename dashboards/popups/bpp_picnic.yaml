@@ -1,0 +1,28 @@
+# Bubble Card native pop-up (hash #picnic) — migrated from pp_picnic.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 680px
+hash: '#picnic'
+name: Picnic
+icon: mdi:cart
+cards:
+  - type: vertical-stack
+    cards:
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: sensor.picnic_cart_items_count
+            name: Boodschappen in mandje
+          - entity: sensor.picnic_cart_total_price
+            name: Prijs winkelmandje
+          - entity: sensor.picnic_max_order_time_of_selected_slot
+            name: Laatste bestelmoment
+          - entity: sensor.picnic_start_of_selected_slot
+            name: Eerste volgende levering
+          - entity: sensor.picnic_minimum_order_value_for_selected_slot
+            name: Minimale bedrag
+          - type: divider
+          - entity: sensor.picnic_total_price_of_last_order
+            name: Prijs laatste bestelling

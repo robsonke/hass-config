@@ -59,7 +59,7 @@ browser_mod:
                 type: entities
                 show_header_toggle: false
                 entities:
-                  - entity: sensor.infrarood_eva_current_consumption
+                  - entity: sensor.infrarood_eva_power
             - type: entities
               show_header_toggle: false
               entities:
@@ -72,7 +72,7 @@ browser_mod:
                 type: entities
                 show_header_toggle: false
                 entities:
-                  - entity: sensor.infrarood_noa_current_consumption
+                  - entity: sensor.infrarood_noa_power
 
             - type: entities
               show_header_toggle: false

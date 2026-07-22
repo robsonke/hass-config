@@ -1,0 +1,24 @@
+# Bubble Card native pop-up (hash #deuren-tuin) — Deuren tile (Tuin).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 680px
+hash: '#deuren-tuin'
+name: Deuren in de tuin
+icon: mdi:door-sliding
+cards:
+  - type: custom:auto-entities
+    card:
+      show_icon: true
+      type: entities
+    filter:
+      include:
+        - type: section
+          label: Schuurdeuren
+        - entity_id: binary_sensor.sheddoor_openclose_contact
+          options:
+            secondary_info: last-changed
+        - entity_id: binary_sensor.cabindoor_openclose_contact
+          options:
+            secondary_info: last-changed

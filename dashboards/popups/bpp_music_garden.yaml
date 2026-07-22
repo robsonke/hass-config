@@ -1,0 +1,31 @@
+# Bubble Card native pop-up (hash #muziek-tuin) — Muziek tile (Tuin). Sonos.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 700px
+hash: '#muziek-tuin'
+name: Sonos - Tuin
+icon: mdi:music
+cards:
+  - type: custom:decluttering-card
+    template: sonos_popup
+    variables:
+      - main_player: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+      - entities:
+          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+          - media_player.sonos_roam
+      - groups:
+          - name: Tuin
+            entities:
+              - player: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+              - player: media_player.sonos_roam
+      - sections:
+          - player
+          - volumes
+          - media browser
+          - grouping
+          - groups
+          - queue
+      - vol_threshold: 30
+      - vol_max: 30

@@ -1,0 +1,136 @@
+# Bubble Card native pop-up (hash #klimaat-boven) — migrated from pp_climate_upstairs.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1100px
+hash: '#klimaat-boven'
+name: Slaapkamers klimaat
+icon: mdi:thermostat
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 3fr 2fr
+      grid-template-rows: auto
+      grid-template-areas: |
+        "climate thermostat"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "thermostat"
+            "climate"
+    cards:
+      - type: vertical-stack
+        view_layout:
+          grid-area: thermostat
+        cards:
+          - type: vertical-stack
+            title: Slaapkamer
+            cards:
+              - type: custom:mushroom-climate-card
+                entity: climate.eurom_alutherm_baseboard_heater
+                fill_container: false
+                hvac_modes:
+                  - heat
+                  - "off"
+                show_temperature_control: true
+                collapsible_controls: false
+                icon_type: icon
+                layout: horizontal
+              - type: entities
+                show_header_toggle: false
+                entities:
+                  - entity: sensor.eurom_alutherm_power
+                    name: Verbruik
+                  - entity: sensor.eurom_alutherm_energy_daily
+                    name: Verbruik vandaag (kWh)
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.infrarood_eva
+                name: Infraroodpanel Eva
+          - type: conditional
+            conditions:
+              - entity: switch.infrarood_eva
+                state_not: "off"
+            card:
+              type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.infrarood_eva_power
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.infrarood_noa
+          - type: conditional
+            conditions:
+              - entity: switch.infrarood_noa
+                state_not: "off"
+            card:
+              type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.infrarood_noa_power
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.shelly_plug_badkamer_verwarming_relay
+          - type: conditional
+            conditions:
+              - entity: switch.shelly_plug_badkamer_verwarming_relay
+                state_not: "off"
+            card:
+              type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.shelly_plug_badkamer_verwarming_power
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.shelly_plug_douche_verwarming_relay
+          - type: conditional
+            conditions:
+              - entity: switch.shelly_plug_douche_verwarming_relay
+                state_not: "off"
+            card:
+              type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.shelly_plug_douche_verwarming_power
+
+      - type: vertical-stack
+        view_layout:
+          grid-area: climate
+        cards:
+          - type: humidifier
+            entity: humidifier.master_bedroom
+            title: Luchtontvochtiger
+            features:
+              - type: "humidifier-toggle"
+              - type: "humidifier-modes"
+                style: "dropdown"
+                modes:
+                  - Set
+                  - Smart
+                  - Continuous
+                  - Dry
+          - type: statistics-graph
+            title: Temperatuur
+            period: hour
+            days_to_show: 1
+            stat_types: mean
+            chart_type: line
+            entities:
+              - entity: sensor.climate_sensor_masterbedroom_temperature
+                name: Master
+              - entity: sensor.climate_sensor_eva_temperature
+                name: Eva
+              - entity: sensor.climate_sensor_noa_temperature
+                name: Noa
+              - entity: sensor.climate_sensor_guestroom_temperature
+                name: Loge

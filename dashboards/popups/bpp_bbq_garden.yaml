@@ -1,0 +1,137 @@
+# Bubble Card native pop-up (hash #bbq) — migrated from pp_bbq_garden.yaml (browser_mod).
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1050px
+hash: '#bbq'
+name: BBQ
+icon: mdi:grill
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 1fr 1fr
+      grid-template-rows: auto
+      grid-template-areas: |
+        "temperature graph"
+      mediaquery:
+        "(max-width: 800px)":
+          grid-template-columns: auto
+          grid-template-rows: auto
+          grid-template-areas: |
+            "temperature"
+            "graph"
+    cards:
+      - type: vertical-stack
+        view_layout:
+          grid-area: temperature
+        cards:
+          - type: custom:bubble-card
+            card_type: button
+            button_type: slider
+            entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+            name: Dome
+            icon: mdi:thermometer
+            min_value: 0
+            max_value: 400
+            read_only_slider: true
+            styles: |
+              .bubble-icon-container {
+                background: ${(hass.states['sensor.dome_alert_temp']?.state === 'Alert') ? '#e74c3c' : 'var(--bubble-icon-background-color)'} !important;
+              }
+              .bubble-button-card-container {
+                opacity: ${(state === 'unavailable' || state === 'unknown') ? 0.4 : 1} !important;
+              }
+
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: separator
+                name: Vlees voorspelling
+              - type: custom:probe-ability-card
+                entity: sensor.tuin_bbq_probe_ability_time_remaining
+                probe_sensors:
+                  - sensor.probe_1_temperature
+                  - sensor.probe_2_temperature
+                ambient_sensor: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+
+          - type: vertical-stack
+            cards:
+              - type: entities
+                title: Kookwekker
+                show_header_toggle: false
+                entities:
+                  - type: custom:numberbox-card
+                    entity: timer.bbq
+                    icon: mdi:clock
+                    service: timer.start
+                    param: duration
+                    state: duration
+                    min: 60
+                    max: 10800
+                    step: 60
+                    unit: time
+                  - type: custom:timer-bar-card
+                    entity: timer.bbq
+                    mushroom:
+                    bar_direction: rtl
+                    invert: true
+
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: separator
+                name: Doelen
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: slider
+                    entity: number.tuin_bbq_dome_thermometer_ambient_minimum_temperature
+                    name: Minimaal
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: slider
+                    entity: number.tuin_bbq_dome_thermometer_ambient_maximum_temperature
+                    name: Maximaal
+
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: separator
+                name: Notificaties
+              - type: custom:bubble-card
+                card_type: button
+                entity: input_boolean.enable_bbq_automations
+                name: Alle notificaties?
+              - type: custom:bubble-card
+                card_type: button
+                entity: automation.bbq_timer_notifications
+                name: Timer
+              - type: custom:bubble-card
+                card_type: button
+                entity: automation.bbq_dome_alarm
+                name: Dome alarm
+
+      - type: vertical-stack
+        view_layout:
+          grid-area: graph
+        cards:
+          - type: custom:mini-graph-card
+            entities:
+              - entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+                name: Dome
+              - entity: sensor.probe_1_temperature
+                name: Vlees 1
+              - entity: sensor.probe_2_temperature
+                name: Vlees 2
+            show:
+              labels: true
+            color_thresholds:
+              - value: 150
+                color: "#f39c12"
+              - value: 200
+                color: "#d35400"
+              - value: 250
+                color: "#c0392b"

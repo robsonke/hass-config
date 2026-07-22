@@ -1,0 +1,26 @@
+# Bubble Card native pop-up (hash #muziek-boven) — Muziek tile (Boven). Sonos.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 640px
+hash: '#muziek-boven'
+name: Sonos - Boven
+icon: mdi:music
+cards:
+  - type: custom:decluttering-card
+    template: sonos_popup
+    variables:
+      - main_player: media_player.slaapkamer_sonos
+      - entities:
+          - media_player.slaapkamer_sonos
+      - groups: []
+      - vol_threshold: 20
+      - vol_max: 20
+      # single idle player → omit the queue section (see template note)
+      - sections:
+          - player
+          - volumes
+          - media browser
+          - grouping
+          - groups

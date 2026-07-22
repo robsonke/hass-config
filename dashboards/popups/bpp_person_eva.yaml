@@ -1,0 +1,50 @@
+# Bubble Card native pop-up (#person-eva) - Eva presence tile.
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 1100px
+hash: '#person-eva'
+name: Eva
+icon: mdi:cctv
+cards:
+- type: custom:advanced-camera-card
+  dimensions:
+    aspect_ratio_mode: unconstrained
+  view:
+    default: live
+  menu:
+    buttons:
+      frigate:
+        enabled: false
+      timeline:
+        enabled: true
+      clips:
+        enabled: true
+      recordings:
+        enabled: true
+      snapshots:
+        enabled: false
+      camera_ui:
+        enabled: true
+      fullscreen:
+        enabled: true
+      media_player:
+        enabled: false
+    style: overlay
+    position: top
+  cameras:
+  - camera_entity: camera.evabed
+  timeline:
+    window_seconds: 3600
+    events_media_type: all
+    show_recordings: true
+    controls:
+      thumbnails:
+        mode: below
+  media_viewer:
+    controls:
+      thumbnails:
+        mode: below
+      next_previous:
+        style: chevrons
