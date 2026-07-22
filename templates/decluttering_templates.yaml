@@ -9,3 +9,46 @@ light_button:
     - brightness
     features:
       - type: "light-brightness"
+
+# Reusable Sonos popup body (custom:sonos-card). Used as browser_mod popup
+# content. EVERY card must pass ALL of these variables explicitly — the
+# installed decluttering-card does NOT apply `default_variables`, so any
+# placeholder a card omits ships to sonos-card as a literal "[[name]]" string
+# (e.g. predefinedGroups: "[[groups]]" makes sonos-card iterate the string
+# char-by-char → "configEntities is not iterable").
+#   - main_player  : entityId the card opens on (string)
+#   - entities     : list of media_player entities to show
+#   - groups       : predefinedGroups list ([] when the zone has no groups)
+#   - sections     : which sections to show. OMIT `queue` for a single/idle
+#                    player — the queue view calls getQueue() on the active
+#                    player and iterates the result, which throws when idle.
+#   - vol_threshold / vol_max : dynamic volume slider tuning
+sonos_popup:
+  card:
+    type: custom:sonos-card
+    sections: '[[sections]]'
+    entityId: '[[main_player]]'
+    entities: '[[entities]]'
+    predefinedGroups: '[[groups]]'
+    topFavorites:
+      - 'NPO Radio 2'
+    player:
+      artworkAsBackground: true
+    volumes:
+      hideCogwheel: false
+    grouping:
+      skipApplyButton: true
+    mediaBrowser:
+      itemsPerRow: 3
+      replaceHttpWithHttpsForThumbnails: true
+    adjustVolumeRelativeToMainPlayer: true
+    widthPercentage: 100
+    heightPercentage: 100
+    dynamicVolumeSlider: true
+    dynamicVolumeSliderThreshold: '[[vol_threshold]]'
+    dynamicVolumeSliderMax: '[[vol_max]]'
+    card_mod:
+      style: |
+        ha-card {
+          --accent-color: var(--primary-color);
+        }

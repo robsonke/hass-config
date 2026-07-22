@@ -1,0 +1,1459 @@
+wallpanel:
+  enabled: true
+  hide_toolbar: false
+  idle_time: 0
+
+# Shared decluttering-card templates (sonos_popup, light_button, …) so popups
+# opened from this dashboard can resolve them — same file the main dashboard uses.
+decluttering_templates: !include ../templates/decluttering_templates.yaml
+# button-card templates too, so popups that use custom:button-card (e.g. the
+# Updates popup's updates_hass template) resolve when opened from this dashboard.
+button_card_templates: !include_dir_merge_named ../templates/button_card_templates
+
+views:
+  # ============================================================================
+  #  Langeweide — Bubble Card dashboard (HA native "sections" view)
+  #  Paste this under `views:` in your dashboard's Raw configuration editor.
+  #
+  #  MODULES USED (custom modules live in bubble_card/modules/*.yaml):
+  #    - weather_forecast          → Bubble Weather
+  #    - bubble_calendar_enhanced  → Bubble Calendar Enhanced
+  #    - bubble_neon_icon_only     → local module (bubble_card/modules/bubble_neon_icon_only.yaml):
+  #                                  per-card icon accent color, no whole-card gradient.
+  #                                  Deliberately NOT the upstream "Bubble Neon" module — that one
+  #                                  colors the entire tile, which doesn't match the approved mockup.
+  #    - bubble_badges             → Bubble Badges 2
+  #
+  #  Layout: HA sections view. A section's internal grid is column_span × 12
+  #  columns (NOT a flat 12). Non-spanned sections use 12 cols (6 = half,
+  #  4 = third). View is capped at max_columns: 3, so the header
+  #  (column_span: 3 → 36 cols) and Tuin (column_span: 2 → 24 cols)
+  #  sections below have their card `columns` scaled up accordingly so
+  #  tiles don't pack too tight / truncate. Header row = 12+13+11 = 36;
+  #  chip strip = 6 chips × 6 = 36.
+  #  Everything is drag-resizable in the UI editor after pasting.
+  # ============================================================================
+
+  - title: Overzicht
+    path: overzicht
+    type: sections
+    theme: custom-dark
+    # dark scrim over the wallpaper so the neon accents pop (raise the 0.62
+    # alpha toward 1 for even darker, lower it toward 0 to show more wallpaper)
+    background: "linear-gradient(rgba(8, 6, 16, 0.62), rgba(8, 6, 16, 0.62)), url('/local/bubble_background.jpg') center / cover no-repeat"
+    max_columns: 3          # mockup is a 3-column design; also fixes the header
+                            # grid at 36 cols (3×12) so tile widths are deterministic
+    dense_section_placement: true
+    sections:
+
+      # ───────────────────────── HEADER: weer · agenda · status ──────────────
+      - type: grid
+        column_span: 3
+        cards:
+          # navbar scroll target for the "Huis" route — MOBILE ONLY
+          - type: custom:anchor-card
+            anchor_id: top
+            timeout: 200
+            offset: -50
+            visibility:
+              - condition: screen
+                media_query: "(max-width: 767px)"
+            grid_options: { columns: full, rows: 1 }
+          # Bubble Weather (Square layout with forecast)
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large            # enables the module's square forecast-grid layout
+            button_type: state            # shows current condition text under "Weer"
+            entity: weather.weather_langeweide_ecowitt
+            name: Weer
+            tap_action: !include popups/pp_sidebar_weather.yaml
+            button_action:
+              tap_action: !include popups/pp_sidebar_weather.yaml
+            weather_forecast:
+              type: daily
+              max_days: 5
+              min_day_width: 60
+              disable_dynamic_background: false
+              disable_animations: false
+            modules:
+              - weather_forecast          # own animated background + weather icon; no neon override
+            grid_options: { columns: 12, rows: 4 }
+
+          # Bubble Calendar Enhanced (agenda + live clock/date)
+          - type: custom:bubble-card
+            card_type: calendar
+            rows: 4
+            event_action:
+              tap_action:
+                action: more-info
+            sub_button:
+              main: []
+              bottom: []
+            entities:
+              - entity: calendar.joep
+                color: "#4C7160"
+              - entity: calendar.rob
+                color: "#E9CF15"
+            days: 7
+            limit: 6
+            modules:
+              - bubble_calendar_enhanced   # layout: time+date bottom, Dusk Bokeh
+              - bubble_neon_icon_only
+            bubble_calendar_enhanced:
+              background: 'radial-gradient(ellipse at 80% 15%, rgba(148,108,215,0.28) 0%, transparent 65%), radial-gradient(ellipse at 10% 85%, rgba(82,158,192,0.22) 0%, transparent 68%), radial-gradient(ellipse at 50% 50%, rgba(170,88,158,0.15) 0%, transparent 60%), #4d3a6e'
+            grid_options: { columns: 12, rows: 4 }
+
+          # ── Right column (mockup's 3rd header column) ──────────────────────
+          # ONE nested grid so it's a deterministic compact panel the same
+          # height as Weer/Agenda: Alarm | Gasten on row 1, then the 2×2
+          # presence grid (Rob|Steffi / Eva|Noa) below. columns:2 → 3 rows.
+          - type: grid
+            columns: 1
+            square: false
+            # Presence panel (mockup's 3rd column): lighter glass background,
+            # rounded, subtle border + shadow, inner padding. Top row =
+            # Alarm | Gasten (fill) + a small Settings icon button; then the
+            # 2×2 people grid (Rob|Steffi / Eva|Noa).
+            card_mod:
+              style: |
+                :host {
+                  background: rgba(255, 255, 255, 0.05);
+                  border: 1px solid rgba(255, 255, 255, 0.08);
+                  border-radius: 24px;
+                  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+                  padding: 12px;
+                  box-sizing: border-box;
+                }
+                /* on phones: keep the glass panel but span the full width, so the
+                   buttons inside just divide the space (same width as the
+                   weather/agenda cards and the sections below) */
+                @media (max-width: 767px) {
+                  :host { grid-column: 1 / -1 !important; }
+                }
+            cards:
+              # top row: Alarm + Gasten fill, Settings pinned small on the right
+              # (grid-template-columns is more reliable than flex here)
+              - type: grid
+                columns: 3
+                square: false
+                card_mod:
+                  style: |
+                    #root { grid-template-columns: 1fr 1fr 56px !important; gap: 8px !important; }
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: name
+                    entity: alarm_control_panel.alarmo
+                    name: Alarm
+                    icon: mdi:shield-check
+                    tap_action: !include popups/pp_alarm.yaml
+                    button_action:
+                      tap_action: !include popups/pp_alarm.yaml
+                    modules: [bubble_neon_icon_only]
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: state
+                    entity: input_boolean.guest_mode
+                    name: Gasten
+                    icon: mdi:account-multiple-plus
+                    tap_action:
+                      action: toggle
+                    button_action:
+                      tap_action:
+                        action: toggle
+                    bubble_badges:
+                      badges:
+                        - name: Gastenmodus actief
+                          target: main_icon
+                          dot: true
+                          color: red
+                          condition:
+                            - condition: state
+                              entity_id: input_boolean.guest_mode
+                              state: "on"
+                    modules: [bubble_badges, bubble_neon_icon_only]
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      /* enabled = full magenta; disabled (guest mode off) = greyed + dimmed */
+                      .bubble-main-icon-container {
+                        filter: grayscale(${state === 'on' ? 0 : 1}) !important;
+                        opacity: ${state === 'on' ? 1 : 0.4} !important;
+                      }
+                      .bubble-name, .bubble-state {
+                        opacity: ${state === 'on' ? 1 : 0.6} !important;
+                      }
+                  # small icon-only Settings button → opens the system popup.
+                  # Plain grey icon (no neon glow); red count badge when there
+                  # are unavailable entities.
+                  - type: custom:bubble-card
+                    card_type: button
+                    entity: sensor.unavailable_entities
+                    icon: mdi:cog
+                    show_name: false
+                    show_state: false
+                    tap_action: !include popups/pp_footer_system.yaml
+                    button_action:
+                      tap_action: !include popups/pp_footer_system.yaml
+                    bubble_badges:
+                      badges:
+                        - name: Unavailable entities
+                          target: main_icon
+                          entity: sensor.unavailable_entities
+                          color: red
+                          condition:
+                            - condition: numeric_state
+                              entity_id: sensor.unavailable_entities
+                              above: 0
+                    modules: [bubble_badges]
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      .bubble-icon-container { background: rgba(255, 255, 255, 0.10) !important; }
+                      .bubble-main-icon { color: var(--secondary-text-color, #9aa3b2) !important; opacity: 1 !important; }
+              # 2×2 people grid
+              - type: grid
+                columns: 2
+                square: false
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: state
+                    entity: person.rob
+                    name: Rob
+                    show_entity_picture: true
+                    tap_action: !include popups/pp_person_rob.yaml
+                    button_action:
+                      tap_action: !include popups/pp_person_rob.yaml
+                    icon_tap_action: !include popups/pp_person_rob.yaml
+                    bubble_badges:
+                      badges:
+                        - name: Thuis
+                          target: main_icon
+                          icon: mdi:home
+                          color: green
+                          condition:
+                            - condition: state
+                              entity_id: person.rob
+                              state: "home"
+                    modules:
+                      - bubble_badges   # "thuis" badge on the main icon
+                      - bubble_neon_icon_only
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      /* disabled look when not home (like Gasten) */
+                      .bubble-entity-picture, .bubble-main-icon-container {
+                        filter: grayscale(${state === 'home' ? 0 : 1}) !important;
+                        opacity: ${state === 'home' ? 1 : 0.4} !important;
+                      }
+                      .bubble-name, .bubble-state {
+                        opacity: ${state === 'home' ? 1 : 0.6} !important;
+                      }
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: state
+                    entity: person.steffi
+                    name: Steffi
+                    show_entity_picture: true
+                    tap_action: !include popups/pp_person_steffi.yaml
+                    button_action:
+                      tap_action: !include popups/pp_person_steffi.yaml
+                    icon_tap_action: !include popups/pp_person_steffi.yaml
+                    bubble_badges:
+                      badges:
+                        - name: Thuis
+                          target: main_icon
+                          icon: mdi:home
+                          color: green
+                          condition:
+                            - condition: state
+                              entity_id: person.steffi
+                              state: "home"
+                    modules: [bubble_badges, bubble_neon_icon_only]
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      /* disabled look when not home (like Gasten) */
+                      .bubble-entity-picture, .bubble-main-icon-container {
+                        filter: grayscale(${state === 'home' ? 0 : 1}) !important;
+                        opacity: ${state === 'home' ? 1 : 0.4} !important;
+                      }
+                      .bubble-name, .bubble-state {
+                        opacity: ${state === 'home' ? 1 : 0.6} !important;
+                      }
+                  # entity is the bed-presence sensor (drives the state text
+                  # below the name, e.g. "Detected"/"Clear"). Bubble Card has no
+                  # "picture:" override key, so the camera's live snapshot is
+                  # force-shown on the (otherwise hidden, since a binary_sensor
+                  # has no entity_picture) .bubble-entity-picture element via
+                  # the styles: block instead.
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: state
+                    entity: binary_sensor.eva_bed_presence
+                    name: Eva
+                    show_entity_picture: true
+                    tap_action: !include popups/pp_person_eva.yaml
+                    button_action:
+                      tap_action: !include popups/pp_person_eva.yaml
+                    icon_tap_action: !include popups/pp_person_eva.yaml
+                    modules: [bubble_neon_icon_only]
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      .bubble-entity-picture {
+                        display: block !important;
+                        background-image: url('${hass.states['camera.evabed']?.attributes?.entity_picture}') !important;
+                        background-size: cover !important;
+                      }
+                      .bubble-main-icon { display: none !important; }
+                  - type: custom:bubble-card
+                    card_type: button
+                    button_type: state
+                    entity: binary_sensor.noa_bed_presence
+                    name: Noa
+                    show_entity_picture: true
+                    tap_action: !include popups/pp_person_noa.yaml
+                    button_action:
+                      tap_action: !include popups/pp_person_noa.yaml
+                    icon_tap_action: !include popups/pp_person_noa.yaml
+                    modules: [bubble_neon_icon_only]
+                    styles: |
+                      .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      .bubble-entity-picture {
+                        display: block !important;
+                        background-image: url('${hass.states['camera.noabed']?.attributes?.entity_picture}') !important;
+                        background-size: cover !important;
+                      }
+                      .bubble-main-icon { display: none !important; }
+            grid_options: { columns: 12, rows: 4 }
+
+          # ── Status chip strip ─────────────────────────────────────────────
+          # Chips packed together on the left: bins first, then Stookwijzer/
+          # Updates/Picnic. Each fills its grid cell, so a smaller `columns` =
+          # a narrower pill (Picnic < Grijze bak). Widths sum to 32 of the
+          # header's 36 cols → one row, packed left with the section gap, the
+          # remaining ~4 cols of slack sit at the right (no spreading).
+          - type: grid
+            columns: 7
+            square: false
+            card_mod:
+              style: |
+                /* mobile default: 6 small icon-only chips in one compact row */
+                #root { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
+                /* desktop: trash left · gap track · ambient right */
+                @media (min-width: 768px) {
+                  #root { grid-template-columns: 1fr 1fr 1fr 0.6fr 1fr 1fr 1fr !important; }
+                  #root > *:nth-child(4) { grid-column: 5 !important; }
+                  #root > *:nth-child(5) { grid-column: 6 !important; }
+                  #root > *:nth-child(6) { grid-column: 7 !important; }
+                }
+            grid_options: { columns: 36, rows: auto }
+            cards:
+            - type: custom:bubble-card
+              card_type: button
+              button_type: state
+              entity: sensor.template_gft_days_until_collection
+              name: Groene bak
+              icon: mdi:recycle
+              show_state: false
+              show_attribute: true
+              attribute: text
+              bubble_badges:
+                badges:
+                  - name: Ophaaldag vandaag
+                    target: main_icon
+                    dot: true
+                    color: red
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.template_gft_days_until_collection
+                        below: 1
+                  - name: Ophaaldag morgen
+                    target: main_icon
+                    dot: true
+                    color: orange
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.template_gft_days_until_collection
+                        above: 0
+                        below: 2
+              modules: [bubble_badges]
+              styles: |
+                :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
+                .bubble-button-container {
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || 'green'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || 'green'} 55%, transparent) !important;
+                }
+                .bubble-icon-container {
+                  background: ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || 'green'} !important;
+                }
+                @media (max-width: 767px) {
+                  .bubble-name-container { display: none !important; }
+                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                }
+              grid_options: { columns: 6, rows: 1 }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: state
+              entity: sensor.template_paper_days_until_collection
+              name: Papier
+              icon: mdi:newspaper-variant-outline
+              show_state: false
+              show_attribute: true
+              attribute: text
+              bubble_badges:
+                badges:
+                  - name: Ophaaldag vandaag
+                    target: main_icon
+                    dot: true
+                    color: red
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.template_paper_days_until_collection
+                        below: 1
+                  - name: Ophaaldag morgen
+                    target: main_icon
+                    dot: true
+                    color: orange
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.template_paper_days_until_collection
+                        above: 0
+                        below: 2
+              modules: [bubble_badges]
+              styles: |
+                :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
+                .bubble-button-container {
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} 55%, transparent) !important;
+                }
+                .bubble-icon-container {
+                  background: ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} !important;
+                }
+                @media (max-width: 767px) {
+                  .bubble-name-container { display: none !important; }
+                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                }
+              grid_options: { columns: 6, rows: 1 }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: state
+              entity: sensor.template_rest_days_until_collection
+              name: Grijze bak
+              icon: mdi:trash-can-outline
+              show_state: false
+              show_attribute: true
+              attribute: text
+              bubble_badges:
+                badges:
+                  - name: Ophaaldag vandaag
+                    target: main_icon
+                    dot: true
+                    color: red
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.template_rest_days_until_collection
+                        below: 1
+                  - name: Ophaaldag morgen
+                    target: main_icon
+                    dot: true
+                    color: orange
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.template_rest_days_until_collection
+                        above: 0
+                        below: 2
+              modules: [bubble_badges]
+              styles: |
+                :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
+                .bubble-button-container {
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || 'grey'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || 'grey'} 55%, transparent) !important;
+                }
+                .bubble-icon-container {
+                  background: ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || 'grey'} !important;
+                }
+                @media (max-width: 767px) {
+                  .bubble-name-container { display: none !important; }
+                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                }
+              grid_options: { columns: 6, rows: 1 }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: name
+              entity: sensor.stookwijzer
+              name: Stookwijzer
+              icon: mdi:fire
+              tap_action: !include popups/pp_footer_stookalert.yaml
+              button_action:
+                tap_action: !include popups/pp_footer_stookalert.yaml
+              modules: [bubble_neon_icon_only]
+              styles: |
+                @media (max-width: 767px) {
+                  .bubble-name-container { display: none !important; }
+                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                }
+              grid_options: { columns: 6, rows: 1 }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: name
+              entity: sensor.all_updates
+              name: Updates
+              icon: mdi:package-up
+              tap_action: !include popups/pp_footer_update.yaml
+              button_action:
+                tap_action: !include popups/pp_footer_update.yaml
+              bubble_badges:
+                badges:
+                  - name: Update count
+                    target: main_icon
+                    entity: sensor.all_updates
+                    raw_state: true          # show just the number ("3"), not "3 Update(s)"
+                    color: red
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.all_updates
+                        above: 0
+              modules:
+                - bubble_badges   # badge = update count on the icon
+                - bubble_neon_icon_only
+              styles: |
+                @media (max-width: 767px) {
+                  .bubble-name-container { display: none !important; }
+                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                }
+              grid_options: { columns: 6, rows: 1 }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: state
+              entity: sensor.picnic_cart_items_count
+              name: Picnic
+              icon: mdi:cart
+              tap_action: !include popups/pp_picnic.yaml
+              button_action:
+                tap_action: !include popups/pp_picnic.yaml
+              bubble_badges:
+                badges:
+                  - name: Cart count
+                    target: main_icon
+                    entity: sensor.picnic_cart_items_count
+                    color: red
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.picnic_cart_items_count
+                        above: 0
+              modules:
+                - bubble_badges   # badge = cart item count (the "3")
+                - bubble_neon_icon_only
+              styles: |
+                /* subtitle = when the next Picnic delivery slot starts */
+                .bubble-state { font-size: 0 !important; }
+                .bubble-state::after {
+                  font-size: 12px !important;
+                  content: "${(() => { const s = hass.states['sensor.picnic_start_of_selected_slot']?.state; if (!s || s === 'unknown' || s === 'unavailable') return 'Geen bezorging'; const d = new Date(s); const days = ['zo','ma','di','wo','do','vr','za']; return days[d.getDay()] + ' ' + d.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); })()}";
+                }
+                @media (max-width: 767px) {
+                  .bubble-name-container { display: none !important; }
+                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                }
+              grid_options: { columns: 6, rows: 1 }
+      # ───────────────────────────── BENEDEN ─────────────────────────────────
+      - type: grid
+        cards:
+          # navbar scroll target — MOBILE ONLY. Removed from the DOM on
+          # desktop/tablet (visibility) so it adds no height and the section
+          # column stays exactly as tall as Energie's (plain-separator) column.
+          - type: custom:anchor-card
+            anchor_id: downstairs-anchor
+            timeout: 200
+            offset: -100
+            visibility:
+              - condition: screen
+                media_query: "(max-width: 767px)"
+            grid_options: { columns: full, rows: 1 }
+          - type: custom:bubble-card
+            card_type: separator
+            name: Beneden
+            icon: mdi:sofa
+            modules: [bubble_compact_rows]
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: light.lights_downstairs
+            name: Verlichting
+            tap_action: !include popups/pp_light_downstairs.yaml
+            button_action:
+              tap_action: !include popups/pp_light_downstairs.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'on' ? 'rgba(255, 190, 90, 0.28)' : 'transparent')} !important;
+              }
+              /* show how many member lights are on (like the windows count) */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const m = hass.states['light.lights_downstairs']?.attributes?.entity_id || []; const on = m.filter(e => hass.states[e]?.state === 'on').length; return on === 0 ? 'Alles uit' : on + ' aan'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: sensor.indoor_temperature   # heat pump indoor readout
+            name: Klimaat
+            icon: mdi:heat-pump
+            tap_action: !include popups/pp_energy_heating.yaml
+            button_action:
+              tap_action: !include popups/pp_energy_heating.yaml
+            modules: [bubble_neon_icon_only]
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: media_player.music_downstairs
+            name: Muziek
+            icon: mdi:music
+            show_entity_picture: true      # album art when playing
+            sub_button:
+              - icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: script.sonos_active_control
+                  data:
+                    group: media_player.music_downstairs
+                    command: play_pause
+            tap_action: &music_downstairs
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup
+                data:
+                  size: normal
+                  timeout: 60000
+                  title: Sonos - Beneden
+                  content:
+                    type: custom:decluttering-card
+                    template: sonos_popup
+                    variables:
+                      - main_player: media_player.eetkamer
+                      - entities:
+                          - media_player.eetkamer
+                          - media_player.living_room
+                          - media_player.eva_eva
+                          - media_player.office
+                          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+                          - media_player.sonos_roam
+                          - media_player.macbook
+                      - groups:
+                          - name: Woon + Eet
+                            entities:
+                              - player: media_player.eetkamer
+                              - player: media_player.living_room
+                          - name: Beneden
+                            media: ''
+                            entities:
+                              - player: media_player.eetkamer
+                              - player: media_player.office
+                              - player: media_player.living_room
+                              - player: media_player.macbook
+                      - sections:
+                          - player
+                          - volumes
+                          - media browser
+                          - grouping
+                          - groups
+                          - queue
+                      - vol_threshold: 40
+                      - vol_max: 40
+            button_action:
+              tap_action: *music_downstairs
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'playing' ? 'rgba(130, 100, 225, 0.42)' : 'transparent')} !important;
+              }
+              /* album art of the currently-playing group member */
+              .bubble-entity-picture {
+                ${(() => {
+                  const members = hass.states['media_player.music_downstairs']?.attributes?.entity_id || [];
+                  const active = members.find(m => hass.states[m]?.state === 'playing');
+                  const pic = active && hass.states[active]?.attributes?.entity_picture;
+                  return pic ? `display: block !important; background-image: url("${pic}") !important; background-size: cover !important; background-position: center !important;` : '';
+                })()}
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: binary_sensor.doors_and_windows_downstairs
+            name: Deuren
+            icon: mdi:door
+            tap_action: !include popups/pp_doors_downstairs.yaml
+            button_action:
+              tap_action: !include popups/pp_doors_downstairs.yaml
+            modules: [bubble_neon_icon_only]
+            # subtitle shows a count instead of Open/Closed (no negative red)
+            styles: |
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const m = (hass.states['binary_sensor.doors_and_windows_downstairs']?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+
+      # ────────────────────────────── BOVEN ──────────────────────────────────
+      - type: grid
+        cards:
+          # navbar scroll target — MOBILE ONLY (see Beneden note)
+          - type: custom:anchor-card
+            anchor_id: upstairs-anchor
+            timeout: 200
+            offset: -100
+            visibility:
+              - condition: screen
+                media_query: "(max-width: 767px)"
+            grid_options: { columns: full, rows: 1 }
+          - type: custom:bubble-card
+            card_type: separator
+            name: Boven
+            icon: mdi:bed-double
+            modules: [bubble_compact_rows]
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: light.lights_upstairs
+            name: Verlichting
+            tap_action: !include popups/pp_light_upstairs.yaml
+            button_action:
+              tap_action: !include popups/pp_light_upstairs.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'on' ? 'rgba(255, 190, 90, 0.28)' : 'transparent')} !important;
+              }
+              /* show how many member lights are on (like the windows count) */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const m = hass.states['light.lights_upstairs']?.attributes?.entity_id || []; const on = m.filter(e => hass.states[e]?.state === 'on').length; return on === 0 ? 'Alles uit' : on + ' aan'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: climate.eurom_alutherm_baseboard_heater
+            name: Klimaat
+            icon: mdi:thermostat
+            tap_action: !include popups/pp_climate_upstairs.yaml
+            button_action:
+              tap_action: !include popups/pp_climate_upstairs.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              /* show the master-bedroom room temperature (the heater has none) */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const t = hass.states['sensor.climate_sensor_masterbedroom_temperature']?.state; return (t && t !== 'unavailable' && t !== 'unknown') ? parseFloat(t).toFixed(1) + ' °C' : '—'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: media_player.music_upstairs
+            name: Muziek
+            icon: mdi:music
+            show_entity_picture: true      # album art when playing
+            sub_button:
+              - icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: script.sonos_active_control
+                  data:
+                    group: media_player.music_upstairs
+                    command: play_pause
+            tap_action: &music_upstairs
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup
+                data:
+                  size: normal
+                  timeout: 60000
+                  title: Sonos - Boven
+                  content:
+                    type: custom:decluttering-card
+                    template: sonos_popup
+                    variables:
+                      - main_player: media_player.slaapkamer_sonos
+                      - entities:
+                          - media_player.slaapkamer_sonos
+                      - groups: []
+                      - vol_threshold: 20
+                      - vol_max: 20
+                      # single idle player → omit the queue section (see template note)
+                      - sections:
+                          - player
+                          - volumes
+                          - media browser
+                          - grouping
+                          - groups
+            button_action:
+              tap_action: *music_upstairs
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'playing' ? 'rgba(130, 100, 225, 0.42)' : 'transparent')} !important;
+              }
+              /* album art of the currently-playing group member */
+              .bubble-entity-picture {
+                ${(() => {
+                  const members = hass.states['media_player.music_upstairs']?.attributes?.entity_id || [];
+                  const active = members.find(m => hass.states[m]?.state === 'playing');
+                  const pic = active && hass.states[active]?.attributes?.entity_picture;
+                  return pic ? `display: block !important; background-image: url("${pic}") !important; background-size: cover !important; background-position: center !important;` : '';
+                })()}
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: binary_sensor.doors_and_windows_upstairs
+            name: Ramen
+            icon: mdi:window-closed-variant
+            tap_action: !include popups/pp_doors_upstairs.yaml
+            button_action:
+              tap_action: !include popups/pp_doors_upstairs.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const m = (hass.states['binary_sensor.doors_and_windows_upstairs']?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+
+      # ─────────────────────────── ENERGIE & WATER ───────────────────────────
+      # Placed before Tuin (span 2) so row 1 fills Beneden·Boven·Energie in
+      # order — no masonry back-fill, so Tuin and Huis&auto align at any width.
+      - type: grid
+        cards:
+          # navbar scroll target — MOBILE ONLY (see Beneden note)
+          - type: custom:anchor-card
+            anchor_id: energy-anchor
+            timeout: 200
+            offset: -100
+            visibility:
+              - condition: screen
+                media_query: "(max-width: 767px)"
+            grid_options: { columns: full, rows: 1 }
+          - type: custom:bubble-card
+            card_type: separator
+            name: Energie & water
+            icon: mdi:lightning-bolt
+            modules: [bubble_compact_rows]
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: sensor.net_power_consumption
+            name: Energie
+            icon: mdi:solar-power
+            tap_action: !include popups/pp_energy_usage.yaml
+            button_action:
+              tap_action: !include popups/pp_energy_usage.yaml
+            sub_button:
+              - entity: sensor.electricity_cost_today   # € spent today
+                show_state: true
+                show_icon: false
+                show_name: false
+                show_background: true
+              - entity: sensor.daily_consumption_energy # kWh used today
+                show_state: true
+                show_icon: false
+                show_name: false
+                show_background: true
+            modules: [bubble_neon_icon_only]
+            styles: |
+              /* hover tooltip explaining the two bottom bars (desktop hover) */
+              ${(() => { const c = card.querySelector('.bubble-button-card-container'); if (c) c.title = 'Bars (links → rechts):\n• Prijs: huidige stroomprijs binnen de dagrange — groen = goedkoop, rood = duur.\n• Zon: aandeel van het huidige verbruik dat de zonnepanelen dekken (vol = 100%).'; return ''; })()}
+              /* colour by production vs usage: solar > usage = green,
+                 roughly balanced = orange, usage > solar = red */
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(() => {
+                  const usage = parseFloat(hass.states['sensor.net_power_consumption']?.state);
+                  const prod = (parseFloat(hass.states['sensor.solaredge_dc_power']?.state) || 0) / 1000;
+                  if (isNaN(usage)) return 'transparent';
+                  const diff = prod - usage;                             /* >0 = producing more than using */
+                  if (diff > 0.2) return 'rgba(70, 200, 120, 0.45)';     /* green */
+                  if (diff < -0.2) return 'rgba(230, 70, 70, 0.42)';     /* red */
+                  return 'rgba(235, 150, 45, 0.40)';                     /* orange */
+                })()} !important;
+              }
+              .bubble-button-card-container { position: relative !important; }
+              /* state: usage / +production kW · price per kWh */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 13px !important;
+                content: "${(() => {
+                  const usage = parseFloat(hass.states['sensor.net_power_consumption']?.state) || 0;
+                  const prod = (parseFloat(hass.states['sensor.solaredge_dc_power']?.state) || 0) / 1000;
+                  const price = parseFloat(hass.states['sensor.current_price_electricity']?.state) || 0;
+                  return '-' + Math.abs(usage).toFixed(2) + ' / +' + prod.toFixed(2) + ' kW · €' + price.toFixed(2);
+                })()}";
+              }
+              /* ── left bar: price position today (green=cheap → red=expensive) ── */
+              .bubble-button-card-container::before {
+                content: ''; position: absolute; left: 20px; right: calc(50% + 6px); bottom: 12px;
+                height: 5px; border-radius: 999px; z-index: 2; pointer-events: none;
+                background: ${(() => {
+                  const p = hass.states['sensor.electricity_price_langeweide_28'];
+                  const cur = parseFloat(p?.state);
+                  const mn = p?.attributes?.min_price, mx = p?.attributes?.max_price;
+                  let f = (mn != null && mx != null && mx > mn) ? (cur - mn) / (mx - mn) : 0;
+                  f = Math.max(0, Math.min(1, f));
+                  const pct = (f * 100).toFixed(0);
+                  const hue = Math.round(120 * (1 - f));
+                  return `linear-gradient(90deg, hsl(${hue},75%,52%) ${pct}%, rgba(255,255,255,0.13) ${pct}%)`;
+                })()} !important;
+              }
+              /* ── right bar: share of current load covered by solar ── */
+              .bubble-button-card-container::after {
+                content: ''; position: absolute; left: calc(50% + 6px); right: 20px; bottom: 12px;
+                height: 5px; border-radius: 999px; z-index: 2; pointer-events: none;
+                background: ${(() => {
+                  const usage = parseFloat(hass.states['sensor.net_power_consumption']?.state);
+                  const prod = (parseFloat(hass.states['sensor.solaredge_dc_power']?.state) || 0) / 1000;
+                  let cov = (usage > 0) ? (prod / usage * 100) : 100;
+                  cov = Math.max(0, Math.min(100, cov)).toFixed(0);
+                  return `linear-gradient(90deg, #46c77a ${cov}%, rgba(255,255,255,0.13) ${cov}%)`;
+                })()} !important;
+              }
+            grid_options: { columns: 12, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: sensor.watermeter_water_usage
+            name: Water
+            icon: mdi:water
+            tap_action: !include popups/pp_energy_water.yaml
+            button_action:
+              tap_action: !include popups/pp_energy_water.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(parseFloat(state) > 0 ? 'rgba(60, 140, 245, 0.45)' : 'transparent')} !important;
+              }
+              /* current flow · today's total usage */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 13px !important;
+                content: "${(() => { const flow = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); const daily = parseFloat(hass.states['sensor.water_daily']?.state); const f = isNaN(flow) ? 0 : flow; const d = isNaN(daily) ? '?' : (Math.round(daily * 100) / 100); return f + ' L/min · ' + d + ' m³ vandaag'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: water_heater.domestic_hot_water_tank
+            name: Warm water
+            icon: mdi:water-boiler
+            tap_action: !include popups/pp_energy_dhw.yaml
+            button_action:
+              tap_action: !include popups/pp_energy_dhw.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              /* orange only when actually heating the tank — same logic as the
+                 main dashboard's dhw template: DHW on, tank >5°C below setpoint,
+                 and the heat pump drawing >1000W */
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(() => {
+                  const w = hass.states['water_heater.domestic_hot_water_tank'];
+                  const p = parseFloat(hass.states['sensor.shelly_warmtepomp_meter_total_active_power']?.state);
+                  const heating = w?.attributes?.operation_mode === 'on'
+                    && (w.attributes.temperature - w.attributes.current_temperature) > 5
+                    && p > 1000;
+                  return heating ? 'rgba(235, 150, 45, 0.40)' : 'transparent';
+                })()} !important;
+              }
+              /* show the actual water temperature instead of the on/off state */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const t = hass.states['water_heater.domestic_hot_water_tank']?.attributes?.current_temperature; return (t != null ? t + ' °C' : '—'); })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+
+      # ─────────────────────────────── TUIN ──────────────────────────────────
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:bubble-card
+            card_type: separator
+            name: Tuin
+            icon: mdi:flower
+            modules: [bubble_compact_rows]
+            # span the full 24-col section (cards default to 12) so the header is
+            # full-width. NO rows: — a plain separator is ~43px tall; forcing
+            # rows:1 made it a 56px row, pushing Tuin's tiles 13px below Huis's.
+            grid_options: { columns: 24 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: sensor.pool_deck_status
+            name: Zwembad
+            icon: mdi:pool
+            tap_action: !include popups/pp_pool_garden.yaml
+            button_action:
+              tap_action: !include popups/pp_pool_garden.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              /* light up (cyan) when the pool cover is open — like the main dashboard */
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'Open' ? 'rgba(60, 180, 210, 0.42)' : 'transparent')} !important;
+              }
+              /* show water temperature, pH and Rx (ORP) */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 12px !important;
+                content: "${(() => {
+                  const t = hass.states['sensor.fairland_zwembad_wpu_temp_inlet']?.state;
+                  const ph = hass.states['sensor.eps_pool_ph_level']?.state;
+                  const rx = hass.states['sensor.eps_pool_rx_level']?.state;
+                  const temp = (t && t !== 'unavailable') ? parseFloat(t).toFixed(1) + '°C' : '–';
+                  return temp + ' · pH ' + (ph ?? '–') + ' · Rx ' + (rx != null && rx !== 'unavailable' ? Math.round(parseFloat(rx)) : '–');
+                })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: light.lights_garden
+            name: Verlichting
+            icon: mdi:outdoor-lamp
+            tap_action: !include popups/pp_light_garden.yaml
+            button_action:
+              tap_action: !include popups/pp_light_garden.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'on' ? 'rgba(255, 190, 90, 0.28)' : 'transparent')} !important;
+              }
+              /* show how many member lights are on (like the windows count) */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const m = hass.states['light.lights_garden']?.attributes?.entity_id || []; const on = m.filter(e => hass.states[e]?.state === 'on').length; return on === 0 ? 'Alles uit' : on + ' aan'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: media_player.muziek_tuin
+            name: Muziek
+            icon: mdi:music
+            show_entity_picture: true      # album art when playing
+            sub_button:
+              - icon: mdi:play-pause
+                tap_action:
+                  action: perform-action
+                  perform_action: script.sonos_active_control
+                  data:
+                    group: media_player.muziek_tuin
+                    command: play_pause
+            tap_action: &music_garden
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup
+                data:
+                  size: normal
+                  timeout: 60000
+                  title: Sonos - Tuin
+                  content:
+                    type: custom:decluttering-card
+                    template: sonos_popup
+                    variables:
+                      - main_player: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+                      - entities:
+                          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+                          - media_player.sonos_roam
+                      - groups:
+                          - name: Tuin
+                            entities:
+                              - player: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+                              - player: media_player.sonos_roam
+                      - sections:
+                          - player
+                          - volumes
+                          - media browser
+                          - grouping
+                          - groups
+                          - queue
+                      - vol_threshold: 30
+                      - vol_max: 30
+            button_action:
+              tap_action: *music_garden
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'playing' ? 'rgba(130, 100, 225, 0.42)' : 'transparent')} !important;
+              }
+              /* album art of the currently-playing group member */
+              .bubble-entity-picture {
+                ${(() => {
+                  const members = hass.states['media_player.muziek_tuin']?.attributes?.entity_id || [];
+                  const active = members.find(m => hass.states[m]?.state === 'playing');
+                  const pic = active && hass.states[active]?.attributes?.entity_picture;
+                  return pic ? `display: block !important; background-image: url("${pic}") !important; background-size: cover !important; background-position: center !important;` : '';
+                })()}
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: binary_sensor.doors_and_windows_garden
+            name: Deuren
+            icon: mdi:door-sliding
+            tap_action: !include popups/pp_doors_garden.yaml
+            button_action:
+              tap_action: !include popups/pp_doors_garden.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                content: "${(() => { const m = (hass.states['binary_sensor.doors_and_windows_garden']?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: binary_sensor.motion_sensor_cats_occupancy
+            name: Boris&Puk
+            icon: mdi:cat
+            modules: [bubble_neon_icon_only]
+            grid_options: { columns: 6, rows: 2 }
+            tap_action: &boris_popup
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup
+                data:
+                  size: normal
+                  timeout: 60000
+                  title: Boris en Puk
+                  content:
+                    type: vertical-stack
+                    cards:
+                      - type: custom:bubble-card
+                        card_type: button
+                        card_layout: large
+                        button_type: state
+                        entity: binary_sensor.motion_sensor_cats_occupancy
+                        name: Luikje
+                        icon: mdi:cat
+                        show_state: true
+                        show_last_changed: true
+                        styles: |
+                          .bubble-button-background {
+                            opacity: 1 !important;
+                            background-color: ${(state === 'on' ? '#2ecc71' : state === 'off' ? '#7f8c8d' : '#e74c3c')} !important;
+                          }
+                      - type: custom:bubble-card
+                        card_type: separator
+                      - type: custom:bubble-card
+                        card_type: button
+                        card_layout: large
+                        button_type: state
+                        entity: sensor.cat_door_today
+                        name: Vandaag door het luikje
+                        icon: mdi:door
+                        show_state: true
+            button_action:
+              tap_action: *boris_popup
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+            name: BBQ
+            icon: mdi:grill
+            modules: [bubble_neon_icon_only]
+            styles: |
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(parseFloat(state) > 50 ? 'rgba(235, 95, 45, 0.55)' : 'transparent')} !important;
+              }
+            grid_options: { columns: 6, rows: 2 }
+            tap_action: !include popups/pp_bbq_garden.yaml
+            button_action:
+              tap_action: !include popups/pp_bbq_garden.yaml
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: lawn_mower.navimow_i108
+            name: Grasmaaier
+            icon: mdi:robot-mower
+            sub_button:
+              - entity: sensor.navimow_i108_battery
+                show_state: true
+                show_icon: false
+                show_name: false
+                show_background: true
+            bubble_badges:
+              badges:
+                # red dot on the icon when there's a problem (error)
+                - name: Probleem
+                  target: main_icon
+                  dot: true
+                  color: red
+                  condition:
+                    - condition: state
+                      entity_id: lawn_mower.navimow_i108
+                      state: error
+            modules:
+              - bubble_badges   # problem dot
+              - bubble_neon_icon_only
+            styles: |
+              /* light up green while actively mowing */
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(state === 'mowing' ? 'rgba(70, 200, 120, 0.42)' : 'transparent')} !important;
+              }
+            grid_options: { columns: 6, rows: 2 }
+            tap_action: !include popups/pp_mower.yaml
+            button_action:
+              tap_action: !include popups/pp_mower.yaml
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: switch.irrigatie_zones
+            name: Beregening
+            icon: mdi:sprinkler-variant
+            tap_action: !include popups/pp_irrigation_garden.yaml
+            button_action:
+              tap_action: !include popups/pp_irrigation_garden.yaml
+            modules: [bubble_neon_icon_only]
+            styles: |
+              /* blue when watering is active or a plan is enabled */
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${((hass.states['switch.irrigatie_zones']?.state === 'on' || hass.states['input_boolean.irrigation_plan_enable']?.state === 'on') ? 'rgba(60, 140, 245, 0.45)' : 'transparent')} !important;
+              }
+              /* subtitle: active/planned + pending time */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 13px !important;
+                content: "${(() => {
+                  const on = hass.states['switch.irrigatie_zones']?.state === 'on';
+                  const planned = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on';
+                  const dur = parseFloat(hass.states['sensor.irrigatie_zones_duur']?.state) || 0;    /* total minutes */
+                  const fmt = (mins) => { const h = Math.floor(mins / 60), mm = mins % 60; return h > 0 ? h + 'u ' + String(mm).padStart(2, '0') + 'm' : mins + ' min'; };
+                  if (on) {
+                    /* remaining = start (switch turned on) + duration - now */
+                    const start = new Date(hass.states['switch.irrigatie_zones'].last_changed).getTime();
+                    let rem = Math.round((start + dur * 60000 - Date.now()) / 60000);
+                    if (rem < 0) rem = 0;
+                    return 'Nog ' + fmt(rem);
+                  }
+                  if (planned) return 'Gepland ' + (hass.states['input_datetime.irrigation_start_time']?.state || '').slice(0, 5);
+                  return 'Uit';
+                })()}";
+              }
+            grid_options: { columns: 6, rows: 2 }
+
+      # ─────────────────────────── HUIS & AUTO ───────────────────────────────
+      - type: grid
+        cards:
+          - type: custom:bubble-card
+            card_type: separator
+            name: Huis & auto
+            icon: mdi:home
+            modules: [bubble_compact_rows]
+          # Wide BMW tile — location as the state, range + charge% as sub-buttons,
+          # and a charge-level bar (CSS, width = state-of-charge %) along the
+          # bottom. Charging badge on the icon watches the charger's status.
+          - type: custom:bubble-card
+            card_type: button
+            button_type: state
+            entity: device_tracker.ix3_location
+            name: BMW iX3
+            icon: mdi:car-electric
+            tap_action: !include popups/pp_car_ix3.yaml
+            button_action:
+              tap_action: !include popups/pp_car_ix3.yaml
+            sub_button:
+              - entity: sensor.ix3_remaining_electric_range_km
+                show_state: true
+                show_icon: false
+                show_name: false
+              - entity: sensor.state_of_charge_predicted_on_bmw_side
+                show_state: true
+                show_icon: false
+                show_name: false
+                show_background: true
+            bubble_badges:
+              badges:
+                - name: Charging
+                  target: main_icon
+                  icon: mdi:flash
+                  color: blue
+                  condition:
+                    - condition: state
+                      entity_id: sensor.ehhatdgg_status
+                      state: charging
+            modules:
+              - bubble_badges
+              - bubble_neon_icon_only
+            styles: |
+              /* light up green while the car is charging */
+              .bubble-button-background {
+                opacity: 1 !important;
+                background-color: ${(hass.states['sensor.ehhatdgg_status']?.state === 'charging' ? 'rgba(70, 200, 120, 0.35)' : 'transparent')} !important;
+              }
+              .bubble-button-card-container { position: relative !important; }
+              /* charge-bar track */
+              .bubble-button-card-container::after {
+                content: '';
+                position: absolute;
+                left: 20px; right: 20px; bottom: 12px;
+                height: 6px; border-radius: 999px;
+                background: rgba(255, 255, 255, 0.14);
+                pointer-events: none;
+              }
+              /* charge-bar fill — width = state of charge % */
+              .bubble-button-card-container::before {
+                content: '';
+                position: absolute;
+                left: 20px; bottom: 12px; z-index: 1;
+                height: 6px; border-radius: 999px;
+                width: calc((100% - 40px) * ${(parseFloat(hass.states['sensor.state_of_charge_predicted_on_bmw_side']?.state) || 0) / 100});
+                background: linear-gradient(90deg, #63e6e2, #46c7c3);
+                box-shadow: 0 0 10px rgba(99, 230, 226, 0.45);
+                pointer-events: none;
+              }
+            grid_options: { columns: 12, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: name
+            entity: cover.covers_downstairs
+            name: Screens
+            icon: mdi:blinds
+            show_state: false
+            show_attribute: true
+            attribute: current_position
+            tap_action: !include popups/pp_covers.yaml
+            button_action:
+              tap_action: !include popups/pp_covers.yaml
+            modules: [bubble_neon_icon_only]
+            grid_options: { columns: 6, rows: 2 }
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: vacuum.sjorsje
+            name: Sjorsje
+            icon: mdi:robot-vacuum
+            sub_button:
+              - entity: sensor.sjorsje_battery_level
+                show_state: true
+                show_icon: false
+                show_name: false
+                show_background: true
+            bubble_badges:
+              badges:
+                # red dot on the icon when there's a problem (full bin or error)
+                - name: Probleem
+                  target: main_icon
+                  dot: true
+                  color: red
+                  condition:
+                    - condition: or
+                      conditions:
+                        - condition: state
+                          entity_id: binary_sensor.sjorsje_bin_full
+                          state: "on"
+                        - condition: state
+                          entity_id: vacuum.sjorsje
+                          state: error
+            modules:
+              - bubble_badges   # problem dot
+              - bubble_neon_icon_only
+            grid_options: { columns: 6, rows: 2 }
+
+      # ──────────────────────── BOTTOM NAV (navbar-card) ─────────────────────
+      # navbar-card, MOBILE ONLY — the section is hidden above 767px via the
+      # visibility condition below. On the wall tablet / desktop you navigate by
+      # scrolling and use the Settings button in the presence panel; the phone
+      # gets the full bottom nav. Scroll routes (Huis/Beneden/Boven) jump to the
+      # anchor-card targets above. Routes point at /lovelace-bubble/overzicht.
+      - type: grid
+        column_span: 3
+        visibility:
+          - condition: screen
+            media_query: "(max-width: 767px)"
+        cards:
+          - type: custom:navbar-card
+            desktop:
+              position: bottom
+            routes:
+              - icon: mdi:arrow-up-bold-box-outline
+                icon_selected: mdi:arrow-up-bold-box
+                url: /lovelace-bubble/overzicht?anchor=top
+                label: Huis
+                selected: |
+                  [[[
+                    const matchesPath = window.location.pathname == "/lovelace-bubble/overzicht";
+                    const hasAnchor = window.location.search.includes("anchor=top");
+                    return matchesPath && hasAnchor;
+                  ]]]
+              - icon: mdi:sofa-outline
+                icon_selected: mdi:sofa
+                url: /lovelace-bubble/overzicht?anchor=downstairs-anchor
+                label: Beneden
+                selected: |
+                  [[[
+                    const matchesPath = window.location.pathname == "/lovelace-bubble/overzicht";
+                    const hasAnchor = window.location.search.includes("anchor=downstairs-anchor");
+                    return matchesPath && hasAnchor;
+                  ]]]
+              - icon: mdi:bed-double-outline
+                icon_selected: mdi:bed-double
+                url: /lovelace-bubble/overzicht?anchor=upstairs-anchor
+                label: Boven
+                selected: |
+                  [[[
+                    const matchesPath = window.location.pathname == "/lovelace-bubble/overzicht";
+                    const hasAnchor = window.location.search.includes("anchor=upstairs-anchor");
+                    return matchesPath && hasAnchor;
+                  ]]]
+              # Settings lives in the presence panel now, so it's dropped here.
+              - icon: mdi:fire
+                icon_selected: mdi:fire
+                url: null
+                tap_action:
+                  !include popups/pp_footer_stookalert.yaml
+                label: Stookwijzer
+            grid_options: { columns: full, rows: 1 }

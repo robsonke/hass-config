@@ -21,6 +21,8 @@ zigbee2mqtt
 custom_components
 llmvision
 solcast_solar
+bubble_card
+probe_ability_exports
 
 # And some files
 secrets.yaml
@@ -39,6 +41,7 @@ icloud3*.log*
 daikin_altherma_*
 frigate*
 .exports
+.playwright-mcp
 
 
 # And ignore the ignore for some files

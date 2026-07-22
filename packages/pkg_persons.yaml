@@ -59,3 +59,24 @@ sensor:
     type: count
     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
+
+template:
+  - binary_sensor:
+    - name: "Noa Bed Presence"
+      unique_id: noa_bed_presence
+      device_class: occupancy
+      availability: >
+        {{ has_value('binary_sensor.noabed_person_occupancy') and has_value('binary_sensor.noabed_all_occupancy') }}
+      state: >
+        {{ is_state('binary_sensor.noabed_person_occupancy', 'on') or is_state('binary_sensor.noabed_all_occupancy', 'on') }}
+      delay_off:
+        minutes: 15
+    - name: "Eva Bed Presence"
+      unique_id: eva_bed_presence
+      device_class: occupancy
+      availability: >
+        {{ has_value('binary_sensor.evabed_person_occupancy') and has_value('binary_sensor.evabed_all_occupancy') }}
+      state: >
+        {{ is_state('binary_sensor.evabed_person_occupancy', 'on') or is_state('binary_sensor.evabed_all_occupancy', 'on') }}
+      delay_off:
+        minutes: 15

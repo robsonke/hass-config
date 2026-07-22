@@ -11,11 +11,11 @@
 lovelace:
   mode: storage
   dashboards:
-    lovelace-mushroom:
+    lovelace-bubble:
       mode: yaml
-      filename: dashboards/mushroom-dashboard.yaml
-      title: Mushroom
-      icon: mdi:mushroom
+      filename: dashboards/bubble-dashboard.yaml
+      title: Bubble
+      icon: mdi:chart-bubble
       show_in_sidebar: true
       require_admin: false
     lovelace-main:

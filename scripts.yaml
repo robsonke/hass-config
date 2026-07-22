@@ -264,3 +264,39 @@ googlehome_say:
     data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false
+sonos_active_control:
+  alias: Sonos - control active group member
+  description: >
+    Resolves the currently-playing member of a media_player group (falls back to
+    the first member) and runs a transport command on just that member. Used by
+    the Bubble dashboard music tiles so play/pause/next don't wake idle speakers.
+  mode: parallel
+  max: 10
+  fields:
+    group:
+      description: The media_player group entity_id
+      required: true
+    command:
+      description: 'play_pause | next | previous'
+      required: true
+  sequence:
+    - variables:
+        members: "{{ state_attr(group, 'entity_id') or [] }}"
+        active: >
+          {% set playing = members | select('is_state', 'playing') | list %}
+          {{ playing[0] if playing else (members[0] if members | count > 0 else group) }}
+    - choose:
+        - conditions: "{{ command == 'next' }}"
+          sequence:
+            - action: media_player.media_next_track
+              target:
+                entity_id: "{{ active }}"
+        - conditions: "{{ command == 'previous' }}"
+          sequence:
+            - action: media_player.media_previous_track
+              target:
+                entity_id: "{{ active }}"
+      default:
+        - action: media_player.media_play_pause
+          target:
+            entity_id: "{{ active }}"

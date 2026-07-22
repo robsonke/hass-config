@@ -75,96 +75,109 @@ sonos_downstairs:
         timeout: 60000
         title: Sonos - Muziek
         content:
-          type: custom:layout-card
-          layout_type: custom:grid-layout
-          layout:
-            grid-template-columns: 50% 50%
-            grid-template-rows: auto
-            grid-template-areas: |
-              "living office"
-            mediaquery:
-              "(max-width: 800px)":
-                grid-template-columns: auto
-                grid-template-rows: auto
-                grid-template-areas: |
-                  "living"
-                  "office"
-          cards:
-            - type: custom:sonos-card
-              view_layout:
-                grid-area: living
-              sections: &sonos_sections
-                - player
-                - volumes
-                - media browser
-                - grouping
-                - groups
-                - queue
-              entityId: media_player.eetkamer
-              #entityPlatform: music_assistant
+          # type: custom:layout-card
+          # layout_type: custom:grid-layout
+          # layout:
+          #   grid-template-columns: 50% 50%
+          #   grid-template-rows: auto
+          #   grid-template-areas: |
+          #     "living office"
+          #   mediaquery:
+          #     "(max-width: 800px)":
+          #       grid-template-columns: auto
+          #       grid-template-rows: auto
+          #       grid-template-areas: |
+          #         "living"
+          #         "office"
+          # cards:
+          type: custom:sonos-card
+          view_layout:
+            grid-area: living
+          sections: &sonos_sections
+            - player
+            - volumes
+            - media browser
+            - grouping
+            - groups
+            - queue
+          entityId: >
+            [[[
+              const downstairs = ['media_player.eetkamer', 'media_player.living_room', 'media_player.office', 'media_player.macbook'];
+              const playing = downstairs.find(e => states[e]?.state === 'playing');
+              return playing || 'media_player.eetkamer';
+            ]]]
+          #entityPlatform: music_assistant
+          entities:
+            - media_player.eetkamer
+            - media_player.living_room
+            - media_player.eva_eva
+            - media_player.office
+            - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+            - media_player.sonos_roam
+            - media_player.macbook
+          predefinedGroups: &sonos_groups
+            - name: Woon + Eet
               entities:
-                - media_player.eetkamer
-                - media_player.living_room
-                - media_player.eva_eva
-                - media_player.office
-                - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-                - media_player.sonos_roam
-              predefinedGroups: &sonos_groups
-                - name: Woon + Eet
-                  entities:
-                    - player: media_player.eetkamer
-                    - player: media_player.living_room
-                - name: Beneden
-                  media: ''
-                  entities:
-                    - player: media_player.eetkamer
-                    - player: media_player.office
-                    - player: media_player.living_room
-              topFavorites:
-                - 'NPO Radio 2'
-              player: &sonos_player
-                artworkAsBackground: true
-              volumes: &sonos_volumes
-                hideCogwheel: false
-              grouping: &sonos_grouping
-                skipApplyButton: true
-              mediaBrowser: &sonos_media_browser
-                itemsPerRow: 3
-                replaceHttpWithHttpsForThumbnails: true
-              adjustVolumeRelativeToMainPlayer: true
-              widthPercentage: 100
-              heightPercentage: 100
-              dynamicVolumeSlider: true
-              dynamicVolumeSliderThreshold: 40
-              dynamicVolumeSliderMax: 40
-              card_mod: &sonos_card_mod
-                style: |
-                  ha-card {
-                    --accent-color: var(--primary-color);
-                  }
-            - type: custom:sonos-card
-              view_layout:
-                grid-area: office
-              sections: *sonos_sections
-              entityId: media_player.office
+                - player: media_player.eetkamer
+                - player: media_player.living_room
+            - name: Beneden
+              media: ''
               entities:
-                - media_player.office
-                - media_player.eetkamer
-                - media_player.living_room
-              predefinedGroups: *sonos_groups
-              topFavorites:
-                - 'Techno'
-              player: *sonos_player
-              volumes: *sonos_volumes
-              grouping: *sonos_grouping
-              mediaBrowser: *sonos_media_browser
-              adjustVolumeRelativeToMainPlayer: true
-              widthPercentage: 100
-              heightPercentage: 100
-              dynamicVolumeSlider: true
-              dynamicVolumeSliderThreshold: 40
-              dynamicVolumeSliderMax: 40
-              card_mod: *sonos_card_mod
+                - player: media_player.eetkamer
+                - player: media_player.office
+                - player: media_player.living_room
+                - player: media_player.macbook
+          topFavorites:
+            - 'NPO Radio 2'
+          player: &sonos_player
+            artworkAsBackground: true
+          volumes: &sonos_volumes
+            hideCogwheel: false
+          grouping: &sonos_grouping
+            skipApplyButton: true
+          mediaBrowser: &sonos_media_browser
+            itemsPerRow: 3
+            replaceHttpWithHttpsForThumbnails: true
+          adjustVolumeRelativeToMainPlayer: true
+          widthPercentage: 100
+          heightPercentage: 100
+          dynamicVolumeSlider: true
+          dynamicVolumeSliderThreshold: 40
+          dynamicVolumeSliderMax: 40
+          card_mod: &sonos_card_mod
+            style: |
+              ha-card {
+                --accent-color: var(--primary-color);
+              }
+            # - type: custom:sonos-card
+            #   view_layout:
+            #     grid-area: office
+            #   sections: *sonos_sections
+            #   entityId: >
+            #     [[[
+            #       const downstairs = ['media_player.eetkamer', 'media_player.living_room', 'media_player.office', 'media_player.macbook'];
+            #       const playing = downstairs.find(e => states[e]?.state === 'playing');
+            #       return playing || 'media_player.office';
+            #     ]]]
+            #   entities:
+            #     - media_player.office
+            #     - media_player.eetkamer
+            #     - media_player.living_room
+            #     - media_player.macbook
+            #   predefinedGroups: *sonos_groups
+            #   topFavorites:
+            #     - 'Techno'
+            #   player: *sonos_player
+            #   volumes: *sonos_volumes
+            #   grouping: *sonos_grouping
+            #   mediaBrowser: *sonos_media_browser
+            #   adjustVolumeRelativeToMainPlayer: true
+            #   widthPercentage: 100
+            #   heightPercentage: 100
+            #   dynamicVolumeSlider: true
+            #   dynamicVolumeSliderThreshold: 40
+            #   dynamicVolumeSliderMax: 40
+            #   card_mod: *sonos_card_mod
 
 sonos_upstairs:
   template:
