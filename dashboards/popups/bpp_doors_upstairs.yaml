@@ -8,23 +8,21 @@ width_desktop: 760px
 hash: '#ramen-boven'
 name: Deuren en ramen boven
 icon: mdi:window-closed-variant
+# summary lives in the pop-up header: entity drives the header state line,
+# which we override to the computed "N open · M dicht" count.
+entity: binary_sensor.doors_and_windows_upstairs
+show_state: true
+styles: |
+  /* calm the header's default on-state (blue) to the same soft tint as the cards */
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(238,160,55,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(238,160,55,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${state === 'on' ? '#e6b876' : '#9ed9bd'} !important;
+    content: "${(() => { const g = hass.states['binary_sensor.doors_and_windows_upstairs']; const m = (g?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+  }
 cards:
-  # ── summary strip ─────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: button
-    button_type: state
-    entity: binary_sensor.doors_and_windows_upstairs
-    card_layout: large
-    show_name: false
-    styles: |
-      .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(238,160,55,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
-      .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(238,160,55,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-      .bubble-state { font-size: 0 !important; }
-      .bubble-state::after {
-        font-size: 15px !important; font-weight: 500;
-        color: ${state === 'on' ? '#e6b876' : '#9ed9bd'} !important;
-        content: "${(() => { const g = hass.states['binary_sensor.doors_and_windows_upstairs']; const m = (g?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
-      }
   # ── section: Master bedroom ───────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

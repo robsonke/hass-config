@@ -8,23 +8,20 @@ width_desktop: 680px
 hash: '#deuren-tuin'
 name: Deuren in de tuin
 icon: mdi:door-sliding
+# summary lives in the pop-up header: entity drives the header state line,
+# overridden to the computed "N open · M dicht" count (calmed tint, not blue).
+entity: binary_sensor.doors_and_windows_garden
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(238,160,55,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(238,160,55,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${state === 'on' ? '#e6b876' : '#9ed9bd'} !important;
+    content: "${(() => { const g = hass.states['binary_sensor.doors_and_windows_garden']; const m = (g?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+  }
 cards:
-  # ── summary strip (green = alles dicht, amber = iets open) ─────────
-  - type: custom:bubble-card
-    card_type: button
-    button_type: state
-    entity: binary_sensor.doors_and_windows_garden
-    card_layout: large
-    show_name: false
-    styles: |
-      .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(238,160,55,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
-      .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(238,160,55,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-      .bubble-state { font-size: 0 !important; }
-      .bubble-state::after {
-        font-size: 15px !important; font-weight: 500;
-        color: ${state === 'on' ? '#e6b876' : '#9ed9bd'} !important;
-        content: "${(() => { const g = hass.states['binary_sensor.doors_and_windows_garden']; const m = (g?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
-      }
   # ── section: Schuurdeuren ─────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

@@ -11,7 +11,7 @@ Replace the plain `custom:auto-entities` → `entities` lists with a glanceable,
 
 A vertical stack inside the pop-up's `cards:`:
 
-1. **Summary strip** — one full-width row showing an at-a-glance count, tinted by whether anything is "active" (open). Driven by an existing group sensor where available.
+1. **Summary in the pop-up header** — the pop-up card gets `entity: <group sensor>` + `show_state: true`, which makes the header render a state line under the title. Override it via the pop-up's `styles:` (`.bubble-state::after`) to the computed "N open · M dicht" count, and calm the header's default on-state blue (`.bubble-button-background`) to the same soft tint the cards use. (Earlier revision used a separate summary *card*; the header is cleaner and saves vertical space.)
 2. **Section label** — small uppercase muted label per area (omit if a popup has a single group).
 3. **State-card grid** — `type: grid, columns: 2, square: false` of state cards.
 
@@ -27,12 +27,12 @@ A vertical stack inside the pop-up's `cards:`:
 - **tap_action / hold** → `more-info` on the entity (free history + battery; these sensors are read-only).
 - `modules: [bubble_neon_icon_only]` is **not** used here (we want calm tints, not per-icon neon).
 
-### Summary strip
+### Summary (in the header)
 
-- A `custom:bubble-card`, `button_type: name`, entity = the area group sensor.
-- Name rendered via `.bubble-state::after` = `"‹N› open · ‹M› dicht"` (or `"Alles dicht"` when none open), computed from the group's member `entity_id` list in JS.
-- Tint: amber if group state is `on` (something open), else green.
-- No tap action (informational) — or tap → more-info of the group. Default: no action.
+- Set `entity: <group sensor>` and `show_state: true` on the pop-up card itself.
+- In the pop-up's `styles:`, hide the raw header state (`.bubble-state { font-size: 0 }`) and inject via `.bubble-state::after` = `"‹N› open · ‹M› dicht"` (or `"Alles dicht"` when none open), computed from the group's member `entity_id` list in JS. Colour the text amber when open, green when closed.
+- Calm the header's default on-state background: `.bubble-button-background { background-color: <soft amber/green by state> }` (otherwise it renders bright blue when the group is `on`). Optionally tint `.bubble-icon-container` to match.
+- These pop-up-level `styles` only reach the header (its own shadow root); the nested state cards have their own `styles`, so `.bubble-state` here never collides with the card subtitles.
 
 ## Popup specs
 
