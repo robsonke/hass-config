@@ -53,7 +53,7 @@ cards:
               icon: mdi:book-alphabet
               tap_action:
                 action: call-service
-                service: rest_command.auping_bed
+                service: script.auping_bed
                 data: { cbu: 2, motor_1_action: 0, motor_1_time: 0, motor_2_action: 1, motor_2_time: 14000, motor_3_action: 0, motor_3_time: 0 }
             - type: custom:mushroom-entity-card
               entity: cover.bed_rob
@@ -63,7 +63,7 @@ cards:
               icon: mdi:television-classic
               tap_action:
                 action: call-service
-                service: rest_command.auping_bed
+                service: script.auping_bed
                 data: { cbu: 2, motor_1_action: 0, motor_1_time: 0, motor_2_action: 1, motor_2_time: 17000, motor_3_action: 0, motor_3_time: 0 }
   # ── aanwezigheid ──────────────────────────────────────────────────
   - type: custom:bubble-card
