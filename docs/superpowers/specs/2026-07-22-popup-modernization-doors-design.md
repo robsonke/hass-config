@@ -85,6 +85,15 @@ Controllable entities (lights) reuse the section-grid + header-summary shell but
 - **Header**: needs an `entity` so the state line renders — point it at any one light; drive count/tint from the explicit shown-list. Warm gold when any on (`rgba(240,195,95,0.13)` bg, `#f0cf8f` text), neutral dim when all off. Count text "N aan · M uit" / "Alles uit".
 - Generated with `scratchpad/mk_lights.py` (section → [(entity, name, is_color)]) — reused for beneden/boven/tuin.
 
+## Covers variant (`#screens`)
+
+Covers reuse the light slider card with cover semantics:
+- `button_type: slider` on the cover → drag sets position (`set_cover_position`); fill shows how open. `tap_action: toggle` (open↔dicht), `hold_action: more-info`.
+- `sub_button` trio ↑ / ■ / ↓ → `perform-action` `cover.open_cover` / `cover.stop_cover` / `cover.close_cover` with `target.entity_id`.
+- Subtitle: `open` (pos ≥ 100) / `dicht` (pos ≤ 0) / `N%`; blue when `open`, green when closed (same as doors).
+- Header summary "Voor ‹pos› · Zij ‹pos›", tinted blue if any cover `open`.
+- Kept the `input_boolean.enable_automatic_screens` toggle (as a `button_type: switch` card under an "Automatisch" separator) and a native `history-graph` under a "Verloop" separator.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.

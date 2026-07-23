@@ -1,5 +1,6 @@
 # Bubble Card native pop-up (hash #screens) — Screens tile (Huis & auto).
-# Included from bubble-dashboard.yaml as `- !include popups/bpp_covers.yaml`.
+# Cover slider cards (drag = positie, tap = open/dicht, ↑/■/↓ sub-buttons),
+# plus the automatic-control toggle and a history graph. See the popup spec.
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
@@ -8,47 +9,88 @@ width_desktop: 900px
 hash: '#screens'
 name: Screens
 icon: mdi:blinds
+# header summary = per-screen positie (blauw = open/omhoog, groen = dicht/omlaag)
+entity: cover.covers_downstairs
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${['cover.voorraam','cover.zijraam'].some(e => hass.states[e]?.state === 'open') ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+  .bubble-icon-container { background-color: ${['cover.voorraam','cover.zijraam'].some(e => hass.states[e]?.state === 'open') ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${['cover.voorraam','cover.zijraam'].some(e => hass.states[e]?.state === 'open') ? '#82bbf0' : '#9ed9bd'} !important;
+    content: "${(() => { const d = id => { const p = hass.states[id]?.attributes?.current_position; return p == null ? '?' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); }; return 'Voor ' + d('cover.voorraam') + ' · Zij ' + d('cover.zijraam'); })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 50% 50%
-      grid-template-rows: auto
-      grid-template-areas: |
-        "cover1   cover2"
-        "history history"
-        "settings ."
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-rows: auto
-          grid-template-areas: |
-            "cover1"
-            "cover2"
-            "settings"
-            "history"
+  # ── de twee screens ───────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Screens
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: entities
-        view_layout:
-          grid-area: settings
-        show_header_toggle: false
-        title: Automatisch?
-        entities:
-          - entity: input_boolean.enable_automatic_screens
-            name: Screens automatisch aansturen vandaag?
-      - type: custom:more-info-card
-        view_layout:
-          grid-area: cover1
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
         entity: cover.voorraam
-        title: Voorkant
-      - type: custom:more-info-card
-        view_layout:
-          grid-area: cover2
+        name: Voorkant
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:arrow-up
+            tap_action: { action: perform-action, perform_action: cover.open_cover, target: { entity_id: cover.voorraam } }
+            show_background: true
+          - icon: mdi:stop
+            tap_action: { action: perform-action, perform_action: cover.stop_cover, target: { entity_id: cover.voorraam } }
+            show_background: true
+          - icon: mdi:arrow-down
+            tap_action: { action: perform-action, perform_action: cover.close_cover, target: { entity_id: cover.voorraam } }
+            show_background: true
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const p = hass.states['cover.voorraam']?.attributes?.current_position; return p == null ? '' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
         entity: cover.zijraam
-        title: Zijkant
-      - type: history-graph
-        view_layout:
-          grid-area: history
-        hours_to_show: 12
-        entities:
-          - cover.voorraam
-          - cover.zijraam
+        name: Zijkant
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:arrow-up
+            tap_action: { action: perform-action, perform_action: cover.open_cover, target: { entity_id: cover.zijraam } }
+            show_background: true
+          - icon: mdi:stop
+            tap_action: { action: perform-action, perform_action: cover.stop_cover, target: { entity_id: cover.zijraam } }
+            show_background: true
+          - icon: mdi:arrow-down
+            tap_action: { action: perform-action, perform_action: cover.close_cover, target: { entity_id: cover.zijraam } }
+            show_background: true
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const p = hass.states['cover.zijraam']?.attributes?.current_position; return p == null ? '' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); })()}"; }
+  # ── instellingen ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Automatisch
+  - type: custom:bubble-card
+    card_type: button
+    button_type: switch
+    entity: input_boolean.enable_automatic_screens
+    name: Automatisch aansturen vandaag
+    icon: mdi:cog-outline
+    card_layout: large
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop (12 uur)
+  - type: history-graph
+    hours_to_show: 12
+    entities:
+      - cover.voorraam
+      - cover.zijraam
