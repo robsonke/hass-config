@@ -75,6 +75,16 @@ A vertical stack inside the pop-up's `cards:`:
 - **Neutral info-row variant** — for entities that aren't open/closed states (e.g. doorbell/camera event sensors: visitor, motion, person), use full-width `bubble-card` buttons in their own section (e.g. "Voordeur activiteit") with a neutral tint (`rgba(255,255,255,0.045)` bg) and subtitle "‹duration› geleden" (or "zojuist" under a minute). No green/blue state tint — they're recency info, not status.
 - **Header count source** — when the popup shows a set of entities that differs from the group sensor's membership (downstairs' group excludes interior doors), compute the header count/tint from the **explicit list of shown entities** rather than the group's `entity_id` attribute, so the header always agrees with the cards below it. (When the group's membership equals the shown set — garden, upstairs — just use the group.)
 
+## Variations (added while doing the light popups)
+
+Controllable entities (lights) reuse the section-grid + header-summary shell but swap the state card for a **slider card**:
+
+- Card = `custom:bubble-card`, `card_type: button`, `button_type: slider`, `slider_live_update: true`. Drag = brightness; the slider fills and **tints to the light's own `rgb_color`** automatically (do NOT set `use_accent_color`). Off = neutral/empty.
+- `tap_action: { action: toggle }`, `double_tap_action` + `hold_action: { action: more-info }` (full controls incl colour/temp).
+- **Colour-capable lights** (supported_color_modes includes `xy`/`hs`/`rgb*`) get a `sub_button` `mdi:palette` → `more-info` (colour wheel). Brightness-only lights omit it.
+- **Header**: needs an `entity` so the state line renders — point it at any one light; drive count/tint from the explicit shown-list. Warm gold when any on (`rgba(240,195,95,0.13)` bg, `#f0cf8f` text), neutral dim when all off. Count text "N aan · M uit" / "Alles uit".
+- Generated with `scratchpad/mk_lights.py` (section → [(entity, name, is_color)]) — reused for beneden/boven/tuin.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.
