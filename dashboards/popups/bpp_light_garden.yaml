@@ -1,4 +1,6 @@
-# Bubble Card native pop-up (hash #verlichting-tuin) — migrated from pp_light_garden.yaml (browser_mod).
+# Bubble Card native pop-up (hash #verlichting-tuin) — Verlichting light sliders.
+# Light slider cards (drag = brightness, tap = toggle, colour = light's own rgb);
+# on/off-only lights are plain toggle cards. See the popup-modernization spec.
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
@@ -7,140 +9,257 @@ width_desktop: 1000px
 hash: '#verlichting-tuin'
 name: Tuin verlichting
 icon: mdi:lightbulb-group
+entity: light.garden_light
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important;
+    content: "${(() => { const m = ['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles uit' : o + ' aan · ' + (m.length - o) + ' uit'; })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 1fr 1fr
-      grid-template-rows: auto
-      grid-template-areas: |
-        "part1 part2"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "part1"
-            "part2"
+  - type: custom:bubble-card
+    card_type: separator
+    name: Overkapping
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: entities
-        view_layout:
-          grid-area: part1
-        entities:
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.roofceiling_garden_light
-              - title: Overkapping Spots
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.roofceiling_table_light
-              - title: Overkapping Tafel
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.lights_wall_shed
-              - title: Overkapping Wand
-
-
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.veranda_light
-              - title: Blokhut Spots
-          # - type: custom:decluttering-card
-          #   template: light_button
-          #   variables:
-          #     - entity: light.shed_light_front
-          #     - title: Schuur Voor
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.shed_light_back
-              - title: Schuur Achter
-          - type: divider
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.garden_light
-              - title: Wandlampen
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.woodshed_light
-              - title: Houthok
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.pool_terrace_light1
-              - title: Zwembad hoek 1
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.pool_terrace_light2
-              - title: Zwembad hoek 2
-
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.palm1_light
-              - title: Palm 1
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.palm2_light
-              - title: Palm 2
-          # - type: custom:decluttering-card
-          #   template: light_button
-          #   variables:
-          #     - entity: light.kerst_buiten
-          #     - title: Kerstverlichting
-
-      - type: entities
-        view_layout:
-          grid-area: part2
-        entities:
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.garden_lantern_light1
-              - title: Lantaarn 1
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.garden_lantern_light2
-              - title: Lantaarn 2
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.garden_lantern_light3
-              - title: Lantaarn 3
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.hue_lily_light_fence_1
-              - title: Hek 1
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.hue_lily_light_fence_2
-              - title: Hek 2
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.hue_lily_light_fence_3
-              - title: Hek 3
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.hue_lily_light_tree_1
-              - title: Boom Eva
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.hue_lily_light_tree_2
-              - title: Boom Noa
-
-          - entity: sensor.light_sensor_garden_illuminance
-            name: Lichtsterkte buiten
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.roofceiling_garden_light
+        name: Overkapping Spots
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.roofceiling_table_light
+        name: Overkapping Tafel
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.lights_wall_shed
+        name: Overkapping Wand
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.veranda_light
+        name: Blokhut Spots
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: light.shed_light_back
+        name: Schuur Achter
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+  - type: custom:bubble-card
+    card_type: separator
+    name: Tuin
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.garden_light
+        name: Wandlampen
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.woodshed_light
+        name: Houthok
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.pool_terrace_light1
+        name: Zwembad hoek 1
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.pool_terrace_light2
+        name: Zwembad hoek 2
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.palm1_light
+        name: Palm 1
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.palm2_light
+        name: Palm 2
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true
+  - type: custom:bubble-card
+    card_type: separator
+    name: Sfeer
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.garden_lantern_light1
+        name: Lantaarn 1
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.garden_lantern_light2
+        name: Lantaarn 2
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.garden_lantern_light3
+        name: Lantaarn 3
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.hue_lily_light_fence_1
+        name: Hek 1
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.hue_lily_light_fence_2
+        name: Hek 2
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.hue_lily_light_fence_3
+        name: Hek 3
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.hue_lily_light_tree_1
+        name: Boom Eva
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.hue_lily_light_tree_2
+        name: Boom Noa
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+        sub_button:
+          - icon: mdi:palette
+            tap_action: { action: more-info }
+            show_background: true

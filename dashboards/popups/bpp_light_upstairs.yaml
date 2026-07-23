@@ -1,4 +1,6 @@
-# Bubble Card native pop-up (hash #verlichting-boven) — migrated from pp_light_upstairs.yaml (browser_mod).
+# Bubble Card native pop-up (hash #verlichting-boven) — Verlichting light sliders.
+# Light slider cards (drag = brightness, tap = toggle, colour = light's own rgb);
+# on/off-only lights are plain toggle cards. See the popup-modernization spec.
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
@@ -7,81 +9,136 @@ width_desktop: 1000px
 hash: '#verlichting-boven'
 name: Verlichting boven
 icon: mdi:lightbulb-group
+entity: light.dimmer_corridor
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important;
+    content: "${(() => { const m = ['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles uit' : o + ' aan · ' + (m.length - o) + ' uit'; })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 1fr 1fr
-      grid-template-rows: auto
-      grid-template-areas: |
-        "part1 part2"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "part1"
-            "part2"
+  - type: custom:bubble-card
+    card_type: separator
+    name: Overloop
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: entities
-        view_layout:
-          grid-area: part1
-        entities:
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_corridor
-              - title: Overloop
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.toilet_upstairs_light
-              - title: Toilet
-
-          - type: divider
-
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.bedroom_sonos_light
-              - title: Bedlamp Sonos
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_masterbed
-              - title: Slaapkamer
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_mastercloset
-              - title: Inloopkast
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_masterbath
-              - title: Douche
-
-      - type: entities
-        view_layout:
-          grid-area: part2
-        entities:
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_eva
-              - title: Eva
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_bathroom
-              - title: Badkamer
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_noa
-              - title: Noa
-          - type: custom:decluttering-card
-            template: light_button
-            variables:
-              - entity: light.dimmer_guestroom
-              - title: Logeerkamer
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_corridor
+        name: Overloop
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.toilet_upstairs_light
+        name: Toilet
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+  - type: custom:bubble-card
+    card_type: separator
+    name: Slaapkamer
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.bedroom_sonos_light
+        name: Bedlamp Sonos
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_masterbed
+        name: Slaapkamer
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_mastercloset
+        name: Inloopkast
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_masterbath
+        name: Douche
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+  - type: custom:bubble-card
+    card_type: separator
+    name: Overig
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_eva
+        name: Eva
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_bathroom
+        name: Badkamer
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_noa
+        name: Noa
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_guestroom
+        name: Logeerkamer
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
