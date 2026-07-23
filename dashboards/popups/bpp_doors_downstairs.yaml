@@ -1,5 +1,5 @@
 # Bubble Card native pop-up (hash #deuren-beneden) — Deuren tile (Beneden).
-# Included from bubble-dashboard.yaml as `- !include popups/bpp_doors_downstairs.yaml`.
+# State-card grid pattern — see docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
@@ -8,67 +8,235 @@ width_desktop: 760px
 hash: '#deuren-beneden'
 name: Deuren en ramen beneden
 icon: mdi:door
+# summary in the header: group sensor drives the state line, overridden to
+# the computed "N open · M dicht" count (blue = iets open, green = alles dicht).
+entity: binary_sensor.doors_and_windows_downstairs
+show_state: true
+styles: |
+  /* header summary counts/tints from the SAME entities shown as cards (the
+     group sensor excludes interior doors, so it would disagree with the cards) */
+  .bubble-button-background { opacity: 1 !important; background-color: ${['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact'].some(e => hass.states[e]?.state === 'on') ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+  .bubble-icon-container { background-color: ${['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact'].some(e => hass.states[e]?.state === 'on') ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact'].some(e => hass.states[e]?.state === 'on') ? '#82bbf0' : '#9ed9bd'} !important;
+    content: "${(() => { const m = ['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+  }
 cards:
-  - type: entities
-    show_header_toggle: false
-    entities:
-      - type: section
-        label: Voordeur
-      - entity: binary_sensor.langeweide_doorbell_visitor
-        name: Deurbel ding
-        secondary_info: last-changed
-      - binary_sensor.frontdoor_openclose_contact
-      - entity: binary_sensor.langeweide_doorbell_motion
-        name: Laatste beweging
-        secondary_info: last-changed
-      - entity: binary_sensor.langeweide_doorbell_person
-        name: Laatste persoon
-        secondary_info: last-changed
-  - type: custom:auto-entities
-    card:
-      show_icon: true
-      type: entities
-    filter:
-      include:
-        - type: section
-          label: Buitendeuren
-        - entity_id: binary_sensor.backdoor_sensor_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.frontdoor_openclose_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.door_terrace_sensor_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.sheddoor_openclose_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.cabindoor_openclose_contact
-          options:
-            secondary_info: last-changed
-        - type: section
-          label: Kiep/kantel ramen
-        - entity_id: binary_sensor.windowdoor_ground_1_openclose_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.windowdoor_ground_2_openclose_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.windowdoor_ground_3_openclose_contact
-          options:
-            secondary_info: last-changed
-        - type: section
-          label: Overig
-        - entity_id: binary_sensor.hallwaydoor_sensor_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.window_office_openclose_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.door_hallcloset_openclose_contact
-          options:
-            secondary_info: last-changed
-        - entity_id: binary_sensor.toiletdoordownstairs_sensor_contact
-          options:
-            secondary_info: last-changed
+  # ── section: Buitendeuren ─────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Buitendeuren
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.frontdoor_openclose_contact
+        name: Voordeur
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.frontdoor_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.backdoor_sensor_contact
+        name: Achterdeur
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.backdoor_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.door_terrace_sensor_contact
+        name: Terras
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.door_terrace_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+  # ── section: Kiep/kantel ramen ────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kiep/kantel ramen
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.windowdoor_ground_1_openclose_contact
+        name: Raam 1
+        icon: mdi:window-closed-variant
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.windowdoor_ground_1_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.windowdoor_ground_2_openclose_contact
+        name: Raam 2
+        icon: mdi:window-closed-variant
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.windowdoor_ground_2_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.windowdoor_ground_3_openclose_contact
+        name: Raam 3
+        icon: mdi:window-closed-variant
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.windowdoor_ground_3_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+  # ── section: Overig ───────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Overig
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.hallwaydoor_sensor_contact
+        name: Gang
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.hallwaydoor_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.window_office_openclose_contact
+        name: Kantoor
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_office_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.door_hallcloset_openclose_contact
+        name: Gangkast
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.door_hallcloset_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.toiletdoordownstairs_sensor_contact
+        name: Toilet
+        card_layout: large
+        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.toiletdoordownstairs_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+  # ── section: Voordeur activiteit (neutral info rows, not state cards) ─
+  - type: custom:bubble-card
+    card_type: separator
+    name: Voordeur activiteit
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: binary_sensor.langeweide_doorbell_visitor
+    name: Deurbel
+    icon: mdi:bell
+    card_layout: large
+    tap_action: { action: more-info }
+    button_action:
+      tap_action: { action: more-info }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.045) !important; }
+      .bubble-icon-container { background-color: rgba(255,255,255,0.07) !important; }
+      .bubble-state { font-size: 0 !important; }
+      .bubble-state::after { font-size: 12.5px !important; color: #9b9aac !important; content: "${(() => { const t = hass.states['binary_sensor.langeweide_doorbell_visitor']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'zojuist'; let d; if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return d + ' geleden'; })()}"; }
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: binary_sensor.langeweide_doorbell_motion
+    name: Beweging
+    icon: mdi:motion-sensor
+    card_layout: large
+    tap_action: { action: more-info }
+    button_action:
+      tap_action: { action: more-info }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.045) !important; }
+      .bubble-icon-container { background-color: rgba(255,255,255,0.07) !important; }
+      .bubble-state { font-size: 0 !important; }
+      .bubble-state::after { font-size: 12.5px !important; color: #9b9aac !important; content: "${(() => { const t = hass.states['binary_sensor.langeweide_doorbell_motion']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'zojuist'; let d; if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return d + ' geleden'; })()}"; }
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: binary_sensor.langeweide_doorbell_person
+    name: Persoon
+    icon: mdi:account
+    card_layout: large
+    tap_action: { action: more-info }
+    button_action:
+      tap_action: { action: more-info }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.045) !important; }
+      .bubble-icon-container { background-color: rgba(255,255,255,0.07) !important; }
+      .bubble-state { font-size: 0 !important; }
+      .bubble-state::after { font-size: 12.5px !important; color: #9b9aac !important; content: "${(() => { const t = hass.states['binary_sensor.langeweide_doorbell_person']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'zojuist'; let d; if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return d + ' geleden'; })()}"; }

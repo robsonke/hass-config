@@ -70,6 +70,11 @@ A vertical stack inside the pop-up's `cards:`:
   ```
 - Verify live in the controlled browser tab (open each hash, check tint by state, subtitle text, more-info on tap).
 
+## Variations (added while doing `#deuren-beneden`)
+
+- **Neutral info-row variant** — for entities that aren't open/closed states (e.g. doorbell/camera event sensors: visitor, motion, person), use full-width `bubble-card` buttons in their own section (e.g. "Voordeur activiteit") with a neutral tint (`rgba(255,255,255,0.045)` bg) and subtitle "‹duration› geleden" (or "zojuist" under a minute). No green/blue state tint — they're recency info, not status.
+- **Header count source** — when the popup shows a set of entities that differs from the group sensor's membership (downstairs' group excludes interior doors), compute the header count/tint from the **explicit list of shown entities** rather than the group's `entity_id` attribute, so the header always agrees with the cards below it. (When the group's membership equals the shown set — garden, upstairs — just use the group.)
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.
