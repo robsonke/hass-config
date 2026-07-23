@@ -243,8 +243,16 @@ views:
                             - condition: state
                               entity_id: person.rob
                               state: "home"
+                        - name: Werk
+                          target: main_icon
+                          icon: mdi:briefcase
+                          color: blue
+                          condition:
+                            - condition: state
+                              entity_id: person.rob
+                              state: "Maxxton"
                     modules:
-                      - bubble_badges   # "thuis" badge on the main icon
+                      - bubble_badges   # thuis + werk badge on the main icon
                       - bubble_neon_icon_only
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
@@ -276,6 +284,14 @@ views:
                             - condition: state
                               entity_id: person.steffi
                               state: "home"
+                        - name: Werk
+                          target: main_icon
+                          icon: mdi:briefcase
+                          color: blue
+                          condition:
+                            - condition: state
+                              entity_id: person.steffi
+                              state: "CJG"
                     modules: [bubble_badges, bubble_neon_icon_only]
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
