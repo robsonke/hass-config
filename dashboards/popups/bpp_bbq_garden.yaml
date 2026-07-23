@@ -121,7 +121,8 @@ cards:
   - type: custom:bubble-card
     card_type: separator
     name: Verloop
-  - type: custom:mini-graph-card
+  - type: history-graph
+    hours_to_show: 6
     entities:
       - entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
         name: Dome
@@ -129,15 +130,6 @@ cards:
         name: Vlees 1
       - entity: sensor.probe_2_temperature
         name: Vlees 2
-    show:
-      labels: true
-    color_thresholds:
-      - value: 150
-        color: "#f39c12"
-      - value: 200
-        color: "#d35400"
-      - value: 250
-        color: "#c0392b"
   # ── notificaties ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
