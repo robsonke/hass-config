@@ -1,134 +1,216 @@
-# Bubble Card native pop-up (hash #beregening) — migrated from pp_irrigation_garden.yaml (browser_mod).
+# Bubble Card native pop-up (hash #beregening) — Beregening tile (Tuin).
+# Zone-centric UX: tap a zone = sproei nu, calendar sub-button = in/uit plan,
+# subtitle = plan + duur. Plus algemeen, instellingen, controller, verloop.
+# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1050px
+width_desktop: 880px
 hash: '#beregening'
 name: Tuin beregening
 icon: mdi:sprinkler
+# header = sproeit nu / planning aan + starttijd / uit
+entity: switch.irrigation_main_switch
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const spray = ['switch.irrigation_zone_achter_links','switch.irrigation_zone_achter_rechts','switch.irrigation_zone_terras_midden','switch.irrigation_zone_terras_zijkant','switch.irrigation_main_switch'].some(e => hass.states[e]?.state === 'on'); const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; return spray ? 'rgba(55,138,221,0.16)' : plan ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const spray = ['switch.irrigation_zone_achter_links','switch.irrigation_zone_achter_rechts','switch.irrigation_zone_terras_midden','switch.irrigation_zone_terras_zijkant','switch.irrigation_main_switch'].some(e => hass.states[e]?.state === 'on'); const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; return spray ? 'rgba(55,138,221,0.22)' : plan ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const spray = ['switch.irrigation_zone_achter_links','switch.irrigation_zone_achter_rechts','switch.irrigation_zone_terras_midden','switch.irrigation_zone_terras_zijkant','switch.irrigation_main_switch'].some(e => hass.states[e]?.state === 'on'); const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; return spray ? '#82bbf0' : plan ? '#9ed9bd' : '#9b9aac'; })()} !important;
+    content: "${(() => { const zones = { 'switch.irrigation_zone_achter_links':'Achter links', 'switch.irrigation_zone_achter_rechts':'Achter rechts', 'switch.irrigation_zone_terras_midden':'Terras midden', 'switch.irrigation_zone_terras_zijkant':'Terras zijkant' }; const on = Object.keys(zones).find(e => hass.states[e]?.state === 'on'); if (on) return 'Sproeit: ' + zones[on]; if (hass.states['switch.irrigation_main_switch']?.state === 'on') return 'Sproeit nu'; const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; const start = (hass.states['input_datetime.irrigation_start_time']?.state || '').slice(0,5); return plan ? ('Planning aan · start ' + start) : 'Uit'; })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 50% 50%
-      grid-template-rows: auto
-      grid-template-areas: |
-        "control control-settings"
-        "switch-history water-history"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "control"
-            "control-settings"
-            "switch-history"
-            "water-history"
+  # ── algemeen ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Algemeen
+  - type: grid
+    columns: 3
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: control
-        cards:
-          - type: horizontal-stack
-            cards:
-              - type: custom:button-card
-                name: Activeer sproei planning
-                entity: input_boolean.irrigation_plan_enable
-                show_state: false
-                styles:
-                  card:
-                    - height: 100px
-                    - width: 200px
-              - type: custom:button-card
-                name: Sproeien
-                entity: switch.irrigation_main_switch
-                show_state: false
-                styles:
-                  card:
-                    - height: 100px
-                    - width: 200px
-                tap_action:
-                  action: call-service
-                  service: switch.toggle
-                  service_data:
-                    entity_id: switch.irrigation_main_switch
-              - type: custom:button-card
-                name: Automatisch rouleren
-                entity: switch.auto_advance_next_zone
-                show_state: false
-                styles:
-                  card:
-                    - height: 100px
-                    - width: 200px
-                tap_action:
-                  action: call-service
-                  service: switch.toggle
-                  service_data:
-                    entity_id: switch.auto_advance_next_zone
-
-          - type: entities
-            entities:
-              - entity: switch.irrigation_zone_achter_links
-                name: Achter links
-              - entity: switch.irrigation_zone_achter_rechts
-                name: Achter rechts
-              - entity: switch.irrigation_zone_terras_midden
-                name: Terras midden
-              - entity: switch.irrigation_zone_terras_zijkant
-                name: Terras zijkant
-            title: Handmatig sproeien
-            show_header_toggle: false
-          - type: glance
-            entities:
-              - entity: binary_sensor.sonoff_4ch_status
-                name: Status
-              - entity: sensor.sonoff_4ch_irrigation_uptime
-                name: Uptime
-              - entity: sensor.sonoff_4ch_irrigation_wifi_signal
-                name: WiFi Signal
-        title: Controller Status
-      - type: vertical-stack
-        view_layout:
-          grid-area: control-settings
-        cards:
-          - type: entities
-            entities:
-              - entity: input_datetime.irrigation_start_time
-                name: Starttijd
-              - entity: switch.valve_4_achter_links_enabled
-                name: Achter links enabled
-              - entity: number.sproeiduur_zone_achter_links
-              - entity: switch.valve_3_achter_rechts_enabled
-                name: Achter rechts enabled
-              - entity: number.sproeiduur_zone_achter_rechts
-              - entity: switch.valve_1_terras_midden_enabled
-                name: Terras midden enabled
-              - entity: number.sproeiduur_zone_terras_midden
-              - entity: switch.valve_2_terras_zijkant_enabled
-                name: Terras zijkant enabled
-              - entity: number.sproeiduur_zone_terras_zijkant
-
-
-      - type: history-graph
-        view_layout:
-          grid-area: switch-history
-        title: Zone history
-        hours_to_show: 72
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: input_boolean.irrigation_plan_enable
+        name: Planning
+        icon: mdi:calendar-clock
+        card_layout: large
+        tap_action: { action: toggle }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.irrigation_main_switch
+        name: Sproeien
+        icon: mdi:water-pump
+        card_layout: large
+        tap_action: { action: toggle }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.auto_advance_next_zone
+        name: Rouleren
+        icon: mdi:arrow-right-circle
+        card_layout: large
+        tap_action: { action: toggle }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+  # ── zones (tap = sproei nu, kalender = in/uit plan) ───────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Zones
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.irrigation_zone_achter_links
+        name: Achter links
+        icon: mdi:sprinkler-variant
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        sub_button:
+          - entity: switch.valve_4_achter_links_enabled
+            icon: mdi:calendar-check
+            show_state: false
+            show_background: true
+            tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_4_achter_links_enabled } }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_achter_links']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_4_achter_links_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_achter_links']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.irrigation_zone_achter_rechts
+        name: Achter rechts
+        icon: mdi:sprinkler-variant
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        sub_button:
+          - entity: switch.valve_3_achter_rechts_enabled
+            icon: mdi:calendar-check
+            show_state: false
+            show_background: true
+            tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_3_achter_rechts_enabled } }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_achter_rechts']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_3_achter_rechts_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_achter_rechts']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.irrigation_zone_terras_midden
+        name: Terras midden
+        icon: mdi:sprinkler-variant
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        sub_button:
+          - entity: switch.valve_1_terras_midden_enabled
+            icon: mdi:calendar-check
+            show_state: false
+            show_background: true
+            tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_1_terras_midden_enabled } }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_terras_midden']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_1_terras_midden_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_terras_midden']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.irrigation_zone_terras_zijkant
+        name: Terras zijkant
+        icon: mdi:sprinkler-variant
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        sub_button:
+          - entity: switch.valve_2_terras_zijkant_enabled
+            icon: mdi:calendar-check
+            show_state: false
+            show_background: true
+            tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_2_terras_zijkant_enabled } }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_terras_zijkant']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_2_terras_zijkant_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_terras_zijkant']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+  # ── instellingen (starttijd + sproeiduur per zone) ────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Instellingen
+  - type: custom:expander-card
+    title: Planning & duur
+    cards:
+      - type: entities
+        show_header_toggle: false
         entities:
-          - switch.irrigation_zone_achter_links
-          - switch.irrigation_zone_achter_rechts
-          - switch.irrigation_zone_terras_midden
-          - switch.irrigation_zone_terras_zijkant
-      - type: statistics-graph
-        view_layout:
-          grid-area: water-history
-        title: Water usage
-        period: day
-        days_to_show: 7
-        chart_type: bar
-        stat_types:
-        - state
-        entities:
-          - entity: sensor.water_daily
-            name: daily water usage
+          - entity: input_datetime.irrigation_start_time
+            name: Starttijd
+          - type: divider
+          - entity: number.sproeiduur_zone_achter_links
+            name: Duur achter links
+          - entity: number.sproeiduur_zone_achter_rechts
+            name: Duur achter rechts
+          - entity: number.sproeiduur_zone_terras_midden
+            name: Duur terras midden
+          - entity: number.sproeiduur_zone_terras_zijkant
+            name: Duur terras zijkant
+  # ── controller ────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Controller
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: binary_sensor.sonoff_4ch_status
+        name: Status
+      - entity: sensor.sonoff_4ch_irrigation_uptime
+        name: Uptime
+      - entity: sensor.sonoff_4ch_irrigation_wifi_signal
+        name: WiFi-signaal
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop
+  - type: history-graph
+    title: Zones (72 uur)
+    hours_to_show: 72
+    entities:
+      - switch.irrigation_zone_achter_links
+      - switch.irrigation_zone_achter_rechts
+      - switch.irrigation_zone_terras_midden
+      - switch.irrigation_zone_terras_zijkant
+  - type: statistics-graph
+    title: Waterverbruik (7 dagen)
+    period: day
+    days_to_show: 7
+    chart_type: bar
+    stat_types:
+      - state
+    entities:
+      - entity: sensor.water_daily
+        name: Waterverbruik per dag

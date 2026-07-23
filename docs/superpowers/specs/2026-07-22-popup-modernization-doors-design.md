@@ -123,6 +123,10 @@ Single column, all sections full-width: Rol dek (cover slider + lock toggle), Ve
 
 Single column: header = dome temp (rood bij `sensor.dome_alert_temp`=Alert, warm >50°, dim when unavailable). Temperatuur (read-only Dome slider 0–400 + Vlees 1/2 probe temp cards, warm >40°). **Vlees voorspelling = `custom:probe-ability-card` kept verbatim** (shows "No probe sensors available" when the thermometer is off). Doelen (min/max `number` sliders), Kookwekker (`numberbox-card` + `timer-bar-card`), Verloop (`mini-graph-card`), Notificaties (3 automation/boolean toggle cards, green when on). Thermometer entities are `unavailable` outside cooking; the graph shows NaN until data flows — acceptable.
 
+## Irrigation variant (`#beregening`) — zone-centric UX
+
+The old popup scattered 3 controls per zone (manual spray switch, in-plan enable switch, duration number) across separate lists. Rebuilt zone-centric: **one card per zone** — `entity` = manual `switch.irrigation_zone_*`, `tap_action: toggle` = sproei nu (blue when spraying), a `sub_button` (calendar, `entity` = `switch.valve_N_*_enabled`, highlights when in-plan) toggles schedule inclusion, and the subtitle computes "Sproeit nu" / "In plan · N min" / "Niet in plan" from the enable switch + `number.sproeiduur_*`. Global **Algemeen** row (Planning/Sproeien/Rouleren toggles), an **Instellingen** expander (start time + per-zone durations), Controller status list, and history/water graphs. Header = "Sproeit: ‹zone›" / "Planning aan · start HH:MM" / "Uit".
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.
