@@ -37,7 +37,7 @@ views:
   - title: Overzicht
     path: overzicht
     type: sections
-    theme: custom-dark
+    theme: Material You
     # dark scrim over the wallpaper so the neon accents pop (raise the 0.62
     # alpha toward 1 for even darker, lower it toward 0 to show more wallpaper)
     background: "linear-gradient(rgba(8, 6, 16, 0.62), rgba(8, 6, 16, 0.62)), url('/local/bubble_background.jpg') center / cover no-repeat"
