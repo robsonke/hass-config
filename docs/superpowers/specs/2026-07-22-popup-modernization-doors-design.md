@@ -127,6 +127,11 @@ Single column: header = dome temp (rood bij `sensor.dome_alert_temp`=Alert, warm
 
 The old popup scattered 3 controls per zone (manual spray switch, in-plan enable switch, duration number) across separate lists. Rebuilt zone-centric: **one card per zone** — `entity` = manual `switch.irrigation_zone_*`, `tap_action: toggle` = sproei nu (blue when spraying), a `sub_button` (calendar, `entity` = `switch.valve_N_*_enabled`, highlights when in-plan) toggles schedule inclusion, and the subtitle computes "Sproeit nu" / "In plan · N min" / "Niet in plan" from the enable switch + `number.sproeiduur_*`. Global **Algemeen** row (Planning/Sproeien/Rouleren toggles), an **Instellingen** expander (start time + per-zone durations), Controller status list, and history/water graphs. Header = "Sproeit: ‹zone›" / "Planning aan · start HH:MM" / "Uit".
 
+## People variant (`#person-*`)
+
+- Rob/Steffi (person entities): header = `person.*` state → Thuis/Onderweg/‹zone› + duration, tinted green (home) / blue (named work zone) / dim (onderweg). Sections: **Aanwezigheid** (3 device_tracker cards Router/iCloud/GPS, blue when home), **Kaart** (`type: map`, dark, card_mod height), **Bed** (Auping `mushroom-cover-card` + Lezen/TV rest_command presets, kept verbatim), **Verloop** (device-tracker history). Eva/Noa (kids' rooms): header = `binary_sensor.*_bed_presence` → In bed / Bed leeg + duration, then the `advanced-camera-card`.
+- **Presence-tile work badge**: on the Rob/Steffi header tiles, a second `bubble_badges` briefcase badge (`mdi:briefcase`, blue) shown when the person is at their work zone (Rob=Maxxton, Steffi=CJG), mutually exclusive with the existing home badge.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.

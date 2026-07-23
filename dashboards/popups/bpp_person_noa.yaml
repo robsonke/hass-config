@@ -1,45 +1,65 @@
-# Bubble Card native pop-up (#person-noa) - Noa presence tile.
+# Bubble Card native pop-up (#person-noa) — Noa (slaapkamer camera + bed).
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1100px
+width_desktop: 900px
 hash: '#person-noa'
 name: Noa
-icon: mdi:cctv
+icon: mdi:bed
+# header = bed-aanwezigheid (blauw = in bed) + duur
+entity: binary_sensor.noa_bed_presence
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${state === 'on' ? '#82bbf0' : '#9b9aac'} !important;
+    content: "${(() => { const p = hass.states['binary_sensor.noa_bed_presence']; const on = p?.state === 'on'; const t = p?.last_changed; const secs = (Date.now() - new Date(t)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return (on ? 'In bed' : 'Bed leeg') + ' · ' + d; })()}";
+  }
 cards:
-- type: custom:advanced-camera-card
-  dimensions:
-    aspect_ratio_mode: unconstrained
-  view:
-    default: live
-  menu:
-    buttons:
-      frigate:
-        enabled: false
-      snapshots:
-        enabled: true
-      camera_ui:
-        enabled: false
-      fullscreen:
-        enabled: true
-      media_player:
-        enabled: false
-    style: overlay
-    position: top
-  timeline:
-    window_seconds: 3600
-    media: all
-  cameras:
-  - camera_entity: camera.noabed
-    live_provider: ha
-    frigate:
-      camera_name: Noa
-    ptz:
-      enabled: false
-  media_viewer:
-    controls:
-      thumbnails:
-        mode: below
-      next_previous:
-        style: chevrons
+  - type: custom:bubble-card
+    card_type: separator
+    name: Camera
+  - type: custom:advanced-camera-card
+    dimensions:
+      aspect_ratio_mode: unconstrained
+    view:
+      default: live
+    menu:
+      buttons:
+        frigate:
+          enabled: false
+        timeline:
+          enabled: true
+        clips:
+          enabled: true
+        recordings:
+          enabled: true
+        snapshots:
+          enabled: false
+        camera_ui:
+          enabled: true
+        fullscreen:
+          enabled: true
+        media_player:
+          enabled: false
+      style: overlay
+      position: top
+    cameras:
+      - camera_entity: camera.noabed
+    timeline:
+      window_seconds: 3600
+      events_media_type: all
+      show_recordings: true
+      controls:
+        thumbnails:
+          mode: below
+    media_viewer:
+      controls:
+        thumbnails:
+          mode: below
+        next_previous:
+          style: chevrons
