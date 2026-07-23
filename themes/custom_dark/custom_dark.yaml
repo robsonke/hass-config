@@ -180,12 +180,9 @@ custom-dark:
     #                                               #
     #################################################
     .: |
-      /* Add padding to the left (or other sides, depending on your navbar position) for desktop screens */
-      @media (min-width: 768px) {
-        hui-sections-view {
-          padding-left: 100px !important;
-        }
-      }
+      /* Navbar is bottom/mobile-only, so no desktop left offset — let the
+         sections view stay centered (removing padding-left fixes the
+         right-shift on desktop). */
 
       /* Add bottom padding for mobile screens to prevent cards from overlapping with the navbar */
       @media (max-width: 767px) {
