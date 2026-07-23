@@ -1,137 +1,187 @@
-# Bubble Card native pop-up (hash #bbq) — migrated from pp_bbq_garden.yaml (browser_mod).
+# Bubble Card native pop-up (hash #bbq) — BBQ tile (Tuin).
+# Dome temp + probe-ability meat prediction (kept), doelen, kookwekker, grafiek,
+# notificaties. See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1050px
+width_desktop: 880px
 hash: '#bbq'
 name: BBQ
 icon: mdi:grill
+# header = dome temp (rood bij alarm, warm als heet, dim als uit)
+entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); return alert ? 'rgba(226,75,74,0.18)' : (isFinite(v) && v > 50) ? 'rgba(235,95,45,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); return alert ? 'rgba(226,75,74,0.24)' : (isFinite(v) && v > 50) ? 'rgba(235,95,45,0.24)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); return alert ? '#ec8a89' : (isFinite(v) && v > 50) ? '#f0a878' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; if (!isFinite(v)) return 'Dome uit'; return 'Dome ' + Math.round(v) + '°C' + (alert ? ' · ALARM' : ''); })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 1fr 1fr
-      grid-template-rows: auto
-      grid-template-areas: |
-        "temperature graph"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "temperature"
-            "graph"
+  # ── temperatuur ───────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Temperatuur
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+    name: Dome
+    icon: mdi:thermometer
+    min_value: 0
+    max_value: 400
+    read_only_slider: true
+    styles: |
+      .bubble-icon-container { background: ${(hass.states['sensor.dome_alert_temp']?.state === 'Alert') ? '#e74c3c' : 'var(--bubble-icon-background-color)'} !important; }
+      .bubble-button-card-container { opacity: ${(state === 'unavailable' || state === 'unknown') ? 0.4 : 1} !important; }
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: temperature
-        cards:
-          - type: custom:bubble-card
-            card_type: button
-            button_type: slider
-            entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
-            name: Dome
-            icon: mdi:thermometer
-            min_value: 0
-            max_value: 400
-            read_only_slider: true
-            styles: |
-              .bubble-icon-container {
-                background: ${(hass.states['sensor.dome_alert_temp']?.state === 'Alert') ? '#e74c3c' : 'var(--bubble-icon-background-color)'} !important;
-              }
-              .bubble-button-card-container {
-                opacity: ${(state === 'unavailable' || state === 'unknown') ? 0.4 : 1} !important;
-              }
-
-          - type: vertical-stack
-            cards:
-              - type: custom:bubble-card
-                card_type: separator
-                name: Vlees voorspelling
-              - type: custom:probe-ability-card
-                entity: sensor.tuin_bbq_probe_ability_time_remaining
-                probe_sensors:
-                  - sensor.probe_1_temperature
-                  - sensor.probe_2_temperature
-                ambient_sensor: sensor.tuin_bbq_dome_thermometer_ambient_temperature
-
-          - type: vertical-stack
-            cards:
-              - type: entities
-                title: Kookwekker
-                show_header_toggle: false
-                entities:
-                  - type: custom:numberbox-card
-                    entity: timer.bbq
-                    icon: mdi:clock
-                    service: timer.start
-                    param: duration
-                    state: duration
-                    min: 60
-                    max: 10800
-                    step: 60
-                    unit: time
-                  - type: custom:timer-bar-card
-                    entity: timer.bbq
-                    mushroom:
-                    bar_direction: rtl
-                    invert: true
-
-          - type: vertical-stack
-            cards:
-              - type: custom:bubble-card
-                card_type: separator
-                name: Doelen
-              - type: horizontal-stack
-                cards:
-                  - type: custom:bubble-card
-                    card_type: button
-                    button_type: slider
-                    entity: number.tuin_bbq_dome_thermometer_ambient_minimum_temperature
-                    name: Minimaal
-                  - type: custom:bubble-card
-                    card_type: button
-                    button_type: slider
-                    entity: number.tuin_bbq_dome_thermometer_ambient_maximum_temperature
-                    name: Maximaal
-
-          - type: vertical-stack
-            cards:
-              - type: custom:bubble-card
-                card_type: separator
-                name: Notificaties
-              - type: custom:bubble-card
-                card_type: button
-                entity: input_boolean.enable_bbq_automations
-                name: Alle notificaties?
-              - type: custom:bubble-card
-                card_type: button
-                entity: automation.bbq_timer_notifications
-                name: Timer
-              - type: custom:bubble-card
-                card_type: button
-                entity: automation.bbq_dome_alarm
-                name: Dome alarm
-
-      - type: vertical-stack
-        view_layout:
-          grid-area: graph
-        cards:
-          - type: custom:mini-graph-card
-            entities:
-              - entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
-                name: Dome
-              - entity: sensor.probe_1_temperature
-                name: Vlees 1
-              - entity: sensor.probe_2_temperature
-                name: Vlees 2
-            show:
-              labels: true
-            color_thresholds:
-              - value: 150
-                color: "#f39c12"
-              - value: 200
-                color: "#d35400"
-              - value: 250
-                color: "#c0392b"
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.probe_1_temperature
+        name: Vlees 1
+        icon: mdi:thermometer-probe
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return (isFinite(v) && v > 40) ? 'rgba(235,95,45,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return (isFinite(v) && v > 40) ? '#f0a878' : '#8f8e9e'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return isFinite(v) ? Math.round(v) + ' °C' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.probe_2_temperature
+        name: Vlees 2
+        icon: mdi:thermometer-probe
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return (isFinite(v) && v > 40) ? 'rgba(235,95,45,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return (isFinite(v) && v > 40) ? '#f0a878' : '#8f8e9e'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return isFinite(v) ? Math.round(v) + ' °C' : '—'; })()}"; }
+  # ── vlees voorspelling (probe-ability, behouden) ──────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Vlees voorspelling
+  - type: custom:probe-ability-card
+    entity: sensor.tuin_bbq_probe_ability_time_remaining
+    probe_sensors:
+      - sensor.probe_1_temperature
+      - sensor.probe_2_temperature
+    ambient_sensor: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+  # ── doelen ────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Doelen
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: number.tuin_bbq_dome_thermometer_ambient_minimum_temperature
+        name: Minimaal
+        icon: mdi:thermometer-low
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: number.tuin_bbq_dome_thermometer_ambient_maximum_temperature
+        name: Maximaal
+        icon: mdi:thermometer-high
+  # ── kookwekker ────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kookwekker
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - type: custom:numberbox-card
+        entity: timer.bbq
+        icon: mdi:clock
+        service: timer.start
+        param: duration
+        state: duration
+        min: 60
+        max: 10800
+        step: 60
+        unit: time
+      - type: custom:timer-bar-card
+        entity: timer.bbq
+        bar_direction: rtl
+        invert: true
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop
+  - type: custom:mini-graph-card
+    entities:
+      - entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
+        name: Dome
+      - entity: sensor.probe_1_temperature
+        name: Vlees 1
+      - entity: sensor.probe_2_temperature
+        name: Vlees 2
+    show:
+      labels: true
+    color_thresholds:
+      - value: 150
+        color: "#f39c12"
+      - value: 200
+        color: "#d35400"
+      - value: 250
+        color: "#c0392b"
+  # ── notificaties ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Notificaties
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: input_boolean.enable_bbq_automations
+        name: Alle
+        icon: mdi:bell
+        card_layout: large
+        tap_action: { action: toggle }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: automation.bbq_timer_notifications
+        name: Timer
+        icon: mdi:timer-outline
+        card_layout: large
+        tap_action: { action: toggle }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: automation.bbq_dome_alarm
+        name: Dome alarm
+        icon: mdi:alarm-light
+        card_layout: large
+        tap_action: { action: toggle }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }

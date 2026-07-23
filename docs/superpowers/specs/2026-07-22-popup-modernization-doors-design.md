@@ -119,6 +119,10 @@ Covers reuse the light slider card with cover semantics:
 
 Single column, all sections full-width: Rol dek (cover slider + lock toggle), Verlichting (rgb light slider + palette), Filterpomp (switch + Flow, blue when active with pump freq), Water (3-card grid: Temp/pH/ORP with green/amber ideal tint — `pool-monitor-card` reserved ~570px with only ~270px content and has no ha-card for card_mod to collapse, so replaced with compact value cards), Warmtepomp (`card_type: climate` + `custom:expander-card` settings), Energie (3-phase power list), Aansturing (automation switch), Camera (`custom:advanced-camera-card`). Header = watertemp + heat-pump target/mode. Lock card toggles `lock.*` via `tap_action: toggle`, green when locked.
 
+## BBQ variant (`#bbq`)
+
+Single column: header = dome temp (rood bij `sensor.dome_alert_temp`=Alert, warm >50°, dim when unavailable). Temperatuur (read-only Dome slider 0–400 + Vlees 1/2 probe temp cards, warm >40°). **Vlees voorspelling = `custom:probe-ability-card` kept verbatim** (shows "No probe sensors available" when the thermometer is off). Doelen (min/max `number` sliders), Kookwekker (`numberbox-card` + `timer-bar-card`), Verloop (`mini-graph-card`), Notificaties (3 automation/boolean toggle cards, green when on). Thermometer entities are `unavailable` outside cooking; the graph shows NaN until data flows — acceptable.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.
