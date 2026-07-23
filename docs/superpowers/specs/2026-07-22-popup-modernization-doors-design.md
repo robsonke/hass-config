@@ -96,7 +96,7 @@ Covers reuse the light slider card with cover semantics:
 
 ## Climate variant (`#klimaat-boven`, `#klimaat-beneden`)
 
-- Thermostat = `button_type: climate` (name, current/target temp, ±, mode) with a power sensor `sub_button`. **Caveat:** Bubble's climate card renders the ±/temp controls **only when the climate is in an active mode** (heat/cool); when `off` or `unavailable` it collapses to just name+icon. So set `tap_action: { action: more-info }` (+ `hold_action` more-info) so it's controllable in every state. (Boven's `climate.eurom_alutherm_baseboard_heater` is seasonally unavailable; beneden's `climate.warmtepomp` is off outside heating/cooling season — both look bare until active.)
+- Thermostat = **`card_type: climate`** (name, current/target temp, ±, mode). **Climate is a `card_type`, NOT a `button_type`** — `card_type: button` + `button_type: climate` silently renders no controls (bare name only, in every state). With `card_type: climate` the ±/temp show inline in all states, including when the unit is `off` (it shows the target). `hold_action: { action: more-info }` for the full dialog. Don't add a power `sub_button` — put power in the settings/energy list instead.
 - Auxiliary heaters / mode enables = warm toggle cards (`button_type: state`, tap toggle), warm gold when on, subtitle = current power `N W` when on else `uit`; cooling toggle uses the blue palette instead of gold.
 - Header: point `entity` at an always-available room temp sensor; show `‹room› ‹temp›°C` + ` · verwarmt`/` · koelt`, tinted warm (heating) / blue (cooling) / dim (off), derived from the climate's `hvac_action`.
 - Native cards kept as-is under their own separators: `humidifier`, `statistics-graph`, `history-graph`, and the downstairs `custom:expander-card` "Settings" block.
@@ -114,6 +114,10 @@ Covers reuse the light slider card with cover semantics:
 - Hero = `custom:navimow-map-card` (user-supplied config) showing the robot + mowing trail over `/local/achtertuin.png`. Constrained smaller via `card_mod` `ha-card { max-width: 560px; margin auto }`.
 - The card's background overlay is gated on `overlayReady = imageLoaded && calibrationSolved`; it needs a `calibration:` block of EXACTLY 2 `{m:[metres], px:[pixels]}` points. The card's interactive calibration writes back only through the storage-mode UI editor, so for this YAML-mode popup the block must live in the YAML. Values were hand-derived: dock at mower `(0,0)` → the photo's right edge (`px [475,280]`, "above the gravel, left of the shed roof" per the owner) plus a far corner, ~22 px/m, +x→right/+y→up. Trail now aligns over the lawn.
 - Header: NL mower status + zone + battery (green mowing / blue returning / red error), like the vacuum. Bediening = Maaien/Pauze/Naar dock action buttons (`lawn_mower.start_mowing`/`pause`/`dock`). One history graph (maaiactiviteit); accu graph removed.
+
+## Pool variant (`#zwembad`)
+
+Single column, all sections full-width: Rol dek (cover slider + lock toggle), Verlichting (rgb light slider + palette), Filterpomp (switch + Flow, blue when active with pump freq), Water (`custom:pool-monitor-card`), Warmtepomp (`card_type: climate` + `custom:expander-card` settings), Energie (3-phase power list), Aansturing (automation switch), Camera (`custom:advanced-camera-card`). Header = watertemp + heat-pump target/mode. Lock card toggles `lock.*` via `tap_action: toggle`, green when locked.
 
 ## Out of scope
 

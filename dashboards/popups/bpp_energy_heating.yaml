@@ -27,18 +27,10 @@ cards:
     card_type: separator
     name: Warmtepomp
   - type: custom:bubble-card
-    card_type: button
-    button_type: climate
+    card_type: climate
     entity: climate.warmtepomp
     name: Warmtepomp
-    card_layout: large
-    tap_action: { action: more-info }
     hold_action: { action: more-info }
-    sub_button:
-      - entity: sensor.shelly_warmtepomp_meter_total_active_power
-        show_state: true
-        show_icon: false
-        show_background: true
   # ── modus (verwarmen warm, koelen blauw) ──────────────────────────
   - type: custom:bubble-card
     card_type: separator
