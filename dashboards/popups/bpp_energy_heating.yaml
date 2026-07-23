@@ -1,115 +1,133 @@
-# Bubble Card native pop-up (hash #klimaat-beneden) — migrated from pp_energy_heating.yaml (browser_mod).
+# Bubble Card native pop-up (hash #klimaat-beneden) — Klimaat tile (Beneden).
+# Bubble climate card (warmtepomp) + Verwarmen/Koelen toggles + settings expander + graphs.
+# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1100px
+width_desktop: 1000px
 hash: '#klimaat-beneden'
 name: Koeling en verwarming beneden
 icon: mdi:thermostat
+# header = beneden temp + heatpump action (warm = verwarmt, blauw = koelt, dim = uit)
+entity: sensor.downstairs_temperature
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return a === 'heating' ? 'rgba(240,195,95,0.13)' : a === 'cooling' ? 'rgba(55,138,221,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return a === 'heating' ? 'rgba(240,195,95,0.20)' : a === 'cooling' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return a === 'heating' ? '#f0cf8f' : a === 'cooling' ? '#82bbf0' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const t = parseFloat(hass.states['sensor.downstairs_temperature']?.state); const tt = isFinite(t) ? t.toFixed(1).replace('.', ',') + '°C' : '—'; const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return 'Beneden ' + tt + (a === 'heating' ? ' · verwarmt' : a === 'cooling' ? ' · koelt' : ''); })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 500px auto
-      grid-template-rows: auto
-      grid-template-areas: |
-        "details details2"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "details"
-            "details2"
+  # ── warmtepomp thermostaat ────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Warmtepomp
+  - type: custom:bubble-card
+    card_type: button
+    button_type: climate
+    entity: climate.warmtepomp
+    name: Warmtepomp
+    card_layout: large
+    tap_action: { action: more-info }
+    hold_action: { action: more-info }
+    sub_button:
+      - entity: sensor.shelly_warmtepomp_meter_total_active_power
+        show_state: true
+        show_icon: false
+        show_background: true
+  # ── modus (verwarmen warm, koelen blauw) ──────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Modus
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: details
-        cards:
-          # - type: thermostat
-          #   entity: climate.warmtepomp
-          #   features:
-          #     - type: "climate-hvac-modes"
-          #       hvac_modes:
-          #         - heat
-          #         - cool
-          #         - "off"
-          - type: custom:mushroom-climate-card
-            entity: climate.warmtepomp
-            fill_container: false
-            hvac_modes:
-              - heat
-              - cool
-              - "off"
-            show_temperature_control: true
-            collapsible_controls: false
-            icon_type: icon
-            layout: horizontal
-          - type: tile
-            entity: input_number.hvac_winter_target_temperature
-            color: red
-            features:
-              - type: "target-temperature"
-              - type: "numeric-input"
-                style: "buttons"
-          - type: tile
-            entity: input_number.hvac_summer_target_temperature
-            color: light-blue
-            features:
-              - type: "target-temperature"
-              - type: "numeric-input"
-                style: "buttons"
-          - type: tile
-            entity: sensor.shelly_warmtepomp_meter_total_active_power
-
-          - type: custom:expander-card
-            title: Settings
-            cards:
-              - type: entities
-                show_header_toggle: false
-                entities:
-                  - entity: switch.climate_control
-                  - entity: select.operation_mode
-                  - entity: sensor.downstairs_temperature
-                  - type: divider
-                  - entity: input_boolean.heating_downstairs
-                  - entity: input_boolean.cooling_downstairs
-                  - type: divider
-                  - entity: schedule.hvac_schedule
-                  - entity: input_boolean.enable_automatic_hvac
-                  - entity: sensor.shelly_warmtepomp_meter_total_active_power
-                    name: Altherma verbruik huidig
-                  - entity: sensor.altherma_heatpump_daily
-                    name: Altherma verbruik vandaag
-                  - entity: sensor.altherma_cop
-
-
-      - type: vertical-stack
-        view_layout:
-          grid-area: details2
-        cards:
-          - type: history-graph
-            hours_to_show: 24
-            refresh_interval: 30
-            entities:
-              - sensor.altherma_operation_mode
-          - type: statistics-graph
-            title: Temperatuur
-            period: hour
-            days_to_show: 1
-            stat_types: mean
-            chart_type: line
-            entities:
-              - entity: sensor.climate_sensor_living_temperature
-                name: Woonkamer
-              - entity: sensor.climate_sensor_office_temperature
-                name: Kantoor
-              - entity: sensor.climate_sensor_kitchen_temperature
-                name: Keuken
-              - entity: sensor.climate_sensor_evadownstairs_temperature
-                name: Slaapkamer Eva
-              - entity: sensor.indoor_temperature
-                name: Thermostaat
-              - entity: sensor.downstairs_temperature
-                name: Gemiddeld
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: input_boolean.heating_downstairs
+        name: Verwarmen
+        icon: mdi:fire
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: input_boolean.cooling_downstairs
+        name: Koelen
+        icon: mdi:snowflake
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+  # ── instellingen (behouden) ───────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Instellingen
+  - type: custom:expander-card
+    title: Settings
+    cards:
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: switch.climate_control
+          - entity: select.operation_mode
+          - entity: sensor.downstairs_temperature
+          - type: divider
+          - entity: input_number.hvac_winter_target_temperature
+            name: Streeftemperatuur winter
+          - entity: input_number.hvac_summer_target_temperature
+            name: Streeftemperatuur zomer
+          - type: divider
+          - entity: schedule.hvac_schedule
+          - entity: input_boolean.enable_automatic_hvac
+          - type: divider
+          - entity: sensor.shelly_warmtepomp_meter_total_active_power
+            name: Altherma verbruik huidig
+          - entity: sensor.altherma_heatpump_daily
+            name: Altherma verbruik vandaag
+          - entity: sensor.altherma_cop
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop
+  - type: statistics-graph
+    title: Temperatuur (24 uur)
+    period: hour
+    days_to_show: 1
+    stat_types: mean
+    chart_type: line
+    entities:
+      - entity: sensor.climate_sensor_living_temperature
+        name: Woonkamer
+      - entity: sensor.climate_sensor_office_temperature
+        name: Kantoor
+      - entity: sensor.climate_sensor_kitchen_temperature
+        name: Keuken
+      - entity: sensor.climate_sensor_evadownstairs_temperature
+        name: Slaapkamer Eva
+      - entity: sensor.indoor_temperature
+        name: Thermostaat
+      - entity: sensor.downstairs_temperature
+        name: Gemiddeld
+  - type: history-graph
+    title: Bedrijfsmodus (24 uur)
+    hours_to_show: 24
+    refresh_interval: 30
+    entities:
+      - sensor.altherma_operation_mode

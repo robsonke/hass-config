@@ -1,136 +1,138 @@
-# Bubble Card native pop-up (hash #klimaat-boven) — migrated from pp_climate_upstairs.yaml (browser_mod).
+# Bubble Card native pop-up (hash #klimaat-boven) — Klimaat tile (Boven).
+# Bubble climate card + warm toggle cards for aux heating + humidifier + graph.
+# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1100px
+width_desktop: 1000px
 hash: '#klimaat-boven'
 name: Slaapkamers klimaat
 icon: mdi:thermostat
+# header = master-bedroom temp (always-available sensor) + warm when any heat source is on
+entity: sensor.climate_sensor_masterbedroom_temperature
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat') ? '#f0cf8f' : '#9ed9bd'} !important;
+    content: "${(() => { const t = parseFloat(hass.states['sensor.climate_sensor_masterbedroom_temperature']?.state); const tt = isFinite(t) ? t.toFixed(1).replace('.', ',') + '°C' : '—'; const heat = ['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat'; return 'Slaapkamer ' + tt + (heat ? ' · verwarmt' : ''); })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 3fr 2fr
-      grid-template-rows: auto
-      grid-template-areas: |
-        "climate thermostat"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "thermostat"
-            "climate"
+  # ── thermostaat ───────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Slaapkamer kachel
+  - type: custom:bubble-card
+    card_type: button
+    button_type: climate
+    entity: climate.eurom_alutherm_baseboard_heater
+    name: Kachel
+    card_layout: large
+    tap_action: { action: more-info }
+    hold_action: { action: more-info }
+    sub_button:
+      - entity: sensor.eurom_alutherm_power
+        show_state: true
+        show_icon: false
+        show_background: true
+  # ── bijverwarming (warm toggle, verbruik als aan) ─────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Bijverwarming
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: thermostat
-        cards:
-          - type: vertical-stack
-            title: Slaapkamer
-            cards:
-              - type: custom:mushroom-climate-card
-                entity: climate.eurom_alutherm_baseboard_heater
-                fill_container: false
-                hvac_modes:
-                  - heat
-                  - "off"
-                show_temperature_control: true
-                collapsible_controls: false
-                icon_type: icon
-                layout: horizontal
-              - type: entities
-                show_header_toggle: false
-                entities:
-                  - entity: sensor.eurom_alutherm_power
-                    name: Verbruik
-                  - entity: sensor.eurom_alutherm_energy_daily
-                    name: Verbruik vandaag (kWh)
-          - type: entities
-            show_header_toggle: false
-            entities:
-              - entity: switch.infrarood_eva
-                name: Infraroodpanel Eva
-          - type: conditional
-            conditions:
-              - entity: switch.infrarood_eva
-                state_not: "off"
-            card:
-              type: entities
-              show_header_toggle: false
-              entities:
-                - entity: sensor.infrarood_eva_power
-          - type: entities
-            show_header_toggle: false
-            entities:
-              - entity: switch.infrarood_noa
-          - type: conditional
-            conditions:
-              - entity: switch.infrarood_noa
-                state_not: "off"
-            card:
-              type: entities
-              show_header_toggle: false
-              entities:
-                - entity: sensor.infrarood_noa_power
-
-          - type: entities
-            show_header_toggle: false
-            entities:
-              - entity: switch.shelly_plug_badkamer_verwarming_relay
-          - type: conditional
-            conditions:
-              - entity: switch.shelly_plug_badkamer_verwarming_relay
-                state_not: "off"
-            card:
-              type: entities
-              show_header_toggle: false
-              entities:
-                - entity: sensor.shelly_plug_badkamer_verwarming_power
-
-          - type: entities
-            show_header_toggle: false
-            entities:
-              - entity: switch.shelly_plug_douche_verwarming_relay
-          - type: conditional
-            conditions:
-              - entity: switch.shelly_plug_douche_verwarming_relay
-                state_not: "off"
-            card:
-              type: entities
-              show_header_toggle: false
-              entities:
-                - entity: sensor.shelly_plug_douche_verwarming_power
-
-      - type: vertical-stack
-        view_layout:
-          grid-area: climate
-        cards:
-          - type: humidifier
-            entity: humidifier.master_bedroom
-            title: Luchtontvochtiger
-            features:
-              - type: "humidifier-toggle"
-              - type: "humidifier-modes"
-                style: "dropdown"
-                modes:
-                  - Set
-                  - Smart
-                  - Continuous
-                  - Dry
-          - type: statistics-graph
-            title: Temperatuur
-            period: hour
-            days_to_show: 1
-            stat_types: mean
-            chart_type: line
-            entities:
-              - entity: sensor.climate_sensor_masterbedroom_temperature
-                name: Master
-              - entity: sensor.climate_sensor_eva_temperature
-                name: Eva
-              - entity: sensor.climate_sensor_noa_temperature
-                name: Noa
-              - entity: sensor.climate_sensor_guestroom_temperature
-                name: Loge
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.infrarood_eva
+        name: Infrarood Eva
+        icon: mdi:radiator
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.infrarood_eva']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.infrarood_eva_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.infrarood_noa
+        name: Infrarood Noa
+        icon: mdi:radiator
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.infrarood_noa']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.infrarood_noa_switch_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.shelly_plug_badkamer_verwarming_relay
+        name: Badkamer
+        icon: mdi:heating-coil
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.shelly_plug_badkamer_verwarming_relay']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.shelly_plug_badkamer_verwarming_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: switch.shelly_plug_douche_verwarming_relay
+        name: Douche
+        icon: mdi:heating-coil
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.shelly_plug_douche_verwarming_relay']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.shelly_plug_douche_verwarming_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+  # ── luchtontvochtiger ─────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Luchtontvochtiger
+  - type: humidifier
+    entity: humidifier.master_bedroom
+    features:
+      - type: humidifier-toggle
+      - type: humidifier-modes
+        style: dropdown
+        modes:
+          - Set
+          - Smart
+          - Continuous
+          - Dry
+  # ── temperatuurverloop ────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Temperatuur (24 uur)
+  - type: statistics-graph
+    period: hour
+    days_to_show: 1
+    stat_types: mean
+    chart_type: line
+    entities:
+      - entity: sensor.climate_sensor_masterbedroom_temperature
+        name: Master
+      - entity: sensor.climate_sensor_eva_temperature
+        name: Eva
+      - entity: sensor.climate_sensor_noa_temperature
+        name: Noa
+      - entity: sensor.climate_sensor_guestroom_temperature
+        name: Loge

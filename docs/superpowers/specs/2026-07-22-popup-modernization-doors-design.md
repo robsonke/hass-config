@@ -94,6 +94,13 @@ Covers reuse the light slider card with cover semantics:
 - Header summary "Voor ‹pos› · Zij ‹pos›", tinted blue if any cover `open`.
 - Kept the `input_boolean.enable_automatic_screens` toggle (as a `button_type: switch` card under an "Automatisch" separator) and a native `history-graph` under a "Verloop" separator.
 
+## Climate variant (`#klimaat-boven`, `#klimaat-beneden`)
+
+- Thermostat = `button_type: climate` (name, current/target temp, ±, mode) with a power sensor `sub_button`. **Caveat:** Bubble's climate card renders the ±/temp controls **only when the climate is in an active mode** (heat/cool); when `off` or `unavailable` it collapses to just name+icon. So set `tap_action: { action: more-info }` (+ `hold_action` more-info) so it's controllable in every state. (Boven's `climate.eurom_alutherm_baseboard_heater` is seasonally unavailable; beneden's `climate.warmtepomp` is off outside heating/cooling season — both look bare until active.)
+- Auxiliary heaters / mode enables = warm toggle cards (`button_type: state`, tap toggle), warm gold when on, subtitle = current power `N W` when on else `uit`; cooling toggle uses the blue palette instead of gold.
+- Header: point `entity` at an always-available room temp sensor; show `‹room› ‹temp›°C` + ` · verwarmt`/` · koelt`, tinted warm (heating) / blue (cooling) / dim (off), derived from the climate's `hvac_action`.
+- Native cards kept as-is under their own separators: `humidifier`, `statistics-graph`, `history-graph`, and the downstairs `custom:expander-card` "Settings" block.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.
