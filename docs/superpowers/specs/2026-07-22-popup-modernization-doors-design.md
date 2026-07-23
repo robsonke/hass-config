@@ -117,7 +117,7 @@ Covers reuse the light slider card with cover semantics:
 
 ## Pool variant (`#zwembad`)
 
-Single column, all sections full-width: Rol dek (cover slider + lock toggle), Verlichting (rgb light slider + palette), Filterpomp (switch + Flow, blue when active with pump freq), Water (`custom:pool-monitor-card`), Warmtepomp (`card_type: climate` + `custom:expander-card` settings), Energie (3-phase power list), Aansturing (automation switch), Camera (`custom:advanced-camera-card`). Header = watertemp + heat-pump target/mode. Lock card toggles `lock.*` via `tap_action: toggle`, green when locked.
+Single column, all sections full-width: Rol dek (cover slider + lock toggle), Verlichting (rgb light slider + palette), Filterpomp (switch + Flow, blue when active with pump freq), Water (3-card grid: Temp/pH/ORP with green/amber ideal tint — `pool-monitor-card` reserved ~570px with only ~270px content and has no ha-card for card_mod to collapse, so replaced with compact value cards), Warmtepomp (`card_type: climate` + `custom:expander-card` settings), Energie (3-phase power list), Aansturing (automation switch), Camera (`custom:advanced-camera-card`). Header = watertemp + heat-pump target/mode. Lock card toggles `lock.*` via `tap_action: toggle`, green when locked.
 
 ## Out of scope
 
