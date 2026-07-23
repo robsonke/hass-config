@@ -101,6 +101,14 @@ Covers reuse the light slider card with cover semantics:
 - Header: point `entity` at an always-available room temp sensor; show `‹room› ‹temp›°C` + ` · verwarmt`/` · koelt`, tinted warm (heating) / blue (cooling) / dim (off), derived from the climate's `hvac_action`.
 - Native cards kept as-is under their own separators: `humidifier`, `statistics-graph`, `history-graph`, and the downstairs `custom:expander-card` "Settings" block.
 
+## Vacuum variant (`#sjorsje`) + action-button pattern
+
+- New popup (the tile previously only opened more-info). Wired the Sjorsje tile `tap_action`/`button_action` → `navigate #sjorsje` and registered the include.
+- **Action buttons** (reusable for any stateless command): `button_type: name` card with `tap_action: { action: perform-action, perform_action: <domain.service>, target: { entity_id: … } }` + `hold_action: more-info`. Used for Start / Pauze / Naar dock / Zoek (`vacuum.start` / `pause` / `return_to_base` / `locate`); Start gets a green tint, the rest neutral.
+- Header: NL status map from `vacuum.state` (`docked`→Gedockt/Opladen when charging, `cleaning`→Stofzuigen, `returning`→Naar dock, `paused`, `error`→Fout) + battery %, blue when active, red on error.
+- Status cards: Accu (battery% + ` · laden`), Stofbak (`binary_sensor.*_bin_full` → red "Vol — legen" / neutral "Leeg"). Stats (missions, cleaning time, battery cycles, energy) in a `custom:expander-card`.
+- Sjorsje supports start/pause/stop/return/locate only (no fan-speed/map), so no fan or map controls.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.

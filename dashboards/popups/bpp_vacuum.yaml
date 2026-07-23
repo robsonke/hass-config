@@ -1,0 +1,135 @@
+# Bubble Card native pop-up (hash #sjorsje) — Sjorsje (stofzuigrobot) tile.
+# Status/battery header, Bediening actions, Status cards, Statistieken expander.
+# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
+type: custom:bubble-card
+card_type: pop-up
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 720px
+hash: '#sjorsje'
+name: Sjorsje
+icon: mdi:robot-vacuum
+# header = status (NL) + accu%, blauw als actief, rood bij fout
+entity: vacuum.sjorsje
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? 'rgba(226,75,74,0.16)' : (s === 'cleaning' || s === 'returning') ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? 'rgba(226,75,74,0.22)' : (s === 'cleaning' || s === 'returning') ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? '#ec8a89' : (s === 'cleaning' || s === 'returning') ? '#82bbf0' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const st = hass.states['vacuum.sjorsje']?.state; const charging = hass.states['binary_sensor.woonkamer_sjorsje_charging']?.state === 'on'; const map = { docked: charging ? 'Opladen' : 'Gedockt', cleaning: 'Stofzuigen', returning: 'Naar dock', paused: 'Gepauzeerd', idle: 'Idle', error: 'Fout', unavailable: 'Offline' }; const s = map[st] || st; const b = parseFloat(hass.states['sensor.sjorsje_battery_level']?.state); return s + (isFinite(b) ? ' · ' + Math.round(b) + '%' : ''); })()}";
+  }
+cards:
+  # ── bediening ─────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Bediening
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: vacuum.sjorsje
+        name: Start
+        icon: mdi:play
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: vacuum.start, target: { entity_id: vacuum.sjorsje } }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.14) !important; }
+          .bubble-icon-container { background-color: rgba(45,170,115,0.22) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: vacuum.sjorsje
+        name: Pauze
+        icon: mdi:pause
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: vacuum.pause, target: { entity_id: vacuum.sjorsje } }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: vacuum.sjorsje
+        name: Naar dock
+        icon: mdi:home-import-outline
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: vacuum.return_to_base, target: { entity_id: vacuum.sjorsje } }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: vacuum.sjorsje
+        name: Zoek
+        icon: mdi:map-marker
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: vacuum.locate, target: { entity_id: vacuum.sjorsje } }
+        hold_action: { action: more-info }
+  # ── status ────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Status
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.sjorsje_battery_level
+        name: Accu
+        icon: mdi:battery
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: #9ed9bd !important; content: "${(() => { const b = parseFloat(hass.states['sensor.sjorsje_battery_level']?.state); const c = hass.states['binary_sensor.woonkamer_sjorsje_charging']?.state === 'on'; return (isFinite(b) ? Math.round(b) + '%' : '—') + (c ? ' · laden' : ''); })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.sjorsje_bin_full
+        name: Stofbak
+        icon: mdi:delete
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(226,75,74,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(226,75,74,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#ec8a89' : '#8f8e9e'} !important; content: "${state === 'on' ? 'Vol — legen' : 'Leeg'}"; }
+  # ── statistieken ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Statistieken
+  - type: custom:expander-card
+    title: Missies & verbruik
+    cards:
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: sensor.sjorsje_total_missions
+            name: Totaal beurten
+          - entity: sensor.sjorsje_successful_missions
+            name: Geslaagd
+          - entity: sensor.sjorsje_canceled_missions
+            name: Geannuleerd
+          - entity: sensor.sjorsje_failed_missions
+            name: Mislukt
+          - type: divider
+          - entity: sensor.sjorsje_total_cleaning_time
+            name: Totale schoonmaaktijd
+          - entity: sensor.sjorsje_average_mission_time
+            name: Gemiddelde beurt
+          - entity: sensor.sjorsje_battery_cycles
+            name: Accucycli
+          - type: divider
+          - entity: sensor.sjorsje_power
+            name: Verbruik nu
+          - entity: sensor.sjorsje_energy_daily
+            name: Verbruik vandaag
+          - entity: sensor.sjorsje_energy_weekly
+            name: Verbruik deze week

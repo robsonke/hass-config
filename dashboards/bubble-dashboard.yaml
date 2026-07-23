@@ -588,6 +588,7 @@ views:
           - !include popups/bpp_music_upstairs.yaml  # #muziek-boven
           - !include popups/bpp_music_garden.yaml  # #muziek-tuin
           - !include popups/bpp_cats.yaml  # #katten ← Boris&Puk
+          - !include popups/bpp_vacuum.yaml  # #sjorsje ← Sjorsje
           - !include popups/bpp_light_downstairs.yaml  # #verlichting-beneden
           - !include popups/bpp_energy_heating.yaml # #klimaat-beneden
           - !include popups/bpp_light_upstairs.yaml # #verlichting-boven
@@ -1303,6 +1304,9 @@ views:
             entity: vacuum.sjorsje
             name: Sjorsje
             icon: mdi:robot-vacuum
+            tap_action: { action: navigate, navigation_path: '#sjorsje' }
+            button_action:
+              tap_action: { action: navigate, navigation_path: '#sjorsje' }
             sub_button:
               - entity: sensor.sjorsje_battery_level
                 show_state: true
