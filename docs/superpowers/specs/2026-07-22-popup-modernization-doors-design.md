@@ -109,6 +109,12 @@ Covers reuse the light slider card with cover semantics:
 - Status cards: Accu (battery% + ` · laden`), Stofbak (`binary_sensor.*_bin_full` → red "Vol — legen" / neutral "Leeg"). Stats (missions, cleaning time, battery cycles, energy) in a `custom:expander-card`.
 - Sjorsje supports start/pause/stop/return/locate only (no fan-speed/map), so no fan or map controls.
 
+## Mower variant (`#grasmaaier`)
+
+- Hero = `custom:navimow-map-card` (user-supplied config) showing the robot + mowing trail over `/local/achtertuin.png`. Constrained smaller via `card_mod` `ha-card { max-width: 560px; margin auto }`.
+- The card's background overlay is gated on `overlayReady = imageLoaded && calibrationSolved`; it needs a `calibration:` block of EXACTLY 2 `{m:[metres], px:[pixels]}` points. The card's interactive calibration writes back only through the storage-mode UI editor, so for this YAML-mode popup the block must live in the YAML. Values were hand-derived: dock at mower `(0,0)` → the photo's right edge (`px [475,280]`, "above the gravel, left of the shed roof" per the owner) plus a far corner, ~22 px/m, +x→right/+y→up. Trail now aligns over the lawn.
+- Header: NL mower status + zone + battery (green mowing / blue returning / red error), like the vacuum. Bediening = Maaien/Pauze/Naar dock action buttons (`lawn_mower.start_mowing`/`pause`/`dock`). One history graph (maaiactiviteit); accu graph removed.
+
 ## Out of scope
 
 - The other ~30 popups (energy, climate, lights, people, media, etc.) — they adopt this pattern in later specs/steps.

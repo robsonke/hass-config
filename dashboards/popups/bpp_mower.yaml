@@ -1,56 +1,121 @@
-# Bubble Card native pop-up (hash #grasmaaier) — migrated from pp_mower.yaml (browser_mod).
+# Bubble Card native pop-up (hash #grasmaaier) — Grasmaaier (Navimow) tile.
+# Status/battery header, Navimow map (hero), Bediening actions, history graphs.
+# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1050px
+width_desktop: 900px
 hash: '#grasmaaier'
 name: Grasmaaier
 icon: mdi:robot-mower
+# header = status (NL) + zone + accu%, groen als maaiend, blauw naar dock, rood bij fout
+entity: lawn_mower.navimow_i108
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? 'rgba(226,75,74,0.16)' : s === 'mowing' ? 'rgba(45,170,115,0.15)' : s === 'returning' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? 'rgba(226,75,74,0.22)' : s === 'mowing' ? 'rgba(45,170,115,0.22)' : s === 'returning' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? '#ec8a89' : s === 'mowing' ? '#7fdcae' : s === 'returning' ? '#82bbf0' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const st = hass.states['lawn_mower.navimow_i108']?.state; const map = { mowing: 'Maait', docked: 'Gedockt', returning: 'Naar dock', paused: 'Gepauzeerd', error: 'Fout', idle: 'Idle', unavailable: 'Offline' }; const s = map[st] || st; const z = hass.states['sensor.navimow_i108_zone']?.state; const b = parseFloat(hass.states['sensor.navimow_i108_battery']?.state); return s + (st === 'mowing' && z && z !== 'unknown' ? ' · zone ' + z : '') + (isFinite(b) ? ' · ' + Math.round(b) + '%' : ''); })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 1fr 1fr
-      grid-template-rows: auto
-      grid-template-areas: |
-        "card card"
-        "history battery"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "card"
-            "history"
-            "battery"
+  # ── kaart (hero) ──────────────────────────────────────────────────
+  - type: custom:navimow-map-card
+    card_mod:
+      style: |
+        ha-card { max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; }
+    title: Navimow Map
+    mower_entity: lawn_mower.navimow_i108
+    auto_entities: false
+    show_controls: true
+    enable_zoom: true
+    calibration_mode: false
+    trail_legend: false
+    channel_entities: []
+    # GUESSED calibration: mower metres -> pixels on achtertuin.png (600x394).
+    # Derived from the 8h position bbox (x[-17,-1.75], y[-1.5,9.75]) mapped onto
+    # the lawn rectangle in the photo. Adjust px pairs if the photo is off.
+    calibration:
+      - m: [0, 0]
+        px: [465, 295]
+      - m: [-17.0, 9.75]
+        px: [84, 77]
+    session_filter:
+      mode: today_or_count
+      reset_time: "03:00"
+    history_view:
+      enabled: true
+      days_back: 4
+      show_live_marker_when_history: true
+    appearance:
+      trails:
+        active: {}
+        previous:
+          opacity: {}
+        fade_mode: linear
+      channel: {}
+      robot:
+        model: h2
+      dock:
+        icon: mdi:lightning-bolt-circle
+        scale: 2
+    status_entity: lawn_mower.navimow_i108
+    x_entity: sensor.navimow_i108_position_x
+    y_entity: sensor.navimow_i108_position_y
+    heading_entity: sensor.navimow_i108_heading
+    zone_entity: sensor.navimow_i108_zone
+    battery_entity: sensor.navimow_i108_battery
+    straighten: true
+    background_image: /local/achtertuin.png
+    overlay_opacity: 0.8
+  # ── bediening ─────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Bediening
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: custom:lawn-mower-card
-        view_layout:
-          grid-area: card
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
         entity: lawn_mower.navimow_i108
-        battery: sensor.navimow_i108_battery
-        show_name: true
-        show_status: true
-        show_toolbar: true
-        show_shortcuts: false
-        animated: true
-        image: /local/images/navimow_mower.png
-
-      - type: history-graph
-        view_layout:
-          grid-area: history
-        title: Maaiactiviteit (7 dagen)
-        hours_to_show: 168
-        entities:
-          - entity: lawn_mower.navimow_i108
-            name: Status
-
-      - type: history-graph
-        view_layout:
-          grid-area: battery
-        title: Accu (48 uur)
-        hours_to_show: 48
-        entities:
-          - entity: sensor.navimow_i108_battery
-            name: Accu
+        name: Maaien
+        icon: mdi:play
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: lawn_mower.start_mowing, target: { entity_id: lawn_mower.navimow_i108 } }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.15) !important; }
+          .bubble-icon-container { background-color: rgba(45,170,115,0.22) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: lawn_mower.navimow_i108
+        name: Pauze
+        icon: mdi:pause
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: lawn_mower.pause, target: { entity_id: lawn_mower.navimow_i108 } }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: lawn_mower.navimow_i108
+        name: Naar dock
+        icon: mdi:home-import-outline
+        card_layout: large
+        tap_action: { action: perform-action, perform_action: lawn_mower.dock, target: { entity_id: lawn_mower.navimow_i108 } }
+        hold_action: { action: more-info }
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop
+  - type: history-graph
+    title: Maaiactiviteit (7 dagen)
+    hours_to_show: 168
+    entities:
+      - entity: lawn_mower.navimow_i108
+        name: Status
