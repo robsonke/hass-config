@@ -23,15 +23,15 @@ A vertical stack inside the pop-up's `cards:`:
 - **Subtitle** (custom, via `.bubble-state::after`) = `‹state word› · ‹duration›`:
   - state word: `open` / `dicht` (Dutch).
   - duration: compact Dutch relative time since `last_changed`: `net` (<1 min), `N min`, `N uur`, `1 dag`, `N dagen`. Computed in JS from `hass.states[id].last_changed`.
-- **Background tint** (translucent, no glow): closed → soft green `rgba(45,170,115,0.13)`; open → soft amber `rgba(238,160,55,0.16)`. Icon tile a touch stronger (`0.20`/`0.22`).
+- **Background tint** (translucent, no glow): closed → soft green `rgba(45,170,115,0.13)`; open → soft blue `rgba(55,138,221,0.16)`. Icon tile a touch stronger (`0.20`/`0.22`).
 - **tap_action / hold** → `more-info` on the entity (free history + battery; these sensors are read-only).
 - `modules: [bubble_neon_icon_only]` is **not** used here (we want calm tints, not per-icon neon).
 
 ### Summary (in the header)
 
 - Set `entity: <group sensor>` and `show_state: true` on the pop-up card itself.
-- In the pop-up's `styles:`, hide the raw header state (`.bubble-state { font-size: 0 }`) and inject via `.bubble-state::after` = `"‹N› open · ‹M› dicht"` (or `"Alles dicht"` when none open), computed from the group's member `entity_id` list in JS. Colour the text amber when open, green when closed.
-- Calm the header's default on-state background: `.bubble-button-background { background-color: <soft amber/green by state> }` (otherwise it renders bright blue when the group is `on`). Optionally tint `.bubble-icon-container` to match.
+- In the pop-up's `styles:`, hide the raw header state (`.bubble-state { font-size: 0 }`) and inject via `.bubble-state::after` = `"‹N› open · ‹M› dicht"` (or `"Alles dicht"` when none open), computed from the group's member `entity_id` list in JS. Colour the text blue when open, green when closed.
+- Calm the header's default on-state background: `.bubble-button-background { background-color: <soft blue/green by state> }` (otherwise it renders bright blue when the group is `on`). Optionally tint `.bubble-icon-container` to match.
 - These pop-up-level `styles` only reach the header (its own shadow root); the nested state cards have their own `styles`, so `.bubble-state` here never collides with the card subtitles.
 
 ## Popup specs
@@ -81,5 +81,5 @@ A vertical stack inside the pop-up's `cards:`:
 
 - Both popups render the summary strip + tinted 2-column state cards, no error cards.
 - Subtitle shows correct state word + a sensible Dutch duration.
-- Open sensors are amber, closed are green; tapping a card opens its more-info.
+- Open sensors are blue, closed are green; tapping a card opens its more-info.
 - Pattern is documented well enough to reuse for the next popup without re-deciding the visual language.
