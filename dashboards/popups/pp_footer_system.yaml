@@ -138,8 +138,3 @@ browser_mod:
               title: Camera detectie
               show_header_toggle: false
               state_color: false
-            - type: entities
-              show_header_toggle: false
-              title: Theme
-              entities:
-                - entity: input_boolean.dark_mode

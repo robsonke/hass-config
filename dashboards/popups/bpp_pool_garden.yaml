@@ -3,6 +3,7 @@
 # energy, automation toggle, camera. See the popup-modernization spec.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
@@ -123,46 +124,23 @@ cards:
   - type: custom:bubble-card
     card_type: separator
     name: Water
-  - type: grid
-    columns: 3
-    square: false
-    cards:
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.fairland_zwembad_wpu_temp_inlet
-        name: Temperatuur
-        icon: mdi:pool-thermometer
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.fairland_zwembad_wpu_temp_inlet']?.state); return (isFinite(v) && v >= 25 && v <= 29) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.14)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.fairland_zwembad_wpu_temp_inlet']?.state); return (isFinite(v) && v >= 25 && v <= 29) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.fairland_zwembad_wpu_temp_inlet']?.state); return isFinite(v) ? v.toFixed(1).replace('.', ',') + ' °C' : '—'; })()}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.eps_pool_ph_level
-        name: pH
-        icon: mdi:ph
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.eps_pool_ph_level']?.state); return (isFinite(v) && v >= 7.0 && v <= 7.4) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.14)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.eps_pool_ph_level']?.state); return (isFinite(v) && v >= 7.0 && v <= 7.4) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.eps_pool_ph_level']?.state); return isFinite(v) ? v.toFixed(1).replace('.', ',') : '—'; })()}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.eps_pool_rx_level
-        name: ORP
-        icon: mdi:flash
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.eps_pool_rx_level']?.state); return (isFinite(v) && v >= 650 && v <= 750) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.14)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.eps_pool_rx_level']?.state); return (isFinite(v) && v >= 650 && v <= 750) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.eps_pool_rx_level']?.state); return isFinite(v) ? Math.round(v) + ' mV' : '—'; })()}"; }
+  - type: custom:pool-monitor-card
+    compact: true
+    sensors:
+      temperature:
+        - entity: sensor.fairland_zwembad_wpu_temp_inlet
+      ph:
+        - entity: sensor.eps_pool_ph_level
+      orp:
+        - entity: sensor.eps_pool_rx_level
+    # compact reserves ~568px host height for ~260px of content — collapse it
+    card_mod:
+      style: |
+        :host { height: auto !important; min-height: 0 !important; }
+    # Bubble's popup grid auto-measures the (tall) card and reserves 9 rows;
+    # pin the row span so the slot matches the compact content instead.
+    grid_options:
+      rows: 5
   # ── warmtepomp ────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -171,7 +149,7 @@ cards:
     card_type: climate
     entity: climate.fairland_zwembad_climate
     name: Warmtepomp
-    hold_action: { action: more-info }
+    tap_action: { action: more-info }
   - type: custom:expander-card
     title: Warmtepomp instellingen
     cards:

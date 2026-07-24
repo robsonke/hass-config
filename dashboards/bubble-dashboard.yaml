@@ -1,14 +1,6 @@
-wallpanel:
-  enabled: true
-  hide_toolbar: false
-  idle_time: 0
-
 # Shared decluttering-card templates (sonos_popup, light_button, …) so popups
 # opened from this dashboard can resolve them — same file the main dashboard uses.
 decluttering_templates: !include ../templates/decluttering_templates.yaml
-# button-card templates too, so popups that use custom:button-card (e.g. the
-# Updates popup's updates_hass template) resolve when opened from this dashboard.
-button_card_templates: !include_dir_merge_named ../templates/button_card_templates
 
 views:
   # ============================================================================
@@ -44,6 +36,10 @@ views:
     max_columns: 3          # mockup is a 3-column design; also fixes the header
                             # grid at 36 cols (3×12) so tile widths are deterministic
     dense_section_placement: true
+    # NB: reclaiming the toolbar's space when the header is hidden is handled
+    # natively by wallpanel (hide_toolbar + keep_toolbar_space: false), which
+    # zeroes #view's padding-top. A card_mod padding trick does NOT work here
+    # because the Material You theme pins --header-height: 64px permanently.
     sections:
 
       # ───────────────────────── HEADER: weer · agenda · status ──────────────
@@ -83,9 +79,12 @@ views:
           - type: custom:bubble-card
             card_type: calendar
             rows: 4
+            # tap opens the full agenda popup (#agenda); tapping an event too
+            tap_action: { action: navigate, navigation_path: '#agenda' }
+            button_action:
+              tap_action: { action: navigate, navigation_path: '#agenda' }
             event_action:
-              tap_action:
-                action: more-info
+              tap_action: { action: navigate, navigation_path: '#agenda' }
             sub_button:
               main: []
               bottom: []
@@ -518,7 +517,31 @@ views:
               tap_action: { action: navigate, navigation_path: '#stookwijzer' }
               button_action:
                 tap_action: { action: navigate, navigation_path: '#stookwijzer' }
-              modules: [bubble_neon_icon_only]
+              bubble_badges:
+                badges:
+                  # rode stip = code_red (niet stoken)
+                  - name: Alert
+                    target: main_icon
+                    dot: true
+                    color: red
+                    condition:
+                      - condition: state
+                        entity_id: sensor.stookwijzer
+                        state: code_red
+                  # groene stip = overige codes (stoken toegestaan)
+                  - name: OK
+                    target: main_icon
+                    dot: true
+                    color: green
+                    condition:
+                      - condition: state
+                        entity_id: sensor.stookwijzer
+                        state:
+                          - code_yellow
+                          - code_orange
+              modules:
+                - bubble_badges   # rood/groen stip-status op het icoon
+                - bubble_neon_icon_only
               styles: |
                 @media (max-width: 767px) {
                   .bubble-name-container { display: none !important; }
@@ -573,6 +596,16 @@ views:
                       - condition: numeric_state
                         entity_id: sensor.picnic_cart_items_count
                         above: 0
+                  # red dot when the next delivery is today
+                  - name: Levering vandaag
+                    target: main_icon
+                    dot: true
+                    color: red
+                    condition:
+                      - condition: template
+                        value_template: >
+                          {% set s = states('sensor.picnic_expected_start_of_next_delivery') %}
+                          {{ s not in ['unknown','unavailable','none',''] and as_local(as_datetime(s)).date() == now().date() }}
               modules:
                 - bubble_badges   # badge = cart item count (the "3")
                 - bubble_neon_icon_only
@@ -581,7 +614,7 @@ views:
                 .bubble-state { font-size: 0 !important; }
                 .bubble-state::after {
                   font-size: 12px !important;
-                  content: "${(() => { const s = hass.states['sensor.picnic_start_of_selected_slot']?.state; if (!s || s === 'unknown' || s === 'unavailable') return 'Geen bezorging'; const d = new Date(s); const days = ['zo','ma','di','wo','do','vr','za']; return days[d.getDay()] + ' ' + d.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); })()}";
+                  content: "${(() => { const s = hass.states['sensor.picnic_expected_start_of_next_delivery']?.state; if (!s || s === 'unknown' || s === 'unavailable') return 'Geen bezorging'; const d = new Date(s); const now = new Date(); const days = ['zo','ma','di','wo','do','vr','za']; const t = d.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); return (d.toDateString() === now.toDateString() ? 'vandaag' : days[d.getDay()]) + ' ' + t; })()}";
                 }
                 @media (max-width: 767px) {
                   .bubble-name-container { display: none !important; }
@@ -623,6 +656,7 @@ views:
           - !include popups/bpp_update.yaml  # #updates
           - !include popups/bpp_picnic.yaml         # #picnic
           - !include popups/bpp_weather.yaml  # #weer
+          - !include popups/bpp_calendar.yaml  # #agenda ← header calendar
       # ───────────────────────────── BENEDEN ─────────────────────────────────
       - type: grid
         cards:

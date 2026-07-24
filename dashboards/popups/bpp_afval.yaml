@@ -3,6 +3,7 @@
 # (bpp_ = Bubble pop-up card; the plain pp_*.yaml files are browser_mod action includes.)
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 720px
@@ -10,6 +11,10 @@ hash: '#afval'
 name: Afvalkalender
 icon: mdi:trash-can-outline
 cards:
+  # ── volgende ophaaldagen ──────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Volgende ophaaldagen
   - type: custom:bubble-card
     card_type: button
     button_type: state
@@ -61,3 +66,23 @@ cards:
         show_background: true
     styles: |
       .bubble-icon-container { background: ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || '#8a8f98'} !important; }
+  # ── kalender ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kalender
+  # agenda list with a month range (atomic-calendar-revive; native list is only 7 days)
+  - type: custom:atomic-calendar-revive
+    name: Ophaaldagen
+    maxDaysToShow: 35
+    showDate: true
+    showNoEventsForToday: false
+    entities:
+      - entity: calendar.groenebak
+        color: '#46c77a'
+      - entity: calendar.papierbak
+        color: '#3182b7'
+      - entity: calendar.grijzebak
+        color: '#8a8f98'
+    card_mod:
+      style: |
+        ha-card { border: none; background: none; box-shadow: none; }

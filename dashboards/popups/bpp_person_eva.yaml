@@ -1,6 +1,7 @@
 # Bubble Card native pop-up (#person-eva) — Eva (slaapkamer camera + bed).
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
@@ -63,3 +64,22 @@ cards:
           mode: below
         next_previous:
           style: chevrons
+  # ── muziek (Sonos) ────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Muziek
+  - type: custom:decluttering-card
+    template: sonos_popup
+    variables:
+      - main_player: media_player.eva_eva
+      - entities:
+          - media_player.eva_eva
+      - groups: []
+      - vol_threshold: 20
+      - vol_max: 20
+      - sections:
+          - player
+          - volumes
+          - media browser
+          - grouping
+          - groups

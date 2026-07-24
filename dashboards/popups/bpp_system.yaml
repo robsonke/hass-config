@@ -1,146 +1,257 @@
-# Bubble Card native pop-up (hash #systeem) — migrated from pp_footer_system.yaml (browser_mod).
+# Bubble Card native pop-up (hash #systeem) — Systeem & instellingen.
+# Modernized to the state-card grid pattern (separators + bubble tiles),
+# functional cards (bar-card, uptime-card, auto-entities) kept intact.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1150px
+width_desktop: 820px
 hash: '#systeem'
-name: System & Settings
+name: Systeem
 icon: mdi:cog
+# header = HA-versie
+entity: sensor.hass_version_installed
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.13) !important; }
+  .bubble-icon-container { background-color: rgba(45,170,115,0.20) !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after { font-size: 14px !important; font-weight: 500; color: #9ed9bd !important; content: "Home Assistant ${hass.states['sensor.hass_version_installed']?.state || '—'}"; }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 60% 40%
-      grid-template-rows: auto
-      grid-template-areas: |
-        "system settings"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "system"
-            "settings"
+  # ── status ────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Home Assistant
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: system
-        cards:
-          - type: entities
-            title: Home Assistant
-            show_header_toggle: false
-            card_mod:
-              class: header
-            entities:
-              - entity: sensor.hass_version_installed
-                name: Versie
-                icon: mdi:home-assistant
-              - entity: sensor.unavailable_entities
-                name: Offline belangrijke entities
-                icon: mdi:alert-circle
-                type: custom:template-entity-row
-                state: "{{ state_attr('sensor.unavailable_entities', 'count') }}"
-                tap_action:
-                  !include pp_unavailable_entities.yaml
-              - type: attribute
-                entity: binary_sensor.important_addons
-                name: Offline Addons
-                attribute: count
-                icon: mdi:alert-circle
-              - entity: sensor.uptime
-                name: Uptime
-                icon: mdi:update
-              - entity: sensor.database_size
-                name: Database Size
-                icon: mdi:database
-              - type: custom:bar-card
-                width: 55%
-                height: 2em
-                decimal: 0
-                unit_of_measurement: '%'
-                positions: &bar_card_positions
-                  icon: outside
-                  indicator: 'off'
-                  name: outside
-                severity: &bar_card_severity
-                  - color: '#6d2525'
-                    from: 85
-                    to: 999
-                entity_row: true
-                entities:
-                  - entity: sensor.processor_use
-                    name: CPU
-                    icon: mdi:chip
-                  - entity: sensor.memory_use_percent
-                    icon: mdi:memory
-                    name: Memory
-                  - entity: sensor.disk_use_percent
-                    icon: mdi:server
-                    name: Disk Usage
-
-          - type: custom:auto-entities
-            card:
-              type: entities
-              title: Belangrijke entities offline
-            show_empty: false
-            filter:
-              include:
-                - group: group.monitored_entities
-                  state: 'unavailable'
-                - group: group.monitored_entities
-                  state: 'unknown'
-                - group: group.monitored_entities
-                  state: 'none'
-            sort:
-              method: name
-          - type: entities
-            title: Internet
-            show_header_toggle: false
-            card_mod:
-              class: header
-            entities:
-              - type: custom:uptime-card
-                entity: binary_sensor.internet_ping
-                icon: mdi:raspberry-pi
-                name: Internet Status
-                icon_adaptive_color: true
-                title_adaptive_color: true
-                status_adaptive_color: true
-                hours_to_show: 24
-                alignment:
-                  status: spaced
-                  header: center
-                show:
-                  footer: false
-
-      - type: vertical-stack
-        view_layout:
-          grid-area: settings
-        cards:
-          - type: entities
-            show_header_toggle: false
-            title: Automatische acties
-            entities:
-              - entity: input_boolean.enable_automatic_lights
-              - entity: input_boolean.enable_automatic_garden_lights
-              - entity: input_boolean.enable_automatic_screens
-              - entity: input_boolean.enable_automatic_hvac
-          - type: entities
-            entities:
-              - entity: switch.evabed_detect
-              - entity: switch.noabed_detect
-              - entity: switch.bijkeuken_detect
-              - entity: switch.zijkant_detect
-              - entity: switch.terras_detect
-              - entity: switch.doorbell_detect
-              - entity: switch.veranda_detect
-              - entity: switch.zwembad_detect
-            title: Camera detectie
-            show_header_toggle: false
-            state_color: false
-          - type: entities
-            show_header_toggle: false
-            title: Theme
-            entities:
-              - entity: input_boolean.dark_mode
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.uptime
+        name: Uptime
+        icon: mdi:timer-outline
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.database_size
+        name: Database
+        icon: mdi:database
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.unavailable_entities
+        name: Entities offline
+        icon: mdi:alert-circle
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${hass.states['sensor.unavailable_entities']?.state ?? '—'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.important_addons
+        name: Add-ons offline
+        icon: mdi:puzzle
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['binary_sensor.important_addons']?.attributes?.count); return (isFinite(v) && v > 0) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['binary_sensor.important_addons']?.attributes?.count); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${hass.states['binary_sensor.important_addons']?.attributes?.count ?? 0}"; }
+  # ── belasting ─────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Belasting
+  - type: custom:bar-card
+    width: 55%
+    height: 2em
+    decimal: 0
+    unit_of_measurement: '%'
+    positions:
+      icon: outside
+      indicator: 'off'
+      name: outside
+    severity:
+      - color: '#6d2525'
+        from: 85
+        to: 999
+    entity_row: true
+    entities:
+      - entity: sensor.processor_use
+        name: CPU
+        icon: mdi:chip
+      - entity: sensor.memory_use_percent
+        icon: mdi:memory
+        name: Geheugen
+      - entity: sensor.disk_use_percent
+        icon: mdi:server
+        name: Schijf
+  # ── offline entities ──────────────────────────────────────────────
+  # separator only when a monitored entity is actually offline (auto-entities
+  # already hides itself; this hides the lingering header)
+  - type: custom:bubble-card
+    card_type: separator
+    name: Belangrijke entities offline
+    visibility:
+      - condition: template
+        value_template: >
+          {{ expand('group.monitored_entities') | selectattr('state','in',['unavailable','unknown','none']) | list | count > 0 }}
+  - type: custom:auto-entities
+    show_empty: false
+    card:
+      type: entities
+    filter:
+      include:
+        - group: group.monitored_entities
+          state: 'unavailable'
+        - group: group.monitored_entities
+          state: 'unknown'
+        - group: group.monitored_entities
+          state: 'none'
+    sort:
+      method: name
+  # ── internet ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Internet
+  - type: custom:uptime-card
+    entity: binary_sensor.internet_ping
+    icon: mdi:raspberry-pi
+    name: Internet status
+    icon_adaptive_color: true
+    title_adaptive_color: true
+    status_adaptive_color: true
+    hours_to_show: 24
+    alignment:
+      status: spaced
+      header: center
+    show:
+      footer: false
+  # ── automatische acties ───────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Automatische acties
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: input_boolean.enable_automatic_lights
+        name: Verlichting
+        icon: mdi:lightbulb-auto
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: input_boolean.enable_automatic_garden_lights
+        name: Tuinverlichting
+        icon: mdi:outdoor-lamp
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: input_boolean.enable_automatic_screens
+        name: Screens
+        icon: mdi:blinds-horizontal
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: input_boolean.enable_automatic_hvac
+        name: Klimaat
+        icon: mdi:hvac
+        card_layout: large
+  # ── camera detectie ───────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Camera detectie
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.evabed_detect
+        name: Eva slaapkamer
+        icon: mdi:cctv
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.noabed_detect
+        name: Noa slaapkamer
+        icon: mdi:cctv
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.bijkeuken_detect
+        name: Bijkeuken
+        icon: mdi:cctv
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.zijkant_detect
+        name: Zijkant
+        icon: mdi:cctv
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.terras_detect
+        name: Terras
+        icon: mdi:cctv
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.doorbell_detect
+        name: Deurbel
+        icon: mdi:doorbell-video
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.veranda_detect
+        name: Veranda
+        icon: mdi:cctv
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: switch.zwembad_detect
+        name: Zwembad
+        icon: mdi:cctv
+        card_layout: large
+  # ── onderhoud ─────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Onderhoud
+  - type: custom:bubble-card
+    card_type: button
+    button_type: name
+    name: Dashboard hard vernieuwen
+    icon: mdi:restart
+    card_layout: large
+    tap_action:
+      action: perform-action
+      perform_action: script.reload_frontend
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }

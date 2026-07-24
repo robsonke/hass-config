@@ -1,12 +1,25 @@
 # Bubble Card native pop-up (hash #muziek-beneden) — Muziek tile (Beneden). Sonos.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 760px
 hash: '#muziek-beneden'
 name: Sonos - Beneden
 icon: mdi:music
+# header shows which speakers in this zone are playing (green) or "Niets aan het spelen"
+entity: media_player.eetkamer
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const P=['media_player.eetkamer','media_player.living_room','media_player.eva_eva','media_player.office','media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam','media_player.macbook']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const P=['media_player.eetkamer','media_player.living_room','media_player.eva_eva','media_player.office','media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam','media_player.macbook']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 13px !important; font-weight: 500;
+    color: ${(() => { const P=['media_player.eetkamer','media_player.living_room','media_player.eva_eva','media_player.office','media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam','media_player.macbook']; return P.some(p=>hass.states[p]?.state==='playing') ? '#9ed9bd' : '#8f8e9e'; })()} !important;
+    content: "${(() => { const P=['media_player.eetkamer','media_player.living_room','media_player.eva_eva','media_player.office','media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam','media_player.macbook']; const n=P.map(p=>hass.states[p]).filter(s=>s&&s.state==='playing').map(s=>(s.attributes.friendly_name||'').replace(/^Speakers /,'').replace(/ Speaker$/,'')); return n.length ? n.join(String.fromCharCode(32,183,32)) : 'Niets aan het spelen'; })()}";
+  }
 cards:
   - type: custom:decluttering-card
     template: sonos_popup

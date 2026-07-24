@@ -1,34 +1,100 @@
-# Bubble Card native pop-up (hash #katten) — Boris&Puk tile (Tuin). Cat flap.
+# Bubble Card native pop-up (hash #katten) — Boris&Puk tile (Tuin).
+# Kattenluik-beweging, tellingen vandaag, sensor-diagnostiek, laatste spot.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 560px
+width_desktop: 620px
 hash: '#katten'
 name: Boris en Puk
 icon: mdi:cat
+# header = kattenluik-beweging (blauw = beweging, groen = rustig) + duur
+entity: binary_sensor.motion_sensor_cats_occupancy
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${state === 'on' ? '#82bbf0' : '#9ed9bd'} !important;
+    content: "${(() => { const p = hass.states['binary_sensor.motion_sensor_cats_occupancy']; const on = p?.state === 'on'; const secs = (Date.now() - new Date(p?.last_changed)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return (on ? 'Beweging' : 'Rustig') + ' · ' + d; })()}";
+  }
 cards:
-  - type: custom:bubble-card
-    card_type: button
-    card_layout: large
-    button_type: state
-    entity: binary_sensor.motion_sensor_cats_occupancy
-    name: Luikje
-    icon: mdi:cat
-    show_state: true
-    show_last_changed: true
-    styles: |
-      .bubble-button-background {
-        opacity: 1 !important;
-        background-color: ${(state === 'on' ? '#2ecc71' : state === 'off' ? '#7f8c8d' : '#e74c3c')} !important;
-      }
+  # ── vandaag ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
+    name: Vandaag
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.cat_door_today
+        name: Door het luikje
+        icon: mdi:door
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = hass.states['sensor.cat_door_today']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + '×' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.bijkeuken_cat_sightings_today
+        name: Gezien bijkeuken
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = hass.states['sensor.bijkeuken_cat_sightings_today']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + '×' : '—'; })()}"; }
+  # ── sensor ────────────────────────────────────────────────────────
   - type: custom:bubble-card
-    card_type: button
-    card_layout: large
-    button_type: state
-    entity: sensor.cat_door_today
-    name: Vandaag door het luikje
-    icon: mdi:door
-    show_state: true
+    card_type: separator
+    name: Kattenluik-sensor
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.motion_sensor_cats_battery
+        name: Batterij
+        icon: mdi:battery
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.motion_sensor_cats_battery']?.state); return (isFinite(v) && v < 20) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.motion_sensor_cats_battery']?.state); return (isFinite(v) && v < 20) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = hass.states['sensor.motion_sensor_cats_battery']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + '%' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.motion_sensor_cats_device_temperature
+        name: Temperatuur
+        icon: mdi:thermometer
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.13) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #9ed9bd !important; content: "${(() => { const v = hass.states['sensor.motion_sensor_cats_device_temperature']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + ' °C' : '—'; })()}"; }
+  # ── laatste spot ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Laatste kat gezien
+  - type: picture-entity
+    entity: image.bijkeuken_cat
+    show_name: false
+    show_state: false
+    camera_view: auto
+    card_mod:
+      style: |
+        ha-card { border: none; }

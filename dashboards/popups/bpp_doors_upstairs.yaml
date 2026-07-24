@@ -2,6 +2,7 @@
 # State-card grid pattern — see docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 760px

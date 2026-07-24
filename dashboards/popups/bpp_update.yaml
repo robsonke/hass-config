@@ -1,30 +1,63 @@
-# Bubble Card native pop-up (hash #updates) — migrated from pp_footer_update.yaml (browser_mod).
+# Bubble Card native pop-up (hash #updates) — Updates chip.
+# HA version + release notes via a native markdown card (no custom:button-card),
+# then the list of available updates. See the popup-modernization spec.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 680px
+width_desktop: 720px
 hash: '#updates'
 name: Update Info
 icon: mdi:package-up
+# header = aantal updates (blauw als er updates zijn, groen up-to-date)
+entity: sensor.all_updates
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? '#82bbf0' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? (n + ' update' + (n === 1 ? '' : 's') + ' beschikbaar') : 'Alles up-to-date'; })()}";
+  }
 cards:
-  - type: grid
-    columns: 1
-    square: false
-    cards:
-      - type: custom:button-card
-        entity: sensor.hass_version_installed
-        template:
-          - updates_hass
-      - type: custom:auto-entities
-        card:
-          type: vertical-stack
-        card_param: cards
-        filter:
-          include:
-            - entity_id: update.*
-              state: 'on'
-              options:
-                type: custom:mushroom-update-card
-                entities:
-                  - this.entity_id
+  # ── Home Assistant (versie + release notes) ───────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Home Assistant
+  - type: markdown
+    content: >
+      ## Home Assistant {{ states('sensor.hass_version_installed') }}
+
+      {% if states('sensor.hass_version_installed') == states('sensor.hass_version_latest') %}
+      _Geen update — je bent up-to-date._
+      {% else %}
+      **{{ states('sensor.hass_version_latest') }} beschikbaar** 🎉
+
+      {{ state_attr('sensor.hass_release_notes', 'body') }}
+      {% endif %}
+  # ── beschikbare updates ───────────────────────────────────────────
+  # separator alleen tonen als er updates zijn (auto-entities verbergt zichzelf al)
+  - type: custom:bubble-card
+    card_type: separator
+    name: Beschikbare updates
+    visibility:
+      - condition: numeric_state
+        entity: sensor.all_updates
+        above: 0
+  - type: custom:auto-entities
+    card:
+      type: vertical-stack
+    card_param: cards
+    filter:
+      include:
+        - entity_id: update.*
+          state: 'on'
+          options:
+            type: custom:mushroom-update-card
+            entities:
+              - this.entity_id
+      exclude: []
+    show_empty: false

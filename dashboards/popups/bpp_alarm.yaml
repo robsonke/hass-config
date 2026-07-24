@@ -1,124 +1,240 @@
-# Bubble Card native pop-up (hash #alarm) — migrated from pp_alarm.yaml (browser_mod).
+# Bubble Card native pop-up (hash #alarm) — Alarmo + voordeurslot + camera's + deurbel.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1200px
+width_desktop: 820px
 hash: '#alarm'
 name: Alarm
 icon: mdi:shield-home
+# header = alarmstatus (groen uit, amber ingeschakeld, rood alarm/aftellen) + duur
+entity: alarm_control_panel.alarmo
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; if (st === 'disarmed') return 'rgba(45,170,115,0.14)'; if (st === 'pending' || st === 'triggered') return 'rgba(226,75,74,0.18)'; if (st === 'arming') return 'rgba(55,138,221,0.16)'; return 'rgba(240,195,95,0.14)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; if (st === 'disarmed') return 'rgba(45,170,115,0.20)'; if (st === 'pending' || st === 'triggered') return 'rgba(226,75,74,0.24)'; if (st === 'arming') return 'rgba(55,138,221,0.22)'; return 'rgba(240,195,95,0.20)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; if (st === 'disarmed') return '#9ed9bd'; if (st === 'pending' || st === 'triggered') return '#ec8a89'; if (st === 'arming') return '#82bbf0'; return '#f0cf8f'; })()} !important;
+    content: "${(() => { const s = hass.states['alarm_control_panel.alarmo']; const st = s?.state; const label = ({ disarmed:'Uitgeschakeld', armed_away:'Afwezig', armed_home:'Thuis', armed_night:'Nacht', armed_vacation:'Vakantie', arming:'Inschakelen…', pending:'Aftellen…', triggered:'ALARM!' })[st] || st; const secs = (Date.now() - new Date(s?.last_changed)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return label + ' · ' + d; })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: auto auto
-      grid-template-rows: auto
-      grid-template-areas: |
-        "details camera"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "details"
-            "camera"
+  # ── bediening ─────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Bediening
+  - type: custom:alarmo-card
+    entity: alarm_control_panel.alarmo
+  # pre-arm check: groen "Alles dicht" of amber "N open" (deuren/ramen)
+  - type: custom:bubble-card
+    card_type: button
+    button_type: name
+    name: Klaar om in te schakelen
+    icon: mdi:shield-check
+    card_layout: large
+    tap_action: { action: none }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.14)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+      .bubble-icon-container { background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+      .bubble-name { font-size: 0 !important; }
+      .bubble-name::after {
+        font-size: 13.5px !important; font-weight: 500;
+        color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? '#f0cf8f' : '#9ed9bd'; })()} !important;
+        content: "${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? (n + ' open — nog niet dicht') : 'Alles dicht — klaar'; })()}";
+      }
+  # ── voordeur ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Voordeur
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: lock.nuki_voordeur_slot_lock
+    name: Voordeurslot
+    icon: mdi:lock
+    card_layout: large
+    tap_action: { action: toggle }
+    hold_action: { action: more-info }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: ${state === 'locked' ? 'rgba(45,170,115,0.13)' : 'rgba(226,75,74,0.16)'} !important; }
+      .bubble-icon-container { background-color: ${state === 'locked' ? 'rgba(45,170,115,0.20)' : 'rgba(226,75,74,0.22)'} !important; }
+      .bubble-state { font-size: 0 !important; }
+      .bubble-state::after { font-size: 12.5px !important; color: ${state === 'locked' ? '#9ed9bd' : '#ec8a89'} !important; content: "${state === 'locked' ? 'Vergrendeld' : (state === 'unlocked' ? 'Ontgrendeld' : state)}"; }
+  - type: tile
+    entity: input_text.camera_analysis
+    show_entity_picture: false
+    name: Laatste gebeurtenis
+    icon: mdi:camera
+    hide_state: false
+    vertical: false
+    state_content:
+      - state
+      - last-changed
+    tap_action:
+      action: url
+      url_path: /ccab4aaf_frigate/ingress
+  # ── camera's (alerts) ─────────────────────────────────────────────
+  # rood = Frigate review-alert actief; tik opent de camera
+  - type: custom:bubble-card
+    card_type: separator
+    name: Camera's
+  - type: grid
+    columns: 3
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: details
-        cards:
-          - type: custom:alarmo-card
-            entity: alarm_control_panel.alarmo
-          - type: custom:auto-entities
-            card:
-              type: entities
-            filter:
-              include:
-                - entity_id: lock.nuki_voordeur_slot_lock
-          - type: tile
-            entity: input_text.camera_analysis
-            show_entity_picture: false
-            name: Laatste gebeurtenis
-            icon: mdi:camera
-            hide_state: false
-            vertical: false
-            state_content:
-              - state
-              - last-changed
-            tap_action:
-              action: url
-              url_path: /ccab4aaf_frigate/ingress
-
-          - type: custom:auto-entities
-            card:
-              type: entities
-              title: Recent geopende deuren en ramen
-              show_header_toggle: false
-              card_mod:
-                class: header
-                style: |
-                  ha-card {
-                    margin: 0px !important;
-                  }
-            filter:
-              include:
-                - domain: binary_sensor
-                  attributes:
-                    device_class: door
-                  options:
-                    secondary_info: last-changed
-                - domain: binary_sensor
-                  attributes:
-                    device_class: window
-                  options:
-                    secondary_info: last-changed
-              exclude:
-                - entity_id: binary_sensor.voordeur_slot
-                - entity_id: binary_sensor.doors_and_windows_upstairs
-            show_empty: false
-            unique: entity
-            sort:
-              method: last_changed
-              count: 5
-              reverse: true
-      # wrap in grid to avoid layout issues with swipe card
-      - type: grid
-        view_layout:
-          grid-area: camera
-        columns: 1
-        cards:
-          - type: custom:advanced-camera-card
-            dimensions:
-              aspect_ratio_mode: unconstrained
-            entities:
-              - entity: binary_sensor.langeweide_doorbell_visitor
-              - entity: binary_sensor.langeweide_doorbell_motion
-              - entity: binary_sensor.langeweide_doorbell_person
-            menu:
-              buttons:
-                frigate:
-                  enabled: false
-                image:
-                  enabled: false
-                camera_ui:
-                  enabled: false
-                media_player:
-                  enabled: false
-              style: overlay
-              position: top
-            view:
-              default: live
-            live:
-              controls:
-                thumbnails:
-                  mode: below
-                  media: snapshots
-            cameras:
-              - camera_entity: camera.langeweide_doorbell_clear
-                live_provider: ha
-                frigate:
-                  camera_name: Voordeur
-            media_viewer:
-              controls:
-                next_previous:
-                  style: chevrons
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: camera.doorbell
+        name: Deurbel
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.deurbel_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['sensor.deurbel_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: camera.zijkant
+        name: Zijkant
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.zijkant_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['sensor.zijkant_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: camera.terras
+        name: Terras
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.terras_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['sensor.terras_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: camera.veranda
+        name: Veranda
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.veranda_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['sensor.veranda_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: camera.bijkeuken
+        name: Bijkeuken
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.bijkeuken_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['sensor.bijkeuken_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        entity: camera.zwembad
+        name: Zwembad
+        icon: mdi:cctv
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.zwembad_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['sensor.zwembad_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+  # ── deurbel-detecties vandaag ─────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Deurbel vandaag
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.doorbell_person_count
+        name: Personen
+        icon: mdi:account
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${hass.states['sensor.doorbell_person_count']?.state ?? '0'}×"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: name
+        name: Pakketten
+        icon: mdi:package-variant-closed
+        card_layout: large
+        tap_action: { action: none }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-name { font-size: 0 !important; }
+          .bubble-name::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "Pakketten ${(() => { const c = ['postnl','dhl','dpd','gls'].reduce((a,k)=>a + (parseInt(hass.states['sensor.doorbell_'+k+'_count']?.state)||0), 0); return c; })()}×"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.doorbell_car_count
+        name: Auto's
+        icon: mdi:car
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${hass.states['sensor.doorbell_car_count']?.state ?? '0'}×"; }
+  # ── recent geopend ────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Recent geopende deuren en ramen
+  - type: custom:auto-entities
+    card:
+      type: entities
+    show_empty: false
+    unique: entity
+    filter:
+      include:
+        - domain: binary_sensor
+          attributes:
+            device_class: door
+          options:
+            secondary_info: last-changed
+        - domain: binary_sensor
+          attributes:
+            device_class: window
+          options:
+            secondary_info: last-changed
+      exclude:
+        - entity_id: binary_sensor.voordeur_slot
+        - entity_id: binary_sensor.doors_and_windows_upstairs
+    sort:
+      method: last_changed
+      count: 5
+      reverse: true
+  # ── geschiedenis ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Geschiedenis
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - type: attribute
+        entity: alarm_control_panel.alarmo
+        attribute: last_triggered
+        name: Laatst geactiveerd
+        icon: mdi:history
+      - type: attribute
+        entity: alarm_control_panel.alarmo
+        attribute: changed_by
+        name: Laatst gewijzigd door
+        icon: mdi:account-clock

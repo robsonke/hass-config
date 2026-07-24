@@ -16,7 +16,7 @@ script: !include ../scripts.yaml
 
 shell_command:
   convert_lovelace: "python /config/utils/json2yaml.py /config/.storage/lovelace /config/lovelace-ui.yaml"
-  refresh_lovelace: "touch /config/dashboards/main-dashboard.yaml"
+  refresh_lovelace: "touch /config/dashboards/main-dashboard.yaml /config/dashboards/bubble-dashboard.yaml"
 
 logger:
   default: info
@@ -53,11 +53,6 @@ ios:
         color: "#d9d441"
       show_in_carplay: true
       show_in_watch: true
-
-input_boolean:
-  dark_mode:
-    name: Dark Mode
-    icon: mdi:theme-light-dark
 
 input_text:
   camera_analysis:

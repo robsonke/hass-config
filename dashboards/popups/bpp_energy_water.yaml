@@ -1,11 +1,72 @@
 # Bubble Card native pop-up (hash #water) — Water tile (Energie & water).
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#water'
 name: Waterverbruik
 icon: mdi:water
+# header = huidige doorstroming (blauw = er stroomt water, groen = geen)
+entity: sensor.watermeter_water_usage
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); return (isFinite(v) && v > 0.1) ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); return (isFinite(v) && v > 0.1) ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const v = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); return (isFinite(v) && v > 0.1) ? '#82bbf0' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const v = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); const d = parseFloat(hass.states['sensor.water_daily']?.state); let o = isFinite(v) ? (v > 0.1 ? v.toFixed(1).replace('.', ',') + ' L/min' : 'Geen doorstroming') : '—'; if (isFinite(d)) o += ' · ' + d.toFixed(2).replace('.', ',') + ' m³ vandaag'; return o; })()}";
+  }
 cards:
+  # ── verbruik ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verbruik
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.water_daily
+        name: Vandaag
+        icon: mdi:calendar-today
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = parseFloat(hass.states['sensor.water_daily']?.state); return isFinite(v) ? v.toFixed(2).replace('.', ',') + ' m³' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.water_monthly
+        name: Deze maand
+        icon: mdi:calendar-month
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = parseFloat(hass.states['sensor.water_monthly']?.state); return isFinite(v) ? v.toFixed(1).replace('.', ',') + ' m³' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.water_yearly
+        name: Dit jaar
+        icon: mdi:calendar-blank
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = parseFloat(hass.states['sensor.water_yearly']?.state); return isFinite(v) ? v.toFixed(1).replace('.', ',') + ' m³' : '—'; })()}"; }
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop
   - type: energy-water-graph

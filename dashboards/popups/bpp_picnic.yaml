@@ -1,28 +1,81 @@
-# Bubble Card native pop-up (hash #picnic) — migrated from pp_picnic.yaml (browser_mod).
+# Bubble Card native pop-up (hash #picnic) — boodschappen (Picnic).
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 680px
 hash: '#picnic'
 name: Picnic
 icon: mdi:cart
+# header = aantal producten in mandje (blauw als er iets in zit)
+entity: sensor.picnic_cart_items_count
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? '#82bbf0' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? (v + ' in mandje') : 'Mandje leeg'; })()}";
+  }
 cards:
-  - type: vertical-stack
+  # ── winkelmandje ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Winkelmandje
+  - type: grid
+    columns: 2
+    square: false
     cards:
-      - type: entities
-        show_header_toggle: false
-        entities:
-          - entity: sensor.picnic_cart_items_count
-            name: Boodschappen in mandje
-          - entity: sensor.picnic_cart_total_price
-            name: Prijs winkelmandje
-          - entity: sensor.picnic_max_order_time_of_selected_slot
-            name: Laatste bestelmoment
-          - entity: sensor.picnic_start_of_selected_slot
-            name: Eerste volgende levering
-          - entity: sensor.picnic_minimum_order_value_for_selected_slot
-            name: Minimale bedrag
-          - type: divider
-          - entity: sensor.picnic_total_price_of_last_order
-            name: Prijs laatste bestelling
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.picnic_cart_items_count
+        name: Producten
+        icon: mdi:basket
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.picnic_cart_total_price
+        name: Prijs mandje
+        icon: mdi:currency-eur
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+  # ── levering ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Levering
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: sensor.picnic_expected_start_of_next_delivery
+        name: Levering vanaf
+        icon: mdi:truck-delivery
+      - entity: sensor.picnic_expected_end_of_next_delivery
+        name: Levering tot
+        icon: mdi:clock-outline
+      - entity: sensor.picnic_status_of_last_order
+        name: Status bestelling
+        icon: mdi:package-variant-closed
+  # ── laatste bestelling ────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Laatste bestelling
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: sensor.picnic_total_price_of_last_order
+    name: Prijs laatste bestelling
+    icon: mdi:receipt-text
+    card_layout: large
+    tap_action: { action: more-info }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }

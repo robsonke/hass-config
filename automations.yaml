@@ -3863,3 +3863,35 @@
             volume: 1
           interruption-level: critical
   mode: single
+- id: doorbell_camera_popup
+  alias: Deurbel - Popup camera bij bellen of persoon
+  description: >
+    Toont de voordeurcamera in een popup (browser_mod) zodra er wordt aangebeld
+    of een persoon wordt gedetecteerd. Gebruikt persoon-detectie i.p.v. ruwe
+    beweging om te voorkomen dat de popup bij elke auto/voorbijganger opent.
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.langeweide_doorbell_visitor
+        - binary_sensor.langeweide_doorbell_person
+      from: 'off'
+      to: 'on'
+  conditions: []
+  actions:
+    - action: browser_mod.popup
+      data:
+        # target the wall tablet; add more browser_ids here for other devices
+        browser_id:
+          - browser_mod_028aaaa1_36a40792
+        title: >
+          {{ 'Er wordt aangebeld' if is_state('binary_sensor.langeweide_doorbell_visitor', 'on') else 'Beweging bij de voordeur' }}
+        size: wide
+        timeout: 45000
+        dismissable: true
+        content:
+          type: picture-entity
+          entity: camera.langeweide_doorbell_clear
+          camera_view: live
+          show_name: false
+          show_state: false
+  mode: restart

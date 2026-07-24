@@ -1,0 +1,16 @@
+# Car (BMW iX3) helpers
+#
+# The cardata integration exposes sensor.ix3_service_next_inspection_date as a
+# plain string like "01.06.2027 00:00:00 UTC". Parse it with strptime and
+# re-emit just the date (dd-mm-yyyy) for the picture-elements label in #auto.
+# (A device_class: date sensor would render as raw ISO in a state-label, hence
+# the explicit strftime here.)
+template:
+  - sensor:
+      - name: "iX3 Next inspection date"
+        unique_id: ix3_next_inspection_date_short
+        icon: mdi:calendar-wrench
+        state: >
+          {% set d = strptime(states('sensor.ix3_service_next_inspection_date'),
+                              '%d.%m.%Y %H:%M:%S %Z', none) %}
+          {{ d.strftime('%d-%m-%Y') if d else 'onbekend' }}

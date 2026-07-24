@@ -173,13 +173,26 @@ reload_frontend:
   sequence:
   - action: template.reload
     data: {}
+  # Force HA to re-read the YAML dashboards from disk (touch alone is
+  # unreliable; the frontend's lovelace/config force:true is what actually
+  # invalidates HA's cached config — incl. !included popup/template files).
   - action: browser_mod.javascript
     data:
-      code: lovelace_reload();
+      code: >
+        (async () => {
+          try {
+            const conn = document.querySelector('home-assistant').hass.connection;
+            for (const p of ['lovelace-bubble', 'lovelace']) {
+              try { await conn.sendMessagePromise({ type: 'lovelace/config', url_path: p, force: true }); } catch (e) {}
+            }
+          } catch (e) {}
+        })();
   - action: shell_command.refresh_lovelace
     data: {}
   - action: frontend.reload_themes
     data: {}
+  - delay:
+      seconds: 1
   - action: browser_mod.refresh
     data: {}
   mode: single

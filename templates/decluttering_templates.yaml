@@ -26,6 +26,10 @@ light_button:
 sonos_popup:
   card:
     type: custom:sonos-card
+    # remember the picked player in session storage, NOT the URL hash — otherwise
+    # selecting a speaker rewrites the hash (e.g. #media_player.office) and Bubble's
+    # hash-driven pop-up closes. See punxaphil/custom-sonos-card.
+    storePlayerInSessionStorage: true
     sections: '[[sections]]'
     entityId: '[[main_player]]'
     entities: '[[entities]]'
@@ -33,7 +37,9 @@ sonos_popup:
     topFavorites:
       - 'NPO Radio 2'
     player:
-      artworkAsBackground: true
+      # full-bleed album art forces a huge 1:1 square (~480px); keep it as a
+      # compact thumbnail so the popup isn't oversized
+      artworkAsBackground: false
     volumes:
       hideCogwheel: false
     grouping:
@@ -50,5 +56,30 @@ sonos_popup:
     card_mod:
       style: |
         ha-card {
-          --accent-color: var(--primary-color);
+          /* Force the sonos-card's own dark look regardless of the active
+             theme. Material You maps these to light values (light button
+             backgrounds + near-white text). The card reads exactly these
+             variables (see punxaphil/custom-sonos-card styling docs):
+             `color` = main text, --secondary-background-color = group/queue/
+             favourite button backgrounds, --primary-color = control accent. */
+          color: #e1e1e1;
+          --primary-text-color: #e1e1e1;
+          --secondary-text-color: #cfd2d4;
+          --state-icon-color: #e1e1e1;
+          --disabled-text-color: #9da0a2;
+          --secondary-background-color: rgba(255,255,255,0.10);
+          --primary-color: #3182b7;
+          --accent-color: #3182b7;
+          /* The header bar and the controls/volume bar are drawn as
+             rgba(var(--rgb-card-background-color), opacity) — Material You
+             makes that light. --rgb-card-background-color must be an RGB
+             *triplet* (not hex) or the rgba() is invalid and falls back to
+             light. Pin all three so those panels go dark. */
+          --card-background-color: #1c1c1c;
+          --ha-card-background: #1c1c1c;
+          --rgb-card-background-color: 28, 28, 28;
+          /* the card caps itself at ~560px (artwork square), so it can't fill
+             the wide popup — center it instead of left-aligning */
+          margin-left: auto !important;
+          margin-right: auto !important;
         }

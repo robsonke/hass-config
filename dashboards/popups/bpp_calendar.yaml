@@ -1,0 +1,30 @@
+# Bubble Card native pop-up (hash #agenda) — full agenda, opened from the
+# header calendar card. Native HA calendar card (month grid + view switch).
+type: custom:bubble-card
+card_type: pop-up
+buttons_position: left
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 900px
+hash: '#agenda'
+name: Agenda
+icon: mdi:calendar-month
+cards:
+  - type: calendar
+    initial_view: dayGridMonth
+    entities:
+      - calendar.rob
+      - calendar.joep
+      - calendar.tuin
+      - calendar.birthdays
+      - calendar.holidays_in_netherlands
+      - calendar.training_marathon
+    card_mod:
+      style: |
+        ha-card {
+          border: none;
+          background: none;
+          box-shadow: none;
+        }
+        /* make the fullcalendar readable on the dark popup */
+        ha-card .fc { --fc-page-bg-color: transparent; }

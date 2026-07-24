@@ -1,324 +1,453 @@
-# Bubble Card native pop-up (hash #auto) — migrated from pp_car_ix3.yaml (browser_mod).
+# Bubble Card native pop-up (hash #auto) — BMW iX3 (status, laden, locatie).
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 1150px
+width_desktop: 920px
 hash: '#auto'
 name: BMW iX3
 icon: mdi:car-electric
+# header = accu % + bereik (groen = laadt, amber = ingeplugd, blauw = losgekoppeld)
+entity: sensor.state_of_charge_last_known
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return 'rgba(45,170,115,0.14)'; if (conn && conn !== 'DISCONNECTED') return 'rgba(240,195,95,0.13)'; return 'rgba(55,138,221,0.14)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return 'rgba(45,170,115,0.20)'; if (conn && conn !== 'DISCONNECTED') return 'rgba(240,195,95,0.20)'; return 'rgba(55,138,221,0.22)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500;
+    color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return '#9ed9bd'; if (conn && conn !== 'DISCONNECTED') return '#f0cf8f'; return '#82bbf0'; })()} !important;
+    content: "${(() => { const soc = hass.states['sensor.state_of_charge_last_known']?.state; const r = parseFloat(hass.states['sensor.ix3_remaining_electric_range_km']?.state); const cs = hass.states['sensor.charging_status']?.state; let o = (soc != null ? soc : '—') + '%'; if (isFinite(r)) o += ' · ' + Math.round(r) + ' km'; if (cs === 'CHARGING') o += ' · laadt'; return o; })()}";
+  }
 cards:
-  - type: custom:layout-card
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: 1fr 1fr
-      grid-template-rows: auto
-      grid-template-areas: |
-        "details map"
-      mediaquery:
-        "(max-width: 800px)":
-          grid-template-columns: auto
-          grid-template-rows: auto
-          grid-template-areas: |
-            "details"
-            "map"
+  # ── auto ──────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Auto
+  - type: picture-elements
+    image: /local/images/bmwix3_icon.png
+    elements:
+      - type: state-icon
+        entity: binary_sensor.ix3_front_driver_side_door_status
+        tap_action: more-info
+        style:
+          top: 88.5%
+          left: 10%
+      - type: state-label
+        entity: sensor.ix3_doors_condition
+        style:
+          top: 95.5%
+          left: 10%
+          font-size: 0.8em
+      - type: state-icon
+        entity: sensor.ix3_front_driver_side_window_status
+        tap_action: more-info
+        style:
+          top: 88.5%
+          left: 20%
+      - type: state-label
+        entity: sensor.ix3_front_driver_side_window_status
+        style:
+          top: 95.5%
+          left: 20%
+          font-size: 0.8em
+      - type: state-icon
+        entity: binary_sensor.ix3_trunk_lid_status
+        tap_action: more-info
+        style:
+          top: 88.5%
+          left: 30%
+      - type: state-label
+        entity: binary_sensor.ix3_trunk_lid_status
+        style:
+          top: 95.5%
+          left: 30%
+          font-size: 0.8em
+      - type: state-icon
+        entity: sensor.ix3_mileage
+        tap_action: more-info
+        style:
+          top: 88.5%
+          left: 40%
+      - type: state-label
+        entity: sensor.ix3_mileage
+        style:
+          top: 95.5%
+          left: 40%
+          font-size: 0.8em
+      - type: state-icon
+        entity: sensor.ix3_service_next_inspection_date
+        tap_action: more-info
+        style:
+          top: 88.5%
+          left: 50%
+      - type: state-label
+        entity: sensor.ix3_next_inspection_date_short
+        style:
+          top: 95.5%
+          left: 50%
+          font-size: 0.8em
+      - type: conditional
+        conditions:
+          - entity: sensor.ix3_charging_connector_status
+            state_not: 'DISCONNECTED'
+        elements:
+          - type: state-icon
+            entity: sensor.ix3_charging_connector_status
+            tap_action: more-info
+            icon: mdi:ev-plug-type2
+            style:
+              top: 88.5%
+              left: 60%
+      - type: conditional
+        conditions:
+          - entity: sensor.charging_status
+            state_not: 'NOT_CHARGING'
+        elements:
+          - type: state-label
+            entity: sensor.ix3_calculated_remaining_charging_time
+            prefix: ''
+            style:
+              top: 93.5%
+              right: '-5%'
+              font-size: 0.8em
+      - type: custom:circle-sensor-card
+        entity: sensor.state_of_charge_last_known
+        max: 100
+        min: 0
+        stroke_width: 15
+        gradient: true
+        fill: rgba(54, 65, 78, 0.6)
+        name: Level
+        units: '%'
+        font_style:
+          font-size: 0.9em
+          color: white
+        color_stops:
+          '5': '#09C7E8'
+          '63': '#09A50C'
+        style:
+          top: 6%
+          left: 5%
+          width: 4em
+          height: 4em
+          transform: none
+      - type: custom:circle-sensor-card
+        entity: sensor.ix3_remaining_electric_range_km
+        max: 370
+        min: 0
+        stroke_width: 15
+        gradient: true
+        fill: rgba(54, 65, 78, 0.6)
+        name: Bereik
+        units: km
+        font_style:
+          font-size: 0.9em
+          color: white
+        color_stops:
+          '100': '#09C7E8'
+          '300': '#09A50C'
+        style:
+          top: 6%
+          right: 5%
+          width: 4em
+          height: 4em
+          transform: none
+  # ── bandenspanning ────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Bandenspanning
+  - type: grid
+    columns: 4
+    square: false
     cards:
-      - type: vertical-stack
-        view_layout:
-          grid-area: details
-        cards:
-          - type: picture-elements
-            image: /local/images/bmwix3_icon.png
-            elements:
-              - type: state-icon
-                entity: binary_sensor.ix3_front_driver_side_door_status
-                tap_action: more-info
-                style:
-                  top: 88.5%
-                  left: 10%
-              - type: state-label
-                entity: sensor.ix3_doors_condition
-                style:
-                  top: 95.5%
-                  left: 10%
-                  font-size: 0.8em
-              - type: state-icon
-                entity: sensor.ix3_front_driver_side_window_status
-                tap_action: more-info
-                style:
-                  top: 88.5%
-                  left: 20%
-              - type: state-label
-                entity: sensor.ix3_front_driver_side_window_status
-                style:
-                  top: 95.5%
-                  left: 20%
-                  font-size: 0.8em
-              - type: state-icon
-                entity: binary_sensor.ix3_trunk_lid_status
-                tap_action: more-info
-                style:
-                  top: 88.5%
-                  left: 30%
-              - type: state-label
-                entity: binary_sensor.ix3_trunk_lid_status
-                style:
-                  top: 95.5%
-                  left: 30%
-                  font-size: 0.8em
-              - type: state-icon
-                entity: sensor.ix3_mileage
-                tap_action: more-info
-                style:
-                  top: 88.5%
-                  left: 40%
-              - type: state-label
-                entity: sensor.ix3_mileage
-                style:
-                  top: 95.5%
-                  left: 40%
-                  font-size: 0.8em
-              - type: state-icon
-                entity: sensor.ix3_service_next_inspection_date
-                tap_action: more-info
-                style:
-                  top: 88.5%
-                  left: 50%
-              - type: state-label
-                entity: sensor.ix3_service_next_inspection_date
-                style:
-                  top: 95.5%
-                  left: 50%
-                  font-size: 0.8em
-              - type: conditional
-                conditions:
-                  - entity: sensor.ix3_charging_connector_status
-                    state_not: 'DISCONNECTED'
-                elements:
-                  - type: state-icon
-                    entity: sensor.ix3_charging_connector_status
-                    tap_action: more-info
-                    icon: mdi:ev-plug-type2
-                    style:
-                      top: 88.5%
-                      left: 60%
-              - type: conditional
-                conditions:
-                  - entity: sensor.charging_status
-                    state_not: 'NOT_CHARGING'
-                elements:
-                  - type: state-label
-                    entity: sensor.ix3_calculated_remaining_charging_time
-                    prefix: ''
-                    style:
-                      top: 93.5%
-                      right: '-5%'
-                      font-size: 0.8em
-              - type: custom:circle-sensor-card
-                entity: sensor.state_of_charge_last_known
-                max: 100
-                min: 0
-                stroke_width: 15
-                gradient: true
-                fill: rgba(54, 65, 78, 0.6)
-                name: Level
-                units: '%'
-                font_style:
-                  font-size: 0.9em
-                  color: white
-                color_stops:
-                  '5': '#09C7E8'
-                  '63': '#09A50C'
-                style:
-                  top: 6%
-                  left: 5%
-                  width: 4em
-                  height: 4em
-                  transform: none
-              - type: custom:circle-sensor-card
-                entity: sensor.ix3_remaining_electric_range_km
-                max: 370
-                min: 0
-                stroke_width: 15
-                gradient: true
-                fill: rgba(54, 65, 78, 0.6)
-                name: Bereik
-                units: km
-                font_style:
-                  font-size: 0.9em
-                  color: white
-                color_stops:
-                  '100': '#09C7E8'
-                  '300': '#09A50C'
-                style:
-                  top: 6%
-                  right: 5%
-                  width: 4em
-                  height: 4em
-                  transform: none
-          - type: custom:charger-card
-            entity: sensor.ehhatdgg_status
-            compact_view: false
-            show_name: true
-            show_leds: true
-            show_status: true
-            show_collapsibles: true
-            brand: easee
-            chargerImage: Anthracite
-            customCardTheme: theme_transp_white
-            details:
-              name:
-                entity_id: sensor.ehhatdgg_status
-                attribute: name
-              location:
-                entity_id: sensor.ehhatdgg_status
-                attribute: site_name
-              status:
-                entity_id: sensor.ehhatdgg_status
-              substatus:
-                entity_id: sensor.ehhatdgg_reason_for_no_current
-              smartcharging:
-                entity_id: switch.ehhatdgg_smart_charging
-              group1:
-                - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-                  text: dyn_charger_limit
-                  service: easee.set_charger_dynamic_limit
-                  service_data:
-                    charger_id: CHARGERID
-                    current: '#SERVICEVAL#'
-                - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-                  text: dyn_circuit_limit
-                  service: easee.set_charger_circuit_dynamic_limit
-                  service_data:
-                    charger_id: CHARGERID
-                    currentP1: '#SERVICEVAL#'
-              group2:
-                - entity_id: binary_sensor.ehhatdgg_online
-                  text: online
-                - entity_id: sensor.ehhatdgg_voltage
-                  text: voltage
-                  unit_show: true
-                - entity_id: sensor.ehhatdgg_power
-                  text: power
-                  unit_show: true
-                - entity_id: sensor.ehhatdgg_current
-                  text: charger_current
-                  unit_show: true
-                - entity_id: sensor.ehhatdgg_circuit_current
-                  text: circuit_current
-                  unit_show: true
-                - entity_id: sensor.ehhatdgg_energy_per_hour
-                  text: energy_per_hour
-                  unit_show: true
-                - entity_id: sensor.ehhatdgg_session_energy
-                  text: session_energy
-                  unit_show: true
-                - entity_id: sensor.ehhatdgg_lifetime_energy
-                  text: lifetime_energy
-                  unit_show: true
-              group3:
-                - entity_id: switch.ehhatdgg_is_enabled
-                  text: enabled
-                - entity_id: switch.ehhatdgg_enable_idle_current
-                  text: idle_current
-                - entity_id: binary_sensor.ehhatdgg_cable_locked
-                  text: cable_locked
-                - entity_id: switch.ehhatdgg_cable_locked_permanently
-                  text: perm_cable_locked
-                - entity_id: switch.ehhatdgg_smart_charging
-                  text: smart_charging
-                - entity_id: sensor.ehhatdgg_cost_per_kwh
-                  text: cost_per_kwh
-                - entity_id: binary_sensor.ehhatdgg_update_available
-                  text: update_available
-                - entity_id: binary_sensor.ehhatdgg_basic_schedule
-                  text: schedule
-              stats:
-                default:
-                  - entity_id: sensor.ehhatdgg_session_energy
-                    text: session_energy
-                    unit_show: true
-                  - entity_id: switch.ehhatdgg_cable_locked_permanently
-                    text: cable_locked
-                  - entity_id: binary_sensor.ehhatdgg_basic_schedule
-                    text: schedule
-                disconnected:
-                  - entity_id: sensor.ehhatdgg_session_energy
-                    text: session_energy
-                    unit_show: true
-                  - entity_id: switch.ehhatdgg_cable_locked_permanently
-                    text: cable_locked
-                  - entity_id: calculated
-                    text: used_limit
-                    unit: A
-                    unit_show: true
-                    calc_function: min
-                    calc_entities:
-                      - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-                      - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-                      - entity_id: sensor.ehhatdgg_max_charger_limit
-                      - entity_id: sensor.ehhatdgg_max_circuit_limit
-                      - entity_id: sensor.ehhatdgg_offline_circuit_limit
-                awaiting_start:
-                  - entity_id: sensor.ehhatdgg_session_energy
-                    text: session_energy
-                    unit_show: true
-                  - entity_id: binary_sensor.ehhatdgg_basic_schedule
-                    text: schedule
-                  - entity_id: switch.ehhatdgg_smart_charging
-                    text: smart_charging
-                  - entity_id: calculated
-                    text: used_limit
-                    unit: A
-                    unit_show: true
-                    calc_function: min
-                    calc_entities:
-                      - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-                      - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-                      - entity_id: sensor.ehhatdgg_max_charger_limit
-                      - entity_id: sensor.ehhatdgg_max_circuit_limit
-                      - entity_id: sensor.ehhatdgg_offline_circuit_limit
-                charging:
-                  - entity_id: sensor.ehhatdgg_session_energy
-                    text: session_energy
-                    unit_show: true
-                  - entity_id: sensor.ehhatdgg_energy_per_hour
-                    text: energy_per_hour
-                    unit_show: true
-                  - entity_id: sensor.ehhatdgg_circuit_current
-                    text: circuit_current
-                    unit_show: true
-                  - entity_id: sensor.ehhatdgg_output_limit
-                    text: output_limit
-                    unit_show: true
-                  - entity_id: sensor.ehhatdgg_current
-                    text: current
-                    unit_show: true
-                  - entity_id: sensor.ehhatdgg_power
-                    text: power
-                    unit_show: true
-                completed:
-                  - entity_id: sensor.ehhatdgg_session_energy
-                    text: session_energy
-                    unit_show: true
-                  - entity_id: binary_sensor.ehhatdgg_basic_schedule
-                    text: schedule
-                  - entity_id: calculated
-                    text: used_limit
-                    unit: A
-                    unit_show: true
-                    calc_function: min
-                    calc_entities:
-                      - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-                      - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-                      - entity_id: sensor.ehhatdgg_max_charger_limit
-                      - entity_id: sensor.ehhatdgg_max_circuit_limit
-                      - entity_id: sensor.ehhatdgg_offline_circuit_limit
-      - type: map
-        default_zoom: 13
-        dark_mode: true
-        hours_to_show: 24
-        entities:
-          - device_tracker.ix3_location
-        view_layout:
-          grid-area: map
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ix3_measured_tire_pressure_front_left
+        name: Voor L
+        icon: mdi:tire
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ix3_measured_tire_pressure_front_right
+        name: Voor R
+        icon: mdi:tire
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ix3_measured_tire_pressure_rear_left
+        name: Achter L
+        icon: mdi:tire
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ix3_measured_tire_pressure_rear_right
+        name: Achter R
+        icon: mdi:tire
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+  # ── klimaat ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Klimaat
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: binary_sensor.ix3_air_conditioning_active
+        name: Airco
+        icon: mdi:air-conditioner
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#82bbf0' : '#8f8e9e'} !important; content: "${state === 'on' ? 'Aan' : 'Uit'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ix3_preconditioning_status_air_conditioning
+        name: Voorverwarmen
+        icon: mdi:car-defrost-front
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? '#82bbf0' : '#8f8e9e'; })()} !important; content: "${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; const r = parseFloat(hass.states['sensor.ix3_remaining_duration_preconditioning']?.state); if (!s || s === 'INACTIVE') return 'Inactief'; return (isFinite(r) && r > 0) ? ('nog ' + Math.round(r) + ' min') : 'Actief'; })()}"; }
+  # ── laden ─────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Laden
+  - type: custom:charger-card
+    entity: sensor.ehhatdgg_status
+    compact_view: false
+    show_name: true
+    show_leds: true
+    show_status: true
+    show_collapsibles: true
+    brand: easee
+    chargerImage: Anthracite
+    customCardTheme: theme_transp_white
+    details:
+      name:
+        entity_id: sensor.ehhatdgg_status
+        attribute: name
+      location:
+        entity_id: sensor.ehhatdgg_status
+        attribute: site_name
+      status:
+        entity_id: sensor.ehhatdgg_status
+      substatus:
+        entity_id: sensor.ehhatdgg_reason_for_no_current
+      smartcharging:
+        entity_id: switch.ehhatdgg_smart_charging
+      group1:
+        - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+          text: dyn_charger_limit
+          service: easee.set_charger_dynamic_limit
+          service_data:
+            charger_id: CHARGERID
+            current: '#SERVICEVAL#'
+        - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+          text: dyn_circuit_limit
+          service: easee.set_charger_circuit_dynamic_limit
+          service_data:
+            charger_id: CHARGERID
+            currentP1: '#SERVICEVAL#'
+      group2:
+        - entity_id: binary_sensor.ehhatdgg_online
+          text: online
+        - entity_id: sensor.ehhatdgg_voltage
+          text: voltage
+          unit_show: true
+        - entity_id: sensor.ehhatdgg_power
+          text: power
+          unit_show: true
+        - entity_id: sensor.ehhatdgg_current
+          text: charger_current
+          unit_show: true
+        - entity_id: sensor.ehhatdgg_circuit_current
+          text: circuit_current
+          unit_show: true
+        - entity_id: sensor.ehhatdgg_energy_per_hour
+          text: energy_per_hour
+          unit_show: true
+        - entity_id: sensor.ehhatdgg_session_energy
+          text: session_energy
+          unit_show: true
+        - entity_id: sensor.ehhatdgg_lifetime_energy
+          text: lifetime_energy
+          unit_show: true
+      group3:
+        - entity_id: switch.ehhatdgg_is_enabled
+          text: enabled
+        - entity_id: switch.ehhatdgg_enable_idle_current
+          text: idle_current
+        - entity_id: binary_sensor.ehhatdgg_cable_locked
+          text: cable_locked
+        - entity_id: switch.ehhatdgg_cable_locked_permanently
+          text: perm_cable_locked
+        - entity_id: switch.ehhatdgg_smart_charging
+          text: smart_charging
+        - entity_id: sensor.ehhatdgg_cost_per_kwh
+          text: cost_per_kwh
+        - entity_id: binary_sensor.ehhatdgg_update_available
+          text: update_available
+        - entity_id: binary_sensor.ehhatdgg_basic_schedule
+          text: schedule
+      stats:
+        default:
+          - entity_id: sensor.ehhatdgg_session_energy
+            text: session_energy
+            unit_show: true
+          - entity_id: switch.ehhatdgg_cable_locked_permanently
+            text: cable_locked
+          - entity_id: binary_sensor.ehhatdgg_basic_schedule
+            text: schedule
+        disconnected:
+          - entity_id: sensor.ehhatdgg_session_energy
+            text: session_energy
+            unit_show: true
+          - entity_id: switch.ehhatdgg_cable_locked_permanently
+            text: cable_locked
+          - entity_id: calculated
+            text: used_limit
+            unit: A
+            unit_show: true
+            calc_function: min
+            calc_entities:
+              - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+              - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+              - entity_id: sensor.ehhatdgg_max_charger_limit
+              - entity_id: sensor.ehhatdgg_max_circuit_limit
+              - entity_id: sensor.ehhatdgg_offline_circuit_limit
+        awaiting_start:
+          - entity_id: sensor.ehhatdgg_session_energy
+            text: session_energy
+            unit_show: true
+          - entity_id: binary_sensor.ehhatdgg_basic_schedule
+            text: schedule
+          - entity_id: switch.ehhatdgg_smart_charging
+            text: smart_charging
+          - entity_id: calculated
+            text: used_limit
+            unit: A
+            unit_show: true
+            calc_function: min
+            calc_entities:
+              - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+              - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+              - entity_id: sensor.ehhatdgg_max_charger_limit
+              - entity_id: sensor.ehhatdgg_max_circuit_limit
+              - entity_id: sensor.ehhatdgg_offline_circuit_limit
+        charging:
+          - entity_id: sensor.ehhatdgg_session_energy
+            text: session_energy
+            unit_show: true
+          - entity_id: sensor.ehhatdgg_energy_per_hour
+            text: energy_per_hour
+            unit_show: true
+          - entity_id: sensor.ehhatdgg_circuit_current
+            text: circuit_current
+            unit_show: true
+          - entity_id: sensor.ehhatdgg_output_limit
+            text: output_limit
+            unit_show: true
+          - entity_id: sensor.ehhatdgg_current
+            text: current
+            unit_show: true
+          - entity_id: sensor.ehhatdgg_power
+            text: power
+            unit_show: true
+        completed:
+          - entity_id: sensor.ehhatdgg_session_energy
+            text: session_energy
+            unit_show: true
+          - entity_id: binary_sensor.ehhatdgg_basic_schedule
+            text: schedule
+          - entity_id: calculated
+            text: used_limit
+            unit: A
+            unit_show: true
+            calc_function: min
+            calc_entities:
+              - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+              - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+              - entity_id: sensor.ehhatdgg_max_charger_limit
+              - entity_id: sensor.ehhatdgg_max_circuit_limit
+              - entity_id: sensor.ehhatdgg_offline_circuit_limit
+  # ── laaddetails ───────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Laaddetails
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: sensor.bmw_ix3_target_state_of_charge
+        name: Doel laadniveau
+        icon: mdi:battery-charging-100
+      - entity: sensor.ix3_battery_ev_predicted_state_of_charge
+        name: Voorspeld laadniveau
+        icon: mdi:battery-clock
+      - entity: sensor.ix3_energy_required_complete_residual_charge
+        name: Energie tot vol
+        icon: mdi:lightning-bolt
+  # ── ritten & efficiëntie ──────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Ritten & efficiëntie
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ix3_average_electrical_consumption
+        name: Gem. verbruik
+        icon: mdi:lightning-bolt-outline
+      - entity: sensor.ix3_average_speed
+        name: Gem. snelheid
+        icon: mdi:speedometer
+      - entity: sensor.ix3_electric_portion_last_journey
+        name: Elektrisch laatste rit
+        icon: mdi:leaf
+      - entity: sensor.ix3_trip_average_distance_per_week
+        name: Gem. per week
+        icon: mdi:calendar-week
+  # ── locatie ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Locatie
+  - type: map
+    default_zoom: 13
+    dark_mode: true
+    hours_to_show: 24
+    entities:
+      - device_tracker.ix3_location

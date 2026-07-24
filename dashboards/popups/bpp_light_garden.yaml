@@ -3,6 +3,7 @@
 # on/off-only lights are plain toggle cards. See the popup-modernization spec.
 type: custom:bubble-card
 card_type: pop-up
+buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 1000px
