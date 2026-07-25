@@ -16,26 +16,25 @@ counter:
 
 utility_meter:
   water_quarterly:
-    source: sensor.template_water_meter_total_m3
+    source: sensor.water_meter_total_m3
     cycle: quarter-hourly
   water_hourly:
-    source: sensor.template_water_meter_total_m3
+    source: sensor.water_meter_total_m3
     cycle: hourly
   water_daily:
-    source: sensor.template_water_meter_total_m3
+    source: sensor.water_meter_total_m3
     cycle: daily
   water_monthly:
-    source: sensor.template_water_meter_total_m3
+    source: sensor.water_meter_total_m3
     cycle: monthly
   water_yearly:
-    source: sensor.template_water_meter_total_m3
+    source: sensor.water_meter_total_m3
     cycle: yearly
 
 template:
   - sensor:
     - unique_id: water_meter_total_m3
-      attributes:
-        friendly_name: Water Meter Total m3
+      name: Water Meter Total m3
       state_class: measurement
       unit_of_measurement: m³
       state: "{{ states('counter.watermeter_consumption_counter') |float * 0.001 }}"

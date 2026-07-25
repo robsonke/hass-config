@@ -56,51 +56,127 @@ views:
                 media_query: "(max-width: 767px)"
             grid_options: { columns: full, rows: 1 }
           # Bubble Weather (Square layout with forecast)
+          # Responsive pair, same approach as the agenda below: full 5-day
+          # forecast on tablet/desktop, a shorter 3-day one on phones.
           - type: custom:bubble-card
             card_type: button
             card_layout: large            # enables the module's square forecast-grid layout
             button_type: state            # shows current condition text under "Weer"
-            entity: weather.weather_langeweide_ecowitt
+            entity: &weer_entity weather.weather_langeweide_ecowitt
             name: Weer
-            tap_action: { action: navigate, navigation_path: '#weer' }
+            tap_action: &weer_tap { action: navigate, navigation_path: '#weer' }
             button_action:
-              tap_action: { action: navigate, navigation_path: '#weer' }
+              tap_action: *weer_tap
             weather_forecast:
               type: daily
               max_days: 5
               min_day_width: 60
               disable_dynamic_background: false
               disable_animations: false
-            modules:
+            modules: &weer_modules
               - weather_forecast          # own animated background + weather icon; no neon override
+            # `button_type: state` alone shows only the condition ("Zonnig").
+            # Prepend the current temperature from the same weather entity, the
+            # same way the #weer pop-up header does it.
+            # NOTE: no commas inside content:'s ${...} — Bubble Card eats the
+            # character following a comma in a CSS `content` value.
+            styles: &weer_styles |
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important; font-weight: 500;
+                content: "${(() => { const w = hass.states['weather.weather_langeweide_ecowitt']; if (!w) return '—'; const t = w.attributes?.temperature; const cond = hass.formatEntityState ? hass.formatEntityState(w) : w.state; return (t != null ? Math.round(t) + '°C' : '—') + (cond ? ' · ' + cond : ''); })()}";
+              }
+            visibility:
+              - condition: screen
+                media_query: "(min-width: 768px)"
             grid_options: { columns: 12, rows: 4 }
+          # MOBILE ONLY — shorter weather card: 3 forecast days instead of 5 and
+          # one grid row less. Narrower min_day_width so 3 days still fill the
+          # width on a phone rather than leaving a gap.
+          - type: custom:bubble-card
+            card_type: button
+            card_layout: large
+            button_type: state
+            entity: *weer_entity
+            name: Weer
+            tap_action: *weer_tap
+            button_action:
+              tap_action: *weer_tap
+            weather_forecast:
+              type: daily
+              max_days: 3
+              min_day_width: 48
+              disable_dynamic_background: false
+              disable_animations: false
+            modules: *weer_modules
+            styles: *weer_styles
+            visibility:
+              - condition: screen
+                media_query: "(max-width: 767px)"
+            grid_options: { columns: 12, rows: 3 }
 
           # Bubble Calendar Enhanced (agenda + live clock/date)
+          # Two variants, mutually exclusive on screen width: the full 4-row
+          # agenda on tablet/desktop, a compact 2-row one on phones where the
+          # tall card otherwise pushes everything below the fold. Shared values
+          # are YAML anchors so the gradient and entity list live in one place.
+          # (`visibility` is handled by HA's card wrapper, not Bubble, so it works
+          # here — unlike on a pop-up's child cards, where Bubble ignores it.)
           - type: custom:bubble-card
             card_type: calendar
             rows: 4
             # tap opens the full agenda popup (#agenda); tapping an event too
-            tap_action: { action: navigate, navigation_path: '#agenda' }
+            tap_action: &agenda_tap { action: navigate, navigation_path: '#agenda' }
             button_action:
-              tap_action: { action: navigate, navigation_path: '#agenda' }
+              tap_action: *agenda_tap
             event_action:
-              tap_action: { action: navigate, navigation_path: '#agenda' }
+              tap_action: *agenda_tap
             sub_button:
               main: []
               bottom: []
-            entities:
+            entities: &agenda_entities
               - entity: calendar.joep
                 color: "#4C7160"
               - entity: calendar.rob
                 color: "#E9CF15"
             days: 7
             limit: 6
-            modules:
+            modules: &agenda_modules
               - bubble_calendar_enhanced   # layout: time+date bottom, Dusk Bokeh
               - bubble_neon_icon_only
             bubble_calendar_enhanced:
-              background: 'radial-gradient(ellipse at 80% 15%, rgba(148,108,215,0.28) 0%, transparent 65%), radial-gradient(ellipse at 10% 85%, rgba(82,158,192,0.22) 0%, transparent 68%), radial-gradient(ellipse at 50% 50%, rgba(170,88,158,0.15) 0%, transparent 60%), #4d3a6e'
+              background: &agenda_bg 'radial-gradient(ellipse at 80% 15%, rgba(148,108,215,0.28) 0%, transparent 65%), radial-gradient(ellipse at 10% 85%, rgba(82,158,192,0.22) 0%, transparent 68%), radial-gradient(ellipse at 50% 50%, rgba(170,88,158,0.15) 0%, transparent 60%), #4d3a6e'
+            visibility:
+              - condition: screen
+                media_query: "(min-width: 768px)"
             grid_options: { columns: 12, rows: 4 }
+          # MOBILE ONLY — minimal agenda: a single event row, two events, and two
+          # grid rows (was 2/3/3). Bubble's calendar has no alternative layout
+          # mode — `compact_mode` only affects sub-button containers — so height
+          # is controlled purely by `rows` / `limit` / `grid_options.rows`.
+          # `days: 7` is kept so the two events shown are still the next two in
+          # the week rather than only today's.
+          - type: custom:bubble-card
+            card_type: calendar
+            rows: 1
+            tap_action: *agenda_tap
+            button_action:
+              tap_action: *agenda_tap
+            event_action:
+              tap_action: *agenda_tap
+            sub_button:
+              main: []
+              bottom: []
+            entities: *agenda_entities
+            days: 7
+            limit: 2
+            modules: *agenda_modules
+            bubble_calendar_enhanced:
+              background: *agenda_bg
+            visibility:
+              - condition: screen
+                media_query: "(max-width: 767px)"
+            grid_options: { columns: 12, rows: 2 }
 
           # ── Right column (mockup's 3rd header column) ──────────────────────
           # ONE nested grid so it's a deterministic compact panel the same
@@ -349,31 +425,37 @@ views:
             grid_options: { columns: 12, rows: 4 }
 
           # ── Status chip strip ─────────────────────────────────────────────
-          # Chips packed together on the left: bins first, then Stookwijzer/
-          # Updates/Picnic. Each fills its grid cell, so a smaller `columns` =
-          # a narrower pill (Picnic < Grijze bak). Widths sum to 32 of the
-          # header's 36 cols → one row, packed left with the section gap, the
-          # remaining ~4 cols of slack sit at the right (no spreading).
+          # Child order is significant: the desktop rules below pin children
+          # 4–7 to grid columns 5–8, so child 7 is the RIGHTMOST chip.
+          # Order = GFT, Papier, Rest | (gap) | Stookwijzer, Updates, Muziek, Picnic.
+          #
+          # Chip width is set HERE, by grid-template-columns — NOT by the
+          # children's `grid_options`, which HA ignores for cards nested inside a
+          # `grid` card (it is a sections-view feature). Stookwijzer/Updates/
+          # Muziek get narrow 0.5fr tracks (icon-only, like mobile); Picnic keeps
+          # a full-width 1.4fr track because it still shows its name and the
+          # next-delivery subtitle.
           - type: grid
             columns: 7
             square: false
             card_mod:
               style: |
-                /* mobile default: 6 small icon-only chips in one compact row */
-                #root { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
-                /* desktop: trash left · gap track · ambient right */
+                /* mobile default: 7 small icon-only chips in one compact row */
+                #root { grid-template-columns: repeat(7, 1fr) !important; gap: 6px !important; }
+                /* desktop: trash left · gap track · 3 narrow chips · Picnic right */
                 @media (min-width: 768px) {
-                  #root { grid-template-columns: 1fr 1fr 1fr 0.6fr 1fr 1fr 1fr !important; }
+                  #root { grid-template-columns: 1fr 1fr 1fr 0.6fr 0.5fr 0.5fr 0.5fr 1.4fr !important; }
                   #root > *:nth-child(4) { grid-column: 5 !important; }
                   #root > *:nth-child(5) { grid-column: 6 !important; }
                   #root > *:nth-child(6) { grid-column: 7 !important; }
+                  #root > *:nth-child(7) { grid-column: 8 !important; }
                 }
             grid_options: { columns: 36, rows: auto }
             cards:
             - type: custom:bubble-card
               card_type: button
               button_type: state
-              entity: sensor.template_gft_days_until_collection
+              entity: sensor.gft_days_until_collection
               name: Groene bak
               icon: mdi:recycle
               tap_action: { action: navigate, navigation_path: '#afval' }
@@ -390,7 +472,7 @@ views:
                     color: red
                     condition:
                       - condition: numeric_state
-                        entity_id: sensor.template_gft_days_until_collection
+                        entity_id: sensor.gft_days_until_collection
                         below: 1
                   - name: Ophaaldag morgen
                     target: main_icon
@@ -398,18 +480,18 @@ views:
                     color: orange
                     condition:
                       - condition: numeric_state
-                        entity_id: sensor.template_gft_days_until_collection
+                        entity_id: sensor.gft_days_until_collection
                         above: 0
                         below: 2
               modules: [bubble_badges]
               styles: |
                 :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
                 .bubble-button-container {
-                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || 'green'} 26%, transparent), transparent 55%) !important;
-                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || 'green'} 55%, transparent) !important;
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.gft_days_until_collection']?.attributes?.color || 'green'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.gft_days_until_collection']?.attributes?.color || 'green'} 55%, transparent) !important;
                 }
                 .bubble-icon-container {
-                  background: ${hass.states['sensor.template_gft_days_until_collection']?.attributes?.color || 'green'} !important;
+                  background: ${hass.states['sensor.gft_days_until_collection']?.attributes?.color || 'green'} !important;
                 }
                 @media (max-width: 767px) {
                   .bubble-name-container { display: none !important; }
@@ -419,7 +501,7 @@ views:
             - type: custom:bubble-card
               card_type: button
               button_type: state
-              entity: sensor.template_paper_days_until_collection
+              entity: sensor.paper_days_until_collection
               name: Papier
               icon: mdi:newspaper-variant-outline
               tap_action: { action: navigate, navigation_path: '#afval' }
@@ -436,7 +518,7 @@ views:
                     color: red
                     condition:
                       - condition: numeric_state
-                        entity_id: sensor.template_paper_days_until_collection
+                        entity_id: sensor.paper_days_until_collection
                         below: 1
                   - name: Ophaaldag morgen
                     target: main_icon
@@ -444,18 +526,18 @@ views:
                     color: orange
                     condition:
                       - condition: numeric_state
-                        entity_id: sensor.template_paper_days_until_collection
+                        entity_id: sensor.paper_days_until_collection
                         above: 0
                         below: 2
               modules: [bubble_badges]
               styles: |
                 :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
                 .bubble-button-container {
-                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} 26%, transparent), transparent 55%) !important;
-                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} 55%, transparent) !important;
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.paper_days_until_collection']?.attributes?.color || '#3182b7'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.paper_days_until_collection']?.attributes?.color || '#3182b7'} 55%, transparent) !important;
                 }
                 .bubble-icon-container {
-                  background: ${hass.states['sensor.template_paper_days_until_collection']?.attributes?.color || '#3182b7'} !important;
+                  background: ${hass.states['sensor.paper_days_until_collection']?.attributes?.color || '#3182b7'} !important;
                 }
                 @media (max-width: 767px) {
                   .bubble-name-container { display: none !important; }
@@ -465,7 +547,7 @@ views:
             - type: custom:bubble-card
               card_type: button
               button_type: state
-              entity: sensor.template_rest_days_until_collection
+              entity: sensor.rest_days_until_collection
               name: Grijze bak
               icon: mdi:trash-can-outline
               tap_action: { action: navigate, navigation_path: '#afval' }
@@ -482,7 +564,7 @@ views:
                     color: red
                     condition:
                       - condition: numeric_state
-                        entity_id: sensor.template_rest_days_until_collection
+                        entity_id: sensor.rest_days_until_collection
                         below: 1
                   - name: Ophaaldag morgen
                     target: main_icon
@@ -490,18 +572,18 @@ views:
                     color: orange
                     condition:
                       - condition: numeric_state
-                        entity_id: sensor.template_rest_days_until_collection
+                        entity_id: sensor.rest_days_until_collection
                         above: 0
                         below: 2
               modules: [bubble_badges]
               styles: |
                 :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
                 .bubble-button-container {
-                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || 'grey'} 26%, transparent), transparent 55%) !important;
-                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || 'grey'} 55%, transparent) !important;
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.rest_days_until_collection']?.attributes?.color || 'grey'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.rest_days_until_collection']?.attributes?.color || 'grey'} 55%, transparent) !important;
                 }
                 .bubble-icon-container {
-                  background: ${hass.states['sensor.template_rest_days_until_collection']?.attributes?.color || 'grey'} !important;
+                  background: ${hass.states['sensor.rest_days_until_collection']?.attributes?.color || 'grey'} !important;
                 }
                 @media (max-width: 767px) {
                   .bubble-name-container { display: none !important; }
@@ -542,11 +624,13 @@ views:
               modules:
                 - bubble_badges   # rood/groen stip-status op het icoon
                 - bubble_neon_icon_only
+              # Icon-only at EVERY width (was mobile-only): these are now narrow
+              # 2-column chips, so there is no room for a label.
               styles: |
-                @media (max-width: 767px) {
-                  .bubble-name-container { display: none !important; }
-                  .bubble-button-card, .bubble-button { justify-content: center !important; }
-                }
+                .bubble-name-container { display: none !important; }
+                .bubble-button-card, .bubble-button { justify-content: center !important; }
+              # NOTE: grid_options is ignored inside a `grid` card — the chip
+              # width comes from the parent's card_mod grid-template-columns.
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button
@@ -571,11 +655,44 @@ views:
               modules:
                 - bubble_badges   # badge = update count on the icon
                 - bubble_neon_icon_only
+              # Icon-only at EVERY width (was mobile-only): these are now narrow
+              # 2-column chips, so there is no room for a label.
               styles: |
-                @media (max-width: 767px) {
-                  .bubble-name-container { display: none !important; }
-                  .bubble-button-card, .bubble-button { justify-content: center !important; }
-                }
+                .bubble-name-container { display: none !important; }
+                .bubble-button-card, .bubble-button { justify-content: center !important; }
+              # NOTE: grid_options is ignored inside a `grid` card — the chip
+              # width comes from the parent's card_mod grid-template-columns.
+              grid_options: { columns: 6, rows: 1 }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: name
+              entity: media_player.woonkamer_ma_sonos
+              name: Muziek
+              icon: mdi:music
+              tap_action: { action: navigate, navigation_path: '#muziek' }
+              button_action:
+                tap_action: { action: navigate, navigation_path: '#muziek' }
+              bubble_badges:
+                badges:
+                  # groene stip = er speelt ergens muziek
+                  - name: Speelt
+                    target: main_icon
+                    dot: true
+                    color: green
+                    condition:
+                      - condition: template
+                        value_template: >
+                          {{ ['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2'] | select('is_state','playing') | list | count > 0 }}
+              modules:
+                - bubble_badges
+                - bubble_neon_icon_only
+              # Icon-only at EVERY width (was mobile-only): these are now narrow
+              # 2-column chips, so there is no room for a label.
+              styles: |
+                .bubble-name-container { display: none !important; }
+                .bubble-button-card, .bubble-button { justify-content: center !important; }
+              # NOTE: grid_options is ignored inside a `grid` card — the chip
+              # width comes from the parent's card_mod grid-template-columns.
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button
@@ -636,6 +753,7 @@ views:
           - !include popups/bpp_music_downstairs.yaml  # #muziek-beneden
           - !include popups/bpp_music_upstairs.yaml  # #muziek-boven
           - !include popups/bpp_music_garden.yaml  # #muziek-tuin
+          - !include popups/bpp_music_hub.yaml  # #muziek ← Muziekhub (chip)
           - !include popups/bpp_cats.yaml  # #katten ← Boris&Puk
           - !include popups/bpp_vacuum.yaml  # #sjorsje ← Sjorsje
           - !include popups/bpp_light_downstairs.yaml  # #verlichting-beneden
@@ -651,6 +769,7 @@ views:
           - !include popups/bpp_irrigation_garden.yaml  # #beregening
           - !include popups/bpp_car_ix3.yaml        # #auto
           - !include popups/bpp_alarm.yaml          # #alarm
+          - !include popups/bpp_cameras.yaml        # #cameras ← Camera hub
           - !include popups/bpp_system.yaml  # #systeem
           - !include popups/bpp_stookalert.yaml  # #stookwijzer
           - !include popups/bpp_update.yaml  # #updates

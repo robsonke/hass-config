@@ -1,0 +1,110 @@
+# Bubble Card native pop-up (hash #cameras) — Camera hub.
+# Live grid of all Frigate cameras via advanced-camera-card (go2rtc live,
+# timeline scrubbing, event clips + snapshots gallery built into the card),
+# a face-recognition "wie is er gezien" row, and the Frigate birdseye view.
+type: custom:bubble-card
+card_type: pop-up
+buttons_position: left
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 960px
+hash: '#cameras'
+name: Camera's
+icon: mdi:cctv
+# header = Frigate status + number of cameras currently in ALERT
+entity: binary_sensor.frigate_nvr_running
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? 'rgba(226,75,74,0.24)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 13px !important; font-weight: 500;
+    color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? '#ec8a89' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const on=hass.states['binary_sensor.frigate_nvr_running']?.state==='on'; const n=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].filter(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT').length; if(!on) return 'Frigate offline'; return n>0 ? (n+(n===1?' camera-alert':' camera-alerts')) : 'Alles rustig'; })()}";
+  }
+cards:
+  # ── live grid van alle camera's ────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Live
+  - type: custom:advanced-camera-card
+    cameras:
+      - camera_entity: camera.doorbell
+      - camera_entity: camera.veranda
+      - camera_entity: camera.zijkant
+      - camera_entity: camera.terras
+      - camera_entity: camera.bijkeuken
+      - camera_entity: camera.zwembad
+      - camera_entity: camera.evabed
+      - camera_entity: camera.noabed
+    view:
+      default: live
+    live:
+      display:
+        mode: grid
+  # ── wie is er gezien (Frigate gezichtsherkenning) ──────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Wie is er gezien
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.gang_frigate_rob_last_camera
+        name: Rob
+        icon: mdi:account
+        card_layout: large
+        tap_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.gang_frigate_steffi_last_camera
+        name: Steffi
+        icon: mdi:account
+        card_layout: large
+        tap_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.gang_frigate_eva_last_camera
+        name: Eva
+        icon: mdi:account
+        card_layout: large
+        tap_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.gang_frigate_noa_last_camera
+        name: Noa
+        icon: mdi:account
+        card_layout: large
+        tap_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.gang_frigate_renee_last_camera
+        name: Renée
+        icon: mdi:account
+        card_layout: large
+        tap_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.gang_frigate_rob_s_car_last_camera
+        name: Auto
+        icon: mdi:car
+        card_layout: large
+        tap_action: { action: more-info }
+  # ── birdseye (gecombineerde stream) ────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Birdseye
+  - type: custom:advanced-camera-card
+    cameras:
+      - camera_entity: camera.birdseye
+    view:
+      default: live

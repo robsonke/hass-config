@@ -1,0 +1,110 @@
+# YAML dashboard for the Shelly Wall Display by the back door (Bijkeuken).
+# url_path: dashboard-backdoor  (registered in configuration.yaml)
+# Small ~480x480 touchscreen → big touch targets, single compact column.
+#
+# Focus-on-disarm: the clock header and the machine tiles are wrapped in
+# `conditional` cards that only render while the alarm is DISARMED. As soon
+# as it's armed/arming/pending/triggered, they disappear and the alarm card
+# (now showing the numpad, since code_arm_required is false) is the only
+# thing on screen — all focus on keying in the disarm code.
+title: Bijkeuken
+views:
+  - title: Bijkeuken
+    path: home
+    cards:
+      # ── tijd + buitentemperatuur (alleen als alarm uit staat) ─────
+      - type: conditional
+        conditions:
+          - entity: alarm_control_panel.alarmo
+            state: disarmed
+        card:
+          type: custom:clock-weather-card
+          entity: weather.weather_langeweide_ecowitt
+          locale: nl-NL
+          time_format: '24'
+          hide_forecast_section: true
+
+      # ── alarm — altijd zichtbaar (numpad verschijnt zodra aan) ────
+      - type: custom:alarmo-card
+        entity: alarm_control_panel.alarmo
+        name: ''
+        # code_arm_required is false, so with the keypad not force-pinned the
+        # card natively shows the numpad only when there's a code to enter —
+        # i.e. when armed (to disarm). Disarmed = arm buttons only.
+        keep_keypad_visible: false
+        use_clear_icon: false
+        button_scale_actions: 1
+        button_scale_keypad: 1
+        states:
+          armed_away:
+            hide: false
+            button_label: Afwezig
+            state_label: Ingeschakeld
+          armed_home:
+            hide: true
+          armed_night:
+            hide: false
+            button_label: Nacht
+            state_label: Ingeschakeld
+          disarmed:
+            hide: false
+            button_label: Uitschakelen
+            state_label: Uit
+        show_messages: true
+        show_ready_indicator: true
+        show_bypassed_sensors: true
+        card_mod:
+          style: |
+            .header {
+              padding: 10px 10px !important;
+              display: inline-flex !important;
+            }
+            .state {
+              font-size: 16px !important;
+              font-weight: bold;
+            }
+            #cornerMenu {
+              display: none !important;
+            }
+            div#armActions {
+              display: inline-flex !important;
+            }
+
+      # ── machines (alleen als alarm uit staat) ─────────────────────
+      - type: conditional
+        conditions:
+          - entity: alarm_control_panel.alarmo
+            state: disarmed
+        card:
+          type: horizontal-stack
+          cards:
+            - type: custom:bubble-card
+              card_type: button
+              button_type: state
+              entity: switch.wasmachine
+              name: Wassen
+              icon: mdi:washing-machine
+              card_layout: large
+              button_action:
+                tap_action: { action: toggle }
+                hold_action: { action: more-info }
+              styles: |
+                .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.16)' : 'rgba(255,255,255,0.05)'; })()} !important; }
+                .bubble-icon-container { background-color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.24)' : 'rgba(255,255,255,0.08)'; })()} !important; }
+                .bubble-state { font-size: 0 !important; }
+                .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? '#9ed9bd' : '#8f8e9e'; })()} !important; content: "${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return !on ? 'uit' : (p>=5 ? 'draait · '+Math.round(p)+' W' : 'stil'); })()}"; }
+            - type: custom:bubble-card
+              card_type: button
+              button_type: state
+              entity: switch.shelly_plug_droger_relay
+              name: Drogen
+              icon: mdi:tumble-dryer
+              card_layout: large
+              button_action:
+                tap_action: { action: toggle }
+                hold_action: { action: more-info }
+              styles: |
+                .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.16)' : 'rgba(255,255,255,0.05)'; })()} !important; }
+                .bubble-icon-container { background-color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.24)' : 'rgba(255,255,255,0.08)'; })()} !important; }
+                .bubble-state { font-size: 0 !important; }
+                .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? '#9ed9bd' : '#8f8e9e'; })()} !important; content: "${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return !on ? 'uit' : (p>=5 ? 'draait · '+Math.round(p)+' W' : 'stil'); })()}"; }

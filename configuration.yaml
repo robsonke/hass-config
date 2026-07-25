@@ -14,16 +14,23 @@ lovelace:
     lovelace-bubble:
       mode: yaml
       filename: dashboards/bubble-dashboard.yaml
-      title: Bubble
-      icon: mdi:chart-bubble
+      title: Home
+      icon: mdi:home
       show_in_sidebar: true
       require_admin: false
     lovelace-main:
       mode: yaml
       filename: dashboards/main-dashboard.yaml
-      title: Home
-      icon: mdi:home
+      title: Home old
+      icon: mdi:tree
       show_in_sidebar: true
+      require_admin: false
+    dashboard-backdoor:
+      mode: yaml
+      filename: dashboards/backdoor-dashboard.yaml
+      title: Bijkeuken
+      icon: mdi:door
+      show_in_sidebar: false
       require_admin: false
 
 homeassistant:

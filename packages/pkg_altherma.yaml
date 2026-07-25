@@ -15,7 +15,11 @@ climate:
     unique_id: daikin_climate_control
     target_sensor: sensor.indoor_temperature
     min_temp: 19
-    max_temp: 23
+    # 24 so the summer/cooling target (input_number.hvac_summer_target_temperature
+    # = 24) is accepted. The old 23 ceiling was a winter/heating-era limit and
+    # made "HVAC - Check and reset the target temp of heat pump" fail every run
+    # with "Provided temperature 24.0 is not valid. Accepted range is 19.0 to 23.0".
+    max_temp: 24
     heater: input_boolean.heating_downstairs
     cooler: input_boolean.cooling_downstairs
     target_temp: 21
@@ -129,8 +133,7 @@ template:
   - sensor:
     # altherma sensor values
     - unique_id: altherma_operation_mode
-      attributes:
-        friendly_name: Altherma Operation Mode
+      name: Altherma Operation Mode
       state: "{{ state_attr('sensor.althermasensors', 'Operation Mode') }}"
       icon: >
         {% if is_state("sensor.altherma_operation_mode", "Heating") %}
@@ -141,103 +144,91 @@ template:
           mdi:fan
         {% endif %}
     - unique_id: altherma_inv_primary_current
-      attributes:
-        friendly_name: Altherma INV primary current
+      name: Altherma INV primary current
       device_class: current
       state_class: measurement
       unit_of_measurement: A
       state: "{{ state_attr('sensor.althermasensors', 'INV primary current (A)') | float(default=0) }}"
       icon: mdi:current-ac
     - unique_id: altherma_inv_secundary_current
-      attributes:
-        friendly_name: Altherma INV secundary current
+      name: Altherma INV secundary current
       device_class: current
       state_class: measurement
       unit_of_measurement: A
       state: "{{ state_attr('sensor.althermasensors', 'INV secondary current (A)') | float(default=0) }}"
       icon: mdi:current-ac
     - unique_id: altherma_voltage_n_phase
-      attributes:
-        friendly_name: Altherma Voltage N-phase
+      name: Altherma Voltage N-phase
       device_class: voltage
       state_class: measurement
       unit_of_measurement: V
       state: "{{ state_attr('sensor.althermasensors', 'Voltage (N-phase) (V)') | int(default=0) }}"
       icon: mdi:power-socket-eu
     - unique_id: altherma_flow_sensor
-      attributes:
-        friendly_name: Altherma Flow Sensor
+      name: Altherma Flow Sensor
       state_class: measurement
       unit_of_measurement: l/min
       state: "{{ state_attr('sensor.althermasensors', 'Flow sensor (l/min)') | float(default=0) }}"
       icon: mdi:waves-arrow-left
     - unique_id: altherma_leaving_water_temp_before_buh_r1t
-      attributes:
-        friendly_name: Altherma Leaving water temp. before BUH (R1T)
+      name: Altherma Leaving water temp. before BUH (R1T)
       device_class: temperature
       state_class: measurement
       unit_of_measurement: °C
       state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. before BUH (R1T)') | float(default=0) }}"
       icon: mdi:thermometer
     - unique_id: altherma_leaving_water_temp_after_buh_r1t
-      attributes:
-        friendly_name: Altherma Leaving water temp. after BUH (R2T)
+      name: Altherma Leaving water temp. after BUH (R2T)
       device_class: temperature
       state_class: measurement
       unit_of_measurement: °C
       state: "{{ state_attr('sensor.althermasensors', 'Leaving water temp. after BUH (R2T)') | float(default=0) }}"
       icon: mdi:thermometer
     - unique_id: altherma_inlet_water_temp
-      attributes:
-        friendly_name: Altherma Inlet water temp.(R4T)
+      name: Altherma Inlet water temp.(R4T)
       device_class: temperature
       state_class: measurement
       unit_of_measurement: °C
       state: "{{ state_attr('sensor.althermasensors', 'Inlet water temp.(R4T)') | float(default=0) }}"
       icon: mdi:thermometer
     - unique_id: altherma_power_usage
-      attributes:
-        friendly_name: Altherma Power Usage
+      name: Altherma Power Usage
       device_class: power
       state_class: measurement
       unit_of_measurement: W
       state: "{{ states('sensor.altherma_inv_primary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
       icon: mdi:flash
     - unique_id: altherma_power_usage_secundary
-      attributes:
-        friendly_name: Altherma Power Usage Secundary
+      name: Altherma Power Usage Secundary
       device_class: power
       state_class: measurement
       unit_of_measurement: W
       state: "{{ states('sensor.altherma_inv_secundary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
       icon: mdi:flash
     - unique_id: altherma_cop
-      attributes:
-        friendly_name: Altherma COP
+      name: Altherma COP
       unit_of_measurement: 'COP'
       state_class: measurement
       state: >
         {% if is_state('sensor.altherma_operation_mode', 'Heating') %}
         {{
-          ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.template_altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) )
+          ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) )
             /
           (states('sensor.altherma_inv_primary_current') | float * states('sensor.altherma_voltage_n_phase') | float / 1000))
           |round(2)
         }}
         {% else %} 0 {%endif%}
     - unique_id: altherma_cop2
-      attributes:
-        friendly_name: Altherma COP2
+      name: Altherma COP2
       unit_of_measurement: 'COP'
       state_class: measurement
       state: >
         {% if is_state('sensor.altherma_operation_mode', 'Heating') %}
-        {{ ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.template_altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) ) / (states('sensor.altherma_inv_secundary_current') | float / 3 * states('sensor.altherma_voltage_n_phase') | float / 1000)) |round(2) }}
+        {{ ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) ) / (states('sensor.altherma_inv_secundary_current') | float / 3 * states('sensor.altherma_voltage_n_phase') | float / 1000)) |round(2) }}
         {% else %} 0 {%endif%}
 
   - binary_sensor:
     - unique_id: altherma_main_pump
-      attributes:
-        friendly_name: Altherma Main pump
+      name: Altherma Main pump
       state: >
         {{ is_state_attr('sensor.althermasensors', 'Main pump', 'ON') }}

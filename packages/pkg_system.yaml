@@ -85,7 +85,7 @@ homekit:
         - media_player.eetkamer
         - media_player.tv_room
         - alarm_control_panel.alarmo
-        - binary_sensor.template_people_home_and_awake
+        - binary_sensor.people_home_and_awake
 
 frontend:
   themes: !include_dir_merge_named ../themes
@@ -206,9 +206,9 @@ template:
   # important entities
   - sensor:
     - unique_id: unavailable_entities
+      name: Unavailable Entities
       attributes:
-        last_update: “{{now()}}”
-        friendly_name: "Unavailable Entities"
+        last_update: "{{ now() }}"
         names: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
         count: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
       state_class: measurement
@@ -216,10 +216,29 @@ template:
       state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
 
     - unique_id: evabed_sound_level_alert_threshold
-      attributes:
-        friendly_name: "Evabed Sound Level Alert Threshold"
+      name: Evabed Sound Level Alert Threshold
       unit_of_measurement: dB
-      state: "{{ (states('sensor.evabed_sound_level_mean') | float(default=-70)) + 2.5 * (states('sensor.evabed_sound_level_std_dev') | float(default=5)) }}"
+      state_class: measurement
+      # Rolling mean + 2.5σ, but never below an absolute floor.
+      #
+      # WHY THE FLOOR: in a silent room the 20-minute mean settles around
+      # -70 dB with σ ≈ 2, so mean + 2.5σ lands at ≈ -65 — and measured
+      # baseline noise in Eva's room routinely spikes to -66/-65/-64 and
+      # occasionally -62 with nothing happening. The adaptive threshold
+      # therefore collapsed to just ~5 dB above ambient and fired on passing
+      # cars and rustling. The floor keeps ~7 dB of headroom over those peaks.
+      #
+      # This only desensitises the generic "unusually loud" trigger. Frigate's
+      # audio classifiers (crying / scream / yell / cough) are separate triggers
+      # on the same automation and are unaffected, so real distress is still
+      # caught by the classifier even when it stays under -55 dB.
+      #
+      # Raise the floor toward -50 if it is still twitchy; lower it toward -60
+      # if a real event is ever missed.
+      state: >
+        {% set mean = states('sensor.evabed_sound_level_mean') | float(default=-70) %}
+        {% set sd = states('sensor.evabed_sound_level_std_dev') | float(default=5) %}
+        {{ [ mean + 2.5 * sd, -55 ] | max | round(2) }}
 
   # all unavailable entities
   - trigger:
@@ -227,6 +246,7 @@ template:
       minutes: "/5"
     sensor:
       - unique_id: all_unavailable_entities
+        name: All Unavailable Entities
         unit_of_measurement: entities
         state: >
           {% set ignore_time = 15 %}
@@ -234,15 +254,13 @@ template:
           {% set entities = states|rejectattr('domain','eq','group')
             |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
             |rejectattr('state', 'equalto', '')
-            |selectattr('state','in',['unavailable','none'])|map(attribute='entity_id')|list %}
+            |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
           {% for item in entities %}
             {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
               {% set unavail.value = unavail.value + 1 %}
             {% endif %}
           {% endfor %}
           {{ unavail.value }}
-        attributes:
-          friendly_name: "All Unavailable Entities"
   # Storage for Bubble Card Modules
   - trigger:
       - trigger: event
@@ -260,8 +278,8 @@ template:
       minutes: "*"
     sensor:
     - unique_id: ha_all_updates
+      name: All Updates
       attributes:
-        friendly_name: All Updates
         updates: >
           <ul>
           {%- for entity in expand(states.update) %}

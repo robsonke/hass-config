@@ -12,13 +12,13 @@ icon: mdi:flash
 entity: sensor.net_power_consumption
 show_state: true
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.net_power_consumption']?.state); return (isFinite(v) && v > 0.05) ? 'rgba(240,195,95,0.13)' : 'rgba(45,170,115,0.14)'; })()} !important; }
-  .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.net_power_consumption']?.state); return (isFinite(v) && v > 0.05) ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.13)' : 'rgba(45,170,115,0.14)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
   .bubble-state { font-size: 0 !important; }
   .bubble-state::after {
     font-size: 14px !important; font-weight: 500;
-    color: ${(() => { const v = parseFloat(hass.states['sensor.net_power_consumption']?.state); return (isFinite(v) && v > 0.05) ? '#f0cf8f' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const v = parseFloat(hass.states['sensor.net_power_consumption']?.state); const p = parseFloat(hass.states['sensor.current_price_electricity']?.state); let o = isFinite(v) ? (v > 0.05 ? v.toFixed(1).replace('.', ',') + ' kW' : (v < -0.05 ? Math.abs(v).toFixed(1).replace('.', ',') + ' kW terug' : '0 kW')) : '—'; if (isFinite(p)) o += ' · €' + p.toFixed(2).replace('.', ','); return o; })()}";
+    color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? '#f0cf8f' : '#9ed9bd'; })()} !important;
+    content: "${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state) || 0; const exp = parseFloat(hass.states['sensor.power_produced']?.state) || 0; const p = parseFloat(hass.states['sensor.current_price_electricity']?.state); let o; if (exp > 0.05) o = exp.toFixed(1).replace('.', ',') + ' kW terug'; else if (imp > 0.05) o = imp.toFixed(1).replace('.', ',') + ' kW van net'; else o = '0 kW'; if (isFinite(p)) o += ' · €' + p.toFixed(2).replace('.', ','); return o; })()}";
   }
 cards:
   # ── energiestroom ─────────────────────────────────────────────────
@@ -60,7 +60,7 @@ cards:
           use_metadata: true
           unit_white_space: false
           secondary_info:
-            entity: sensor.ix3_remaining_battery_percent
+            entity: sensor.state_of_charge_last_known
             unit_of_measurement: '%'
             icon: mdi:ev-station
         - entity: sensor.shelly_warmtepomp_meter_total_active_power
@@ -73,7 +73,6 @@ cards:
           show_direction: false
           use_metadata: true
           name: Warmtepomp
-      battery: {}
     clickable_entities: true
     display_zero_lines:
       mode: show
@@ -112,7 +111,7 @@ cards:
       - type: gauge
         name: Productie
         unit: kW
-        entity: sensor.solaredge_dc_power
+        entity: sensor.solar_power_now_kw
         min: 0
         needle: true
         severity:
@@ -140,6 +139,34 @@ cards:
       - color: Green
         from: 0
         to: 15
+  # ── zelfvoorziening ───────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Zelfvoorziening (nu)
+  - type: horizontal-stack
+    cards:
+      - type: gauge
+        name: Zelfvoorzienend
+        unit: '%'
+        entity: sensor.energy_self_sufficiency_now
+        min: 0
+        max: 100
+        needle: true
+        severity:
+          red: 0
+          yellow: 30
+          green: 60
+      - type: gauge
+        name: Eigen zonverbruik
+        unit: '%'
+        entity: sensor.energy_self_consumption_now
+        min: 0
+        max: 100
+        needle: true
+        severity:
+          red: 0
+          yellow: 30
+          green: 60
   # ── zonopbrengst ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -272,8 +299,14 @@ cards:
     entities:
       - entity: sensor.power_consumed
       - entity: sensor.daily_consumption_energy
-        name: Power Consumption Today
-        icon: mdi:counter
+        name: Netverbruik vandaag
+        icon: mdi:transmission-tower-import
+      - entity: sensor.daily_energy_offpeak
+        name: — daluren
+        icon: mdi:weather-night
+      - entity: sensor.daily_energy_peak
+        name: — piekuren
+        icon: mdi:weather-sunny
       - entity: sensor.solaredge_energy_today
         name: Power Production Today
       - entity: sensor.monthly_consumption_energy
@@ -284,10 +317,107 @@ cards:
         name: Power Consumption this Year
       - entity: sensor.solaredge_energy_this_year
         name: Power Production this Year
+  # ── kosten ────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kosten
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.electricity_cost_today
+        name: Vandaag
+        icon: mdi:cash
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.13)'; })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.20)' : 'rgba(240,195,95,0.20)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); if (!isFinite(v)) return '—'; return v <= 0 ? '€' + Math.abs(v).toFixed(2).replace('.', ',') + ' verdiend' : '€' + v.toFixed(2).replace('.', ','); })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.monthly_cost_langeweide
+        name: Deze maand
+        icon: mdi:calendar-month
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.monthly_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.accumulated_cost_langeweide
+        name: Opgebouwd vandaag
+        icon: mdi:cash-clock
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.accumulated_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ehhatdgg_cost_month
+        name: Laadpaal deze maand
+        icon: mdi:ev-station
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.ehhatdgg_cost_month']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
   # ── tarieven ──────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
     name: Tarieven
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.energy_price_level
+        name: Prijs nu
+        icon: mdi:cash-clock
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.14)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.14)':'rgba(240,195,95,0.13)'); })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.20)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.22)':'rgba(240,195,95,0.20)'); })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; content: "${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'—'); const p=parseFloat(hass.states['sensor.current_price_electricity']?.state); const map={cheap:'goedkoop',very_cheap:'goedkoop',low:'goedkoop',normal:'gemiddeld',expensive:'duur',very_expensive:'duur',high:'duur'}; const lbl=map[s.toLowerCase()]||s; return lbl+(isFinite(p)?' · €'+p.toFixed(2).replace('.',','):''); })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.energy_cheapest_time_today
+        name: Goedkoopst
+        icon: mdi:trending-down
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.12) !important; }
+          .bubble-icon-container { background-color: rgba(45,170,115,0.20) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; content: "${(() => { const s=hass.states['sensor.energy_cheapest_time_today']; if(!s) return '—'; const p=parseFloat(s.attributes.price); return s.state+(isFinite(p)?' · €'+p.toFixed(2).replace('.',','):''); })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.energy_priciest_time_today
+        name: Duurst
+        icon: mdi:trending-up
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(226,75,74,0.12) !important; }
+          .bubble-icon-container { background-color: rgba(226,75,74,0.20) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; content: "${(() => { const s=hass.states['sensor.energy_priciest_time_today']; if(!s) return '—'; const p=parseFloat(s.attributes.price); return s.state+(isFinite(p)?' · €'+p.toFixed(2).replace('.',','):''); })()}"; }
   - type: entities
     title: Tarieven vandaag en morgen
     entities:
@@ -298,67 +428,26 @@ cards:
   - type: custom:apexcharts-card
     experimental:
       color_threshold: true
-    graph_span: 1d
+    graph_span: 2d
     span:
       start: day
     apex_config:
       chart:
-        height: 250px
-    series:
-      - entity: sensor.nordpool_kwh_nl_eur_3_10_021
-        data_generator: |
-          return entity.attributes.raw_today.map((entry) => {
-            let value = (entry.value + (0.1108));
-            return [new Date(entry.start), value];
-          });
-        type: column
-        float_precision: 2
-        show:
-          extremas: true
-        color_threshold:
-          - value: 0
-            color: blue
-          - value: 0.15
-            color: green
-          - value: 0.35
-            color: darkorange
-          - value: 0.40
-            color: red
-          - value: 0.50
-            color: darkred
-          - value: 0.60
-            color: black
+        height: 280px
     now:
       show: true
       color: '#ff0000'
-    yaxis:
-      - min: 0
-        decimals: 2
-  - type: custom:apexcharts-card
-    experimental:
-      color_threshold: true
-    apex_config:
-      chart:
-        height: 300px
-    graph_span: 1d
-    span:
-      start: day
-      offset: +1d
     series:
       - entity: sensor.nordpool_kwh_nl_eur_3_10_021
-        data_generator: |
-          let hour = new Date().getHours();
-          if (hour >= 13) {
-            return entity.attributes.raw_tomorrow.map((entry) => {
-              let value = (entry.value + (0.1108));
-              return [new Date(entry.start), value];
-            });
-          }
-          else return [new Date(), 0];
+        name: Prijs incl. opslag
         type: column
         float_precision: 2
         show:
           extremas: true
+        data_generator: |
+          const t = (entity.attributes.raw_today || []).map((e) => [new Date(e.start), e.value + 0.1108]);
+          const m = (entity.attributes.raw_tomorrow || []).map((e) => [new Date(e.start), e.value + 0.1108]);
+          return t.concat(m);
         color_threshold:
           - value: 0
             color: blue

@@ -36,13 +36,13 @@ cards:
     card_layout: large
     tap_action: { action: none }
     styles: |
-      .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.14)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-      .bubble-icon-container { background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+      .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.14)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+      .bubble-icon-container { background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
       .bubble-name { font-size: 0 !important; }
       .bubble-name::after {
         font-size: 13.5px !important; font-weight: 500;
-        color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? '#f0cf8f' : '#9ed9bd'; })()} !important;
-        content: "${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.voordeur_slot','binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? (n + ' open — nog niet dicht') : 'Alles dicht — klaar'; })()}";
+        color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? '#f0cf8f' : '#9ed9bd'; })()} !important;
+        content: "${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? (n + ' open — nog niet dicht') : 'Alles dicht — klaar'; })()}";
       }
   # ── voordeur ──────────────────────────────────────────────────────
   - type: custom:bubble-card
@@ -91,7 +91,8 @@ cards:
         name: Deurbel
         icon: mdi:cctv
         card_layout: large
-        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: navigate, navigation_path: '#cameras' }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.deurbel_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${hass.states['sensor.deurbel_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
@@ -102,7 +103,8 @@ cards:
         name: Zijkant
         icon: mdi:cctv
         card_layout: large
-        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: navigate, navigation_path: '#cameras' }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.zijkant_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${hass.states['sensor.zijkant_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
@@ -113,7 +115,8 @@ cards:
         name: Terras
         icon: mdi:cctv
         card_layout: large
-        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: navigate, navigation_path: '#cameras' }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.terras_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${hass.states['sensor.terras_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
@@ -124,7 +127,8 @@ cards:
         name: Veranda
         icon: mdi:cctv
         card_layout: large
-        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: navigate, navigation_path: '#cameras' }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.veranda_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${hass.states['sensor.veranda_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
@@ -135,7 +139,8 @@ cards:
         name: Bijkeuken
         icon: mdi:cctv
         card_layout: large
-        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: navigate, navigation_path: '#cameras' }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.bijkeuken_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${hass.states['sensor.bijkeuken_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
@@ -146,10 +151,22 @@ cards:
         name: Zwembad
         icon: mdi:cctv
         card_layout: large
-        tap_action: { action: more-info }
+        button_action:
+          tap_action: { action: navigate, navigation_path: '#cameras' }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${hass.states['sensor.zwembad_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.18)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${hass.states['sensor.zwembad_review_status']?.state === 'ALERT' ? 'rgba(226,75,74,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
+  - type: custom:bubble-card
+    card_type: button
+    button_type: name
+    name: Alle camera's (live)
+    icon: mdi:cctv
+    card_layout: large
+    button_action:
+      tap_action: { action: navigate, navigation_path: '#cameras' }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
+      .bubble-icon-container { background-color: rgba(55,138,221,0.22) !important; }
   # ── deurbel-detecties vandaag ─────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -215,7 +232,6 @@ cards:
           options:
             secondary_info: last-changed
       exclude:
-        - entity_id: binary_sensor.voordeur_slot
         - entity_id: binary_sensor.doors_and_windows_upstairs
     sort:
       method: last_changed

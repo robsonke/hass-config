@@ -22,20 +22,33 @@
 - id: alarm_auto_arm_when_away
   alias: Alarm - Auto arm since we're away and all is closed
   description: We didn't enable the Guest mode and we both left, arm the house
+  # `state to: '0'` (was `numeric_state below: '1'` — the only one of the seven
+  # zone.home-based "we left" automations that differed). Equivalent in practice,
+  # but consistent with the rest and it also fires on an unknown -> 0 transition,
+  # which numeric_state cannot evaluate.
+  #
+  # The `for: 3 min` is load-bearing: HA cancels a pending `for:` if zone.home
+  # goes back above 0, so walking back in within 3 minutes means the alarm never
+  # arms. Do not convert this into a `delay:` inside a merged automation.
   triggers:
-  - trigger: numeric_state
+  - trigger: state
     entity_id: zone.home
+    to: '0'
     for:
       hours: 0
       minutes: 3
       seconds: 0
-    below: '1'
   conditions:
   - condition: and
     conditions:
     - condition: state
       entity_id: alarm_control_panel.alarmo
       state: disarmed
+    # ORDERING NOTE: on a Thursday 12:00-18:30 departure, "Alarm - Enable guest
+    # mode when nanny or cleaner home" also fires on zone.home -> 0, but with no
+    # `for:`, so it sets guest_mode on within a second and DISARMS. This guard is
+    # what stops the two fighting 3 minutes later. Keep this condition, and keep
+    # that automation's trigger un-delayed, or the house would arm on the cleaner.
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
@@ -61,7 +74,10 @@
     to: home
     for: 0:00:30
     trigger: state
-  - entity_id: device_tracker.ix3
+  # device_tracker.ix3_location — was `device_tracker.ix3`, which does not
+  # exist, so arriving by car never fired this; it only ran once a phone's
+  # person entity flipped ~30s later.
+  - entity_id: device_tracker.ix3_location
     to: home
     from: not_home
     trigger: state
@@ -123,12 +139,17 @@
           volume: 1
           interruption-level: critical
         actions:
+        # Points at the Bubble dashboard's camera hub pop-up (opened by the
+        # #cameras hash). Previously /lovelace/4 — a view on the old
+        # main-dashboard, which is no longer where the cameras live.
         - action: URI
           title: Bekijk cams
-          uri: /lovelace/4
-        - action: SILENCE_ALARM
-          title: Alarm uit
-          icon: sfsymbols:bell.slash
+          uri: /lovelace-bubble/overzicht#cameras
+        # NOTE: a second "Alarm uit" button (action: SILENCE_ALARM) used to sit
+        # here. Its handler automation ("Alarm - Silence alarm by notification")
+        # had been switched off since 2022, so the button did nothing when
+        # tapped. Both the button and that handler are now gone -- no dead
+        # control on a critical alert, and no dead handler behind it.
   - action: input_boolean.turn_on
     target:
       entity_id: input_boolean.alarm_active
@@ -271,9 +292,16 @@
   description: Switch standard lights on when it's after 2 PM and light level too
     low
   triggers:
+  # `for: 5 min` to match the "- home" twin below. Without it this fired on every
+  # dusk flicker across the 30-lux threshold (the illuminance sensor changes
+  # ~5800x/48h), so the lights could switch on during a brief cloud shadow.
   - trigger: numeric_state
     entity_id: sensor.light_sensor_living_illuminance
     below: '30'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   conditions:
   - condition: and
     conditions:
@@ -325,13 +353,11 @@
       entity_id: input_boolean.enable_automatic_lights
       state: 'on'
     - condition: state
-      entity_id: binary_sensor.template_people_home_and_awake
+      entity_id: binary_sensor.people_home_and_awake
       state: 'on'
-  - condition: device
-    device_id: 29fa064f108236608f9f0d8f063dbc17
-    domain: alarm_control_panel
+  - condition: state
     entity_id: alarm_control_panel.alarmo
-    type: is_disarmed
+    state: disarmed
   actions:
   - action: script.lights_on_home
     data: {}
@@ -341,25 +367,29 @@
   alias: Calendar - Afval Calendar Alert
   description: Send messages when a trash bin should be put outside
   triggers:
-  - entity_id: sensor.template_gft_days_until_collection
+  - entity_id: sensor.gft_days_until_collection
     trigger: state
     to: '1'
     for:
       hours: 20
       minutes: 0
       seconds: 0
-  - entity_id: sensor.template_rest_days_until_collection
+  - entity_id: sensor.rest_days_until_collection
     trigger: state
     to: '1'
     for:
       hours: 20
       minutes: 0
       seconds: 0
-  - entity_id: sensor.template_paper_days_until_collection
+  # Was `to: '0'` for 16h — days_until_collection hits 0 ON collection day, so
+  # this reminded you at ~16:00 that day, after the bin had been emptied.
+  # Now matches GFT/REST: counter becomes 1 (collection tomorrow), +20h => a
+  # reminder at ~20:00 the evening before.
+  - entity_id: sensor.paper_days_until_collection
     trigger: state
-    to: '0'
+    to: '1'
     for:
-      hours: 16
+      hours: 20
       minutes: 0
       seconds: 0
   actions:
@@ -686,6 +716,10 @@
     data: {}
     target:
       entity_id: light.hallcloset_light
+  # restart (not the default `single`): this run parks in wait_for_trigger for up
+  # to 15 minutes. With `single`, opening the closet again while a previous run
+  # was still finishing was DROPPED, leaving the light off with the door open.
+  mode: restart
 - id: lights_kitchen_turn_on_when_awake_morning
   alias: Lights - Morning routine disarm alarm and turn on kitchen lights
   triggers:
@@ -747,31 +781,6 @@
   - action: hassio.addon_restart
     data:
       addon: core_letsencrypt
-- alias: Lights - Check if automatic lights are disabled by accident
-  id: lights_reset_disabled_accidentally
-  description: Check every hour if this wasn't done by accident
-  triggers:
-  - trigger: time_pattern
-    hours: /1
-  conditions:
-  - condition: and
-    conditions:
-    - condition: time
-      after: 05:30:00
-      before: '20:30:00'
-    - condition: or
-      conditions:
-      - condition: state
-        entity_id: input_boolean.enable_automatic_lights
-        state: 'off'
-      - condition: state
-        entity_id: input_boolean.enable_automatic_garden_lights
-        state: 'off'
-  actions:
-  - action: persistent_notification.create
-    data:
-      title: Verlichting
-      message: De automatische verlichting is uitgeschakeld, dit is mogelijk onbewust.
 - id: presence_detection_message_speakers
   alias: Presence - Inform that one of us comes home
   description: Shout through speakers that somebody is arriving when the other one
@@ -784,15 +793,10 @@
     - person.rob
     - person.steffi
     to: home
+  # The `or: person.rob home / person.steffi home` condition that used to sit
+  # here was always true: the trigger above already requires one of those two to
+  # have been 'home' for 15s, so it could never be false. Removed as a no-op.
   conditions:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: person.rob
-      state: home
-    - condition: state
-      entity_id: person.steffi
-      state: home
   - condition: state
     state: 'off'
     entity_id: input_boolean.guest_mode
@@ -813,38 +817,27 @@
   conditions:
   - condition: or
     conditions:
-    - condition: device
-      device_id: 29fa064f108236608f9f0d8f063dbc17
-      domain: alarm_control_panel
+    - condition: state
       entity_id: alarm_control_panel.alarmo
-      type: is_armed_night
-    - condition: device
-      device_id: 29fa064f108236608f9f0d8f063dbc17
-      domain: alarm_control_panel
+      state: armed_night
+    - condition: state
       entity_id: alarm_control_panel.alarmo
-      type: is_armed_away
+      state: armed_away
   - condition: template
     value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.presence_notify_of_events_in_frigate.attributes.last_triggered,
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.alarm_notify_of_person_events_on_camera.attributes.last_triggered,
       0) | int > 120 }}'
-  - condition: or
-    conditions:
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''zijkant''
-        }}'
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''terras''
-        }}'
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''veranda''
-        }}'
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''bijkeuken''
-        }}'
+  # Perimeter cameras only (indoor cams must not notify). Was four separate
+  # `condition: template` string comparisons inside an `or:`; one `in` test is
+  # equivalent and adding a camera is now a one-word edit.
+  - condition: template
+    value_template: >
+      {{ trigger.payload_json['after']['camera'] in
+         ['zijkant', 'terras', 'veranda', 'bijkeuken'] }}
   actions:
   - action: notify.all_phones
-    data_template:
+    data:
       message: Er is een {{trigger.payload_json["after"]["label"]}} gedetecteerd op
         de {{ trigger.payload_json["after"]["camera"] }} camera
       data:
@@ -854,14 +847,58 @@
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: camera.{{trigger.payload_json["after"]["camera"]}}
   mode: single
-- id: lovelace_convert_json_yaml
-  alias: Lovelace - convert lovelace.json to lovelace-ui.yaml
+# Garden "alarm": a person on a perimeter camera while the alarm is armed floods
+# the whole garden with light. Restored after being dropped in the automation
+# audit, but rebuilt rather than reinstated verbatim:
+#   * device_id alarm conditions → plain entity_id state conditions
+#   * four `or:` camera string comparisons → one `in` test
+#   * lights only (garden_light + veranda_light) → the whole `light.lights_garden`
+#     group, i.e. all 15 garden lights
+#   * the critical push is NOT repeated here — "Alarm - Notify of person events
+#     on camera" above already notifies on the identical trigger/conditions, so
+#     duplicating it would double-alert on every detection.
+# The "lights are currently off" guard matters: without it a detection during a
+# manually-lit evening would switch the garden off again when the delay expires.
+- id: '1628796760216'
+  alias: Alarm - Turn on lights when person events on camera
+  description: Alle tuinlichten aan bij een persoon op een buitencamera terwijl het
+    alarm staat
   triggers:
-  - trigger: state
-    entity_id: sensor.lovelace_size
+  - trigger: mqtt
+    topic: frigate/events
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: armed_night
+    - condition: state
+      entity_id: alarm_control_panel.alarmo
+      state: armed_away
+  - condition: template
+    value_template: '{{ trigger.payload_json[''type''] == ''new'' }}'
+  - condition: template
+    value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
+  - condition: template
+    value_template: >
+      {{ trigger.payload_json['after']['camera'] in
+         ['zijkant', 'terras', 'veranda', 'bijkeuken'] }}
+  # only worth doing after dark
+  - condition: numeric_state
+    entity_id: sensor.light_sensor_garden_illuminance
+    below: 10
+  - condition: state
+    entity_id: light.lights_garden
+    state: 'off'
   actions:
-  - action: shell_command.convert_lovelace
-    data: {}
+  - action: light.turn_on
+    target:
+      entity_id: light.lights_garden
+  - delay: '00:02:00'
+  - action: light.turn_off
+    target:
+      entity_id: light.lights_garden
+  mode: single
 - id: sjorsje_bin_full
   alias: Vacuum - Sjorsje Bin Full
   triggers:
@@ -928,17 +965,20 @@
   alias: Presence - Enable detection because one of us left or in night mode
   description: Activate Frigate object detection
   triggers:
-  - trigger: state
+  # Single trigger replacing an overlapping pair (`state to: '1' for 15s` plus
+  # `numeric_state below: '2'`). On a 2->1 change BOTH used to fire, running this
+  # twice. `below: 2` alone still covers the 2->0 case (both of us leaving at
+  # once), which the `to: '1'` trigger missed, and the 15s debounce now applies to
+  # that case too. It no longer fires on 0->1 (one of us returning) — harmless,
+  # because detection is already on in that state and
+  # "Presence - Disable detection because we are both home" is what turns it off.
+  - trigger: numeric_state
+    entity_id: zone.home
+    below: 2
     for:
       hours: 0
       minutes: 0
       seconds: 15
-    entity_id:
-    - zone.home
-    to: '1'
-  - trigger: numeric_state
-    entity_id: zone.home
-    below: '2'
   - trigger: state
     entity_id:
     - alarm_control_panel.alarmo
@@ -1022,7 +1062,7 @@
   actions:
   - action: notify.all_phones
     data:
-      message: "\U0001F6AA Deur: let op, de voordeur staat al 10 minuten open"
+      message: "\U0001F6AA Deur: let op, de voordeur staat al 30 minuten open"
       data:
         persistent: true
         tag: persistent
@@ -1051,39 +1091,49 @@
   description: In case it's warm and sunny, close the screens in the morning but the
     one on the side a bit later
   triggers:
+  # sun swings onto the south façade (azimuth 0=N, 90=E, 180=S, 270=W).
+  # 90 = due east = the moment a south-facing façade starts getting direct sun,
+  # so this closes as early as the geometry allows (~08:20 in July).
+  - trigger: numeric_state
+    entity_id: sun.sun
+    attribute: azimuth
+    above: 90
+  - trigger: numeric_state
+    entity_id: sensor.solaredge_dc_power
+    above: 1500
+    for:
+      minutes: 5
   - trigger: time_pattern
     minutes: /15
   conditions:
-  - condition: and
-    conditions:
-    - condition: or
-      conditions:
-      - condition: and
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.today_maximum_temperature
-          above: '20'
-        - condition: numeric_state
-          entity_id: sensor.openweathermap_cloud_coverage
-          below: '80'
-        alias: Warm and not too much clouds
-      - condition: and
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.openweathermap_cloud_coverage
-          below: '95'
-        - condition: numeric_state
-          entity_id: sensor.today_maximum_temperature
-          above: '24'
-        alias: Just hot or warm and not so cloudy
-    - condition: device
-      device_id: eb69e1ad4596ef0df19b685a4e84e026
-      domain: cover
-      entity_id: cover.voorraam
-      type: is_open
+  # VOORRAAM faces SOUTH → it gets sun from mid-morning through mid-afternoon.
+  # Orientation is driven by the sun's real azimuth/elevation (season-aware,
+  # so no seasonal re-tuning), and "is it actually sunny" by real PV output
+  # (solaredge_dc_power) rather than OpenWeatherMap's unreliable cloud %.
+  # Threshold 1500 W (lower than the side screen) so it closes earlier.
+  - condition: state
+    entity_id: cover.voorraam
+    state: open
+  # sun is on the south face
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: azimuth
+    above: 90
+    below: 250
+  # high enough to actually strike the glass
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: 15
+  - condition: numeric_state
+    entity_id: sensor.solaredge_dc_power
+    above: 1500
+  - condition: numeric_state
+    entity_id: sensor.today_maximum_temperature
+    above: '20'
+  # comfort floor only — the azimuth/elevation conditions do the real work
   - condition: time
-    after: 09:00:00
-    before: '17:00:00'
+    after: 08:00:00
   - condition: state
     entity_id: sensor.rate_rain_piezo
     state: '0.0'
@@ -1109,15 +1159,22 @@
   description: Open the screen by the end of the day or when the sun is gone or when
     it's too windy
   triggers:
-  - trigger: time
-    at: '18:00:00'
+  # VOORRAAM faces SOUTH, so once the sun swings past ~west-southwest it no
+  # longer hits this window → open it in the early evening (in July that's
+  # ~18:00) instead of waiting for sunset. 253 leaves a 3° deadband above the
+  # close range (…below 250) so the two automations can never fight.
   - trigger: numeric_state
-    entity_id: sensor.openweathermap_cloud_coverage
-    above: '90'
+    entity_id: sun.sun
+    attribute: azimuth
+    above: 253
+  # sun genuinely gone (clouded over) — deadband vs close (> 1500 W)
+  - trigger: numeric_state
+    entity_id: sensor.solaredge_dc_power
+    below: 800
     for:
-      hours: 0
-      minutes: 10
-      seconds: 0
+      minutes: 15
+  - trigger: sun
+    event: sunset
   - trigger: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
@@ -1127,16 +1184,12 @@
     above: '0'
     below: '1000'
   conditions:
-  - condition: and
-    conditions:
-    - condition: device
-      device_id: eb69e1ad4596ef0df19b685a4e84e026
-      domain: cover
-      entity_id: cover.voorraam
-      type: is_closed
-    - condition: state
-      entity_id: input_boolean.enable_automatic_screens
-      state: 'on'
+  - condition: state
+    entity_id: cover.voorraam
+    state: closed
+  - condition: state
+    entity_id: input_boolean.enable_automatic_screens
+    state: 'on'
   actions:
   - action: notify.all_phones
     data:
@@ -1172,18 +1225,28 @@
   description: Open the screen by the end of the day or when the sun is gone or it's
     too windy
   triggers:
-  - trigger: time
-    at: '21:00'
-  - trigger: numeric_state
-    entity_id: sensor.openweathermap_cloud_coverage
-    above: '90'
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
+  # ZIJRAAM faces WEST, so it keeps its screen down until the sun is actually
+  # gone — later than the south-facing voorraam (which opens ~18:00).
   - trigger: sun
     event: sunset
-    offset: -00:30:00
+    id: sunset
+  # Opens when the sun drops behind the western treeline/houses — which happens
+  # at roughly 6.5° of COMPUTED elevation here, not at 0°. Measured: elevation
+  # 2.01° at 21:24 with sunset (−0.833°) at 21:42 → ~9°/h, so the ~30 minutes of
+  # "no sun" observed at 2° puts the real obstruction at ~6.5°.
+  # Keep this BELOW the close automation's elevation floor (7°) so the two
+  # cannot fight over the same degree.
+  - trigger: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: 6.5
+    id: sundown
+  - trigger: numeric_state
+    entity_id: sensor.solaredge_dc_power
+    below: 800
+    for:
+      minutes: 15
+    id: clouded
   - trigger: numeric_state
     entity_id: sensor.rate_rain_piezo
     for:
@@ -1192,17 +1255,29 @@
       seconds: 10
     above: '0'
     below: '1000'
+    id: rain
   conditions:
-  - condition: and
-    conditions:
-    - condition: device
-      device_id: 7a674f956b15af8decebb36355772928
-      domain: cover
-      entity_id: cover.zijraam
-      type: is_closed
+  - condition: state
+    entity_id: cover.zijraam
+    state: closed
   - condition: state
     entity_id: input_boolean.enable_automatic_screens
     state: 'on'
+  # On a clear evening PV output falls below 800 W well before sunset simply
+  # because the sun is getting low — and a low western sun is peak glare for
+  # this window. So the "clouded over" trigger may only open the screen while
+  # the sun is still high (>10°), where low output really does mean cloud.
+  # sunset / sundown / rain always open it.
+  - condition: or
+    conditions:
+    - condition: not
+      conditions:
+      - condition: trigger
+        id: clouded
+    - condition: numeric_state
+      entity_id: sun.sun
+      attribute: elevation
+      above: 10
   actions:
   - action: notify.all_phones
     data:
@@ -1232,41 +1307,6 @@
     data: {}
     target:
       entity_id: cover.zijraam
-  mode: single
-- id: '1623656513564'
-  alias: Sleep - Switch to night mode automatically when home
-  description: In case we're home but forgot night mode, do it for us
-  triggers:
-  - trigger: time
-    at: 00:30
-  conditions:
-  - condition: state
-    entity_id: alarm_control_panel.alarmo
-    state: disarmed
-  - condition: state
-    entity_id: person.rob
-    state: home
-  - condition: state
-    entity_id: person.steffi
-    state: home
-  - condition: state
-    entity_id: light.socket2_light_couch
-    state: 'off'
-  - condition: state
-    entity_id: binary_sensor.hallwaydoor_sensor_contact
-    state: 'off'
-  actions:
-  - action: script.sleep_well
-    data: {}
-  - action: light.turn_off
-    target:
-      entity_id:
-      - light.socket1_light_corner
-      - light.socket2_light_couch
-  - action: alarm_control_panel.alarm_arm_night
-    target:
-      entity_id: alarm_control_panel.alarmo
-    data: {}
   mode: single
 - id: '1625051357630'
   alias: Presence - Disable detection because we are both home
@@ -1298,26 +1338,6 @@
       - switch.noabed_detect
       - switch.zwembad_detect
   mode: single
-- id: '1625685710817'
-  alias: Car - Lock the doors when open too long
-  description: Lock the car automatically after 15 minutes
-  triggers:
-  - trigger: state
-    entity_id: binary_sensor.ix3_door_lock_state
-    to: 'on'
-    for: 02:00:00
-  condition: []
-  actions:
-  - action: notify.all_phones
-    data:
-      message: "\U0001F697 De auto is automatisch op slot gezet"
-      data:
-        persistent: true
-        tag: persistent
-  - action: lock.lock
-    target:
-      entity_id: lock.ix3_lock
-  mode: single
 - id: '1625773685228'
   alias: Alarm - Disable alarm manually
   description: ''
@@ -1334,41 +1354,64 @@
   conditions:
   - condition: not
     conditions:
-    - condition: device
-      device_id: 29fa064f108236608f9f0d8f063dbc17
-      domain: alarm_control_panel
+    - condition: state
       entity_id: alarm_control_panel.alarmo
-      type: is_disarmed
+      state: disarmed
   actions:
-  - device_id: 29fa064f108236608f9f0d8f063dbc17
-    domain: alarm_control_panel
-    entity_id: alarm_control_panel.alarmo
-    type: disarm
-    code: automation
+  - action: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+    data:
+      code: automation
   - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
       volume: 30
       message: Het alarm is voor 2 uur uitgezet.
-  - delay:
-      hours: 1
-      minutes: 55
-      seconds: 0
-      milliseconds: 0
+  # The 1h55m + 5m `delay:` chain that used to live here is now two restore:true
+  # timers (see packages/pkg_alarm.yaml). An in-flight `delay:` does NOT survive an
+  # HA restart, so a restart during the pause meant the alarm was silently never
+  # re-armed. The spoken warning and the re-arm are now separate automations
+  # driven by timer.finished.
+  - action: timer.start
+    target:
+      entity_id: timer.alarm_pause_warning
+  - action: timer.start
+    target:
+      entity_id: timer.alarm_pause
+  # restart: pressing the button again simply restarts the pause
+  mode: restart
+- id: alarm_manual_pause_warning
+  alias: Alarm - Manual pause almost over
+  description: Spoken warning 5 minutes before the manual alarm pause expires
+  triggers:
+  # the timer.finished EVENT — not `state to: idle`, which would also fire when the
+  # timer is cancelled (i.e. when one of us comes home)
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.alarm_pause_warning
+  conditions: []
+  actions:
   - action: script.sonos_say
     data:
       sonos_entity: media_player.living_room
       volume: 30
       message: Let op, het alarm wordt over 5 minuten weer geactiveerd.
-  - delay:
-      hours: 0
-      minutes: 5
-      seconds: 0
-      milliseconds: 0
-  - device_id: 29fa064f108236608f9f0d8f063dbc17
-    domain: alarm_control_panel
-    entity_id: alarm_control_panel.alarmo
-    type: arm_away
+  mode: single
+- id: alarm_manual_pause_rearm
+  alias: Alarm - Re-arm after the manual pause
+  description: The 2 hour manual alarm pause expired, arm the house again
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.alarm_pause
+  conditions: []
+  actions:
+  - action: alarm_control_panel.alarm_arm_away
+    target:
+      entity_id: alarm_control_panel.alarmo
   - action: notify.all_phones
     data:
       message: De tijd is om, het alarm wordt weer geactiveerd.
@@ -1395,7 +1438,7 @@
   actions:
   - action: notify.all_phones
     data:
-      message: "\U0001F6AA Deur: let op, de achterdeur staat al 10 minuten open"
+      message: "\U0001F6AA Deur: let op, de achterdeur staat al 30 minuten open"
       data:
         persistent: true
         tag: persistent
@@ -1438,78 +1481,6 @@
       data:
         persistent: true
         tag: persistent
-  mode: single
-- id: '1628796760216'
-  alias: Alarm - Turn on lights when person events on camera
-  description: ''
-  triggers:
-  - trigger: mqtt
-    topic: frigate/events
-  conditions:
-  - condition: or
-    conditions:
-    - condition: device
-      device_id: 29fa064f108236608f9f0d8f063dbc17
-      domain: alarm_control_panel
-      entity_id: alarm_control_panel.alarmo
-      type: is_armed_night
-    - condition: device
-      device_id: 29fa064f108236608f9f0d8f063dbc17
-      domain: alarm_control_panel
-      entity_id: alarm_control_panel.alarmo
-      type: is_armed_away
-  - condition: template
-    value_template: '{{ trigger.payload_json[''type''] == ''new'' }}'
-  - condition: template
-    value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
-  - condition: or
-    conditions:
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''zijkant''
-        }}'
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''terras''
-        }}'
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''veranda''
-        }}'
-    - condition: template
-      value_template: '{{ trigger.payload_json[''after''][''camera''] == ''bijkeuken''
-        }}'
-  - condition: numeric_state
-    entity_id: sensor.light_sensor_garden_illuminance
-    below: '10'
-  - condition: state
-    entity_id: light.garden_light
-    state: 'off'
-  actions:
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.garden_light
-      - light.veranda_light
-  - action: notify.all_phones
-    data:
-      message: Er is een persoon gedetecteerd op een camera!
-      data:
-        persistent: true
-        tag: persistent
-        push:
-          sound:
-            name: alarm.caf
-            critical: 1
-            volume: 1
-          interruption-level: critical
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 0
-      milliseconds: 0
-  - action: light.turn_off
-    target:
-      entity_id:
-      - light.garden_light
-      - light.veranda_light
   mode: single
 - id: '1629016952694'
   alias: Alarm - Notify why arming failed
@@ -1564,26 +1535,25 @@
     target:
       entity_id: input_boolean.guest_mode
     data: {}
-  - device_id: 29fa064f108236608f9f0d8f063dbc17
-    domain: alarm_control_panel
-    entity_id: alarm_control_panel.alarmo
-    type: disarm
-    code: automation
+  - action: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+    data:
+      code: automation
   - action: notify.all_phones
     data:
       message: Guest modus aangezet en alarm uit voor Maartje
       data:
         persistent: true
         tag: persistent
-  - delay:
-      hours: 11
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - action: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.guest_mode
-    data: {}
+  # Guest mode is switched back off by "Presence - Disable Guest Mode when one of
+  # us comes home" (person.rob/steffi -> home for 15s). This automation used to
+  # hold an 11-hour `delay:` and turn it off itself, but an in-flight delay is
+  # lost on every HA restart, so the reset silently never happened.
+  # NOTE: the only remaining reset path is somebody arriving home. If the house
+  # stays empty past Thursday evening, guest mode stays on — and guest mode is
+  # what blocks auto-arm / auto-lock, so the alarm will not auto-arm until
+  # someone returns.
   mode: single
 - id: '1635279877594'
   alias: Lights - Turn on lights when dark - arriving
@@ -1596,8 +1566,10 @@
     - person.steffi
     to: home
     for: 0:00:30
+  # device_tracker.ix3_location — was `device_tracker.ix3` (nonexistent), so the
+  # car arriving never triggered the arrival lights.
   - trigger: state
-    entity_id: device_tracker.ix3
+    entity_id: device_tracker.ix3_location
     from: not_home
     to: home
   conditions:
@@ -1749,32 +1721,20 @@
   alias: System - Notify entities being offline
   description: Check for a specific list of monitored entities if they are available
   triggers:
-  - trigger: state
+  - trigger: numeric_state
     entity_id: sensor.unavailable_entities
+    above: 0
     for:
       hours: 0
       minutes: 5
-      seconds: 10
-    from: Online
+      seconds: 0
   actions:
   - action: persistent_notification.create
     data:
       title: Belangrijke devices
-      message: " \U0001F4A1 Er is een belangrijke entity offline {{ became_unavailable
-        }}"
-  variables:
-    from_state: '{{ states(''input_text.unavailable_entities_temp_state'') }}'
-    from_state_list: '{{ from_state.split('', '') }}'
-    to_state: '{{ trigger.to_state.state if trigger.to_state.state != ''Online'' else
-      '''' }}'
-    to_state_list: '{{ to_state.split('', '') }}'
-    became_online: '{{ from_state_list | reject(''in'', to_state_list) | join('',
-      '') }}'
-    became_unavailable_list: '{{ to_state_list | reject(''in'', from_state_list) |
-      list }}'
-    became_unavailable: '{{ became_unavailable_list | join('', '') }}'
-    other_unavailable_entities: '{{ to_state_list | reject(''in'', became_unavailable_list)
-      | join('', '') }}'
+      message: >
+        💡 Er is een belangrijke entity offline: {{ state_attr('sensor.unavailable_entities',
+        'names') }}
 - id: '1636228242323'
   alias: Alarm - Flash lights
   description: If the alarm is triggered, flash the lights in house and garden and
@@ -1862,26 +1822,6 @@
       - light.socket2_light_couch
     data: {}
   mode: single
-- id: '1639684695002'
-  alias: Alarm - Silence alarm by notification
-  description: Silence alarm when beeping through push notification action when
-  triggers:
-  - trigger: event
-    event_type: mobile_app_notification_action
-    event_data:
-      action: SILENCE_ALARM
-    context:
-      user_id:
-      - 56ef6157f087451399aa545f32dc78d3
-      - 71e44d7d313b4695a8bf51705f7adfc3
-  condition: []
-  actions:
-  - action: alarm_control_panel.alarm_disarm
-    data:
-      code: automation
-    target:
-      entity_id: alarm_control_panel.alarmo
-  mode: single
 - id: '1641574319382'
   alias: Energy - Count Water Usage
   description: Count Water Usage through Esphome sensor
@@ -1944,11 +1884,45 @@
   triggers:
   - trigger: homeassistant
     event: start
+  # Poll relaxed /10 -> /30 (144 -> 48 runs/day). That is only safe because the
+  # inputs this automation actually decides on now have triggers of their own:
+  # the bedroom temperature (below/above 19, matching the condition threshold)
+  # and the cheapest-hours sensor that gates the price condition. Previously the
+  # /10 poll was the ONLY thing that noticed a temperature change, so simply
+  # slowing it down would have left the heater in the wrong state for up to
+  # half an hour. The poll now just backstops the 10:00/22:00 window edges.
   - trigger: time_pattern
-    minutes: /10
+    minutes: /30
+  - trigger: numeric_state
+    entity_id: sensor.climate_sensor_masterbedroom_temperature
+    below: 19
+    for:
+      minutes: 2
+  - trigger: numeric_state
+    entity_id: sensor.climate_sensor_masterbedroom_temperature
+    above: 19
+    for:
+      minutes: 2
+  - trigger: state
+    entity_id:
+    - binary_sensor.cheapest_16_hours_24h
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
+  # sensor.energy_price_level flaps to unavailable ~8x/24h on integration
+  # reloads; without this each flap was an extra spurious run.
   - trigger: state
     entity_id:
     - sensor.energy_price_level
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
@@ -1963,26 +1937,22 @@
       - condition: numeric_state
         entity_id: sensor.climate_sensor_masterbedroom_temperature
         below: 19
-      - type: is_not_open
-        condition: device
-        device_id: e495b09d382329f43540381dedb31f15
+      - condition: state
         entity_id: binary_sensor.window_masterbed_1_openclose_contact
-        domain: binary_sensor
-      - type: is_not_open
-        condition: device
-        device_id: 83daade23505c1645165605bc56c49d1
+        state: 'off'
+      - condition: state
         entity_id: binary_sensor.window_masterbed_2_openclose_contact
-        domain: binary_sensor
+        state: 'off'
       - condition: state
         entity_id: binary_sensor.cheapest_16_hours_24h
         state: 'on'
         alias: The price should be not too high
       sequence:
-      - device_id: 63bfcece97a8578bf632cddbc75ee61d
-        domain: select
-        entity_id: select.eurom_alutherm_capacity
-        type: select_option
-        option: Auto
+      - action: select.select_option
+        target:
+          entity_id: select.eurom_alutherm_capacity
+        data:
+          option: Auto
       - action: climate.set_temperature
         data:
           hvac_mode: heat
@@ -1990,11 +1960,11 @@
         target:
           entity_id: climate.eurom_alutherm_baseboard_heater
     default:
-    - device_id: 63bfcece97a8578bf632cddbc75ee61d
-      domain: select
-      entity_id: select.eurom_alutherm_capacity
-      type: select_option
-      option: 'Off'
+    - action: select.select_option
+      target:
+        entity_id: select.eurom_alutherm_capacity
+      data:
+        option: 'Off'
   trace:
     stored_traces: 50
   mode: queued
@@ -2120,41 +2090,52 @@
   description: In case it's warm and sunny, close the screens in the morning but the
     one on the side a bit later
   triggers:
-  - trigger: state
-    entity_id:
-    - sensor.rate_rain_piezo
-    - sensor.today_maximum_temperature
-    - sensor.openweathermap_cloud_coverage
+  # sun swings onto the west façade
+  - trigger: numeric_state
+    entity_id: sun.sun
+    attribute: azimuth
+    above: 200
+  - trigger: numeric_state
+    entity_id: sensor.solaredge_dc_power
+    above: 1200
+    for:
+      minutes: 5
+  - trigger: time_pattern
+    minutes: /15
   conditions:
-  - condition: and
-    conditions:
-    - condition: or
-      conditions:
-      - condition: and
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.today_maximum_temperature
-          above: '20'
-        - condition: numeric_state
-          entity_id: sensor.openweathermap_cloud_coverage
-          below: '80'
-        alias: Is the temperature forecast 20C+ and the cloud coverage below 80%
-      - condition: and
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.openweathermap_cloud_coverage
-          below: '95'
-        - condition: numeric_state
-          entity_id: sensor.today_maximum_temperature
-          above: '24'
-        alias: Just hot or warm and not so cloudy
-      alias: Is it warm and not too cloudy or just warmer?
-    - condition: state
-      entity_id: cover.zijraam
-      state: open
-  - condition: time
-    after: '11:00:00'
-    before: '19:00:00'
+  # ZIJRAAM faces WEST → it only gets sun from mid-afternoon until the sun goes
+  # behind the western obstacles, so it closes LATER than the south-facing
+  # voorraam (azimuth 200 ≈ 14:45 in July, vs ~09:00 for the front).
+  #
+  # Azimuth threshold was 210 (≈15:15) but the sun already crept round the
+  # reveal for the last half hour before that. The sun tracks ~19°/h here in
+  # the afternoon, so 210 → 200 buys roughly 30 minutes.
+  #
+  # The elevation floor was 3° on the theory that the low, late sun is the worst
+  # glare. In practice the sun is already behind the treeline/houses by ~6.5°,
+  # so below that there is nothing to shade and the screen was staying down for
+  # a good half hour of shade. Floor is now 7° — deliberately just ABOVE the
+  # open automation's 6.5° trigger, so the two have a 0.5° deadband and cannot
+  # close/open each other in a loop.
+  - condition: state
+    entity_id: cover.zijraam
+    state: open
+  # sun is on the west face
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: azimuth
+    above: 200
+    below: 305
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: 7
+  - condition: numeric_state
+    entity_id: sensor.solaredge_dc_power
+    above: 1200
+  - condition: numeric_state
+    entity_id: sensor.today_maximum_temperature
+    above: '20'
   - condition: state
     entity_id: sensor.rate_rain_piezo
     state: '0.0'
@@ -2178,8 +2159,17 @@
   description: Turn on the pool heat pump and choose a run mode (normal/silent/super
     silent) based on need and energy pricing and outdoor temperature
   triggers:
+  # not_to/not_from filters: both of these sensors drop to unavailable on every
+  # integration reload (~9x/24h). Without the filter this automation woke up on
+  # those transitions and picked the pump's power mode from garbage values.
   - trigger: state
     entity_id: sensor.today_maximum_temperature
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - binary_sensor.pool_pump_active
@@ -2189,6 +2179,12 @@
       seconds: 0
   - trigger: state
     entity_id: sensor.pool_heating_temperature_diff
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - binary_sensor.cheapest_16_hours_24h
@@ -2278,62 +2274,6 @@
   max_exceeded: silent
   trace:
     stored_traces: 50
-- id: '1659881596095'
-  alias: DHW - Disable warm water heating
-  description: Disable the heatpump based on need and energy pricing. Also lower the
-    expected temperature to avoid the pump itself decides to turn on.
-  triggers:
-  - trigger: numeric_state
-    entity_id: sensor.energy_price_level
-    attribute: percentage
-    above: '115'
-  - trigger: state
-    entity_id:
-    - water_heater.domestic_hot_water_tank
-    attribute: current_temperature
-  - trigger: state
-    entity_id:
-    - water_heater.domestic_hot_water_tank
-    attribute: temperature
-  - trigger: time_pattern
-    minutes: /15
-  conditions:
-  - condition: or
-    conditions:
-    - condition: numeric_state
-      entity_id: sensor.energy_price_level
-      attribute: percentage
-      above: '115'
-    - condition: template
-      value_template: '{{ state_attr(''water_heater.domestic_hot_water_tank'',''current_temperature'')
-        | float >= state_attr(''water_heater.domestic_hot_water_tank'',''temperature'')
-        | float }}'
-  - condition: numeric_state
-    entity_id: water_heater.domestic_hot_water_tank
-    attribute: current_temperature
-    above: '40'
-  - condition: state
-    entity_id: water_heater.domestic_hot_water_tank
-    attribute: operation_mode
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
-  actions:
-  - action: water_heater.set_temperature
-    data:
-      temperature: 30
-    target:
-      entity_id: water_heater.domestic_hot_water_tank
-  - action: water_heater.set_operation_mode
-    data:
-      operation_mode: 'off'
-    target:
-      entity_id: water_heater.domestic_hot_water_tank
-  trace:
-    stored_traces: 10
-  mode: single
 - id: '1661977922126'
   alias: HVAC - Control Operation Mode downstairs
   description: 'Set the HVAC mode (heat/cool/off) for the heat pump. By default off,
@@ -2344,17 +2284,29 @@
     sensors. And even when it does turn on, other automations might stop that, based
     on the heating and cooling input booleans.'
   triggers:
+  # sensor.downstairs_temperature is a min_max sensor that flaps to unavailable
+  # when one of its source sensors drops out; filter those transitions out.
   - trigger: state
     entity_id:
     - sensor.downstairs_temperature
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   condition: []
   actions:
   - choose:
     - conditions:
+      # NOTE: this was a template comparing states() STRINGS, i.e. a
+      # lexicographic compare — "9.5" < "20.0" is False, so heating was silently
+      # skipped at single-digit temperatures. numeric_state compares numbers and
+      # accepts an entity_id as the threshold.
       - alias: Confirm if the temperature is below the minimum allowed temperature
-        condition: template
-        value_template: '{{ states(''sensor.downstairs_temperature'') < states(''input_number.hvac_heating_limit'')
-          }}'
+        condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        below: input_number.hvac_heating_limit
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         below: 18
@@ -2378,12 +2330,14 @@
         target:
           entity_id: select.operation_mode
     - conditions:
+      # Here above+below on one condition is CORRECT — it's a genuine range
+      # (heating_limit < temp < cooling_limit), which is AND semantics.
       - alias: Confirm if the temperature is below the maximum and above the minimum
           allowed temperature
-        condition: template
-        value_template: '{{ states(''sensor.downstairs_temperature'') < states(''input_number.hvac_cooling_limit'')
-          and states(''sensor.downstairs_temperature'') > states(''input_number.hvac_heating_limit'')
-          }}'
+        condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        above: input_number.hvac_heating_limit
+        below: input_number.hvac_cooling_limit
       - condition: not
         conditions:
         - condition: state
@@ -2399,9 +2353,9 @@
         alias: Turn HVAC off
     - conditions:
       - alias: Confirm if the temperature is above the maximum allowed temperature
-        condition: template
-        value_template: '{{ states(''sensor.downstairs_temperature'') > states(''input_number.hvac_cooling_limit'')
-          }}'
+        condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        above: input_number.hvac_cooling_limit
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
         above: '24'
@@ -2426,6 +2380,12 @@
           entity_id: select.operation_mode
   trace:
     stored_traces: 20
+  # This fires ~100x/day (bare state trigger on sensor.downstairs_temperature),
+  # so overlapping runs are normal and harmless. Declaring `single` explicitly
+  # documents that, and max_exceeded: silent stops the
+  # "HVAC - Control Operation Mode downstairs: Already running" warning spam.
+  mode: single
+  max_exceeded: silent
 - id: '1663352887163'
   alias: System - Alert when the kitchen cooling is off too long
   description: ''
@@ -2449,9 +2409,13 @@
   alias: System - Alert in case of heavy water usage in one day
   description: ''
   triggers:
-  - trigger: state
-    entity_id:
-    - sensor.water_daily
+  # Was a bare state trigger on sensor.water_daily — a total_increasing sensor,
+  # so this woke on every litre counted all day. numeric_state fires once, on
+  # the crossing of 5 m3. (The condition below is now redundant but harmless,
+  # and keeps the threshold visible in one more place.)
+  - trigger: numeric_state
+    entity_id: sensor.water_daily
+    above: 5
   conditions:
   - condition: numeric_state
     entity_id: sensor.water_daily
@@ -2512,9 +2476,19 @@
     on pricing or potential PV over capacity (later). So far, using the price works
     oke, the higher the price, the more need there is for power, so the less we do.
   triggers:
+  # The unavailable-guard used to be a template condition below
+  # ({{ trigger.from_state.state != "unavailable" and ... }}). Hoisted into the
+  # triggers so the automation isn't woken at all on those transitions, and so it
+  # no longer depends on trigger.from_state existing.
   - trigger: state
     entity_id:
     - sensor.energy_price_level
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - input_boolean.heating_downstairs
@@ -2522,14 +2496,17 @@
   - trigger: state
     entity_id:
     - climate.warmtepomp
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   conditions:
   - condition: state
     entity_id: input_boolean.enable_automatic_hvac
     state: 'on'
     alias: Only dis/enable the heappump when the automation is active
-  - condition: template
-    value_template: '{{ trigger.from_state.state != "unavailable" and trigger.to_state.state
-      != "unavailable" }}'
   actions:
   - alias: Turn on when needed and the price is oke, otherwise default off
     choose:
@@ -2622,15 +2599,10 @@
     - person.rob
     - person.steffi
     to: home
+  # The `or: person.rob home / person.steffi home` condition that used to sit
+  # here was always true: the trigger above already requires one of those two to
+  # have been 'home' for 15s, so it could never be false. Removed as a no-op.
   conditions:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: person.rob
-      state: home
-    - condition: state
-      entity_id: person.steffi
-      state: home
   - condition: state
     state: 'on'
     entity_id: input_boolean.guest_mode
@@ -2712,9 +2684,17 @@
   triggers:
   - trigger: homeassistant
     event: start
+  # sensor.energy_price_level flaps to unavailable ~8x/24h on integration
+  # reloads; without this each flap was an extra spurious run.
   - trigger: state
     entity_id:
     - sensor.energy_price_level
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
@@ -2729,35 +2709,29 @@
       - condition: numeric_state
         entity_id: sensor.master_bedroom_humidity
         above: '50'
-      - type: is_not_open
-        condition: device
-        device_id: e495b09d382329f43540381dedb31f15
+      - condition: state
         entity_id: binary_sensor.window_masterbed_1_openclose_contact
-        domain: binary_sensor
-      - type: is_not_open
-        condition: device
-        device_id: 83daade23505c1645165605bc56c49d1
+        state: 'off'
+      - condition: state
         entity_id: binary_sensor.window_masterbed_2_openclose_contact
-        domain: binary_sensor
+        state: 'off'
       - condition: state
         entity_id: binary_sensor.cheapest_16_hours_24h
         state: 'on'
         alias: The price should be not too high
       sequence:
-      - type: turn_on
-        device_id: 07b2e94a74ca7803550f5109008d6353
-        entity_id: humidifier.master_bedroom
-        domain: humidifier
-      - device_id: 07b2e94a74ca7803550f5109008d6353
-        domain: humidifier
-        entity_id: humidifier.master_bedroom
-        type: set_mode
-        mode: Smart
+      - action: humidifier.turn_on
+        target:
+          entity_id: humidifier.master_bedroom
+      - action: humidifier.set_mode
+        target:
+          entity_id: humidifier.master_bedroom
+        data:
+          mode: Smart
     default:
-    - type: turn_off
-      device_id: 07b2e94a74ca7803550f5109008d6353
-      entity_id: humidifier.master_bedroom
-      domain: humidifier
+    - action: humidifier.turn_off
+      target:
+        entity_id: humidifier.master_bedroom
   trace:
     stored_traces: 50
   mode: queued
@@ -2813,13 +2787,20 @@
   alias: Vacuum - Alert Sjorsje offline
   description: Alert when Sjorsje is offline
   triggers:
+  # Was a bare state trigger plus a `state: unavailable` condition — the
+  # condition was evaluated at trigger time, so it only matched if the very
+  # transition that woke it landed on unavailable, and any later flap was missed.
+  # This never fired. Now the trigger itself waits for a sustained 10 minutes of
+  # unavailable, which also filters brief Wi-Fi dropouts.
   - trigger: state
     entity_id:
     - vacuum.sjorsje
-  conditions:
-  - condition: state
-    entity_id: vacuum.sjorsje
-    state: unavailable
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  conditions: []
   actions:
   - action: persistent_notification.create
     data:
@@ -2831,15 +2812,36 @@
   description: Based on the target temperature and current temperature, move to silent
     or super silent mode.
   triggers:
+  # The Fairland pool entities are regularly unavailable (the unit is powered
+  # down out of season), which otherwise woke this automation with no usable
+  # readings — see the "invalid number state: unavailable" errors in the log.
   - trigger: state
     entity_id:
     - sensor.fairland_zwembad_wpu_temp_inlet
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - number.fairland_zwembad_wpu_target_temperature_heating
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   - trigger: state
     entity_id:
     - binary_sensor.cheapest_16_hours_24h
+    not_to:
+    - unavailable
+    - unknown
+    not_from:
+    - unavailable
+    - unknown
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -2884,42 +2886,59 @@
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
+  # Alert when EITHER the pump has been off too long, OR the pump is running and
+  # a reading is out of range / stale.
+  # Previously a single top-level `pool_pump_active: on` condition sat AFTER this
+  # OR-list, which contradicted the "pump off for 30 min" branch inside it and
+  # made that branch unreachable. Also, `above` + `below` on ONE numeric_state
+  # condition is an AND — the pH check required pH > 8.5 AND pH < 6, which is
+  # impossible, so the pH branch could never alert either. Both fixed here.
   - condition: or
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.eps_pool_ph_level
-      above: 8.5
-      below: 6
-    - condition: numeric_state
-      entity_id: sensor.eps_pool_rx_level
-      above: 850
-    - condition: numeric_state
-      entity_id: sensor.eps_pool_rx_level
-      below: 500
-    - condition: state
+    # (a) the pump itself is the problem — must NOT require the pump to be on
+    - alias: Pump has been off for more than 30 minutes
+      condition: state
       entity_id: binary_sensor.pool_pump_active
       state: 'off'
       for:
         hours: 0
         minutes: 30
         seconds: 0
-    - condition: state
-      entity_id: sensor.eps_pool_ph_level
-      state: unavailable
-      for:
-        hours: 0
-        minutes: 30
-        seconds: 0
-    - condition: state
-      for:
-        hours: 0
-        minutes: 30
-        seconds: 0
-      entity_id: sensor.eps_pool_rx_level
-      state: unavailable
-  - condition: state
-    entity_id: binary_sensor.pool_pump_active
-    state: 'on'
+    # (b) chemistry / sensor problems — only meaningful while water circulates
+    - alias: Chemistry or sensors not oke while the pump is running
+      condition: and
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.pool_pump_active
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.eps_pool_ph_level
+          above: 8.5
+        - condition: numeric_state
+          entity_id: sensor.eps_pool_ph_level
+          below: 6
+        - condition: numeric_state
+          entity_id: sensor.eps_pool_rx_level
+          above: 850
+        - condition: numeric_state
+          entity_id: sensor.eps_pool_rx_level
+          below: 500
+        - condition: state
+          entity_id: sensor.eps_pool_ph_level
+          state: unavailable
+          for:
+            hours: 0
+            minutes: 30
+            seconds: 0
+        - condition: state
+          entity_id: sensor.eps_pool_rx_level
+          state: unavailable
+          for:
+            hours: 0
+            minutes: 30
+            seconds: 0
   - condition: template
     value_template: "{% if as_timestamp(now()) | int -\n as_timestamp(states.automation.pool_alert_when_ph_or_redox_values_are_not_oke.attributes.last_triggered)\n
       \     | int > 57600 %} true {% else %} false {% endif %}"
@@ -3302,11 +3321,15 @@
           entity_id: media_player.slaapkamer_sonos
           state: playing
       sequence:
+      # clamped to 0..1 — with mode: queued below, up to 10 steps can run in a
+      # burst and an unclamped value would push volume_set out of range and error
       - action: media_player.volume_set
-        data_template:
-          volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
-            - 0.02}}'
-        entity_id: media_player.slaapkamer_sonos
+        target:
+          entity_id: media_player.slaapkamer_sonos
+        data:
+          volume_level: >
+            {{ [[(state_attr('media_player.slaapkamer_sonos', 'volume_level')
+                  | float(0.1)) - 0.02, 0] | max, 1] | min }}
     - conditions:
       - condition: and
         alias: Is sonos playing and did we turn the knob to the right
@@ -3319,11 +3342,17 @@
           state: playing
       sequence:
       - action: media_player.volume_set
-        data_template:
-          volume_level: '{{ states.media_player.slaapkamer_sonos.attributes.volume_level
-            + 0.02}}'
-        entity_id: media_player.slaapkamer_sonos
-  mode: single
+        target:
+          entity_id: media_player.slaapkamer_sonos
+        data:
+          volume_level: >
+            {{ [[(state_attr('media_player.slaapkamer_sonos', 'volume_level')
+                  | float(0.1)) + 0.02, 0] | max, 1] | min }}
+  # queued (not `single`): the Hue tap dial emits a burst of rotate/step events
+  # (recorder showed 10 in 7 seconds). With `single` every event after the first
+  # was dropped, so the volume barely moved and the knob felt dead.
+  mode: queued
+  max: 10
 - id: '1707053269958'
   alias: iOS - Open frontdoor
   description: Open the door from car or watch
@@ -3334,15 +3363,10 @@
       actionName: open_frontdoor
   condition: []
   actions:
-  - action: lock.open
-    target:
-      entity_id: lock.nuki_voordeur_slot_lock
+  # Delegates to script.open_front_door so this automation, CarPlay and any
+  # Apple Shortcut all share one definition of "open the front door".
+  - action: script.open_front_door
     data: {}
-  - action: alarm_control_panel.alarm_disarm
-    target:
-      entity_id: alarm_control_panel.alarmo
-    data:
-      code: automation
   mode: single
 - id: '1715023558828'
   alias: Doors - Unlock the front door on week days at 7:00
@@ -3376,23 +3400,23 @@
     entity_id:
     - zone.home
     above: 0
+  # Was: a template asking whether "Alarm - Disable alarm manually" was still
+  # running (state_attr(..., 'current') > 0), followed by automation.turn_off
+  # (stop_actions) + automation.turn_on to kill its in-flight delay. That hack
+  # left the automation switched OFF entirely if HA restarted between the two
+  # calls. Cancelling a timer is a first-class operation with no such window.
   conditions:
-  - condition: template
-    value_template: '{{ state_attr(''automation.alarm_disable_alarm_manually'', ''current'')
-      > 0 }}'
-    alias: Is the "Disable alarm manually" automation running?
+  - condition: state
+    entity_id: timer.alarm_pause
+    state: active
+    alias: Is the manual alarm pause still running?
   actions:
-  - action: automation.turn_off
-    metadata: {}
-    data:
-      stop_actions: true
-    target:
-      entity_id: automation.alarm_disable_alarm_manually
-  - action: automation.turn_on
+  # timer.cancel does NOT emit timer.finished, so the re-arm automation stays put
+  - action: timer.cancel
     target:
       entity_id:
-      - automation.alarm_disable_alarm_manually
-    data: {}
+      - timer.alarm_pause
+      - timer.alarm_pause_warning
   mode: single
 - id: '1716736577091'
   alias: Frigate / Generative AI / Notification TEST
@@ -3428,7 +3452,7 @@
       state: armed_night
     alias: Are we away or is the night alarm active
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.test_frigate_generative_ai_notification.attributes.last_triggered,
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.frigate_generative_ai_notification_test.attributes.last_triggered,
       0) | int > 20 }}'
     alias: Only trigger once per 20 seconds
   - condition: state
@@ -3498,9 +3522,15 @@
   description: Avoid paying for delivering energy but also limit the impact on the
     power grid in case there is no need
   triggers:
-  - trigger: state
-    entity_id:
-    - sensor.current_price_electricity
+  # Was a bare state trigger on the price sensor: ~113 runs/day (a new price
+  # every 15 min), while the actions only ever matter at the zero-crossing.
+  # numeric_state fires only on the crossing itself -> ~2 runs/day.
+  - trigger: numeric_state
+    entity_id: sensor.current_price_electricity
+    below: 0
+  - trigger: numeric_state
+    entity_id: sensor.current_price_electricity
+    above: 0
   condition: []
   actions:
   - choose:
@@ -3512,6 +3542,16 @@
         entity_id: number.solaredge_active_power_limit
         state: '100'
       sequence:
+      # This action was missing: the branch only ever posted the notification,
+      # so the panels kept producing at negative prices AND the re-enable
+      # branch below (which requires state '0') could never fire either.
+      - action: number.set_value
+        metadata: {}
+        data:
+          value: '0'
+        target:
+          entity_id: number.solaredge_active_power_limit
+        alias: Disable the solar panels
       - action: persistent_notification.create
         data:
           title: Zonnepanelen
@@ -3621,10 +3661,18 @@
       minutes: 1
       seconds: 0
   conditions:
+  # Was a template wrapped in literal apostrophes ('''{{ ... }}''') AND disabled,
+  # so the automation ran UNCONDITIONALLY and posted a notification on every
+  # target change. It also only ever compared against the WINTER target, while
+  # the actions below pick winter/summer based on select.operation_mode — so the
+  # guard is now mode-aware and matches what the actions actually do.
   - condition: template
-    value_template: '''{{ state_attr(''climate.warmtepomp'', ''temperature'')|int
-      !=  states(''input_number.hvac_winter_target_temperature'')|int }}'''
-    enabled: false
+    value_template: >
+      {% set current = state_attr('climate.warmtepomp', 'temperature') | float(0) %}
+      {% set wanted = (states('input_number.hvac_winter_target_temperature') | float(0))
+                      if is_state('select.operation_mode', 'heating')
+                      else (states('input_number.hvac_summer_target_temperature') | float(0)) %}
+      {{ (current - wanted) | abs > 0.01 }}
   actions:
   - action: persistent_notification.create
     metadata: {}
@@ -3706,10 +3754,14 @@
       minutes: 1
       seconds: 0
   conditions:
-  - condition: template
-    value_template: '''{{ state_attr(''water_heater.domestic_hot_water_tank'', ''temperature'')|int
-      > 46 }}'''
-    enabled: true
+  # Was a template wrapped in literal apostrophes ('''{{ ... }}'''), which
+  # rendered "'True'" (quotes included) — cv.boolean rejects that, so the
+  # condition was ALWAYS false and this automation never ran. Replaced with a
+  # native numeric_state condition, which needs no template at all.
+  - condition: numeric_state
+    entity_id: water_heater.domestic_hot_water_tank
+    attribute: temperature
+    above: 46
   actions:
   - action: persistent_notification.create
     metadata: {}
@@ -3772,7 +3824,13 @@
   - action: switch.turn_{{ trigger.to_state.state }}
     target:
       entity_id: '{{ other_switch }}'
-  mode: single
+  # queued (not `single`): when both switches change at nearly the same moment,
+  # `single` dropped the second event and the pair could end up out of sync.
+  # The `states(other_switch) != trigger.to_state.state` condition above still
+  # prevents a feedback loop, because the follower's own state change then
+  # evaluates to false.
+  mode: queued
+  max: 2
 - id: evabed_sound_detection_armed_night
   alias: Eva Bed Sound Detection - Avond/Nacht
   description: Detecteert nood-geluiden (huilen, gillen, schreeuwen, hoesten) via
@@ -3796,7 +3854,7 @@
     after: '19:30:00'
     before: '07:00:00'
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.eva_bed_sound_detection_armed_night.attributes.last_triggered,
+    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.eva_bed_sound_detection_avond_nacht.attributes.last_triggered,
       0) | int > 300 }}'
   actions:
   - variables:
@@ -3878,9 +3936,20 @@
       to: 'on'
   conditions: []
   actions:
+    # Wake the wall tablet first: screen on + Fully Kiosk to the foreground so
+    # browser_mod is connected when the popup fires (otherwise it can miss the
+    # sleeping tablet and land on another browser holding the same browser id).
+    - action: switch.turn_on
+      target:
+        entity_id: switch.tab_a9_van_rob_screen
+    - action: button.press
+      target:
+        entity_id: button.tab_a9_van_rob_bring_to_foreground
+    - delay: '00:00:02'
     - action: browser_mod.popup
       data:
-        # target the wall tablet; add more browser_ids here for other devices
+        # target the wall tablet by its registered browser_mod id
+        # (the tablet's own Browser ID is still 028; laptop is now laptop-firefox)
         browser_id:
           - browser_mod_028aaaa1_36a40792
         title: >

@@ -1,0 +1,63 @@
+# Energy dashboard helpers — backing the #energie pop-up extras.
+#   - live self-sufficiency / self-consumption % (instantaneous, from power
+#     sensors — accurate immediately, no utility_meter / restart needed)
+#   - cheapest / priciest moment today (from Nordpool raw_today)
+#
+# Units checked: solaredge_dc_power is W (÷1000); power_consumed = grid IMPORT
+# kW; power_produced = grid EXPORT kW; net_power_consumption = HOME load kW.
+# Nordpool raw_today = 15-min slots; +0.1108 = all-in markup.
+# Price level reuses the existing sensor.energy_price_level.
+
+template:
+  - sensor:
+      # solar production in kW (solaredge_dc_power is W) — for the gauge
+      - name: Solar power now kW
+        unique_id: solar_power_now_kw
+        unit_of_measurement: kW
+        device_class: power
+        state: >
+          {{ (states('sensor.solaredge_dc_power') | float(0) / 1000) | round(2) }}
+
+      # % of the house's current load covered by own solar (rest from grid)
+      - name: Energy self sufficiency now
+        unique_id: energy_self_sufficiency_now
+        unit_of_measurement: '%'
+        icon: mdi:home-lightning-bolt
+        state: >
+          {% set home = states('sensor.net_power_consumption') | float(0) %}
+          {% set imp = states('sensor.power_consumed') | float(0) %}
+          {% set v = (100 * (home - imp) / home) if home > 0.05 else 0 %}
+          {{ [[v, 0] | max, 100] | min | round(0) }}
+
+      # % of current solar production used in the house (rest exported)
+      - name: Energy self consumption now
+        unique_id: energy_self_consumption_now
+        unit_of_measurement: '%'
+        icon: mdi:solar-power
+        state: >
+          {% set solar = states('sensor.solaredge_dc_power') | float(0) / 1000 %}
+          {% set exp = states('sensor.power_produced') | float(0) %}
+          {% set v = (100 * (solar - exp) / solar) if solar > 0.05 else 0 %}
+          {{ [[v, 0] | max, 100] | min | round(0) }}
+
+      - name: Energy cheapest time today
+        unique_id: energy_cheapest_time_today
+        icon: mdi:trending-down
+        state: >
+          {% set r = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021','raw_today') %}
+          {% if r %}{{ (r | min(attribute='value')).start.strftime('%H:%M') }}{% else %}—{% endif %}
+        attributes:
+          price: >
+            {% set r = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021','raw_today') %}
+            {% if r %}{{ ((r | min(attribute='value')).value + 0.1108) | round(2) }}{% else %}0{% endif %}
+
+      - name: Energy priciest time today
+        unique_id: energy_priciest_time_today
+        icon: mdi:trending-up
+        state: >
+          {% set r = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021','raw_today') %}
+          {% if r %}{{ (r | max(attribute='value')).start.strftime('%H:%M') }}{% else %}—{% endif %}
+        attributes:
+          price: >
+            {% set r = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021','raw_today') %}
+            {% if r %}{{ ((r | max(attribute='value')).value + 0.1108) | round(2) }}{% else %}0{% endif %}

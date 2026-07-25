@@ -313,3 +313,23 @@ sonos_active_control:
         - action: media_player.media_play_pause
           target:
             entity_id: "{{ active }}"
+open_front_door:
+  alias: Voordeur openen
+  # Single entry point for "open the front door". Deliberately a script rather
+  # than only an iOS Action: the YAML `ios: actions:` push to the companion app
+  # stopped reaching the phone after the 2026.5.4 -> 2026.7.x upgrade, and
+  # scripts are reachable from surfaces that need no sync at all — CarPlay
+  # lists the script domain directly, and Apple Shortcuts ("Perform action")
+  # can call it from the Watch, a complication, or Siri.
+  # "iOS - Open frontdoor" calls this too, so every route behaves identically.
+  sequence:
+  - action: lock.open          # unlatch — lock reports supported_features 1 (OPEN)
+    target:
+      entity_id: lock.nuki_voordeur_slot_lock
+  - action: alarm_control_panel.alarm_disarm
+    target:
+      entity_id: alarm_control_panel.alarmo
+    data:
+      code: automation
+  mode: single
+  icon: mdi:door-open

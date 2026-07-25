@@ -1,0 +1,125 @@
+# Music Assistant hub — helpers + scripts backing the #muziek pop-up.
+#
+# The hub plays presets / search results / favourites to ONE selected room,
+# chosen via input_select.music_hub_room. Each script maps that display name
+# to the Music Assistant media_player entity (and, for favourites, its button).
+# The player map is repeated per script on purpose so each stays self-contained.
+#
+# music_assistant.play_media resolves media_id by NAME (verified: "NPO 3FM"
+# → radiobrowser station), so presets/search just pass a human name + type.
+
+input_select:
+  music_hub_room:
+    name: Muziek hub kamer
+    icon: mdi:speaker-multiple
+    options:
+      - Woonkamer
+      - Eetkamer
+      - Shed
+      - Office
+      - Eva
+      - TV Speaker
+      - Sonos Roam
+    initial: Woonkamer
+
+input_text:
+  music_hub_search:
+    name: Muziek zoeken
+    icon: mdi:magnify
+    max: 100
+
+script:
+  # Play a preset (or any media_id) on the currently selected room.
+  music_hub_play:
+    alias: Muziek hub — speel media
+    mode: restart
+    fields:
+      media_id:
+        description: Naam of URI van radio/playlist/track
+        example: NPO Radio 2
+      media_type:
+        description: radio | playlist | track | album | artist
+        example: radio
+    variables:
+      players: &hub_players
+        Woonkamer: media_player.woonkamer_ma_sonos
+        Eetkamer: media_player.eetkamer_ma_sonos
+        Shed: media_player.office_ma_sonos
+        Office: media_player.unnamed_room_3
+        Eva: media_player.unnamed_room
+        TV Speaker: media_player.tv_speaker_ma_sonos
+        Sonos Roam: media_player.sonos_roam_2
+      target_player: "{{ players[states('input_select.music_hub_room')] }}"
+    sequence:
+      - action: music_assistant.play_media
+        target:
+          entity_id: "{{ target_player }}"
+        data:
+          media_id: "{{ media_id }}"
+          media_type: "{{ media_type | default('radio') }}"
+
+  # Search the typed text and play the best match on the selected room.
+  music_hub_search_play:
+    alias: Muziek hub — zoek & speel
+    mode: restart
+    fields:
+      media_type:
+        description: track | playlist | radio | album | artist
+        example: track
+    variables:
+      players: *hub_players
+      target_player: "{{ players[states('input_select.music_hub_room')] }}"
+      query: "{{ states('input_text.music_hub_search') }}"
+    sequence:
+      - condition: template
+        value_template: "{{ query | trim | length > 0 }}"
+      - action: music_assistant.play_media
+        target:
+          entity_id: "{{ target_player }}"
+        data:
+          media_id: "{{ query }}"
+          media_type: "{{ media_type | default('track') }}"
+
+  # Favourite the currently playing track on the selected room.
+  music_hub_favorite:
+    alias: Muziek hub — favoriet dit nummer
+    mode: restart
+    variables:
+      buttons:
+        Woonkamer: button.woonkamer_favorite_current_song
+        Eetkamer: button.eetkamer_favorite_current_song
+        Shed: button.office_favorite_current_song
+        Office: button.unnamed_room_favorite_current_song
+        Eva: button.unnamed_room_favorite_current_song_2
+        TV Speaker: button.tv_speaker_favorite_current_song
+        Sonos Roam: button.sonos_roam_favorite_current_song
+    sequence:
+      - action: button.press
+        target:
+          entity_id: "{{ buttons[states('input_select.music_hub_room')] }}"
+
+  # Group every hub room onto the selected room (it becomes the leader).
+  music_hub_group:
+    alias: Muziek hub — groepeer alle kamers
+    mode: restart
+    variables:
+      players: *hub_players
+      leader: "{{ players[states('input_select.music_hub_room')] }}"
+      members: "{{ players.values() | reject('eq', leader) | list }}"
+    sequence:
+      - action: media_player.join
+        target:
+          entity_id: "{{ leader }}"
+        data:
+          group_members: "{{ members }}"
+
+  # Ungroup every hub room.
+  music_hub_ungroup:
+    alias: Muziek hub — ontkoppel alle kamers
+    mode: restart
+    variables:
+      players: *hub_players
+    sequence:
+      - action: media_player.unjoin
+        target:
+          entity_id: "{{ players.values() | list }}"

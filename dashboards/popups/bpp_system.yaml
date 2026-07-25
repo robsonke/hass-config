@@ -59,6 +59,24 @@ cards:
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
           .bubble-state { font-size: 0 !important; }
           .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${hass.states['sensor.unavailable_entities']?.state ?? '—'}"; }
+      # System-wide count (sensor.all_unavailable_entities), as opposed to the
+      # tile above which only counts group.monitored_entities. Deliberately NOT
+      # red/green: a non-zero total is the normal state here, because whole
+      # domains (button/event/notify/stt/tts/text and most Zigbee config
+      # selects) sit at `unknown` by design until first use. A threshold colour
+      # would be permanently red and stop meaning anything.
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.all_unavailable_entities
+        name: Totaal offline
+        icon: mdi:counter
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #9bb6c8 !important; content: "${hass.states['sensor.all_unavailable_entities']?.state ?? '—'}"; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -100,15 +118,19 @@ cards:
         icon: mdi:server
         name: Schijf
   # ── offline entities ──────────────────────────────────────────────
-  # separator only when a monitored entity is actually offline (auto-entities
-  # already hides itself; this hides the lingering header)
-  - type: custom:bubble-card
-    card_type: separator
-    name: Belangrijke entities offline
-    visibility:
-      - condition: template
-        value_template: >
-          {{ expand('group.monitored_entities') | selectattr('state','in',['unavailable','unknown','none']) | list | count > 0 }}
+  # Separator only when a monitored entity is actually offline (auto-entities
+  # already hides itself; this hides the lingering header). Uses a native
+  # `conditional` card — Bubble Card does NOT honour HA's `visibility:` on the
+  # child cards of a pop-up, which made this header hidden ALWAYS.
+  - type: conditional
+    conditions:
+      - condition: numeric_state
+        entity: sensor.unavailable_entities
+        above: 0
+    card:
+      type: custom:bubble-card
+      card_type: separator
+      name: Belangrijke entities offline
   - type: custom:auto-entities
     show_empty: false
     card:

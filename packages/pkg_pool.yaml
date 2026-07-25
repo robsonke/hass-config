@@ -10,8 +10,7 @@
 template:
   - binary_sensor:
     - unique_id: pool_pump_active
-      attributes:
-        friendly_name: Pool Pump Active
+      name: Pool Pump Active
       state: >
         {{ states('sensor.pool_shelly_3em_active_power_phase_b') | float(0) > 20 }}
   - lock:
@@ -58,8 +57,15 @@ template:
     - name: "Pool Heating Temperature Diff"
       icon: mdi:heat-wave
       unique_id: pool_heating_temperature_diff
+      # Without this, `int(default=0)` silently turned an unavailable source into
+      # 0, so the diff spiked to +27 (inlet dropped out) or -27 (target dropped
+      # out) — valid-looking numbers that "Pool - Control the Pool Heatpump" then
+      # used with `above: 1/2/4` to choose the pump's power mode. Going properly
+      # unavailable instead means consumers can filter it out.
+      availability: >
+        {{ has_value('number.fairland_zwembad_wpu_target_temperature_heating')
+           and has_value('sensor.fairland_zwembad_wpu_temp_inlet') }}
       attributes:
-        friendly_name: Pool Heating Temperature Diff
         has_diff: >
           {{ states('number.fairland_zwembad_wpu_target_temperature_heating') | int(default=0) - states('sensor.fairland_zwembad_wpu_temp_inlet') | int(default=0) > 0 }}
       state: >

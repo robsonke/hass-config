@@ -267,8 +267,6 @@ cards:
         attribute: site_name
       status:
         entity_id: sensor.ehhatdgg_status
-      substatus:
-        entity_id: sensor.ehhatdgg_reason_for_no_current
       smartcharging:
         entity_id: switch.ehhatdgg_smart_charging
       group1:
@@ -299,9 +297,6 @@ cards:
         - entity_id: sensor.ehhatdgg_circuit_current
           text: circuit_current
           unit_show: true
-        - entity_id: sensor.ehhatdgg_energy_per_hour
-          text: energy_per_hour
-          unit_show: true
         - entity_id: sensor.ehhatdgg_session_energy
           text: session_energy
           unit_show: true
@@ -323,8 +318,6 @@ cards:
           text: cost_per_kwh
         - entity_id: binary_sensor.ehhatdgg_update_available
           text: update_available
-        - entity_id: binary_sensor.ehhatdgg_basic_schedule
-          text: schedule
       stats:
         default:
           - entity_id: sensor.ehhatdgg_session_energy
@@ -332,8 +325,6 @@ cards:
             unit_show: true
           - entity_id: switch.ehhatdgg_cable_locked_permanently
             text: cable_locked
-          - entity_id: binary_sensor.ehhatdgg_basic_schedule
-            text: schedule
         disconnected:
           - entity_id: sensor.ehhatdgg_session_energy
             text: session_energy
@@ -355,8 +346,6 @@ cards:
           - entity_id: sensor.ehhatdgg_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: binary_sensor.ehhatdgg_basic_schedule
-            text: schedule
           - entity_id: switch.ehhatdgg_smart_charging
             text: smart_charging
           - entity_id: calculated
@@ -374,9 +363,6 @@ cards:
           - entity_id: sensor.ehhatdgg_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: sensor.ehhatdgg_energy_per_hour
-            text: energy_per_hour
-            unit_show: true
           - entity_id: sensor.ehhatdgg_circuit_current
             text: circuit_current
             unit_show: true
@@ -393,8 +379,6 @@ cards:
           - entity_id: sensor.ehhatdgg_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: binary_sensor.ehhatdgg_basic_schedule
-            text: schedule
           - entity_id: calculated
             text: used_limit
             unit: A

@@ -35,42 +35,12 @@ rest_command:
     timeout: 15
     payload: '{"CBU":{{ cbu }},"motor_1":{"Action":{{ motor_1_action }},"TimeInMs": {{ motor_1_time }} },"motor_2":{"Action":{{ motor_2_action }},"TimeInMs": {{ motor_2_time }} },"motor_3":{"Action":{{ motor_3_action }},"TimeInMs": {{ motor_3_time }} }}'
 
-# Reliability wrapper: the bed's IP is sometimes briefly unreachable (Wi-Fi
-# reconnect). This script POSTs to the bed and retries up to 3x (2s apart)
-# ONLY while it hasn't received an HTTP 200 — so a successful command is
-# never sent twice (the motor never double-moves). Covers + dashboard call
-# this instead of rest_command.auping_bed directly.
-script:
-  auping_bed:
-    alias: Auping bed (met retry)
-    mode: restart
-    fields:
-      cbu: { description: "0=beide, 1=Steffi, 2=Rob" }
-      motor_1_action: {}
-      motor_1_time: {}
-      motor_2_action: {}
-      motor_2_time: {}
-      motor_3_action: {}
-      motor_3_time: {}
-    sequence:
-      - repeat:
-          count: 3
-          sequence:
-            - action: script.auping_bed
-              continue_on_error: true
-              data:
-                cbu: "{{ cbu }}"
-                motor_1_action: "{{ motor_1_action }}"
-                motor_1_time: "{{ motor_1_time }}"
-                motor_2_action: "{{ motor_2_action }}"
-                motor_2_time: "{{ motor_2_time }}"
-                motor_3_action: "{{ motor_3_action }}"
-                motor_3_time: "{{ motor_3_time }}"
-              response_variable: bed_response
-            - if: "{{ bed_response is defined and (bed_response.status | default(0)) == 200 }}"
-              then:
-                - stop: "Verzonden"
-            - delay: { seconds: 2 }
+# NOTE: there used to be a `script.auping_bed` retry wrapper here. It was
+# broken — it called `script.auping_bed` (itself) instead of
+# `rest_command.auping_bed`, and with `mode: restart` each call killed the
+# previous one, so the POST never reached the bed and the buttons did nothing.
+# Removed: the covers and dashboard now call rest_command.auping_bed directly
+# (which is what worked before the wrapper was introduced).
 
 template:
   - cover:
@@ -78,7 +48,7 @@ template:
       device_class: shutter
       optimistic: false
       open_cover:
-      - action: script.auping_bed
+      - action: rest_command.auping_bed
         data:
           cbu: 2
           motor_1_action: 0
@@ -88,7 +58,7 @@ template:
           motor_3_action: 0
           motor_3_time: 0
       close_cover:
-      - action: script.auping_bed
+      - action: rest_command.auping_bed
         data:
           cbu: 2
           motor_1_action: 0
@@ -98,7 +68,7 @@ template:
           motor_3_action: 0
           motor_3_time: 0
       stop_cover:
-      - action: script.auping_bed
+      - action: rest_command.auping_bed
         data:
           cbu: 2
           motor_1_action: 0
@@ -116,7 +86,7 @@ template:
       device_class: shutter
       optimistic: false
       open_cover:
-      - action: script.auping_bed
+      - action: rest_command.auping_bed
         data:
           cbu: 1
           motor_1_action: 0
@@ -126,7 +96,7 @@ template:
           motor_3_action: 0
           motor_3_time: 0
       close_cover:
-      - action: script.auping_bed
+      - action: rest_command.auping_bed
         data:
           cbu: 1
           motor_1_action: 0
@@ -136,7 +106,7 @@ template:
           motor_3_action: 0
           motor_3_time: 0
       stop_cover:
-      - action: script.auping_bed
+      - action: rest_command.auping_bed
         data:
           cbu: 1
           motor_1_action: 0

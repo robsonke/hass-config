@@ -339,24 +339,18 @@ template:
   - sensor:
     - unique_id: daily_consumption_energy
       name: "Daily Consumption Energy"
-      attributes:
-        friendly_name: "Daily Consumption Energy"
       unit_of_measurement: kWh
       device_class: energy
       state_class: total_increasing
       state: "{{ states('sensor.daily_energy_offpeak')|float(0) + states('sensor.daily_energy_peak')|float(0) }}"
     - unique_id: monthly_consumption_energy
       name: "Monthly Consumption Energy"
-      attributes:
-        friendly_name: "Monthly Consumption Energy"
       unit_of_measurement: kWh
       device_class: energy
       state_class: total_increasing
       state: "{{ states('sensor.monthly_energy_offpeak')|float(0) + states('sensor.monthly_energy_peak')|float(0) }}"
     - unique_id: yearly_consumption_energy
       name: "Yearly Consumption Energy"
-      attributes:
-        friendly_name: "Yearly Consumption Energy"
       unit_of_measurement: kWh
       device_class: energy
       state_class: total_increasing
@@ -372,15 +366,11 @@ template:
     # same sensor but with other unit of measurement
     - unique_id: power_consumption_watt
       name: Power Consumption Watt
-      attributes:
-        friendly_name: Power Consumption Watt
       unit_of_measurement: 'W'
       state: "{{ states('sensor.power_consumption') | float(default=0) * 1000 | round(0) }}"
     # convert the uptime one to a real value
     - unique_id: ha_uptime
       name: 'HA uptime minutes'
-      attributes:
-        friendly_name: 'HA uptime minutes'
       icon: mdi:arrow-up-circle-outline
       state: >
         {{ (as_timestamp(now()) - as_timestamp(states('sensor.uptime'), 0)) / 60 }}
@@ -435,15 +425,11 @@ template:
     - name: Average price today
       unique_id: average_price_today
       icon: mdi:lightning-bolt
-      attributes:
-        friendly_name: Average price today
       state: >-
         {{ ((state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | sum(attribute='value') / state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') | count) + (0.1108)) | round(2, 'floor') }}
     - name: Average price tomorrow
       unique_id: average_price_tomorrow
       icon: mdi:lightning-bolt
-      attributes:
-        friendly_name: Average price tomorrow
       state: >-
         {% set sumTomorrow = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_tomorrow') | sum(attribute='value') | float(default=0) %}
         {% set countTomorrow = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_tomorrow') | count %}
@@ -456,8 +442,6 @@ template:
   - binary_sensor:
     - name: Cheapest 8 Hours 24h
       unique_id: cheapest_8_hours_24h
-      attributes:
-        friendly_name: Cheapest 8 Hours 24h
       state: >-
         {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
         {%- set cheap_hours = namespace(number=8) %}
@@ -476,8 +460,6 @@ template:
         {{ ns.cheapest_hour }}
     - name: Cheapest 12 Hours 24h
       unique_id: cheapest_12_hours_24h
-      attributes:
-        friendly_name: Cheapest 12 Hours 24h
       state: >-
         {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
         {%- set cheap_hours = namespace(number=12) %}
@@ -496,8 +478,6 @@ template:
         {{ ns.cheapest_hour }}
     - name: Cheapest 16 Hours 24h
       unique_id: cheapest_16_hours_24h
-      attributes:
-        friendly_name: Cheapest 16 Hours 24h
       state: >-
         {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
         {%- set cheap_hours = namespace(number=16) %}

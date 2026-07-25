@@ -28,7 +28,6 @@ template:
   - sensor:
     - unique_id: stookwijzer_advice_1
       attributes:
-        friendly_name: Stookwijzer Advies 1
         time: "{{ states('sensor.stookwijzer_json_data') | int | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_0') }}"
       name: Stookwijzer Advies 1
@@ -46,7 +45,6 @@ template:
         {% endif %}
     - unique_id: stookwijzer_advice_2
       attributes:
-        friendly_name: Stookwijzer Advies 2
         time: "{{ ((states('sensor.stookwijzer_json_data') | int) + (6 * 3600)) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_6') }}"
       name: Stookwijzer Advies 2
@@ -64,7 +62,6 @@ template:
         {% endif %}
     - unique_id: stookwijzer_advice_3
       attributes:
-        friendly_name: Stookwijzer Advies 3
         time: "{{ ((states('sensor.stookwijzer_json_data') | int) + (12 * 3600)) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_12') }}"
       name: Stookwijzer Advies 3
@@ -82,7 +79,6 @@ template:
         {% endif %}
     - unique_id: stookwijzer_advice_4
       attributes:
-        friendly_name: Stookwijzer Advies 4
         time: "{{ ((states('sensor.stookwijzer_json_data') | int) + (18 * 3600)) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_18') }}"
       name: Stookwijzer Advies 4
