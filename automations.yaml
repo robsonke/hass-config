@@ -1100,7 +1100,7 @@
     above: 90
   - trigger: numeric_state
     entity_id: sensor.solaredge_dc_power
-    above: 1500
+    above: 2000
     for:
       minutes: 5
   - trigger: time_pattern
@@ -1108,9 +1108,22 @@
   conditions:
   # VOORRAAM faces SOUTH → it gets sun from mid-morning through mid-afternoon.
   # Orientation is driven by the sun's real azimuth/elevation (season-aware,
-  # so no seasonal re-tuning), and "is it actually sunny" by real PV output
-  # (solaredge_dc_power) rather than OpenWeatherMap's unreliable cloud %.
-  # Threshold 1500 W (lower than the side screen) so it closes earlier.
+  # so no seasonal re-tuning).
+  #
+  # "IS IT ACTUALLY SUNNY" NEEDS TWO SIGNALS. PV output alone was used here, on
+  # the grounds that OpenWeatherMap's cloud % is unreliable — but PV alone let
+  # a rainy overcast day through: 2026-07-26 sat at 3518 W under 76% cloud with
+  # the weather entity reporting `rainy`, sailing past the old 1500 W bar, and
+  # both screens closed. For reference a genuinely sunny 2026-07-25 15:20 made
+  # 6600 W at 1-3% cloud. So PV is a poor *sunshine* discriminator: bright
+  # overcast still generates plenty.
+  #   * cloud coverage < 40%  → is the sky actually clear (season-independent)
+  #   * PV > 2000 W           → sanity floor that real irradiance exists, so a
+  #                             stale/wrong OWM reading cannot close the screens
+  #                             on its own. Kept deliberately low so genuinely
+  #                             sunny shoulder-season days still qualify.
+  # NB garden illuminance was evaluated and rejected: that sensor sits in shade
+  # and read ~1400 lx both on the sunny day and the cloudy one.
   - condition: state
     entity_id: cover.voorraam
     state: open
@@ -1127,16 +1140,28 @@
     above: 15
   - condition: numeric_state
     entity_id: sensor.solaredge_dc_power
-    above: 1500
+    above: 2000
+  - condition: numeric_state
+    entity_id: sensor.openweathermap_cloud_coverage
+    below: 40
   - condition: numeric_state
     entity_id: sensor.today_maximum_temperature
     above: '20'
   # comfort floor only — the azimuth/elevation conditions do the real work
   - condition: time
     after: 08:00:00
+  # Not raining now. Was `state: '0.0'` compared against the raw gauge — a
+  # string match that silently stops blocking the moment the gauge reports "0"
+  # or "0.00". binary_sensor.rain_detected is `unavailable` if the gauge dies, and
+  # this condition then fails, so a dead sensor keeps the screens UP.
   - condition: state
-    entity_id: sensor.rate_rain_piezo
-    state: '0.0'
+    entity_id: binary_sensor.rain_detected
+    state: 'off'
+  # rain_detected is instantaneous by design, so on a showery day it is 'off'
+  # between showers. Also require a dry last hour.
+  - condition: numeric_state
+    entity_id: sensor.hourly_rain_piezo
+    below: 0.1
   - condition: state
     entity_id: input_boolean.enable_automatic_screens
     state: 'on'
@@ -1175,14 +1200,11 @@
       minutes: 15
   - trigger: sun
     event: sunset
-  - trigger: numeric_state
-    entity_id: sensor.rate_rain_piezo
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 10
-    above: '0'
-    below: '1000'
+  # Rain started. The 10-second confirmation that used to live here as `for:`
+  # is now binary_sensor.rain_detected's delay_on, so every consumer shares it.
+  - trigger: state
+    entity_id: binary_sensor.rain_detected
+    to: 'on'
   conditions:
   - condition: state
     entity_id: cover.voorraam
@@ -1247,14 +1269,11 @@
     for:
       minutes: 15
     id: clouded
-  - trigger: numeric_state
-    entity_id: sensor.rate_rain_piezo
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 10
-    above: '0'
-    below: '1000'
+  # Rain started. The 10-second confirmation that used to live here as `for:`
+  # is now binary_sensor.rain_detected's delay_on, so every consumer shares it.
+  - trigger: state
+    entity_id: binary_sensor.rain_detected
+    to: 'on'
     id: rain
   conditions:
   - condition: state
@@ -2097,7 +2116,7 @@
     above: 200
   - trigger: numeric_state
     entity_id: sensor.solaredge_dc_power
-    above: 1200
+    above: 2000
     for:
       minutes: 5
   - trigger: time_pattern
@@ -2132,13 +2151,24 @@
     above: 7
   - condition: numeric_state
     entity_id: sensor.solaredge_dc_power
-    above: 1200
+    above: 2000
+  # See the voorraam automation for why sunshine needs BOTH cloud % and PV:
+  # 3518 W under 76% cloud on a `rainy` day cleared the old 1200 W bar.
+  - condition: numeric_state
+    entity_id: sensor.openweathermap_cloud_coverage
+    below: 40
   - condition: numeric_state
     entity_id: sensor.today_maximum_temperature
     above: '20'
+  # not raining now — see the voorraam automation for why this replaced a
+  # string comparison against sensor.rate_rain_piezo
   - condition: state
-    entity_id: sensor.rate_rain_piezo
-    state: '0.0'
+    entity_id: binary_sensor.rain_detected
+    state: 'off'
+  # rain_detected is instantaneous — also require a dry last hour
+  - condition: numeric_state
+    entity_id: sensor.hourly_rain_piezo
+    below: 0.1
   - condition: state
     entity_id: input_boolean.enable_automatic_screens
     state: 'on'

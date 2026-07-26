@@ -333,3 +333,44 @@ open_front_door:
       code: automation
   mode: single
   icon: mdi:door-open
+# Auping bed, Rob's side — for home-screen app icon shortcuts.
+#
+# CBU 2 = Rob's side (1 = Steffi). This bed uses motor 2, so motors 1 and 3 are
+# always sent as Action 0 / 0 ms. Action: 1 = up, 2 = down, 0 = stop.
+# TimeInMs is how long the motor runs, i.e. how far it travels. Up uses 14000
+# (~14 s) and down 20000 (~20 s); the cover entities in pkg_bed.yaml use 30000
+# for a full run in either direction.
+#
+# These call rest_command.auping_bed directly and deliberately have no retry
+# wrapper — see the note in pkg_bed.yaml about the old script.auping_bed, which
+# recursed into itself and meant the POST never reached the bed.
+bed_rob_up:
+  alias: Bed Rob up
+  icon: mdi:bed-double
+  sequence:
+  - action: rest_command.auping_bed
+    data:
+      cbu: 2
+      motor_1_action: 0
+      motor_1_time: 0
+      motor_2_action: 1
+      motor_2_time: 14000
+      motor_3_action: 0
+      motor_3_time: 0
+  mode: single
+bed_rob_down:
+  alias: Bed Rob down
+  icon: mdi:bed-double-outline
+  sequence:
+  - action: rest_command.auping_bed
+    data:
+      cbu: 2
+      motor_1_action: 0
+      motor_1_time: 0
+      motor_2_action: 2
+      # Longer than the 14000 used going up — down needs the extra travel to
+      # reach flat.
+      motor_2_time: 20000
+      motor_3_action: 0
+      motor_3_time: 0
+  mode: single

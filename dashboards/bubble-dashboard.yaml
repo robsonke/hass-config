@@ -75,17 +75,37 @@ views:
               disable_animations: false
             modules: &weer_modules
               - weather_forecast          # own animated background + weather icon; no neon override
-            # `button_type: state` alone shows only the condition ("Zonnig").
-            # Prepend the current temperature from the same weather entity, the
-            # same way the #weer pop-up header does it.
-            # NOTE: no commas inside content:'s ${...} — Bubble Card eats the
-            # character following a comma in a CSS `content` value.
-            styles: &weer_styles |
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
-                font-size: 14px !important; font-weight: 500;
-                content: "${(() => { const w = hass.states['weather.weather_langeweide_ecowitt']; if (!w) return '—'; const t = w.attributes?.temperature; const cond = hass.formatEntityState ? hass.formatEntityState(w) : w.state; return (t != null ? Math.round(t) + '°C' : '—') + (cond ? ' · ' + cond : ''); })()}";
-              }
+            # Current temperature as a NATIVE sub-button (renders top-right on the
+            # large layout). This replaces an earlier CSS `.bubble-state::after`
+            # hack that overwrote the state text with "24°C · Zonnig".
+            # The native route is better: `button_type: state` keeps showing the
+            # localised condition on its own line, the value is formatted and
+            # unit-aware via `show_attribute`, and it needs none of the
+            # comma-avoidance required inside a CSS `content` value.
+            sub_button: &weer_sub
+              - entity: *weer_entity
+                icon: mdi:thermometer
+                show_attribute: true
+                attribute: temperature
+                show_state: false
+                show_name: false
+                show_background: false
+              # Live rain intensity, shown ONLY while it is actually raining.
+              # Displays sensor.rate_rain_piezo (mm/h comes free — sub-button
+              # state goes through hass.formatEntityState), but the show/hide
+              # decision is delegated to binary_sensor.rain_detected so the
+              # definition of "raining" lives in exactly one place (see
+              # pkg_weather.yaml). That also gives the chip rain_detected's 2-minute
+              # delay_off, so it does not flicker between bursts of a shower.
+              - entity: sensor.rate_rain_piezo
+                icon: mdi:weather-pouring
+                show_state: true
+                show_name: false
+                show_background: true
+                visibility:
+                  - condition: state
+                    entity: binary_sensor.rain_detected
+                    state: 'on'
             visibility:
               - condition: screen
                 media_query: "(min-width: 768px)"
@@ -109,7 +129,7 @@ views:
               disable_dynamic_background: false
               disable_animations: false
             modules: *weer_modules
-            styles: *weer_styles
+            sub_button: *weer_sub
             visibility:
               - condition: screen
                 media_query: "(max-width: 767px)"
@@ -431,10 +451,14 @@ views:
           #
           # Chip width is set HERE, by grid-template-columns — NOT by the
           # children's `grid_options`, which HA ignores for cards nested inside a
-          # `grid` card (it is a sections-view feature). Stookwijzer/Updates/
-          # Muziek get narrow 0.5fr tracks (icon-only, like mobile); Picnic keeps
-          # a full-width 1.4fr track because it still shows its name and the
-          # next-delivery subtitle.
+          # `grid` card (it is a sections-view feature).
+          #
+          # Stookwijzer/Updates/Muziek use a FIXED 64px track rather than an fr
+          # fraction: they are icon-only, so they should stay icon-sized instead
+          # of growing with the viewport the way any `Nfr` value does on a wide
+          # screen. Adjust that one number to resize all three.
+          # Picnic sits on 1fr — same as the three trash chips — since it still
+          # shows its name and the next-delivery subtitle.
           - type: grid
             columns: 7
             square: false
@@ -444,7 +468,7 @@ views:
                 #root { grid-template-columns: repeat(7, 1fr) !important; gap: 6px !important; }
                 /* desktop: trash left · gap track · 3 narrow chips · Picnic right */
                 @media (min-width: 768px) {
-                  #root { grid-template-columns: 1fr 1fr 1fr 0.6fr 0.5fr 0.5fr 0.5fr 1.4fr !important; }
+                  #root { grid-template-columns: 1fr 1fr 1fr 0.6fr 64px 64px 64px 1fr !important; }
                   #root > *:nth-child(4) { grid-column: 5 !important; }
                   #root > *:nth-child(5) { grid-column: 6 !important; }
                   #root > *:nth-child(6) { grid-column: 7 !important; }
@@ -1407,6 +1431,26 @@ views:
                 show_background: true
             bubble_badges:
               badges:
+                # Two mutually-exclusive badges on the main icon, so charging
+                # visually REPLACES the plug rather than stacking on top of it:
+                #   plugged in + not charging  → orange plug   (waiting)
+                #   charging                   → blue flash
+                #   unplugged                  → no badge
+                #
+                # Both read the Easee charger, never the BMW entities. The car's
+                # cardata is cloud-polled and lags badly — observed 2026-07-26
+                # reporting DISCONNECTED / NOCHARGING while the charger was
+                # actually delivering 4.35 kW. The Tibber ix3_plug / ix3_charging
+                # pair is worse still: both have only ever reported `unknown`.
+                - name: Plugged in
+                  target: main_icon
+                  icon: mdi:ev-plug-type2
+                  color: orange
+                  condition:
+                    - condition: template
+                      value_template: >
+                        {{ is_state('binary_sensor.easee_sonke_plug', 'on')
+                           and not is_state('sensor.ehhatdgg_status', 'charging') }}
                 - name: Charging
                   target: main_icon
                   icon: mdi:flash

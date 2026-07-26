@@ -94,3 +94,36 @@ template:
         {% elif wind <= 117 %}11 Bft
         {% else %} > 117 %}12 Bft
         {%- endif %}
+
+  - binary_sensor:
+    # Single source of truth for "it is raining RIGHT NOW", from the Ecowitt
+    # piezo rain gauge. Consumers previously each re-derived this:
+    #   * the screens close automations compared `sensor.rate_rain_piezo` to the
+    #     STRING '0.0' — fragile, since the gauge only has to report "0" or
+    #     "0.00" once for the guard to silently stop blocking
+    #   * the screens open automations used numeric_state above 0 for 10s
+    #   * the weather card's rain chip used its own numeric_state condition
+    #
+    # Deliberately NOT derived from weather.weather_langeweide_ecowitt: that
+    # entity reports `rainy` from the forecast even when nothing is falling
+    # (observed 2026-07-26: state `rainy` while the gauge read 0.0 mm/h).
+    #
+    # delay_on 10s  — matches the confirmation the open automations used, so a
+    #                 single spurious tick cannot raise the screens.
+    # delay_off 2m  — a shower's rate momentarily dips to 0 between bursts;
+    #                 without this the sensor (and the card chip) would flap.
+    #                 For "has it rained recently" use sensor.hourly_rain_piezo,
+    #                 not a longer delay_off here — this sensor stays honest
+    #                 about the present.
+    - name: Rain Detected
+      unique_id: rain_detected
+      device_class: moisture
+      icon: mdi:weather-pouring
+      # Unavailable (not "dry") when the gauge itself is missing, so a dead
+      # sensor cannot read as "safe to close the screens".
+      availability: "{{ has_value('sensor.rate_rain_piezo') }}"
+      state: "{{ states('sensor.rate_rain_piezo') | float(0) > 0 }}"
+      delay_on: "00:00:10"
+      delay_off: "00:02:00"
+      attributes:
+        rate: "{{ states('sensor.rate_rain_piezo') }}"
