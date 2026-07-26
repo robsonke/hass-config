@@ -16,7 +16,10 @@ script: !include ../scripts.yaml
 
 shell_command:
   convert_lovelace: "python /config/utils/json2yaml.py /config/.storage/lovelace /config/lovelace-ui.yaml"
-  refresh_lovelace: "touch /config/dashboards/main-dashboard.yaml /config/dashboards/bubble-dashboard.yaml"
+  # Touching a YAML dashboard file makes HA re-read it (and its !includes).
+  # main-dashboard.yaml was removed from this list when that dashboard was
+  # retired — `touch` would otherwise have recreated it as an empty file.
+  refresh_lovelace: "touch /config/dashboards/bubble-dashboard.yaml /config/dashboards/backdoor-dashboard.yaml"
 
 logger:
   default: info

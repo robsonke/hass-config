@@ -18,13 +18,6 @@ lovelace:
       icon: mdi:home
       show_in_sidebar: true
       require_admin: false
-    lovelace-main:
-      mode: yaml
-      filename: dashboards/main-dashboard.yaml
-      title: Home old
-      icon: mdi:tree
-      show_in_sidebar: true
-      require_admin: false
     dashboard-backdoor:
       mode: yaml
       filename: dashboards/backdoor-dashboard.yaml
