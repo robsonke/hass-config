@@ -303,6 +303,10 @@ views:
                         - name: Unavailable entities
                           target: main_icon
                           entity: sensor.unavailable_entities
+                          # bare number: the sensor's unit_of_measurement is
+                          # "entities", and without raw_state the module renders
+                          # hass.formatEntityState() -> "3 entities".
+                          raw_state: true
                           color: red
                           condition:
                             - condition: numeric_state
@@ -328,6 +332,16 @@ views:
                     button_action:
                       tap_action: { action: navigate, navigation_path: '#person-rob' }
                     icon_tap_action: { action: navigate, navigation_path: '#person-rob' }
+                    # Hardlopen deze week (utility_meter, reset maandag). Tapping
+                    # the km opens the Strava pop-up rather than Rob's, so the
+                    # number is a shortcut in its own right.
+                    sub_button:
+                      - entity: sensor.strava_run_week
+                        icon: mdi:run
+                        show_state: true
+                        show_name: false
+                        show_background: true
+                        tap_action: { action: navigate, navigation_path: '#sport' }
                     bubble_badges:
                       badges:
                         - name: Thuis
@@ -404,10 +418,21 @@ views:
                   # force-shown on the (otherwise hidden, since a binary_sensor
                   # has no entity_picture) .bubble-entity-picture element via
                   # the styles: block instead.
+                  # Entity is the bedroom light, not the (non-functional) bed
+                  # presence sensor: the tile lights up warm while her light is
+                  # on and shows the room temperature as subtitle.
+                  #
+                  # Eva sleeps DOWNSTAIRS - area "Eva Slaapkamer" (begane_grond):
+                  # light.dimmer_eva_bedroom + climate_sensor_evadownstairs
+                  # ("Klimaat Eva Beneden", which has no area assigned at all).
+                  # The upstairs area "Eva boven" with light.dimmer_eva and
+                  # climate_sensor_eva is her OLD room - do not use it here.
+                  # Noa is upstairs: light.dimmer_noa (also area-less) plus
+                  # climate_sensor_noa in the area named Noa (whose id is 'eva').
                   - type: custom:bubble-card
                     card_type: button
                     button_type: state
-                    entity: binary_sensor.eva_bed_presence
+                    entity: light.dimmer_eva_bedroom
                     name: Eva
                     show_entity_picture: true
                     tap_action: { action: navigate, navigation_path: '#person-eva' }
@@ -423,10 +448,21 @@ views:
                         background-size: cover !important;
                       }
                       .bubble-main-icon { display: none !important; }
+                      /* Doubled class beats the neon module's own rule on the
+                         same element without relying on injection order. */
+                      .bubble-button-container.bubble-button-container {
+                        ${state === 'on' ? 'background-image: radial-gradient(140% 120% at 8% -10%, hsl(45 95% 62% / 0.40), transparent 55%) !important; border: 1px solid hsl(45 90% 62% / 0.80) !important;' : ''}
+                      }
+                      .bubble-state { font-size: 0 !important; }
+                      .bubble-state::after {
+                        font-size: 13px !important; font-weight: 500;
+                        color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
+                        content: "${(() => { const t = hass.states['sensor.climate_sensor_evadownstairs_temperature']?.state; return t ? (Math.round(t * 10) / 10) + '°C' : '—'; })()}";
+                      }
                   - type: custom:bubble-card
                     card_type: button
                     button_type: state
-                    entity: binary_sensor.noa_bed_presence
+                    entity: light.dimmer_noa
                     name: Noa
                     show_entity_picture: true
                     tap_action: { action: navigate, navigation_path: '#person-noa' }
@@ -442,177 +478,144 @@ views:
                         background-size: cover !important;
                       }
                       .bubble-main-icon { display: none !important; }
+                      .bubble-button-container.bubble-button-container {
+                        ${state === 'on' ? 'background-image: radial-gradient(140% 120% at 8% -10%, hsl(45 95% 62% / 0.40), transparent 55%) !important; border: 1px solid hsl(45 90% 62% / 0.80) !important;' : ''}
+                      }
+                      .bubble-state { font-size: 0 !important; }
+                      .bubble-state::after {
+                        font-size: 13px !important; font-weight: 500;
+                        color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
+                        content: "${(() => { const t = hass.states['sensor.climate_sensor_noa_temperature']?.state; return t ? (Math.round(t * 10) / 10) + '°C' : '—'; })()}";
+                      }
             grid_options: { columns: 12, rows: 4 }
 
           # ── Status chip strip ─────────────────────────────────────────────
-          # Child order is significant: the desktop rules below pin children
-          # 4–7 to grid columns 5–8, so child 7 is the RIGHTMOST chip.
-          # Order = GFT, Papier, Rest | (gap) | Stookwijzer, Updates, Muziek, Picnic.
+          # Child order is significant — the rules below place children by index.
+          # Order = Bak, Papier | (gap) | Stookwijzer, Updates, Muziek, Picnic.
           #
           # Chip width is set HERE, by grid-template-columns — NOT by the
           # children's `grid_options`, which HA ignores for cards nested inside a
           # `grid` card (it is a sections-view feature).
           #
-          # Stookwijzer/Updates/Muziek use a FIXED 64px track rather than an fr
-          # fraction: they are icon-only, so they should stay icon-sized instead
-          # of growing with the viewport the way any `Nfr` value does on a wide
-          # screen. Adjust that one number to resize all three.
-          # Picnic sits on 1fr — same as the three trash chips — since it still
-          # shows its name and the next-delivery subtitle.
+          # DESKTOP: Bak, Papier and Picnic sit on FIXED 160px tracks, roughly half
+          # the width they had as `1.5fr`. Fixed units are the point — `fr` shares
+          # out all remaining space, so shrinking every fr value proportionally
+          # would have changed nothing at all. The flexible `1fr` gap track (3rd)
+          # now absorbs the leftover width, which keeps Picnic hard against the
+          # right edge. Stookwijzer/Updates/Muziek stay 64px, icon-sized.
+          #
+          # MOBILE: two rows instead of one squeezed line — Bak and Papier take
+          # half the width each on row 1 so their text is actually readable, and
+          # the four icon chips share row 2. This is why these two chips do NOT
+          # hide .bubble-name-container on mobile the way the icon-only ones do.
           - type: grid
-            columns: 7
+            columns: 6
             square: false
             card_mod:
               style: |
-                /* mobile default: 7 small icon-only chips in one compact row */
-                #root { grid-template-columns: repeat(7, 1fr) !important; gap: 6px !important; }
-                /* desktop: trash left · gap track · 3 narrow chips · Picnic right */
+                /* mobile: row 1 = Bak | Papier (half each), row 2 = the icon chips */
+                #root { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
+                #root > *:nth-child(1) { grid-column: 1 / 4 !important; grid-row: 1 !important; }
+                #root > *:nth-child(2) { grid-column: 4 / 7 !important; grid-row: 1 !important; }
+                #root > *:nth-child(3) { grid-column: 1 !important; grid-row: 2 !important; }
+                #root > *:nth-child(4) { grid-column: 2 !important; grid-row: 2 !important; }
+                #root > *:nth-child(5) { grid-column: 3 !important; grid-row: 2 !important; }
+                #root > *:nth-child(6) { grid-column: 4 / 7 !important; grid-row: 2 !important; }
+                /* desktop: everything back on one row */
                 @media (min-width: 768px) {
-                  #root { grid-template-columns: 1fr 1fr 1fr 0.6fr 64px 64px 64px 1fr !important; }
-                  #root > *:nth-child(4) { grid-column: 5 !important; }
-                  #root > *:nth-child(5) { grid-column: 6 !important; }
-                  #root > *:nth-child(6) { grid-column: 7 !important; }
-                  #root > *:nth-child(7) { grid-column: 8 !important; }
+                  #root { grid-template-columns: 160px 160px 1fr 64px 64px 64px 160px !important; }
+                  #root > *:nth-child(1) { grid-column: 1 !important; grid-row: 1 !important; }
+                  #root > *:nth-child(2) { grid-column: 2 !important; grid-row: 1 !important; }
+                  #root > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 !important; }
+                  #root > *:nth-child(4) { grid-column: 5 !important; grid-row: 1 !important; }
+                  #root > *:nth-child(5) { grid-column: 6 !important; grid-row: 1 !important; }
+                  #root > *:nth-child(6) { grid-column: 7 !important; grid-row: 1 !important; }
                 }
             grid_options: { columns: 36, rows: auto }
             cards:
+            # Two informative chips replace the three dot-only ones. GFT and
+            # Restafval alternate on Tuesdays so only ONE of them is ever next —
+            # this chip says which, and when. Papier runs monthly on a Monday and
+            # gets its own chip. Both use plain `button_type: state`, because the
+            # sensors in pkg_garbage.yaml already hold the finished Dutch string
+            # ("GFT morgen", "ma 10 aug") — no JS, so nothing to break on the
+            # comma-in-CSS-content trap, and the text survives on mobile.
             - type: custom:bubble-card
               card_type: button
               button_type: state
-              entity: sensor.gft_days_until_collection
-              name: Groene bak
-              icon: mdi:recycle
+              entity: sensor.next_bin_gft_or_rest
+              name: Kliko
+              icon: mdi:trash-can
               tap_action: { action: navigate, navigation_path: '#afval' }
               button_action:
                 tap_action: { action: navigate, navigation_path: '#afval' }
-              show_state: false
-              show_attribute: true
-              attribute: text
               bubble_badges:
                 badges:
-                  - name: Ophaaldag vandaag
-                    target: main_icon
-                    dot: true
-                    color: red
-                    condition:
-                      - condition: numeric_state
-                        entity_id: sensor.gft_days_until_collection
-                        below: 1
-                  - name: Ophaaldag morgen
+                  # Urgency dot for the last 48 hours: orange the day before,
+                  # green on collection day itself. Driven off the sensor's `days`
+                  # attribute, so it needs no second entity.
+                  - name: Morgen
                     target: main_icon
                     dot: true
                     color: orange
                     condition:
-                      - condition: numeric_state
-                        entity_id: sensor.gft_days_until_collection
-                        above: 0
-                        below: 2
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.next_bin_gft_or_rest','days') | int(999) == 1 }}"
+                  - name: Vandaag
+                    target: main_icon
+                    dot: true
+                    color: green
+                    condition:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.next_bin_gft_or_rest','days') | int(999) == 0 }}"
               modules: [bubble_badges]
               styles: |
                 :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
+                /* green when GFT is next, grey when it is restafval */
                 .bubble-button-container {
-                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.gft_days_until_collection']?.attributes?.color || 'green'} 26%, transparent), transparent 55%) !important;
-                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.gft_days_until_collection']?.attributes?.color || 'green'} 55%, transparent) !important;
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.next_bin_gft_or_rest']?.attributes?.bin === 'gft' ? 'green' : 'grey'} 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.next_bin_gft_or_rest']?.attributes?.bin === 'gft' ? 'green' : 'grey'} 55%, transparent) !important;
                 }
                 .bubble-icon-container {
-                  background: ${hass.states['sensor.gft_days_until_collection']?.attributes?.color || 'green'} !important;
-                }
-                @media (max-width: 767px) {
-                  .bubble-name-container { display: none !important; }
-                  .bubble-button-card, .bubble-button { justify-content: center !important; }
+                  background: ${hass.states['sensor.next_bin_gft_or_rest']?.attributes?.bin === 'gft' ? 'green' : 'grey'} !important;
                 }
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button
               button_type: state
-              entity: sensor.paper_days_until_collection
+              entity: sensor.next_paper_collection
               name: Papier
               icon: mdi:newspaper-variant-outline
               tap_action: { action: navigate, navigation_path: '#afval' }
               button_action:
                 tap_action: { action: navigate, navigation_path: '#afval' }
-              show_state: false
-              show_attribute: true
-              attribute: text
               bubble_badges:
                 badges:
-                  - name: Ophaaldag vandaag
-                    target: main_icon
-                    dot: true
-                    color: red
-                    condition:
-                      - condition: numeric_state
-                        entity_id: sensor.paper_days_until_collection
-                        below: 1
-                  - name: Ophaaldag morgen
+                  # Urgency dot for the last 48 hours: orange the day before,
+                  # green on collection day itself. Driven off the sensor's `days`
+                  # attribute, so it needs no second entity.
+                  - name: Morgen
                     target: main_icon
                     dot: true
                     color: orange
                     condition:
-                      - condition: numeric_state
-                        entity_id: sensor.paper_days_until_collection
-                        above: 0
-                        below: 2
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.next_paper_collection','days') | int(999) == 1 }}"
+                  - name: Vandaag
+                    target: main_icon
+                    dot: true
+                    color: green
+                    condition:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.next_paper_collection','days') | int(999) == 0 }}"
               modules: [bubble_badges]
               styles: |
                 :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
                 .bubble-button-container {
-                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.paper_days_until_collection']?.attributes?.color || '#3182b7'} 26%, transparent), transparent 55%) !important;
-                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.paper_days_until_collection']?.attributes?.color || '#3182b7'} 55%, transparent) !important;
+                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, #3182b7 26%, transparent), transparent 55%) !important;
+                  border: 1px solid color-mix(in srgb, #3182b7 55%, transparent) !important;
                 }
-                .bubble-icon-container {
-                  background: ${hass.states['sensor.paper_days_until_collection']?.attributes?.color || '#3182b7'} !important;
-                }
-                @media (max-width: 767px) {
-                  .bubble-name-container { display: none !important; }
-                  .bubble-button-card, .bubble-button { justify-content: center !important; }
-                }
-              grid_options: { columns: 6, rows: 1 }
-            - type: custom:bubble-card
-              card_type: button
-              button_type: state
-              entity: sensor.rest_days_until_collection
-              name: Grijze bak
-              icon: mdi:trash-can-outline
-              tap_action: { action: navigate, navigation_path: '#afval' }
-              button_action:
-                tap_action: { action: navigate, navigation_path: '#afval' }
-              show_state: false
-              show_attribute: true
-              attribute: text
-              bubble_badges:
-                badges:
-                  - name: Ophaaldag vandaag
-                    target: main_icon
-                    dot: true
-                    color: red
-                    condition:
-                      - condition: numeric_state
-                        entity_id: sensor.rest_days_until_collection
-                        below: 1
-                  - name: Ophaaldag morgen
-                    target: main_icon
-                    dot: true
-                    color: orange
-                    condition:
-                      - condition: numeric_state
-                        entity_id: sensor.rest_days_until_collection
-                        above: 0
-                        below: 2
-              modules: [bubble_badges]
-              styles: |
-                :host { --bubble-border-radius: 20px; --bubble-icon-border-radius: 30%; }
-                .bubble-button-container {
-                  background-image: radial-gradient(140% 120% at 8% -10%, color-mix(in srgb, ${hass.states['sensor.rest_days_until_collection']?.attributes?.color || 'grey'} 26%, transparent), transparent 55%) !important;
-                  border: 1px solid color-mix(in srgb, ${hass.states['sensor.rest_days_until_collection']?.attributes?.color || 'grey'} 55%, transparent) !important;
-                }
-                .bubble-icon-container {
-                  background: ${hass.states['sensor.rest_days_until_collection']?.attributes?.color || 'grey'} !important;
-                }
-                @media (max-width: 767px) {
-                  .bubble-name-container { display: none !important; }
-                  .bubble-button-card, .bubble-button { justify-content: center !important; }
-                }
+                .bubble-icon-container { background: #3182b7 !important; }
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button
@@ -771,6 +774,7 @@ views:
           - !include popups/bpp_covers.yaml          # #screens ← Screens
           - !include popups/bpp_energy_water.yaml    # #water ← Water
           - !include popups/bpp_person_rob.yaml      # #person-rob ← Rob
+          - !include popups/bpp_strava.yaml          # #sport ← Strava (via Rob's popup)
           - !include popups/bpp_person_steffi.yaml   # #person-steffi ← Steffi
           - !include popups/bpp_person_eva.yaml      # #person-eva ← Eva
           - !include popups/bpp_person_noa.yaml      # #person-noa ← Noa
@@ -877,6 +881,32 @@ views:
               .bubble-button-background {
                 opacity: 1 !important;
                 background-color: ${(state === 'playing' ? 'rgba(130, 100, 225, 0.42)' : 'transparent')} !important;
+              }
+              /* The media_player group platform reports a bare "on" whenever its
+                 members disagree - all-identical members give that state, any
+                 other mix with a non-off member (paused counts) collapses to
+                 "on". Two speakers paused plus two idle therefore read as "On"
+                 while nothing is playing, and a single-member group reads the
+                 raw "Idle". There is no "mixed" state to show, so derive a real
+                 one from the members. Keep every emitted label plain ASCII and
+                 comma-free: Bubble Card eats the character after a comma inside
+                 a CSS content value. */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                font-weight: 500;
+                content: "${(() => {
+                  const members = hass.states['media_player.music_downstairs']?.attributes?.entity_id || [];
+                  const st = m => hass.states[m]?.state;
+                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '');
+                  const playing = members.filter(m => st(m) === 'playing');
+                  const paused = members.filter(m => st(m) === 'paused');
+                  if (playing.length === 1) return 'Speelt in ' + room(playing[0]);
+                  if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
+                  if (paused.length === 1) return 'Gepauzeerd in ' + room(paused[0]);
+                  if (paused.length > 1) return 'Gepauzeerd';
+                  return 'Uit';
+                })()}";
               }
               /* album art of the currently-playing group member */
               .bubble-entity-picture {
@@ -990,6 +1020,32 @@ views:
               .bubble-button-background {
                 opacity: 1 !important;
                 background-color: ${(state === 'playing' ? 'rgba(130, 100, 225, 0.42)' : 'transparent')} !important;
+              }
+              /* The media_player group platform reports a bare "on" whenever its
+                 members disagree - all-identical members give that state, any
+                 other mix with a non-off member (paused counts) collapses to
+                 "on". Two speakers paused plus two idle therefore read as "On"
+                 while nothing is playing, and a single-member group reads the
+                 raw "Idle". There is no "mixed" state to show, so derive a real
+                 one from the members. Keep every emitted label plain ASCII and
+                 comma-free: Bubble Card eats the character after a comma inside
+                 a CSS content value. */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                font-weight: 500;
+                content: "${(() => {
+                  const members = hass.states['media_player.music_upstairs']?.attributes?.entity_id || [];
+                  const st = m => hass.states[m]?.state;
+                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '');
+                  const playing = members.filter(m => st(m) === 'playing');
+                  const paused = members.filter(m => st(m) === 'paused');
+                  if (playing.length === 1) return 'Speelt in ' + room(playing[0]);
+                  if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
+                  if (paused.length === 1) return 'Gepauzeerd in ' + room(paused[0]);
+                  if (paused.length > 1) return 'Gepauzeerd';
+                  return 'Uit';
+                })()}";
               }
               /* album art of the currently-playing group member */
               .bubble-entity-picture {
@@ -1266,6 +1322,32 @@ views:
                 opacity: 1 !important;
                 background-color: ${(state === 'playing' ? 'rgba(130, 100, 225, 0.42)' : 'transparent')} !important;
               }
+              /* The media_player group platform reports a bare "on" whenever its
+                 members disagree - all-identical members give that state, any
+                 other mix with a non-off member (paused counts) collapses to
+                 "on". Two speakers paused plus two idle therefore read as "On"
+                 while nothing is playing, and a single-member group reads the
+                 raw "Idle". There is no "mixed" state to show, so derive a real
+                 one from the members. Keep every emitted label plain ASCII and
+                 comma-free: Bubble Card eats the character after a comma inside
+                 a CSS content value. */
+              .bubble-state { font-size: 0 !important; }
+              .bubble-state::after {
+                font-size: 14px !important;
+                font-weight: 500;
+                content: "${(() => {
+                  const members = hass.states['media_player.muziek_tuin']?.attributes?.entity_id || [];
+                  const st = m => hass.states[m]?.state;
+                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '');
+                  const playing = members.filter(m => st(m) === 'playing');
+                  const paused = members.filter(m => st(m) === 'paused');
+                  if (playing.length === 1) return 'Speelt in ' + room(playing[0]);
+                  if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
+                  if (paused.length === 1) return 'Gepauzeerd in ' + room(paused[0]);
+                  if (paused.length > 1) return 'Gepauzeerd';
+                  return 'Uit';
+                })()}";
+              }
               /* album art of the currently-playing group member */
               .bubble-entity-picture {
                 ${(() => {
@@ -1450,14 +1532,14 @@ views:
                     - condition: template
                       value_template: >
                         {{ is_state('binary_sensor.easee_sonke_plug', 'on')
-                           and not is_state('sensor.ehhatdgg_status', 'charging') }}
+                           and not is_state('sensor.easee_sonke_status', 'charging') }}
                 - name: Charging
                   target: main_icon
                   icon: mdi:flash
                   color: blue
                   condition:
                     - condition: state
-                      entity_id: sensor.ehhatdgg_status
+                      entity_id: sensor.easee_sonke_status
                       state: charging
             modules:
               - bubble_badges
@@ -1466,7 +1548,7 @@ views:
               /* light up green while the car is charging */
               .bubble-button-background {
                 opacity: 1 !important;
-                background-color: ${(hass.states['sensor.ehhatdgg_status']?.state === 'charging' ? 'rgba(70, 200, 120, 0.35)' : 'transparent')} !important;
+                background-color: ${(hass.states['sensor.easee_sonke_status']?.state === 'charging' ? 'rgba(70, 200, 120, 0.35)' : 'transparent')} !important;
               }
               .bubble-button-card-container { position: relative !important; }
               /* charge-bar track */

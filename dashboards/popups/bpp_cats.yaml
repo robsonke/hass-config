@@ -46,7 +46,7 @@ cards:
         card_type: button
         button_type: state
         entity: sensor.bijkeuken_cat_sightings_today
-        name: Gezien bijkeuken
+        name: Bijkeuken
         icon: mdi:cctv
         card_layout: large
         tap_action: { action: more-info }

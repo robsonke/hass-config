@@ -80,6 +80,18 @@ light:
       - light.toilet_upstairs_light
       - light.bedroom_sonos_light
 
+  # This group is the single source of truth for "tuinverlichting": both the
+  # dashboard tile and the #verlichting-tuin pop-up count `on` members straight
+  # off its entity_id attribute.
+  #
+  # The three lanterns and shed_light_back used to be missing here while the
+  # pop-up had them in a hardcoded list, so on 29 Jul the tile read "1 aan"
+  # while four lights were burning - only garden_light was a member. Keep this
+  # list complete; anything added here shows up in both places automatically.
+  #
+  # Deliberately NOT members: terras_floodlight / zijkant_floodlight (motion
+  # security lighting - would make the tile flicker on every cat) and pool_light,
+  # which has its own controls in the pool pop-up.
   - platform: group
     name: Tuin
     unique_id: lights_garden
@@ -99,6 +111,11 @@ light:
       - light.palm2_light
       - light.pool_terrace_light1
       - light.pool_terrace_light2
+      - light.garden_lantern_light1
+      - light.garden_lantern_light2
+      - light.garden_lantern_light3
+      - light.shed_light_back
+      - light.shed_light_front
 
   - platform: group
     name: Tuin Hue

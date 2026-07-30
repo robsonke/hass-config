@@ -1,0 +1,102 @@
+#  ___ _
+# / __| |_ _ _ __ ___ ______ _
+# \__ \  _| '_/ _` \ V / _` |
+# |___/\__|_| \__,_|\_/\__,_|
+#
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+#
+# ha_strava exposes only three aggregates per sport: `recent`, `ytd` and `all`.
+# Beware `recent`: in Strava's API that means the LAST FOUR WEEKS, not this
+# week (it read 172.67 km / 14 runs while the current week was a fraction of
+# that). There is no weekly figure at all, so this package derives one.
+#
+# IMPORTANT: utility_meter has NO reload service. Adding or changing the meter
+# below requires a full Home Assistant restart — a YAML/template reload will
+# not create it.
+#
+# The meters do NOT read ha_strava's sensor directly. That sensor goes
+# `unavailable` for ~8 seconds immediately BEFORE every refresh, e.g.
+#     26 Jul 12:41:16  unavailable
+#     26 Jul 12:41:25  7832.02   (+23.93 km)
+#     27 Jul 19:44:56  unavailable
+#     27 Jul 19:45:04  7843.27   (+11.25 km)
+# and utility_meter throws away its `last_valid_state` across an unavailable
+# period, then silently re-baselines on the next reading. Since the blip happens
+# on EVERY update, every single run was swallowed and both meters sat at 0
+# forever — not just for one week. `sensor.strava_run_total` below is a
+# trigger-based mirror that only ever accepts numeric readings (and, being
+# trigger-based, restores its value across a restart), so the meters see a
+# source that never goes unavailable.
+
+utility_meter:
+  # Both meters accumulate the deltas of the all-time total (state_class: total,
+  # device_class: distance). Their `last_period` attribute holds the previous
+  # period's total for free, which the pop-up shows next to the current one.
+  #
+  # `strava_run_month` is a CALENDAR month (resets on the 1st) and is therefore
+  # not the same thing as the pop-up's "4 weken" tile — that one is Strava's own
+  # rolling four-week `recent` window. Both are shown deliberately.
+  strava_run_week:
+    name: Strava run week
+    source: sensor.strava_run_total
+    cycle: weekly
+  strava_run_month:
+    name: Strava run month
+    source: sensor.strava_run_total
+    cycle: monthly
+
+template:
+  # Blip-proof mirror of ha_strava's all-time run total — see the note above.
+  - trigger:
+      - trigger: state
+        entity_id: sensor.strava_rob_sonke_stats_all_run_distance
+        not_to:
+          - unknown
+          - unavailable
+    sensor:
+      - unique_id: strava_run_total
+        name: Strava Run Total
+        icon: mdi:run
+        device_class: distance
+        state_class: total
+        unit_of_measurement: km
+        state: "{{ trigger.to_state.state | float(0) }}"
+
+  - sensor:
+    # Strava gives pace as a decimal (5.914 min/km); runners read 5:55 /km.
+    # Converted via total seconds so a fractional part that rounds up to 60
+    # carries into the minutes instead of rendering "5:60".
+    - unique_id: strava_last_run_pace
+      name: Strava Last Run Pace
+      icon: mdi:speedometer
+      availability: "{{ has_value('sensor.strava_rob_sonke_run_pace') }}"
+      state: >
+        {% set secs = (states('sensor.strava_rob_sonke_run_pace') | float(0) * 60) | round(0) | int %}
+        {%- if secs > 0 -%}
+          {{ secs // 60 }}:{{ '%02d' % (secs % 60) }}
+        {%- else -%}
+          —
+        {%- endif %}
+
+    # Moving time in seconds (8492) -> 2:21
+    - unique_id: strava_last_run_duration
+      name: Strava Last Run Duration
+      icon: mdi:timer-outline
+      availability: "{{ has_value('sensor.strava_rob_sonke_run_moving_time') }}"
+      state: >
+        {% set s = states('sensor.strava_rob_sonke_run_moving_time') | int(0) %}
+        {{ s // 3600 }}:{{ '%02d' % ((s % 3600) // 60) }}
+
+    # Average km per run over Strava's 4-week window — a fairer "form" number
+    # than a single run, and it needs no extra plumbing.
+    - unique_id: strava_recent_run_average
+      name: Strava Recent Run Average
+      unit_of_measurement: km
+      icon: mdi:chart-line
+      availability: >
+        {{ has_value('sensor.strava_rob_sonke_stats_recent_run_distance')
+           and states('sensor.strava_rob_sonke_stats_recent_run_count') | int(0) > 0 }}
+      state: >
+        {{ (states('sensor.strava_rob_sonke_stats_recent_run_distance') | float(0)
+            / states('sensor.strava_rob_sonke_stats_recent_run_count') | int(1)) | round(1) }}

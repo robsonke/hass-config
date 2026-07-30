@@ -8,17 +8,24 @@ width_desktop: 900px
 hash: '#person-eva'
 name: Eva
 icon: mdi:bed
-# header = bed-aanwezigheid (blauw = in bed) + duur
-entity: binary_sensor.eva_bed_presence
+# header = kamerlicht (warm = aan) + temperatuur en luchtvochtigheid.
+# Was binary_sensor.eva_bed_presence, maar die detectie werkt niet betrouwbaar.
+#
+# Eva slaapt BENEDEN: area "Eva Slaapkamer" (begane_grond) met
+# light.dimmer_eva_bedroom, dimmer_eva_bathroom en eva_corridor_light, plus
+# climate_sensor_evadownstairs ("Klimaat Eva Beneden") die geen area heeft.
+# De area "Eva boven" met light.dimmer_eva / climate_sensor_eva is haar OUDE
+# kamer en hoort hier niet bij.
+entity: light.dimmer_eva_bedroom
 show_state: true
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
-  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,190,70,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,190,70,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
   .bubble-state { font-size: 0 !important; }
   .bubble-state::after {
     font-size: 14px !important; font-weight: 500;
-    color: ${state === 'on' ? '#82bbf0' : '#9b9aac'} !important;
-    content: "${(() => { const p = hass.states['binary_sensor.eva_bed_presence']; const on = p?.state === 'on'; const t = p?.last_changed; const secs = (Date.now() - new Date(t)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return (on ? 'In bed' : 'Bed leeg') + ' · ' + d; })()}";
+    color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
+    content: "${(() => { const lit = hass.states['light.dimmer_eva_bedroom']?.state === 'on' ? 'Licht aan' : 'Licht uit'; const t = hass.states['sensor.climate_sensor_evadownstairs_temperature']?.state; const h = hass.states['sensor.climate_sensor_evadownstairs_humidity']?.state; const temp = t ? (Math.round(t * 10) / 10) + '°C' : '—'; const hum = h ? Math.round(h) + '%' : '—'; return lit + ' · ' + temp + ' · ' + hum; })()}";
   }
 cards:
   - type: custom:bubble-card
@@ -64,6 +71,62 @@ cards:
           mode: below
         next_previous:
           style: chevrons
+  # ── kamer (licht + klimaat) ───────────────────────────────────────
+  # Alle drie de lampen uit haar area "Eva Slaapkamer": slaapkamer, badkamer en
+  # de gang ervoor. 2 kolommen, want een 3-koloms grid knijpt de labels op
+  # mobiel dicht tot een scrollende marquee.
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kamer
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: light.dimmer_eva_bedroom
+    name: Licht
+    icon: mdi:lightbulb
+    card_layout: large
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_eva_bathroom
+        name: Badkamer
+        icon: mdi:shower
+        card_layout: large
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.eva_corridor_light
+        name: Gang
+        icon: mdi:door-sliding
+        card_layout: large
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.climate_sensor_evadownstairs_temperature
+        name: Temperatuur
+        icon: mdi:thermometer
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.climate_sensor_evadownstairs_humidity
+        name: Vocht
+        icon: mdi:water-percent
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
   # ── muziek (Sonos) ────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

@@ -31,6 +31,14 @@ cards:
   - type: grid
     columns: 3
     square: false
+    # 3-up fits the wide desktop pop-up, but on a phone each tile's label area
+    # collapses to ~37px and Bubble marquee-scrolls the name back and forth.
+    # 2-up on mobile gives the labels room; a trailing odd tile takes its own row.
+    card_mod:
+      style: |
+        @media (max-width: 767px) {
+          #root { grid-template-columns: 1fr 1fr !important; }
+        }
     cards:
       - type: custom:bubble-card
         card_type: button

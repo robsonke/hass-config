@@ -67,6 +67,31 @@ cards:
                 service: rest_command.auping_bed
                 data: { cbu: 2, motor_1_action: 0, motor_1_time: 0, motor_2_action: 1, motor_2_time: 17000, motor_3_action: 0, motor_3_time: 0 }
   # ── aanwezigheid ──────────────────────────────────────────────────
+  # ── sport ─────────────────────────────────────────────────────────
+  # Opens the Strava pop-up (#sport). State line shows this week's km plus the
+  # last activity title, so the button is informative before you even tap it.
+  - type: custom:bubble-card
+    card_type: separator
+    name: Sport
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: sensor.strava_run_week
+    name: Strava
+    icon: mdi:run-fast
+    card_layout: large
+    tap_action: { action: navigate, navigation_path: '#sport' }
+    button_action:
+      tap_action: { action: navigate, navigation_path: '#sport' }
+    styles: |
+      .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.14) !important; }
+      .bubble-icon-container { background-color: rgba(252,82,0,0.22) !important; }
+      .bubble-state { font-size: 0 !important; }
+      .bubble-state::after {
+        font-size: 13px !important; font-weight: 500; color: #ff8a5c !important;
+        content: "${(() => { const w = hass.states['sensor.strava_run_week']?.state; const km = isNaN(parseFloat(w)) ? '—' : parseFloat(w).toFixed(1); const act = hass.states['sensor.strava_rob_sonke_run']?.state; return km + ' km deze week' + (act ? String.fromCharCode(32,183,32) + act : ''); })()}";
+      }
+
   - type: custom:bubble-card
     card_type: separator
     name: Aanwezigheid

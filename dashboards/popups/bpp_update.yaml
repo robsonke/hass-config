@@ -24,9 +24,6 @@ styles: |
   }
 cards:
   # ── Home Assistant (versie + release notes) ───────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Home Assistant
   - type: markdown
     content: >
       ## Home Assistant {{ states('sensor.hass_version_installed') }}
@@ -42,7 +39,7 @@ cards:
   # separator alleen tonen als er updates zijn (auto-entities verbergt zichzelf al)
   - type: custom:bubble-card
     card_type: separator
-    name: Beschikbare updates
+    name: Plugin updates
     visibility:
       - condition: numeric_state
         entity: sensor.all_updates

@@ -21,11 +21,72 @@ styles: |
     content: "${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state) || 0; const exp = parseFloat(hass.states['sensor.power_produced']?.state) || 0; const p = parseFloat(hass.states['sensor.current_price_electricity']?.state); let o; if (exp > 0.05) o = exp.toFixed(1).replace('.', ',') + ' kW terug'; else if (imp > 0.05) o = imp.toFixed(1).replace('.', ',') + ' kW van net'; else o = '0 kW'; if (isFinite(p)) o += ' · €' + p.toFixed(2).replace('.', ','); return o; })()}";
   }
 cards:
+  # ── kosten ────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kosten
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.electricity_cost_today
+        name: Vandaag
+        icon: mdi:cash
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.13)'; })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.20)' : 'rgba(240,195,95,0.20)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); if (!isFinite(v)) return '—'; return v <= 0 ? '€' + Math.abs(v).toFixed(2).replace('.', ',') + ' verdiend' : '€' + v.toFixed(2).replace('.', ','); })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.monthly_cost_langeweide
+        name: Deze maand
+        icon: mdi:calendar-month
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.monthly_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.accumulated_cost_langeweide
+        name: Opgebouwd
+        icon: mdi:cash-clock
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.accumulated_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.easee_sonke_cost_month
+        name: Laadpaal
+        icon: mdi:ev-station
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.easee_sonke_cost_month']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
   # ── energiestroom ─────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
     name: Energiestroom
   - type: custom:power-flow-card-plus
+    # NOTE: this card reports scrollWidth > clientWidth on a phone (measured 522
+    # vs 354), which looks like an overflow but is NOT — its overflow-x is
+    # `visible`, its box ends at x=372 inside a 390px viewport, and every node
+    # renders in full. The extra width is its internal SVG canvas.
+    # A `zoom: 0.8` was tried here and does nothing: zoom scales the container
+    # AND its contents by the same factor, so the ratio — and any real clipping —
+    # would be unchanged. Left at natural size.
     entities:
       grid:
         entity:
@@ -47,7 +108,7 @@ cards:
         name: Non Fossil
         state_type: power
       individual:
-        - entity: sensor.ehhatdgg_power
+        - entity: sensor.easee_sonke_power
           icon: mdi:car-electric
           color: '#80b8ff'
           name: BMW
@@ -317,60 +378,6 @@ cards:
         name: Power Consumption this Year
       - entity: sensor.solaredge_energy_this_year
         name: Power Production this Year
-  # ── kosten ────────────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Kosten
-  - type: grid
-    columns: 2
-    square: false
-    cards:
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.electricity_cost_today
-        name: Vandaag
-        icon: mdi:cash
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.13)'; })()} !important; }
-          .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.20)' : 'rgba(240,195,95,0.20)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); if (!isFinite(v)) return '—'; return v <= 0 ? '€' + Math.abs(v).toFixed(2).replace('.', ',') + ' verdiend' : '€' + v.toFixed(2).replace('.', ','); })()}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.monthly_cost_langeweide
-        name: Deze maand
-        icon: mdi:calendar-month
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.monthly_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.accumulated_cost_langeweide
-        name: Opgebouwd vandaag
-        icon: mdi:cash-clock
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.accumulated_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.ehhatdgg_cost_month
-        name: Laadpaal deze maand
-        icon: mdi:ev-station
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.ehhatdgg_cost_month']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
   # ── tarieven ──────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -378,6 +385,14 @@ cards:
   - type: grid
     columns: 3
     square: false
+    # 3-up fits the 920px desktop pop-up, but on a phone each tile's label area
+    # collapsed to ~37px and Bubble marquee-scrolled every name. 2-up on mobile
+    # gives them room; the third tile wraps onto its own row.
+    card_mod:
+      style: |
+        @media (max-width: 767px) {
+          #root { grid-template-columns: 1fr 1fr !important; }
+        }
     cards:
       - type: custom:bubble-card
         card_type: button

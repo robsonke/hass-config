@@ -111,7 +111,7 @@ cards:
         card_type: button
         button_type: slider
         entity: light.ledstrip_tv
-        name: Ledstrip TV
+        name: Ledstrip
         card_layout: large
         slider_live_update: true
         tap_action: { action: toggle }
@@ -183,7 +183,7 @@ cards:
         card_type: button
         button_type: slider
         entity: light.ledstrip_office
-        name: Led Bureau
+        name: Bureau
         card_layout: large
         slider_live_update: true
         tap_action: { action: toggle }

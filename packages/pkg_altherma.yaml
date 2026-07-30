@@ -103,6 +103,7 @@ sensor:
       - sensor.climate_sensor_kitchen_temperature
       - sensor.climate_sensor_living_temperature
       - sensor.climate_sensor_office_temperature
+      - sensor.climate_sensor_evadownstairs_temperature
       - sensor.indoor_temperature
   - platform: min_max
     name: Upstairs Temperature

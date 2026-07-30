@@ -59,3 +59,60 @@ template:
             {% set stateInt = state_attr('sensor.afvalinfo_home_restafval', 'days_until_collection_date') | int(default=0) %}
             {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
         icon: mdi:trash-can
+
+      # ── the two questions the dashboard actually has to answer ────────────
+      #
+      # GFT and Restafval alternate on Tuesdays (GFT 28 Jul, Rest 4 Aug, GFT
+      # 11 Aug, …) so they never compete — the only question is WHICH of the two
+      # is next. Papier runs monthly on a Monday. Both sensors below put the
+      # human-readable answer in the STATE, so the dashboard chips can use a
+      # plain `button_type: state` with no JS: that keeps them readable on
+      # mobile and avoids Bubble Card's comma-in-CSS-content trap.
+      #
+      # Dutch day/month abbreviations are hardcoded because timestamp_custom
+      # follows the system locale (C -> English), which would render "Tue".
+      - unique_id: next_bin_gft_or_rest
+        name: Next Bin GFT or Rest
+        icon: mdi:trash-can
+        availability: >
+          {{ has_value('sensor.afvalinfo_home_gft') and has_value('sensor.afvalinfo_home_restafval') }}
+        state: >
+          {% set g = state_attr('sensor.afvalinfo_home_gft','days_until_collection_date') | int(999) %}
+          {% set r = state_attr('sensor.afvalinfo_home_restafval','days_until_collection_date') | int(999) %}
+          {% set gft_first = g <= r %}
+          {% set label = 'GFT' if gft_first else 'Rest' %}
+          {% set days = g if gft_first else r %}
+          {% set iso = state_attr('sensor.afvalinfo_home_gft' if gft_first else 'sensor.afvalinfo_home_restafval', 'year_month_day_date') %}
+          {% set dn = ['ma','di','wo','do','vr','za','zo'] %}
+          {% set mn = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] %}
+          {% set d = as_datetime(iso ~ '') %}
+          {% if days == 0 %}{{ label }} vandaag
+          {%- elif days == 1 %}{{ label }} morgen
+          {%- else %}{{ label }} {{ dn[d.weekday()] }} {{ d.day }} {{ mn[d.month - 1] }}
+          {%- endif %}
+        attributes:
+          # 'gft' or 'rest' — for colouring the chip
+          bin: >
+            {% set g = state_attr('sensor.afvalinfo_home_gft','days_until_collection_date') | int(999) %}
+            {% set r = state_attr('sensor.afvalinfo_home_restafval','days_until_collection_date') | int(999) %}
+            {{ 'gft' if g <= r else 'rest' }}
+          days: >
+            {{ [ state_attr('sensor.afvalinfo_home_gft','days_until_collection_date') | int(999),
+                 state_attr('sensor.afvalinfo_home_restafval','days_until_collection_date') | int(999) ] | min }}
+
+      - unique_id: next_paper_collection
+        name: Next Paper Collection
+        icon: mdi:newspaper-variant-outline
+        availability: "{{ has_value('sensor.afvalinfo_home_papier') }}"
+        state: >
+          {% set days = state_attr('sensor.afvalinfo_home_papier','days_until_collection_date') | int(999) %}
+          {% set dn = ['ma','di','wo','do','vr','za','zo'] %}
+          {% set mn = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] %}
+          {% set d = as_datetime(state_attr('sensor.afvalinfo_home_papier','year_month_day_date') ~ '') %}
+          {% if days == 0 %}vandaag
+          {%- elif days == 1 %}morgen
+          {%- else %}{{ dn[d.weekday()] }} {{ d.day }} {{ mn[d.month - 1] }}
+          {%- endif %}
+        attributes:
+          days: "{{ state_attr('sensor.afvalinfo_home_papier','days_until_collection_date') | int(999) }}"
+

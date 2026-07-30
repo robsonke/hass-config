@@ -37,6 +37,16 @@ cards:
         tap_action: { action: more-info }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+          /* sensor.uptime is a timestamp, so HA rendered it as
+             "26 July 2026 at 20:53" — far too long for the ~97px state area, and
+             Bubble marquee-scrolled it. Show elapsed time instead, which is what
+             an uptime tile is for. Comma-free by necessity: Bubble eats the
+             character after a comma inside a CSS `content` value. */
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const t = Date.parse(hass.states['sensor.uptime']?.state); if (isNaN(t)) return '—'; const sec = Math.floor((Date.now() - t) / 1000); const d = Math.floor(sec / 86400); const h = Math.floor((sec % 86400) / 3600); const m = Math.floor((sec % 3600) / 60); if (d > 0) return d + 'd ' + h + 'u'; if (h > 0) return h + 'u ' + m + 'm'; return m + 'm'; })()}";
+          }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -269,7 +279,7 @@ cards:
   - type: custom:bubble-card
     card_type: button
     button_type: name
-    name: Dashboard hard vernieuwen
+    name: Dashboard hard refresh
     icon: mdi:restart
     card_layout: large
     tap_action:

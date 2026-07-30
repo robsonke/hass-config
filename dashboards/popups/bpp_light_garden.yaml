@@ -10,16 +10,22 @@ width_desktop: 1000px
 hash: '#verlichting-tuin'
 name: Tuin verlichting
 icon: mdi:lightbulb-group
-entity: light.garden_light
+entity: light.lights_garden
 show_state: true
+# Alle vier de regels hieronder lazen dezelfde 19-entity lijst uit een hardcoded
+# array - vier kopieen die uit de pas liepen met de light group in
+# packages/pkg_lights.yaml (de lantaarns stonden alleen hier in, waardoor de
+# tile op het dashboard "1 aan" meldde terwijl er vier lampen brandden).
+# Nu komt de ledenlijst uit de group zelf, net als bij de tile: een plek om te
+# onderhouden.
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
-  .bubble-icon-container { background-color: ${['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${(hass.states['light.lights_garden']?.attributes?.entity_id || []).some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${(hass.states['light.lights_garden']?.attributes?.entity_id || []).some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
   .bubble-state { font-size: 0 !important; }
   .bubble-state::after {
     font-size: 14px !important; font-weight: 500;
-    color: ${['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important;
-    content: "${(() => { const m = ['light.roofceiling_garden_light','light.roofceiling_table_light','light.lights_wall_shed','light.veranda_light','light.shed_light_back','light.garden_light','light.woodshed_light','light.pool_terrace_light1','light.pool_terrace_light2','light.palm1_light','light.palm2_light','light.garden_lantern_light1','light.garden_lantern_light2','light.garden_lantern_light3','light.hue_lily_light_fence_1','light.hue_lily_light_fence_2','light.hue_lily_light_fence_3','light.hue_lily_light_tree_1','light.hue_lily_light_tree_2']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles uit' : o + ' aan · ' + (m.length - o) + ' uit'; })()}";
+    color: ${(hass.states['light.lights_garden']?.attributes?.entity_id || []).some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important;
+    content: "${(() => { const m = hass.states['light.lights_garden']?.attributes?.entity_id || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles uit' : o + ' aan · ' + (m.length - o) + ' uit'; })()}";
   }
 cards:
   - type: custom:bubble-card
@@ -33,7 +39,7 @@ cards:
         card_type: button
         button_type: slider
         entity: light.roofceiling_garden_light
-        name: Overkapping Spots
+        name: Spots
         card_layout: large
         slider_live_update: true
         tap_action: { action: toggle }
@@ -43,7 +49,7 @@ cards:
         card_type: button
         button_type: slider
         entity: light.roofceiling_table_light
-        name: Overkapping Tafel
+        name: Tafel
         card_layout: large
         slider_live_update: true
         tap_action: { action: toggle }
@@ -53,7 +59,7 @@ cards:
         card_type: button
         button_type: slider
         entity: light.lights_wall_shed
-        name: Overkapping Wand
+        name: Wand
         card_layout: large
         slider_live_update: true
         tap_action: { action: toggle }

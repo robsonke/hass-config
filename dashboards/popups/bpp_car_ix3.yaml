@@ -249,7 +249,7 @@ cards:
     card_type: separator
     name: Laden
   - type: custom:charger-card
-    entity: sensor.ehhatdgg_status
+    entity: sensor.easee_sonke_status
     compact_view: false
     show_name: true
     show_leds: true
@@ -260,76 +260,76 @@ cards:
     customCardTheme: theme_transp_white
     details:
       name:
-        entity_id: sensor.ehhatdgg_status
+        entity_id: sensor.easee_sonke_status
         attribute: name
       location:
-        entity_id: sensor.ehhatdgg_status
+        entity_id: sensor.easee_sonke_status
         attribute: site_name
       status:
-        entity_id: sensor.ehhatdgg_status
+        entity_id: sensor.easee_sonke_status
       smartcharging:
-        entity_id: switch.ehhatdgg_smart_charging
+        entity_id: switch.easee_sonke_smart_charging
       group1:
-        - entity_id: sensor.ehhatdgg_dynamic_charger_limit
+        - entity_id: sensor.easee_sonke_dynamic_charger_limit
           text: dyn_charger_limit
           service: easee.set_charger_dynamic_limit
           service_data:
             charger_id: CHARGERID
             current: '#SERVICEVAL#'
-        - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
+        - entity_id: sensor.easee_sonke_dynamic_circuit_limit
           text: dyn_circuit_limit
           service: easee.set_charger_circuit_dynamic_limit
           service_data:
             charger_id: CHARGERID
             currentP1: '#SERVICEVAL#'
       group2:
-        - entity_id: binary_sensor.ehhatdgg_online
+        - entity_id: binary_sensor.easee_sonke_online
           text: online
-        - entity_id: sensor.ehhatdgg_voltage
+        - entity_id: sensor.easee_sonke_voltage
           text: voltage
           unit_show: true
-        - entity_id: sensor.ehhatdgg_power
+        - entity_id: sensor.easee_sonke_power
           text: power
           unit_show: true
-        - entity_id: sensor.ehhatdgg_current
+        - entity_id: sensor.easee_sonke_current
           text: charger_current
           unit_show: true
-        - entity_id: sensor.ehhatdgg_circuit_current
+        - entity_id: sensor.easee_sonke_circuit_current
           text: circuit_current
           unit_show: true
-        - entity_id: sensor.ehhatdgg_session_energy
+        - entity_id: sensor.easee_sonke_session_energy
           text: session_energy
           unit_show: true
-        - entity_id: sensor.ehhatdgg_lifetime_energy
+        - entity_id: sensor.easee_sonke_lifetime_energy
           text: lifetime_energy
           unit_show: true
       group3:
-        - entity_id: switch.ehhatdgg_is_enabled
+        - entity_id: switch.easee_sonke_is_enabled
           text: enabled
-        - entity_id: switch.ehhatdgg_enable_idle_current
+        - entity_id: switch.easee_sonke_enable_idle_current
           text: idle_current
-        - entity_id: binary_sensor.ehhatdgg_cable_locked
+        - entity_id: binary_sensor.easee_sonke_cable_locked
           text: cable_locked
-        - entity_id: switch.ehhatdgg_cable_locked_permanently
+        - entity_id: switch.easee_sonke_cable_locked_permanently
           text: perm_cable_locked
-        - entity_id: switch.ehhatdgg_smart_charging
+        - entity_id: switch.easee_sonke_smart_charging
           text: smart_charging
-        - entity_id: sensor.ehhatdgg_cost_per_kwh
+        - entity_id: sensor.easee_sonke_cost_per_kwh
           text: cost_per_kwh
-        - entity_id: binary_sensor.ehhatdgg_update_available
+        - entity_id: binary_sensor.easee_sonke_update_available
           text: update_available
       stats:
         default:
-          - entity_id: sensor.ehhatdgg_session_energy
+          - entity_id: sensor.easee_sonke_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: switch.ehhatdgg_cable_locked_permanently
+          - entity_id: switch.easee_sonke_cable_locked_permanently
             text: cable_locked
         disconnected:
-          - entity_id: sensor.ehhatdgg_session_energy
+          - entity_id: sensor.easee_sonke_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: switch.ehhatdgg_cable_locked_permanently
+          - entity_id: switch.easee_sonke_cable_locked_permanently
             text: cable_locked
           - entity_id: calculated
             text: used_limit
@@ -337,16 +337,16 @@ cards:
             unit_show: true
             calc_function: min
             calc_entities:
-              - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-              - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-              - entity_id: sensor.ehhatdgg_max_charger_limit
-              - entity_id: sensor.ehhatdgg_max_circuit_limit
-              - entity_id: sensor.ehhatdgg_offline_circuit_limit
+              - entity_id: sensor.easee_sonke_dynamic_charger_limit
+              - entity_id: sensor.easee_sonke_dynamic_circuit_limit
+              - entity_id: sensor.easee_sonke_max_charger_limit
+              - entity_id: sensor.easee_sonke_max_circuit_limit
+              - entity_id: sensor.easee_sonke_offline_circuit_limit
         awaiting_start:
-          - entity_id: sensor.ehhatdgg_session_energy
+          - entity_id: sensor.easee_sonke_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: switch.ehhatdgg_smart_charging
+          - entity_id: switch.easee_sonke_smart_charging
             text: smart_charging
           - entity_id: calculated
             text: used_limit
@@ -354,29 +354,29 @@ cards:
             unit_show: true
             calc_function: min
             calc_entities:
-              - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-              - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-              - entity_id: sensor.ehhatdgg_max_charger_limit
-              - entity_id: sensor.ehhatdgg_max_circuit_limit
-              - entity_id: sensor.ehhatdgg_offline_circuit_limit
+              - entity_id: sensor.easee_sonke_dynamic_charger_limit
+              - entity_id: sensor.easee_sonke_dynamic_circuit_limit
+              - entity_id: sensor.easee_sonke_max_charger_limit
+              - entity_id: sensor.easee_sonke_max_circuit_limit
+              - entity_id: sensor.easee_sonke_offline_circuit_limit
         charging:
-          - entity_id: sensor.ehhatdgg_session_energy
+          - entity_id: sensor.easee_sonke_session_energy
             text: session_energy
             unit_show: true
-          - entity_id: sensor.ehhatdgg_circuit_current
+          - entity_id: sensor.easee_sonke_circuit_current
             text: circuit_current
             unit_show: true
-          - entity_id: sensor.ehhatdgg_output_limit
+          - entity_id: sensor.easee_sonke_output_limit
             text: output_limit
             unit_show: true
-          - entity_id: sensor.ehhatdgg_current
+          - entity_id: sensor.easee_sonke_current
             text: current
             unit_show: true
-          - entity_id: sensor.ehhatdgg_power
+          - entity_id: sensor.easee_sonke_power
             text: power
             unit_show: true
         completed:
-          - entity_id: sensor.ehhatdgg_session_energy
+          - entity_id: sensor.easee_sonke_session_energy
             text: session_energy
             unit_show: true
           - entity_id: calculated
@@ -385,11 +385,11 @@ cards:
             unit_show: true
             calc_function: min
             calc_entities:
-              - entity_id: sensor.ehhatdgg_dynamic_charger_limit
-              - entity_id: sensor.ehhatdgg_dynamic_circuit_limit
-              - entity_id: sensor.ehhatdgg_max_charger_limit
-              - entity_id: sensor.ehhatdgg_max_circuit_limit
-              - entity_id: sensor.ehhatdgg_offline_circuit_limit
+              - entity_id: sensor.easee_sonke_dynamic_charger_limit
+              - entity_id: sensor.easee_sonke_dynamic_circuit_limit
+              - entity_id: sensor.easee_sonke_max_charger_limit
+              - entity_id: sensor.easee_sonke_max_circuit_limit
+              - entity_id: sensor.easee_sonke_offline_circuit_limit
   # ── laaddetails ───────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

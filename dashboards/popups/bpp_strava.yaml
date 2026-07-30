@@ -1,0 +1,316 @@
+# Bubble Card native pop-up (#sport) — Strava.
+# Opened from a button on Rob's pop-up (#person-rob) and from the km sub-button
+# on his tile on the overview.
+type: custom:bubble-card
+card_type: pop-up
+buttons_position: left
+popup_mode: centered
+full_width_on_mobile: true
+width_desktop: 900px
+hash: '#sport'
+name: Sport
+icon: mdi:run-fast
+# header = kilometers deze week (utility_meter, resets Monday) + laatste activiteit
+entity: sensor.strava_run_week
+show_state: true
+styles: |
+  .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.14) !important; }
+  .bubble-icon-container { background-color: rgba(252,82,0,0.22) !important; }
+  .bubble-state { font-size: 0 !important; }
+  .bubble-state::after {
+    font-size: 14px !important; font-weight: 500; color: #ff8a5c !important;
+    content: "${(() => { const w = hass.states['sensor.strava_run_week']?.state; const km = (w === undefined || isNaN(parseFloat(w))) ? '—' : parseFloat(w).toFixed(1); const act = hass.states['sensor.strava_rob_sonke_run']?.state; return km + ' km deze week' + (act ? String.fromCharCode(32,183,32) + act : ''); })()}";
+  }
+cards:
+  # ── laatste run ───────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Laatste run
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_run_distance
+        name: Afstand
+        icon: mdi:map-marker-distance
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.13) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_last_run_pace
+        name: Tempo
+        icon: mdi:speedometer
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.13) !important; }
+          /* the sensor holds "5:55"; append the unit here so the template
+             sensor stays a clean value */
+          .bubble-state::after { content: " /km"; opacity: 0.7; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_last_run_duration
+        name: Duur
+        icon: mdi:timer-outline
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_run_average_heartrate
+        name: Hartslag
+        icon: mdi:heart-pulse
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(226,75,74,0.13) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_run_average_cadence
+        name: Cadans
+        icon: mdi:shoe-print
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_run_elevation_gain
+        name: Hoogtemeters
+        icon: mdi:elevation-rise
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_run_calories
+        name: Calorieën
+        icon: mdi:fire
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(233,167,21,0.13) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_run_kudos
+        name: Kudos
+        icon: mdi:thumb-up
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.13) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const k = hass.states['sensor.strava_rob_sonke_run_kudos']?.state ?? '0'; const t = hass.states['sensor.strava_rob_sonke_run_trophies']?.state ?? '0'; return k + ' kudos' + (parseInt(t) > 0 ? String.fromCharCode(32,183,32) + t + ' trofee' : ''); })()}";
+          }
+  # gear + toestel van die run, als rij i.p.v. tegels
+  - type: entities
+    entities:
+      - entity: sensor.strava_rob_sonke_run_date
+        name: Datum
+        icon: mdi:calendar
+      - entity: sensor.strava_rob_sonke_run_gear_name
+        name: Schoenen
+        icon: mdi:shoe-sneaker
+      - entity: sensor.strava_rob_sonke_run_device_info
+        name: Gemeten met
+        icon: mdi:watch
+
+  # ── afstanden ─────────────────────────────────────────────────────
+  # NB "4 weken" is Strava's own `recent` window, not a rolling month we compute.
+  - type: custom:bubble-card
+    card_type: separator
+    name: Hardlopen — afstanden
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_run_week
+        name: Deze week
+        icon: mdi:calendar-week
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.16) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const s = hass.states['sensor.strava_run_week']; const now = parseFloat(s?.state); const prev = parseFloat(s?.attributes?.last_period); const a = isNaN(now) ? '—' : now.toFixed(1) + ' km'; return a + (isNaN(prev) ? '' : String.fromCharCode(32,183,32) + 'vorige ' + prev.toFixed(1)); })()}";
+          }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_run_month
+        name: Deze maand
+        icon: mdi:calendar-today
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.16) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const s = hass.states['sensor.strava_run_month']; const now = parseFloat(s?.state); const prev = parseFloat(s?.attributes?.last_period); const a = isNaN(now) ? '—' : now.toFixed(1) + ' km'; return a + (isNaN(prev) ? '' : String.fromCharCode(32,183,32) + 'vorige ' + prev.toFixed(0)); })()}";
+          }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_stats_recent_run_distance
+        name: 4 weken
+        icon: mdi:calendar-month
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const d = hass.states['sensor.strava_rob_sonke_stats_recent_run_distance']?.state; const c = hass.states['sensor.strava_rob_sonke_stats_recent_run_count']?.state; return (isNaN(parseFloat(d)) ? '—' : parseFloat(d).toFixed(0) + ' km') + (c ? String.fromCharCode(32,183,32) + c + 'x' : ''); })()}";
+          }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_stats_ytd_run_distance
+        name: Dit jaar
+        icon: mdi:calendar-star
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const d = hass.states['sensor.strava_rob_sonke_stats_ytd_run_distance']?.state; const c = hass.states['sensor.strava_rob_sonke_stats_ytd_run_count']?.state; return (isNaN(parseFloat(d)) ? '—' : parseFloat(d).toFixed(0) + ' km') + (c ? String.fromCharCode(32,183,32) + c + 'x' : ''); })()}";
+          }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_rob_sonke_stats_all_run_distance
+        name: Totaal
+        icon: mdi:infinity
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after {
+            font-size: 13px !important; font-weight: 500;
+            content: "${(() => { const d = hass.states['sensor.strava_rob_sonke_stats_all_run_distance']?.state; const c = hass.states['sensor.strava_rob_sonke_stats_all_run_count']?.state; return (isNaN(parseFloat(d)) ? '—' : parseFloat(d).toFixed(0) + ' km') + (c ? String.fromCharCode(32,183,32) + c + ' runs' : ''); })()}";
+          }
+      # sixth tile so the 2-column grid fills three clean rows
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.strava_recent_run_average
+        name: Gem. per run
+        icon: mdi:chart-line
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+  # Progress bars for the two periods that reset — the maxima are personal
+  # targets, not data: ~80 km/week and ~300 km/month.
+  - type: custom:bar-card
+    width: 60%
+    height: 2em
+    decimal: 0
+    unit_of_measurement: km
+    positions: { icon: outside, indicator: 'off', name: outside }
+    entity_row: true
+    entities:
+      - entity: sensor.strava_run_week
+        name: Deze week
+        icon: mdi:run
+        max: 80
+      - entity: sensor.strava_run_month
+        name: Deze maand
+        icon: mdi:calendar-today
+        max: 300
+  # Kilometers per week over time.
+  #
+  # Deliberately a `statistics-graph` on the ALL-TIME total rather than an
+  # apexcharts card on state history: recorder keeps only 10 days
+  # (purge_keep_days), so any state-history chart would show a week and a half at
+  # most. Long-term statistics are never purged, so this keeps growing forever.
+  #
+  # `stat_types: change` with `period: week` gives exactly "km added in that
+  # week" — the weekly delta of the cumulative total — so one bar per week.
+  # Sourced from the Strava total, not from sensor.strava_run_week, so the chart
+  # does not depend on the utility_meter's reset timing.
+  #
+  # NB the Strava integration was only added 2026-07-26, so there is no history
+  # to draw yet. Bars appear one per week from here on.
+  - type: statistics-graph
+    title: Kilometers per week
+    chart_type: bar
+    period: week
+    days_to_show: 365
+    stat_types:
+      - change
+    entities:
+      - entity: sensor.strava_rob_sonke_stats_all_run_distance
+        name: Hardlopen
+
+  # ── materiaal ─────────────────────────────────────────────────────
+  # Kilometerstanden per paar schoenen — handig om te zien wanneer een paar
+  # versleten is (Brooks rekent op ~800 km).
+  - type: custom:bubble-card
+    card_type: separator
+    name: Schoenen & fiets
+  - type: entities
+    entities:
+      - entity: sensor.strava_rob_sonke_brooks_hyperion_elite_4_wit_rood_geel_distance
+        name: Brooks Hyperion Elite 4
+        icon: mdi:shoe-sneaker
+      - entity: sensor.strava_rob_sonke_brooks_glycerin_oranje_distance
+        name: Brooks Glycerin
+        icon: mdi:shoe-sneaker
+      - entity: sensor.strava_rob_sonke_brooks_ghost_all_old_shoes_distance
+        name: Brooks Ghost (alle oude)
+        icon: mdi:shoe-print
+      - entity: sensor.strava_rob_sonke_scott_scale_900_pro_distance
+        name: Scott Scale 900 Pro
+        icon: mdi:bike
+
+  # ── fietsen & records ─────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Fietsen & records
+  - type: entities
+    entities:
+      - entity: sensor.strava_rob_sonke_ride
+        name: Laatste rit
+        icon: mdi:bike-fast
+      - entity: sensor.strava_rob_sonke_ride_distance
+        name: Afstand
+        icon: mdi:map-marker-distance
+      - entity: sensor.strava_rob_sonke_stats_ytd_ride_distance
+        name: Fietsen dit jaar
+        icon: mdi:calendar-star
+      - entity: sensor.strava_rob_sonke_stats_all_ride_distance
+        name: Fietsen totaal
+        icon: mdi:infinity
+      - entity: sensor.strava_rob_sonke_stats_biggest_ride_distance
+        name: Langste rit
+        icon: mdi:trophy
+      - entity: sensor.strava_rob_sonke_stats_biggest_climb_elevation_gain
+        name: Grootste klim
+        icon: mdi:image-filter-hdr

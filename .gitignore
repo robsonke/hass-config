@@ -51,3 +51,7 @@ frigate*
 .claude/
 .cache/
 .superpowers/
+
+# HA re-seeds its built-in blueprints into these folders whenever the folder is
+# missing, so deleting them from git just makes them reappear as untracked files.
+blueprints/*/homeassistant/

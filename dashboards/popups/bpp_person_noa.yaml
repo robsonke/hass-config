@@ -8,17 +8,18 @@ width_desktop: 900px
 hash: '#person-noa'
 name: Noa
 icon: mdi:bed
-# header = bed-aanwezigheid (blauw = in bed) + duur
-entity: binary_sensor.noa_bed_presence
+# header = kamerlicht (warm = aan) + temperatuur en luchtvochtigheid.
+# Was binary_sensor.noa_bed_presence, maar die detectie werkt niet betrouwbaar.
+entity: light.dimmer_noa
 show_state: true
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
-  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,190,70,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,190,70,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
   .bubble-state { font-size: 0 !important; }
   .bubble-state::after {
     font-size: 14px !important; font-weight: 500;
-    color: ${state === 'on' ? '#82bbf0' : '#9b9aac'} !important;
-    content: "${(() => { const p = hass.states['binary_sensor.noa_bed_presence']; const on = p?.state === 'on'; const t = p?.last_changed; const secs = (Date.now() - new Date(t)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return (on ? 'In bed' : 'Bed leeg') + ' · ' + d; })()}";
+    color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
+    content: "${(() => { const lit = hass.states['light.dimmer_noa']?.state === 'on' ? 'Licht aan' : 'Licht uit'; const t = hass.states['sensor.climate_sensor_noa_temperature']?.state; const h = hass.states['sensor.climate_sensor_noa_humidity']?.state; const temp = t ? (Math.round(t * 10) / 10) + '°C' : '—'; const hum = h ? Math.round(h) + '%' : '—'; return lit + ' · ' + temp + ' · ' + hum; })()}";
   }
 cards:
   - type: custom:bubble-card
@@ -64,3 +65,41 @@ cards:
           mode: below
         next_previous:
           style: chevrons
+  # ── kamer (licht + klimaat) ───────────────────────────────────────
+  # Licht en klimaatsensor komen uit light.lights_upstairs (pkg_lights.yaml) en
+  # niet uit de area's - die spreken elkaar tegen. 2 kolommen, want een 3-koloms
+  # grid knijpt de labels op mobiel dicht tot een scrollende marquee.
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kamer
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: light.dimmer_noa
+    name: Licht
+    icon: mdi:lightbulb
+    card_layout: large
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.climate_sensor_noa_temperature
+        name: Temperatuur
+        icon: mdi:thermometer
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.climate_sensor_noa_humidity
+        name: Vocht
+        icon: mdi:water-percent
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }

@@ -179,6 +179,7 @@ group:
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_noaroom_openclose_contact
       - sensor.climate_sensor_eva_temperature
+      - sensor.climate_sensor_evadownstairs_temperature
       - sensor.climate_sensor_noa_temperature
       - sensor.climate_sensor_guestroom_temperature
       - sensor.climate_sensor_masterbedroom_temperature
@@ -248,22 +249,68 @@ template:
     - trigger: time_pattern
       minutes: "/5"
     sensor:
+      # Counts entities that look like a REAL fault, not every entity that
+      # happens not to hold a value. The old version counted any
+      # unavailable/unknown/none and reported ~465, of which ~180 were entities
+      # that are `unknown` by design — whole domains (button, event, notify,
+      # stt/tts, text, scene, plus Zigbee config selects/numbers) never hold a
+      # state until first use, so they can never become "available" and only
+      # drowned the signal.
+      #
+      # Two rules now:
+      #   * `unavailable` counts in ANY domain — the integration or device is
+      #     genuinely not answering.
+      #   * `unknown`/`none` count ONLY in domains that are supposed to hold a
+      #     value (whitelist below), so by-design domains are ignored.
+      #
+      # IGNORE_RE additionally drops things that are expected to be absent most
+      # of the time, and which otherwise permanently inflate the number:
+      # Frigate's plate sensors (populated only on a read), the stale
+      # laptop_firefox browser_mod registration, the BBQ probes and Inkbird
+      # (Bluetooth, only live while grilling), seasonal Christmas lights and the
+      # unused spare sockets. Deliberately NOT ignored: the ESPHome voice
+      # satellites — when those are down that IS the fault worth reporting.
       - unique_id: all_unavailable_entities
         name: All Unavailable Entities
         unit_of_measurement: entities
         state: >
           {% set ignore_time = 15 %}
-          {% set unavail = namespace(value=0) %}
-          {% set entities = states|rejectattr('domain','eq','group')
-            |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-            |rejectattr('state', 'equalto', '')
-            |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
-          {% for item in entities %}
-            {% if item != "None" and states[item].last_changed.timestamp() < now().timestamp() - ignore_time %}
-              {% set unavail.value = unavail.value + 1 %}
+          {% set value_domains = ['sensor','binary_sensor','climate','cover','light','switch',
+             'lock','media_player','device_tracker','person','alarm_control_panel','vacuum',
+             'fan','water_heater','humidifier','weather','calendar'] %}
+          {% set ignore_re = '(_last_recognized_plate$|laptop_firefox|probe_[0-9]|tuin_bbq|inkbird|^light\\.kerst_|_spare[0-9])' %}
+          {% set ignored = state_attr('group.ignored_entities','entity_id') or [] %}
+          {% set ns = namespace(n=0) %}
+          {% for s in states if s.domain != 'group'
+                and s.entity_id not in ignored
+                and not (s.entity_id is search(ignore_re)) %}
+            {% if s.last_changed.timestamp() < now().timestamp() - ignore_time %}
+              {% if s.state == 'unavailable'
+                    or (s.state in ['unknown','none'] and s.domain in value_domains) %}
+                {% set ns.n = ns.n + 1 %}
+              {% endif %}
             {% endif %}
           {% endfor %}
-          {{ unavail.value }}
+          {{ ns.n }}
+        # Split out so the number is diagnosable at a glance instead of being a
+        # single opaque total.
+        attributes:
+          unavailable: >
+            {% set ignore_re = '(_last_recognized_plate$|laptop_firefox|probe_[0-9]|tuin_bbq|inkbird|^light\\.kerst_|_spare[0-9])' %}
+            {% set ignored = state_attr('group.ignored_entities','entity_id') or [] %}
+            {{ states | selectattr('state','eq','unavailable')
+               | rejectattr('entity_id','in',ignored)
+               | rejectattr('entity_id','search',ignore_re) | list | count }}
+          unknown: >
+            {% set value_domains = ['sensor','binary_sensor','climate','cover','light','switch',
+               'lock','media_player','device_tracker','person','alarm_control_panel','vacuum',
+               'fan','water_heater','humidifier','weather','calendar'] %}
+            {% set ignore_re = '(_last_recognized_plate$|laptop_firefox|probe_[0-9]|tuin_bbq|inkbird|^light\\.kerst_|_spare[0-9])' %}
+            {% set ignored = state_attr('group.ignored_entities','entity_id') or [] %}
+            {{ states | selectattr('state','in',['unknown','none'])
+               | selectattr('domain','in',value_domains)
+               | rejectattr('entity_id','in',ignored)
+               | rejectattr('entity_id','search',ignore_re) | list | count }}
   # Storage for Bubble Card Modules
   - trigger:
       - trigger: event
