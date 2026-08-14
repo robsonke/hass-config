@@ -16,8 +16,11 @@ esp32:
 
 logger:
   baud_rate: 0
-  #level: VERBOSE #makes uart stream available in esphome logstream
-  level: INFO
+  # DEBUG is the minimum level at which the uart debug block below actually
+  # emits frames (UARTDebug::log_string uses ESP_LOGD). At INFO the debug block
+  # is configured but silent, which is why the bus looked like a black box.
+  # Drop back to INFO once the protocol is settled.
+  level: DEBUG
   hardware_uart: UART0
   
 api:
@@ -53,8 +56,10 @@ api:
 # https://www.duratech.be/en/controller/plp-rem-350
 uart:
   id: mod_bus
-  tx_pin: GPIO26
-  rx_pin: GPIO0
+  # G0 = TX, G26 = RX per the M5Stack HAT RS485 pinmap table (and the comment
+  # above). These were swapped on 2026-08-14 in 2751642c; this restores them.
+  tx_pin: GPIO0
+  rx_pin: GPIO26
   baud_rate: 9600
   data_bits: 8
   stop_bits: 1
