@@ -72,8 +72,13 @@ uart:
   debug:
     direction: BOTH
     dummy_receiver: false
+    # Was `delimiter: "\n"`, which never fires: the PLP-REM-350 command set has
+    # no terminator and the controller never replies, so frames just queued up
+    # and flushed together as one blob ("PS01PL1PS01"). Flush on a short idle
+    # gap instead, so each command is its own timestamped line.
     after:
-      delimiter: "\n"
+      timeout: 30ms
+      bytes: 64
     sequence:
       - lambda: UARTDebug::log_string(direction, bytes);
  
