@@ -26,27 +26,32 @@ logger:
 api:
   encryption:
     key: !secret api_key
-  # services:
-  #   - service: set_color
-  #     variables:
-  #       color: string
-  #     then:
-  #       - uart.write:
-  #           id: mod_bus
-  #           data: !lambda |-
-  #             std::string str = color;
-  #               std::vector<uint8_t> vec(str.begin(), str.end());
-  #               return vec;
-  #   - service: send_uart_command
-  #     variables:
-  #       command: string
-  #     then:
-  #       - uart.write:
-  #           id: mod_bus
-  #           data: !lambda |-
-  #             std::string str = command;
-  #               std::vector<uint8_t> vec(str.begin(), str.end());
-  #               return vec;
+  # The PLP-REM-350 takes plain ASCII strings over RS-485 (9600 8N1), not
+  # Modbus - see the command table in the LINK Driver manual. These two generic
+  # pass-throughs are what packages/pkg_pool.yaml drives light.pool_light with:
+  # PDxxx for brightness, PCrrrgggbbb for colour, PSxx for a program (01-14).
+  # Exposed in HA as esphome.pool_lights_* (the node is named pool-lights).
+  services:
+    - service: set_color
+      variables:
+        color: string
+      then:
+        - uart.write:
+            id: mod_bus
+            data: !lambda |-
+              std::string str = color;
+              std::vector<uint8_t> vec(str.begin(), str.end());
+              return vec;
+    - service: send_uart_command
+      variables:
+        command: string
+      then:
+        - uart.write:
+            id: mod_bus
+            data: !lambda |-
+              std::string str = command;
+              std::vector<uint8_t> vec(str.begin(), str.end());
+              return vec;
 
 # https://community.home-assistant.io/t/working-esphome-yaml-for-m5stickc/538050
 # https://shop.m5stack.com/products/m5stickc-rs485-hat-aoz1282ci
