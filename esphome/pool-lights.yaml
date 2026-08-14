@@ -23,27 +23,27 @@ logger:
 api:
   encryption:
     key: !secret api_key
-  services:
-    - service: set_color
-      variables:
-        color: string
-      then:
-        - uart.write:
-            id: mod_bus
-            data: !lambda |-
-              std::string str = color;
-                std::vector<uint8_t> vec(str.begin(), str.end());
-                return vec;
-    - service: send_uart_command
-      variables:
-        command: string
-      then:
-        - uart.write:
-            id: mod_bus
-            data: !lambda |-
-              std::string str = command;
-                std::vector<uint8_t> vec(str.begin(), str.end());
-                return vec;
+  # services:
+  #   - service: set_color
+  #     variables:
+  #       color: string
+  #     then:
+  #       - uart.write:
+  #           id: mod_bus
+  #           data: !lambda |-
+  #             std::string str = color;
+  #               std::vector<uint8_t> vec(str.begin(), str.end());
+  #               return vec;
+  #   - service: send_uart_command
+  #     variables:
+  #       command: string
+  #     then:
+  #       - uart.write:
+  #           id: mod_bus
+  #           data: !lambda |-
+  #             std::string str = command;
+  #               std::vector<uint8_t> vec(str.begin(), str.end());
+  #               return vec;
 
 # https://community.home-assistant.io/t/working-esphome-yaml-for-m5stickc/538050
 # https://shop.m5stack.com/products/m5stickc-rs485-hat-aoz1282ci
@@ -115,6 +115,26 @@ switch:
   #         id: mod_bus
   #         data: 'PL0'
 
+select:
+  - platform: modbus_controller
+    name: "Pool Light Color Program"
+    modbus_controller_id: duratech_pool
+    id: light_color_program
+    address: 0x0001
+    value_type: U_WORD
+    optionsmap:
+      "Deep Blue Sea": 0
+      "Daylight Blue": 1
+      "Sunset": 2
+      "Love Is In The Air": 3
+      "Forest Spring": 4
+      "Think Pink": 5
+      "Sunshine": 6
+      "Jungle Fever": 7
+      "Voodoo": 8
+      "Disco": 9
+      "Party": 10
+  
 light:
   # Built-in Red Status LED Light. See https://esphome.io/components/light/status_led.html
   - platform: status_led
