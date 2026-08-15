@@ -188,16 +188,26 @@ font:
 
 # builtin 80x160 TFT
 display:
-  - platform: st7735
-    model: "INITR_MINI160X80"
+  # Migrated off the deprecated st7735 platform. Mapping used:
+  #   model: INITR_MINI160X80  ->  model: ST7735 + dimensions: 160x80
+  #   device_width/device_height -> dimensions
+  #   col_start: 1  ->  offset_width: 1
+  #   row_start: 1  ->  offset_height: 1
+  # The old platform folded panel quirks into its model name; mipi_spi wants
+  # them stated. If the image sits shifted, the offsets are the knob (this
+  # 0.96" 160x80 panel is commonly 24/0 or 26/1 rather than 1/1), and if the
+  # colours come out negative, flip invert_colors.
+  - platform: mipi_spi
+    model: ST7735
     cs_pin: GPIO5
     dc_pin: GPIO23
     reset_pin: GPIO18
-    device_height: 80
-    device_width: 160
-    row_start: 1
-    col_start: 1
-    rotation: 270
+    dimensions: 160x80
+    offset_width: 1
+    offset_height: 1
+    color_order: bgr
+    invert_colors: true
+    rotation: 270°
     update_interval: 2s
     lambda: |-
       it.print(80, 0, id(roboto), TextAlign::TOP_CENTER, "M5Stick Pool Lights");
