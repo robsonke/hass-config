@@ -20,6 +20,13 @@ api:
   encryption:
     key: !secret api_key
 
+# Merges into the package's esphome OTA platform rather than adding a second
+# one. Must match the password the currently-running firmware was flashed with,
+# or the upload is rejected with "ESP requests password, but no password given".
+ota:
+  - platform: esphome
+    password: !secret wifi_password
+
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
