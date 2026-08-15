@@ -55,13 +55,12 @@ api:
 
 # https://community.home-assistant.io/t/working-esphome-yaml-for-m5stickc/538050
 # https://shop.m5stack.com/products/m5stickc-rs485-hat-aoz1282ci
-# The m5-docs pinmap reads "G0 | TX" and "G26 | RX", but never says whose
-# perspective that is. Measured on this hardware it is the HAT's: G0 is the
-# HAT's output (-> our RX) and G26 its input (-> our TX). Evidence: with
-# tx=GPIO26/rx=GPIO0 the ESP saw its own 8-byte frame echoed back 19ms after
-# every send (auto-direction transceiver), which needs BOTH halves wired right.
-# With them the other way round nothing was ever received. Do not "correct"
-# these to match the doc table - the echo is the ground truth.
+# TX = GPIO0, RX = GPIO26. M5Stack's own HAT example is the authority here:
+#   Serial2.begin(115200, SERIAL_8N1, 26, 0);   // begin(baud, cfg, rx, tx)
+# so rx=26, tx=0 - matching the m5-docs pinmap table and the ESPHome examples.
+# The 8 "received" bytes seen under tx=26/rx=0 were NOT an echo: they logged as
+# "parse failed", i.e. garbage, which is crosstalk on a floating RX pin from the
+# driven line beside it. Do not swap these back on the strength of that.
 # This controls the Duratech PLP-REM-350
 # https://www.duratech.be/en/controller/plp-rem-350
 uart:
