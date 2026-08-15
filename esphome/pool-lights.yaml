@@ -66,10 +66,8 @@ api:
 # https://www.duratech.be/en/controller/plp-rem-350
 uart:
   id: mod_bus
-  # G0 = TX, G26 = RX per the M5Stack HAT RS485 pinmap table (and the comment
-  # above). These were swapped on 2026-08-14 in 2751642c; this restores them.
-  tx_pin: GPIO0
-  rx_pin: GPIO26
+  tx_pin: GPIO26
+  rx_pin: GPIO0
   baud_rate: 9600
   data_bits: 8
   stop_bits: 1
