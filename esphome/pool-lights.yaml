@@ -55,8 +55,13 @@ api:
 
 # https://community.home-assistant.io/t/working-esphome-yaml-for-m5stickc/538050
 # https://shop.m5stack.com/products/m5stickc-rs485-hat-aoz1282ci
-# GPIO 0 for UART-TX
-# GPIO 26 for UART-RX
+# The m5-docs pinmap reads "G0 | TX" and "G26 | RX", but never says whose
+# perspective that is. Measured on this hardware it is the HAT's: G0 is the
+# HAT's output (-> our RX) and G26 its input (-> our TX). Evidence: with
+# tx=GPIO26/rx=GPIO0 the ESP saw its own 8-byte frame echoed back 19ms after
+# every send (auto-direction transceiver), which needs BOTH halves wired right.
+# With them the other way round nothing was ever received. Do not "correct"
+# these to match the doc table - the echo is the ground truth.
 # This controls the Duratech PLP-REM-350
 # https://www.duratech.be/en/controller/plp-rem-350
 uart:
