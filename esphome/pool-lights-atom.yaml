@@ -1,0 +1,145 @@
+# Atom Lite + ATOM Tail485 - a second, independent path to the Duratech
+# PLP-REM-350, built to isolate the M5StickC + RS485 HAT that will not talk.
+#
+# Why this hardware rules things out that the StickC cannot:
+#   - different MCU board and a different transceiver module
+#   - TX/RX on G26/G32, both ordinary GPIOs. The StickC drives TX on GPIO0,
+#     which is an ESP32 strapping pin.
+#   - no AXP192: the Atom's 5V comes straight from USB, nothing gates it
+#
+# Tail485 pinmap (m5-docs): Atom Lite G26 -> TX, G32 -> RX, plus 5V and GND.
+# Its 4-pin terminal has a 9-24V -> 5V buck so the BUS can power the Atom, but
+# that is optional - powered over USB-C, no 12V is needed. Wire only A and B.
+#
+# Deliberately minimal: no display, no SPI/I2C, nothing that could fail to
+# compile and block the test. Same protocol as pool-lights.yaml.
+
+substitutions:
+  devicename: "pool-lights-atom"
+
+esphome:
+  name: ${devicename}
+  friendly_name: ${devicename}
+  comment: "RS485 pool light control - Atom Lite test rig"
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # DHCP on purpose - this is a bench device, no static lease to reserve.
+
+captive_portal:
+
+ota:
+  platform: esphome
+  password: !secret wifi_password
+
+web_server:
+  port: 80
+  version: 3
+
+logger:
+  # DEBUG so the uart debug block below actually emits; UARTDebug::log_string
+  # logs at ESP_LOGD. The Atom has no separate log UART to free up, so unlike
+  # pool-lights.yaml there is no need to set baud_rate: 0.
+  level: DEBUG
+
+api:
+  encryption:
+    key: !secret api_key
+  # Same two pass-throughs as pool-lights.yaml. Note the node name differs, so
+  # in HA these are esphome.pool_lights_atom_* - packages/pkg_pool.yaml still
+  # points at the StickC's esphome.pool_lights_*. Left that way on purpose:
+  # this rig is for testing, not for taking over the integration yet.
+  services:
+    - service: set_color
+      variables:
+        color: string
+      then:
+        - uart.write:
+            id: mod_bus
+            data: !lambda |-
+              std::string str = color;
+              std::vector<uint8_t> vec(str.begin(), str.end());
+              return vec;
+    - service: send_uart_command
+      variables:
+        command: string
+      then:
+        - uart.write:
+            id: mod_bus
+            data: !lambda |-
+              std::string str = command;
+              std::vector<uint8_t> vec(str.begin(), str.end());
+              return vec;
+
+uart:
+  id: mod_bus
+  tx_pin: GPIO26
+  rx_pin: GPIO32
+  baud_rate: 9600
+  data_bits: 8
+  stop_bits: 1
+  parity: NONE
+  debug:
+    direction: BOTH
+    dummy_receiver: false
+    # Idle-gap flush, not a delimiter: these commands have no terminator and the
+    # controller never replies, so a delimiter would never fire.
+    after:
+      timeout: 30ms
+      bytes: 64
+    sequence:
+      - lambda: UARTDebug::log_string(direction, bytes);
+
+switch:
+  # optimistic - the controller sends nothing back, so there is no state to read.
+  - platform: template
+    id: pool_lights
+    name: Pool Lights
+    optimistic: true
+    turn_on_action:
+      - uart.write:
+          id: mod_bus
+          data: 'PL1'
+    turn_off_action:
+      - uart.write:
+          id: mod_bus
+          data: 'PL0'
+
+  - platform: template
+    id: pool_aux_relay_a
+    name: Pool Controller Auxiliary Relay A
+    optimistic: true
+    turn_on_action:
+      - uart.write:
+          id: mod_bus
+          data: 'PRA1'
+    turn_off_action:
+      - uart.write:
+          id: mod_bus
+          data: 'PRA0'
+
+# Built-in RGB LED - handy bench feedback that the thing is alive and flashed.
+light:
+  - platform: esp32_rmt_led_strip
+    name: "Status LED"
+    pin: GPIO27
+    num_leds: 1
+    rgb_order: GRB
+    chipset: SK6812
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+
+# Built-in button.
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO39
+      inverted: true
+    id: button_a
+    name: Button
