@@ -10,7 +10,13 @@ esphome:
 esp32:
   board: m5stick-c
   framework:
-    type: arduino
+    # esp-idf, matching esphome/archive/pool-fairland-heatpump.yaml - the same
+    # M5StickC + RS485 HAT, same GPIO0/GPIO26, same 9600 8N1, which worked.
+    # 2751642c switched this to arduino on 2026-08-14 in the same blind commit
+    # that also swapped the uart pins; GPIO0 is an ESP32 strapping pin and the
+    # two frameworks do not set it up identically, so keep this on esp-idf
+    # unless there is a concrete reason not to.
+    type: esp-idf
 
 <<: !include .common.yaml
 
