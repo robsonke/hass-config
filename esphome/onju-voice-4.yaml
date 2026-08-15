@@ -1,0 +1,30 @@
+# Google Nest Mini 2nd gen with the Onju Voice PCB.
+# Replaces the old tetele/onju-voice-satellite config, which was pinned to the
+# abandoned gnumpi/esphome_audio component and no longer compiles.
+substitutions:
+  name: onju-voice-4
+  friendly_name: Onju Voice 4
+  # The pre-built release binaries carry no API encryption key, so installing
+  # one would drop encryption. Update via the ESPHome dashboard instead.
+  disable_firmware_update: "true"
+
+packages:
+  onju_voice: github://Idskov/onju-voice-esphome/onju-voice.yaml@main
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+
+api:
+  encryption:
+    key: !secret api_key
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  manual_ip:
+    static_ip: !secret onju_voice_4_ip
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
