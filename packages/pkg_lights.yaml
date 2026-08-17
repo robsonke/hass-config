@@ -16,6 +16,17 @@ input_boolean:
   enable_automatic_garden_lights:
     name: Enable Garden Lights Automation
     icon: mdi:weather-sunset-down
+  # Flags purely for the timeline in the light pop-ups: they mark the periods
+  # where the lights were on because the darkness automations put them there,
+  # so a manual switch-on does not show up as "automatisch aan". Set by the
+  # scripts/automations themselves - never by a template - so the recorded
+  # history is the automation's own truth. Nothing reads these as a condition.
+  lights_downstairs_auto_dark:
+    name: Beneden automatisch aan (donker)
+    icon: mdi:weather-night
+  lights_garden_auto_dark:
+    name: Tuin automatisch aan (donker)
+    icon: mdi:weather-night
 
 light:
   - platform: group

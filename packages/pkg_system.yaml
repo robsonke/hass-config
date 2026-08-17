@@ -20,6 +20,14 @@ shell_command:
   # main-dashboard.yaml was removed from this list when that dashboard was
   # retired — `touch` would otherwise have recreated it as an empty file.
   refresh_lovelace: "touch /config/dashboards/bubble-dashboard.yaml /config/dashboards/backdoor-dashboard.yaml"
+  # Camera snapshots that get attached to notifications are written to
+  # /config/www, which HA serves as /local WITHOUT authentication - so anyone who
+  # knows the path can fetch the newest one over the Nabu Casa URL. The Eva sound
+  # automation therefore writes a random filename per run instead of a fixed
+  # evabed_sound.jpg, and calls this to sweep the old ones. 120 minutes so a run's
+  # own files always survive its 2-minute escalation window. No pipes or globbing
+  # by the shell here on purpose: HA may run shell_command without a shell.
+  prune_message_snapshots: "find /config/www/messages -name evabed_*.jpg -mmin +120 -delete"
 
 logger:
   default: info
@@ -201,6 +209,7 @@ group:
       - sensor.hue_motion_sensor_hall_illuminance
       - binary_sensor.hue_motion_sensor_hall_occupancy
       - binary_sensor.window_office_openclose_contact
+      - sensor.light_sensor_living_illuminance
 
   ignored_entities:
     entities:
@@ -237,12 +246,19 @@ template:
       # on the same automation and are unaffected, so real distress is still
       # caught by the classifier even when it stays under -55 dB.
       #
-      # Raise the floor toward -50 if it is still twitchy; lower it toward -60
-      # if a real event is ever missed.
+      # 13 Aug: floor raised -55 -> -50. Measured hourly maxima in Eva's room over
+      # 9-13 Aug: the genuinely quiet night hours peak at -59..-66, but plenty of
+      # evening/night hours peak at -43..-54 with nothing happening. A -55 floor
+      # sat below most of those, so a single cough-loud transient cleared it.
+      # -50 keeps ~10 dB over the quiet-room baseline peaks.
+      #
+      # Lower it back toward -55/-60 if a real event is ever missed. Note the
+      # classifiers (crying / scream / yell / cough) are separate triggers and
+      # ignore this floor entirely, so distress is still caught below -50.
       state: >
         {% set mean = states('sensor.evabed_sound_level_mean') | float(default=-70) %}
         {% set sd = states('sensor.evabed_sound_level_std_dev') | float(default=5) %}
-        {{ [ mean + 2.5 * sd, -55 ] | max | round(2) }}
+        {{ [ mean + 2.5 * sd, -50 ] | max | round(2) }}
 
   # all unavailable entities
   - trigger:

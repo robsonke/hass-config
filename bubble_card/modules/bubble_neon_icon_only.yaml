@@ -1,0 +1,152 @@
+bubble_neon_icon_only:
+  name: Bubble Neon (icon only)
+  version: v1.1.0
+  creator: robsonke (trimmed from Clooos' Bubble Neon)
+  description: |
+    Per-card hue chosen by what the card is ABOUT (entity domain / name
+    keywords — lights=yellow, heating=red, doors=green, water=blue, ...),
+    used for the icon chip AND a soft corner glow inside the tile with a
+    faint border in the same hue. The tile stays a dark glass panel; the
+    neon tint is subtle, not a full gradient fill.
+
+    Two dimmer knobs: `intensity` (glow + border + icon halo strength) and
+    `saturation` (how colourful the hues are). 100 = the original look.
+  code: |-
+    :host {
+      --bc-hue: 220;
+      --bc-icon-bg: #5b7dff;
+      --bc-icon-accent: #7b9dff;
+      /* Dimmer knobs. These defaults are the ORIGINAL (undimmed) values; the
+         JS below overwrites them per card from the intensity / saturation
+         options. They stay here so the CSS renders correctly even if the JS
+         bails out early (e.g. no host element yet).
+         NB: NEVER put a backtick anywhere in this file's CSS or comments.
+         Bubble Card evaluates the whole module as a JS template literal
+         (Function(..., "return" + backtick + code + backtick)), so one stray
+         backtick ends the literal early and kills the ENTIRE module — every
+         card silently loses all of its styling. Only the 3 real nested
+         templates in the JS below may use them. Same class of trap as the
+         comma-after-content bug. */
+      --bc-glow-a: 0.30;        /* tile corner glow alpha */
+      --bc-border-a: 0.60;      /* tile border alpha */
+      --bc-icon-glow-a: 0.40;   /* icon chip halo alpha */
+      --bc-glow-sat: 85%;       /* saturation of the corner glow / icon halo */
+      --bc-border-sat: 80%;     /* saturation of the border */
+      --bc-pill-sat: 58%;       /* saturation of active sub-button pills */
+      /* Tile corner radius — Bubble's button card defaults to
+         calc(row-height/2) = 28px; the mockup tiles are tighter (~20px). */
+      --bubble-border-radius: 20px;
+      /* squircle icons (iOS-style) instead of circles. Icon radius is
+         var(--bubble-button-icon-border-radius, var(--bubble-icon-border-radius,
+         var(--bubble-border-radius, 50%))) — the icon-only var keeps the icons
+         squircle independent of the tile radius above. */
+      --bubble-icon-border-radius: 30%;
+    }
+
+    /* tile: the rounded panel is .bubble-button-container (NOT
+       .bubble-content-container, which is a 0x0 icon/text wrapper). Add a soft
+       neon glow from the top-left corner (background-image layers over the
+       existing dark background-color) + a small border in the same hue. */
+    .bubble-button-container {
+      background-image:
+        radial-gradient(140% 120% at 8% -10%, hsl(var(--bc-hue) var(--bc-glow-sat) 62% / var(--bc-glow-a)), transparent 52%) !important;
+      border: 1px solid hsl(var(--bc-hue) var(--bc-border-sat) 64% / var(--bc-border-a)) !important;
+    }
+
+    .bubble-main-icon {
+      color: #fff !important;
+      opacity: 1 !important;
+    }
+
+    /* icon chip: hue gradient + a matching neon glow */
+    .bubble-main-icon-container {
+      background: linear-gradient(135deg, var(--bc-icon-bg), var(--bc-icon-accent)) !important;
+      box-shadow: 0 0 18px hsl(var(--bc-hue) var(--bc-glow-sat) 58% / var(--bc-icon-glow-a)) !important;
+    }
+
+    /* sub-button pills follow the card's hue instead of the default blue */
+    .bubble-sub-button.background-on {
+      background-color: hsl(var(--bc-hue) var(--bc-pill-sat) 42%) !important;
+    }
+
+    ${(() => {
+      const host = this.popUp || card;
+      if (!host) return '';
+
+      // ── dimmer ────────────────────────────────────────────────────────────
+      // Change these two DEFAULTS to dim EVERY neon card at once (100 = the
+      // original look, lower = dimmer). Per-card overrides go in the card's
+      // own config, which also works from the module's UI editor:
+      //   bubble_neon_icon_only: { intensity: 60, saturation: 75 }
+      const DEFAULT_INTENSITY = 70;     // glow + border + icon halo strength
+      const DEFAULT_SATURATION = 100;   // how colourful the hues are
+      const opt = this?.config?.bubble_neon_icon_only || {};
+      const clamp = (v, d) => Math.max(0, Math.min(200, Number.isFinite(+v) ? +v : d)) / 100;
+      const glow = clamp(opt.intensity, DEFAULT_INTENSITY);
+      const sat = clamp(opt.saturation, DEFAULT_SATURATION);
+
+      // Hue chosen by what the card is ABOUT (entity domain + name/id keywords),
+      // not a random hash — lights=yellow, heating=red, doors=green, etc.
+      const id = ((this?.config?.entity ?? '') + ' ' + (this?.config?.name ?? '')).toLowerCase();
+      // glow/sat are part of the key so editing the dimmer re-applies the vars
+      // instead of being swallowed by this cache.
+      const cacheKey = `neon-theme:${id}|${glow}|${sat}`;
+      if (host.dataset.bcNeonIconKey === cacheKey) return '';
+      host.dataset.bcNeonIconKey = cacheKey;
+
+      let hue = 210;                                                        // default: blue
+      if (/light|verlicht|lamp/.test(id)) hue = 45;                         // lights → yellow
+      else if (/bbq|grill|stook|\bfire\b/.test(id)) hue = 22;               // bbq/fire → orange
+      else if (/climate|heat|warm|verwarm|thermostat|kachel|indoor_temp|water_heater|dhw/.test(id)) hue = 6;  // heating → red
+      else if (/door|window|deur|raam|opening/.test(id)) hue = 135;         // doors/windows → green
+      else if (/media|music|muziek|sonos|speaker|player/.test(id)) hue = 280;  // music → purple
+      else if (/mower|maai|grass|lawn/.test(id)) hue = 110;                 // mower → green
+      else if (/irrigat|sprinkler|watermeter|water_usage|water\b/.test(id)) hue = 200;  // water → blue
+      else if (/pool|zwembad/.test(id)) hue = 190;                          // pool → cyan
+      else if (/power|energy|energie|solar|verbruik|consumption/.test(id)) hue = 52;    // energy → yellow-green
+      else if (/vacuum|clean|sjorsje/.test(id)) hue = 190;                  // vacuum → cyan
+      else if (/cover|blind|screen|gordijn/.test(id)) hue = 235;            // covers → blue
+      else if (/motion|cat|pet|boris|puk/.test(id)) hue = 275;              // pets/motion → purple
+      else if (/alarm|lock/.test(id)) hue = 130;                            // security → green
+      else if (/guest|gasten/.test(id)) hue = 310;                          // guests → magenta
+      else if (/car|bmw|ix3/.test(id)) hue = 205;                           // car → blue
+      // person / presence / anything else → default blue (210)
+
+      const analogousHue1 = (hue + 22) % 360;
+      host.style.setProperty('--bc-hue', hue);
+
+      // Same base values as the :host block above, scaled by the two knobs.
+      host.style.setProperty('--bc-glow-a', (0.30 * glow).toFixed(3));
+      host.style.setProperty('--bc-border-a', (0.60 * glow).toFixed(3));
+      host.style.setProperty('--bc-icon-glow-a', (0.40 * glow).toFixed(3));
+      host.style.setProperty('--bc-glow-sat', Math.round(85 * sat) + '%');
+      host.style.setProperty('--bc-border-sat', Math.round(80 * sat) + '%');
+      host.style.setProperty('--bc-pill-sat', Math.round(58 * sat) + '%');
+      host.style.setProperty('--bc-icon-bg', `hsl(${hue}, ${Math.round(70 * sat)}%, 55%)`);
+      host.style.setProperty('--bc-icon-accent', `hsl(${analogousHue1}, ${Math.round(68 * sat)}%, 58%)`);
+
+      return '';
+    })()}
+  editor:
+    - type: expandable
+      title: Neon dimmer
+      icon: mdi:brightness-6
+      schema:
+        - name: intensity
+          label: Intensity (glow, border, icon halo)
+          selector:
+            number:
+              min: 0
+              max: 150
+              step: 5
+              unit_of_measurement: '%'
+              mode: slider
+        - name: saturation
+          label: Saturation (how colourful)
+          selector:
+            number:
+              min: 0
+              max: 150
+              step: 5
+              unit_of_measurement: '%'
+              mode: slider

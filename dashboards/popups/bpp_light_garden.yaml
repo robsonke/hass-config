@@ -270,3 +270,21 @@ cards:
           - icon: mdi:palette
             tap_action: { action: more-info }
             show_background: true
+  # ── tijdlijn ──────────────────────────────────────────────────────
+  # "Automatisch aan" is the input_boolean the garden darkness automation sets
+  # itself, cleared by the morning off automation. Note it deliberately stays on
+  # through the night: the evening automation only dims the lanterns back to
+  # 30%, it does not end the dark stretch. The lux line underneath is the sensor
+  # that automation triggers on (< 12).
+  # Reaches back at most recorder's purge_keep_days (10).
+  - type: custom:bubble-card
+    card_type: separator
+    name: Tijdlijn
+  - type: history-graph
+    title: Automatisch aan door donker (4 dagen)
+    hours_to_show: 96
+    entities:
+      - entity: input_boolean.lights_garden_auto_dark
+        name: Automatisch aan
+      - entity: light.lights_garden
+        name: Alle lampen tuin

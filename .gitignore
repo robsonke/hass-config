@@ -26,6 +26,7 @@ probe_ability_exports
 
 # And some files
 secrets.yaml
+.mcp.json
 esphome/secrets.yaml
 esphome/archive
 frigate.yml
@@ -55,3 +56,4 @@ frigate*
 # HA re-seeds its built-in blueprints into these folders whenever the folder is
 # missing, so deleting them from git just makes them reappear as untracked files.
 blueprints/*/homeassistant/
+tasks

@@ -45,15 +45,45 @@ utility_meter:
     name: Strava run month
     source: sensor.strava_run_total
     cycle: monthly
+  # Steffi has her own ha_strava account entry (strava_steffi_berks_*). Her
+  # helpers carry a _steffi suffix; Rob's keep the original unsuffixed names on
+  # purpose - renaming his would mint new utility_meter entities and throw away
+  # the accumulated totals, which would then need calibrating all over again.
+  strava_run_week_steffi:
+    name: Strava run week Steffi
+    source: sensor.strava_run_total_steffi
+    cycle: weekly
+  strava_run_month_steffi:
+    name: Strava run month Steffi
+    source: sensor.strava_run_total_steffi
+    cycle: monthly
 
 template:
   # Blip-proof mirror of ha_strava's all-time run total — see the note above.
+  #
+  # The `homeassistant: start` trigger is NOT decoration. A trigger-based
+  # template sensor is born with no state and only gets one when a trigger
+  # fires, so a freshly created mirror sits at `unknown` until the athlete's
+  # next run — and that run then becomes the utility_meter's first reading,
+  # i.e. its baseline, contributing 0. That is exactly how Steffi's 18.7 km on
+  # 12 Aug went missing: her mirror was created 9 Aug and stayed `unknown`
+  # until 12 Aug 09:53, so her run WAS the baseline. Firing on start means the
+  # mirror always carries the current total before any run can arrive.
+  #
+  # The condition is the safety rail: without it, a start while ha_strava is
+  # still `unavailable` would write 0 through `| float(0)`, and the next real
+  # reading would look like a +7000 km delta to the meter.
   - trigger:
       - trigger: state
         entity_id: sensor.strava_rob_sonke_stats_all_run_distance
         not_to:
           - unknown
           - unavailable
+      - trigger: homeassistant
+        event: start
+    condition:
+      - condition: template
+        value_template: "{{ has_value('sensor.strava_rob_sonke_stats_all_run_distance') }}"
     sensor:
       - unique_id: strava_run_total
         name: Strava Run Total
@@ -61,7 +91,28 @@ template:
         device_class: distance
         state_class: total
         unit_of_measurement: km
-        state: "{{ trigger.to_state.state | float(0) }}"
+        # states() not trigger.to_state, so the start trigger works too
+        state: "{{ states('sensor.strava_rob_sonke_stats_all_run_distance') | float(0) }}"
+
+  - trigger:
+      - trigger: state
+        entity_id: sensor.strava_steffi_berks_stats_all_run_distance
+        not_to:
+          - unknown
+          - unavailable
+      - trigger: homeassistant
+        event: start
+    condition:
+      - condition: template
+        value_template: "{{ has_value('sensor.strava_steffi_berks_stats_all_run_distance') }}"
+    sensor:
+      - unique_id: strava_run_total_steffi
+        name: Strava Run Total Steffi
+        icon: mdi:run
+        device_class: distance
+        state_class: total
+        unit_of_measurement: km
+        state: "{{ states('sensor.strava_steffi_berks_stats_all_run_distance') | float(0) }}"
 
   - sensor:
     # Strava gives pace as a decimal (5.914 min/km); runners read 5:55 /km.
@@ -100,3 +151,35 @@ template:
       state: >
         {{ (states('sensor.strava_rob_sonke_stats_recent_run_distance') | float(0)
             / states('sensor.strava_rob_sonke_stats_recent_run_count') | int(1)) | round(1) }}
+
+    # ── Steffi, same three derived values ────────────────────────────────
+    - unique_id: strava_last_run_pace_steffi
+      name: Strava Last Run Pace Steffi
+      icon: mdi:speedometer
+      availability: "{{ has_value('sensor.strava_steffi_berks_run_pace') }}"
+      state: >
+        {% set secs = (states('sensor.strava_steffi_berks_run_pace') | float(0) * 60) | round(0) | int %}
+        {%- if secs > 0 -%}
+          {{ secs // 60 }}:{{ '%02d' % (secs % 60) }}
+        {%- else -%}
+          —
+        {%- endif %}
+
+    - unique_id: strava_last_run_duration_steffi
+      name: Strava Last Run Duration Steffi
+      icon: mdi:timer-outline
+      availability: "{{ has_value('sensor.strava_steffi_berks_run_moving_time') }}"
+      state: >
+        {% set s = states('sensor.strava_steffi_berks_run_moving_time') | int(0) %}
+        {{ s // 3600 }}:{{ '%02d' % ((s % 3600) // 60) }}
+
+    - unique_id: strava_recent_run_average_steffi
+      name: Strava Recent Run Average Steffi
+      unit_of_measurement: km
+      icon: mdi:chart-line
+      availability: >
+        {{ has_value('sensor.strava_steffi_berks_stats_recent_run_distance')
+           and states('sensor.strava_steffi_berks_stats_recent_run_count') | int(0) > 0 }}
+      state: >
+        {{ (states('sensor.strava_steffi_berks_stats_recent_run_distance') | float(0)
+            / states('sensor.strava_steffi_berks_stats_recent_run_count') | int(1)) | round(1) }}

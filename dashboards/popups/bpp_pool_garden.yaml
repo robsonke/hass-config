@@ -171,6 +171,32 @@ cards:
             name: Uitgaande temperatuur
           - entity: sensor.fairland_zwembad_wpu_compressor_percent
             name: Vermogen warmtepomp
+  # ── warmtepomp historie ───────────────────────────────────────────
+  # Same two views as the car's Laadhistorie section, for the same reasons.
+  # The bar chart is built from LONG-TERM statistics so it survives recorder's
+  # 10-day purge_keep_days; the history graph can only reach back those 10 days
+  # but shows *when* during the day the unit ran and how hard.
+  # The Verwarmt row goes unavailable whenever the WPU drops off the bus, so
+  # expect gaps there - that is the integration, not the card.
+  - type: custom:bubble-card
+    card_type: separator
+    name: Warmtepomp historie
+  - type: statistics-graph
+    title: Verbruik per dag
+    chart_type: bar
+    period: day
+    days_to_show: 30
+    stat_types:
+      - change
+    entities:
+      - entity: sensor.pool_shelly_3em_phase_a_heatpump_energy_usage
+        name: kWh
+  - type: history-graph
+    title: Wanneer verwarmd (4 dagen)
+    hours_to_show: 96
+    entities:
+      - entity: binary_sensor.fairland_zwembad_wpu_status
+        name: Verwarmt
   # ── energie ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

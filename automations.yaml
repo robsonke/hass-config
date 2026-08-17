@@ -144,7 +144,7 @@
         action: script.sonos_say
       - action: script.sonos_play_sound
         data:
-          mp3_url: http://192.168.0.40:8123/local/sounds/alarm2.mp3
+          mp3_url: http://192.168.0.40/local/sounds/alarm2.mp3
           volume: 40
           sonos_entity: media_player.living_room
   - action: input_boolean.turn_off
@@ -180,7 +180,7 @@
         value_template: '{{ repeat.index <= 10 }}'
       sequence:
       - data:
-          mp3_url: http://192.168.0.40:8123/local/sounds/pending_alarm.mp3
+          mp3_url: http://192.168.0.40/local/sounds/pending_alarm.mp3
           volume: 40
           sonos_entity: media_player.living_room
         action: script.sonos_play_sound
@@ -275,7 +275,28 @@
       hours: 0
       minutes: 5
       seconds: 0
+    id: illuminance
+  - trigger: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: 5
+    id: sun_fallback
+    note: >-
+      Fallback for when the living room light sensor goes offline. Calibrated
+      against its own history: it crosses 30 lux at about +4.4 deg elevation,
+      morning and evening alike. Only honoured while that sensor is actually
+      unavailable - see the guard condition below.
   conditions:
+  - condition: or
+    alias: Light sensor said dark, or it died and the sun stands in
+    conditions:
+    - condition: trigger
+      id: illuminance
+    - condition: state
+      entity_id: sensor.light_sensor_living_illuminance
+      state:
+      - unavailable
+      - unknown
   - condition: and
     conditions:
     - condition: state
@@ -316,7 +337,28 @@
       minutes: 5
       seconds: 0
       milliseconds: 0
+    id: illuminance
+  - trigger: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: 5
+    id: sun_fallback
+    note: >-
+      Fallback for when the living room light sensor goes offline. Calibrated
+      against its own history: it crosses 30 lux at about +4.4 deg elevation,
+      morning and evening alike. Only honoured while that sensor is actually
+      unavailable - see the guard condition below.
   conditions:
+  - condition: or
+    alias: Light sensor said dark, or it died and the sun stands in
+    conditions:
+    - condition: trigger
+      id: illuminance
+    - condition: state
+      entity_id: sensor.light_sensor_living_illuminance
+      state:
+      - unavailable
+      - unknown
   - condition: and
     conditions:
     - condition: time
@@ -384,12 +426,12 @@
       data:
         volume: 30
         sonos_entity: media_player.eetkamer
-        mp3_url: http://192.168.0.40:8123/local/sounds/doorbell2.mp3
+        mp3_url: http://192.168.0.40/local/sounds/doorbell2.mp3
     - action: script.sonos_play_sound
       data:
         volume: 30
         sonos_entity: media_player.woonkamer_ma_sonos
-        mp3_url: http://192.168.0.40:8123/local/sounds/doorbell2.mp3
+        mp3_url: http://192.168.0.40/local/sounds/doorbell2.mp3
   - condition: time
     after: 06:00:00
     before: '22:00:00'
@@ -397,7 +439,7 @@
     data:
       volume: 20
       sonos_entity: media_player.slaapkamer_sonos
-      mp3_url: http://192.168.0.40:8123/local/sounds/doorbell2.mp3
+      mp3_url: http://192.168.0.40/local/sounds/doorbell2.mp3
 - id: garden_lights_turn_on
   alias: Garden - Turn on garden lights
   description: When it's getting dark and at least after 4 PM, turn on lights in the
@@ -520,6 +562,13 @@
       entity_id:
       - light.kerst_buiten
     data: {}
+  # Marks the start of an "automatisch aan door donker" period for the timeline
+  # in the Verlichting tuin pop-up. Cleared by the morning off automation - note
+  # the *evening* one only dims the lanterns back to 30%, so the dark stretch
+  # runs through the night and must not clear this flag.
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.lights_garden_auto_dark
   mode: single
 - id: garden_lights_turn_off
   alias: Garden - Turn off garden lights - morning
@@ -574,6 +623,10 @@
       entity_id:
       - light.garden_light
       - light.kerst_buiten
+  # End of the garden dark stretch - it is light enough again.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.lights_garden_auto_dark
   mode: single
 - id: lights_turn_off_bedtime_manual
   alias: Sleep - Switch to night mode manually
@@ -626,6 +679,10 @@
       - light.socket1_light_corner
       - light.socket2_light_couch
     data: {}
+  # We went to bed - end of the downstairs dark stretch for the pop-up timeline.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 - id: lights_turn_off_bedtime_auto
   alias: Lights - Turn off lights automatically - bedtime
@@ -661,6 +718,10 @@
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
+  # Bedtime - end of the downstairs dark stretch for the pop-up timeline.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 - id: closet_light_turn_on
   alias: Lights - Turn on lights when closet door opens
@@ -722,9 +783,26 @@
         data: {}
         target:
           entity_id: media_player.eetkamer
-  - condition: numeric_state
-    entity_id: sensor.light_sensor_living_illuminance
-    below: '60'
+  - condition: or
+    alias: Dark enough - by light sensor, or by sun elevation if that is dead
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.light_sensor_living_illuminance
+      below: '60'
+    - condition: and
+      note: >-
+        Fallback for when the living room light sensor goes offline. That
+        sensor crosses 60 lux at about +8.5 deg elevation.
+      conditions:
+      - condition: state
+        entity_id: sensor.light_sensor_living_illuminance
+        state:
+        - unavailable
+        - unknown
+      - condition: numeric_state
+        entity_id: sun.sun
+        attribute: elevation
+        below: 9
   - action: light.turn_on
     data:
       brightness_pct: 40
@@ -801,7 +879,7 @@
         de {{ trigger.payload_json["after"]["camera"] }} camera
       data:
         persistent: true
-        image: http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: camera.{{trigger.payload_json["after"]["camera"]}}
@@ -1519,9 +1597,26 @@
     - condition: state
       entity_id: light.livingfront_light
       state: 'off'
-    - condition: numeric_state
-      entity_id: sensor.light_sensor_living_illuminance
-      below: '30'
+    - condition: or
+      alias: Dark enough - by light sensor, or by sun elevation if that is dead
+      conditions:
+      - condition: numeric_state
+        entity_id: sensor.light_sensor_living_illuminance
+        below: '30'
+      - condition: and
+        note: >-
+          Fallback for when the living room light sensor goes offline. That
+          sensor crosses 30 lux at about +4.4 deg elevation.
+        conditions:
+        - condition: state
+          entity_id: sensor.light_sensor_living_illuminance
+          state:
+          - unavailable
+          - unknown
+        - condition: numeric_state
+          entity_id: sun.sun
+          attribute: elevation
+          below: 5
   actions:
   - action: script.lights_on_home
     data: {}
@@ -1587,7 +1682,28 @@
       hours: 0
       minutes: 5
       seconds: 0
+    id: illuminance
+  - trigger: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: 9
+    id: sun_fallback
+    note: >-
+      Fallback for when the living room light sensor goes offline. Calibrated
+      against its own history: it crosses 60 lux at about +8.5 deg elevation,
+      morning and evening alike. Only honoured while that sensor is actually
+      unavailable - see the guard condition below.
   conditions:
+  - condition: or
+    alias: Light sensor said bright, or it died and the sun stands in
+    conditions:
+    - condition: trigger
+      id: illuminance
+    - condition: state
+      entity_id: sensor.light_sensor_living_illuminance
+      state:
+      - unavailable
+      - unknown
   - condition: and
     conditions:
     - condition: time
@@ -1632,6 +1748,14 @@
       - media_player.eetkamer
       - media_player.office
       - media_player.living_room
+      # The Shed speaker. Three names for one box (RINCON_347E5C5077FE01400):
+      # the music hub calls it "Shed" via its Music Assistant entity
+      # media_player.office_ma_sonos, the garden pop-up calls it "Tuin", and the
+      # native Sonos entity below is named "Speakers Overkapping Sonos".
+      # Targeting the native Sonos one matches the three entries above and
+      # pauses it whichever way playback was started, since Music Assistant
+      # streams through this same player.
+      - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
     data: {}
   mode: single
 - id: '1636140714636'
@@ -1758,6 +1882,10 @@
       - light.socket1_light_corner
       - light.socket2_light_couch
     data: {}
+  # Good night pressed - end of the downstairs dark stretch for the timeline.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 - id: '1641574319382'
   alias: Energy - Count Water Usage
@@ -3342,12 +3470,12 @@
   - action: persistent_notification.create
     data:
       title: Camera
-      message: '{{ generated_content.data }} ![image](http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
+      message: '{{ generated_content.data }} ![image](https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
   - action: notify.mobile_app_iphone_rob
     data:
       message: ' {{ generated_content.data }} '
       data:
-        image: http://192.168.0.40:8123/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: '{{ camera_entity }}'
@@ -3379,6 +3507,10 @@
       - light.socket1_light_corner
       - light.socket2_light_couch
       - light.kerst_binnen
+  # Last lights out at 23:00 - end of the downstairs dark stretch for the timeline.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 - id: '1718380304677'
   alias: Energy - Disable solar panels in case of negative pricing
@@ -3678,7 +3810,7 @@
   - trigger: numeric_state
     entity_id: sensor.evabed_sound_level
     above: sensor.evabed_sound_level_alert_threshold
-    for: 00:00:10
+    for: 00:00:30
   conditions:
   - condition: time
     after: '19:30:00'
@@ -3705,11 +3837,14 @@
         binary_sensor.evabed_cough_sound: hoesten
         sensor.evabed_sound_level: ongewoon hard geluid
       sound_label: '{{ sound_labels.get(trigger.entity_id, ''geluid'') }}'
+      snap1: evabed_{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}.jpg
+      snap2: evabed_{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}.jpg
+  - action: shell_command.prune_message_snapshots
   - action: camera.snapshot
     target:
       entity_id: camera.evabed
     data:
-      filename: /config/www/messages/evabed_sound.jpg
+      filename: /config/www/messages/{{ snap1 }}
   - action: notify.all_phones
     data:
       title: "\U0001F50A Geluid bij Eva"
@@ -3717,8 +3852,7 @@
       data:
         persistent: true
         tag: eva-sound
-        image: http://192.168.0.40:8123/local/messages/evabed_sound.jpg?t={{ now().timestamp()
-          }}
+        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/local/messages/{{ snap1 }}
   - repeat:
       count: 2
       sequence:
@@ -3744,7 +3878,7 @@
     target:
       entity_id: camera.evabed
     data:
-      filename: /config/www/messages/evabed_sound.jpg
+      filename: /config/www/messages/{{ snap2 }}
   - action: notify.all_phones
     data:
       title: ⚠️ Aanhoudend geluid bij Eva
@@ -3752,8 +3886,7 @@
       data:
         persistent: true
         tag: eva-sound
-        image: http://192.168.0.40:8123/local/messages/evabed_sound.jpg?t={{ now().timestamp()
-          }}
+        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/local/messages/{{ snap2 }}
         push:
           sound:
             name: default

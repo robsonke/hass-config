@@ -117,6 +117,12 @@ lights_on_away:
     target:
       entity_id:
       - light.kerst_binnen
+  # Marks the start of an "automatisch aan door donker" period for the timeline
+  # in the Verlichting beneden pop-up. Only the darkness automations call this
+  # script, so reaching here always means the lights went on because it was dark.
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
 lights_on_home:
   alias: Lights on - home
   sequence:
@@ -136,6 +142,10 @@ lights_on_home:
     target:
       entity_id:
       - light.kerst_binnen
+  # See lights_on_away - same timeline flag, the "we are home" variant.
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 lights_down_stairs_off:
   alias: Lights off - downstairs
@@ -167,6 +177,12 @@ lights_down_stairs_off:
     target:
       entity_id:
       - light.kerst_binnen
+  # Ends the "automatisch aan door donker" period - this script is what the
+  # "turn off lights when lighter" automation calls, i.e. the natural end of
+  # the dark stretch. The bedtime/night automations clear the same flag.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 reload_frontend:
   alias: Reload frontend

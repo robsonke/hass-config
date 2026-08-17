@@ -73,6 +73,10 @@ views:
               min_day_width: 60
               disable_dynamic_background: false
               disable_animations: false
+              # Bubble Weather v1.2.0: drops the grey chip behind the weather icon
+              # so the module's own animated sky is uninterrupted. The icon itself
+              # stays - only its background plate goes.
+              hide_icon_background: true
             modules: &weer_modules
               - weather_forecast          # own animated background + weather icon; no neon override
             # Current temperature as a NATIVE sub-button (renders top-right on the
@@ -124,10 +128,16 @@ views:
               tap_action: *weer_tap
             weather_forecast:
               type: daily
-              max_days: 3
-              min_day_width: 48
+              max_days: 4
+              min_day_width: 44
               disable_dynamic_background: false
               disable_animations: false
+              hide_icon_background: true
+              # `scale` shrinks the whole forecast block at once - icon size, font,
+              # row/column gaps all derive from --bc-wx-scale. That buys a 4th day
+              # back on a phone without making the card taller, which is what the
+              # earlier max_days: 3 was working around by simply showing less.
+              scale: 0.85
             modules: *weer_modules
             sub_button: *weer_sub
             visibility:
@@ -235,17 +245,40 @@ views:
                   style: |
                     #root { grid-template-columns: 1fr 1fr 56px !important; gap: 8px !important; }
                 cards:
+                  # button_type was `name`, which shows no state at all, and the neon
+                  # module colours by entity keyword (/alarm|lock/ -> hue 130), so the
+                  # tile was permanently green whether the house was armed or not.
+                  # Now: state text + state colour (red armed, amber night, green off,
+                  # blue while arming). Labels match the #alarm pop-up header.
                   - type: custom:bubble-card
                     card_type: button
-                    button_type: name
+                    button_type: state
                     entity: alarm_control_panel.alarmo
                     name: Alarm
-                    icon: mdi:shield-check
+                    # Static on purpose, as of Bubble Card 3.2.x. The icon field takes
+                    # NO template - neither a ${} JS one (Bubble only runs those
+                    # through its style pipeline) nor Jinja, both of which render an
+                    # empty icon. Falling back to the entity icon is no good either:
+                    # Alarmo publishes a fixed icon attribute of mdi:shield-off even
+                    # while armed_away, which would permanently look disarmed. State
+                    # is carried by the colour and the label below instead.
+                    #
+                    # Jinja in config fields is slated for a coming Bubble release.
+                    # Once it lands this can become a state-driven glyph:
+                    #   disarmed -> shield-off-outline, armed_night -> shield-moon,
+                    #   arming -> shield-sync, pending/triggered -> shield-alert,
+                    #   else shield-lock. Then the moon sub-button stops being the
+                    #   only mode-ish thing on the tile.
+                    icon: mdi:shield-home
                     tap_action: { action: navigate, navigation_path: '#alarm' }
                     button_action:
                       tap_action: { action: navigate, navigation_path: '#alarm' }
                     sub_button:
-                      - icon: mdi:weather-night   # arm the alarm in night mode
+                      # Arm night. Always visible - hiding it while armed only removed
+                      # a control that is still useful (going straight from away to
+                      # night). It is a BUTTON, not a status icon; the tile colour and
+                      # label say what the alarm is actually doing.
+                      - icon: mdi:weather-night
                         tap_action:
                           action: perform-action
                           perform_action: alarm_control_panel.alarm_arm_night
@@ -254,6 +287,27 @@ views:
                     modules: [bubble_neon_icon_only]
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
+                      /* Doubled class beats the neon module's rule on the same element
+                         without depending on stylesheet injection order. */
+                      .bubble-button-container.bubble-button-container {
+                        ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; const h = st === 'disarmed' ? 145 : st === 'armed_night' ? 45 : st === 'arming' ? 210 : 2; return 'background-image: radial-gradient(140% 120% at 8% -10%, hsl(' + h + ' 92% 60% / 0.34), transparent 55%) !important; border: 1px solid hsl(' + h + ' 88% 62% / 0.78) !important;'; })()}
+                      }
+                      .bubble-main-icon-container.bubble-main-icon-container {
+                        ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; const h = st === 'disarmed' ? 145 : st === 'armed_night' ? 45 : st === 'arming' ? 210 : 2; return 'background: linear-gradient(135deg, hsl(' + h + ' 70% 55%), hsl(' + (h + 18) + ' 68% 58%)) !important; box-shadow: 0 0 18px hsl(' + h + ' 85% 58% / 0.40) !important;'; })()}
+                      }
+                      /* The moon is the arm-night BUTTON, not a status icon, and a
+                         bright moon next to "Afwezig" reads as "we are in night mode".
+                         So: muted while it is merely an action you could take, lit
+                         amber only when night mode is actually active. */
+                      .bubble-sub-button {
+                        ${(() => { const night = hass.states['alarm_control_panel.alarmo']?.state === 'armed_night'; return night ? 'background-color: hsl(45 85% 55% / 0.85) !important; opacity: 1 !important;' : 'background-color: rgba(255,255,255,0.10) !important; opacity: 0.5 !important;'; })()}
+                      }
+                      .bubble-state { font-size: 0 !important; }
+                      .bubble-state::after {
+                        font-size: 13px !important; font-weight: 500;
+                        color: ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; if (st === 'disarmed') return '#9ed9bd'; if (st === 'armed_night') return '#f0cf8f'; if (st === 'arming') return '#82bbf0'; return '#f09a99'; })()} !important;
+                        content: "${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; return ({ disarmed:'Uit', armed_away:'Afwezig', armed_home:'Thuis', armed_night:'Nacht', armed_vacation:'Vakantie', arming:'Inschakelen', pending:'Aftellen', triggered:'ALARM' })[st] || st; })()}";
+                      }
                   - type: custom:bubble-card
                     card_type: button
                     button_type: state
@@ -383,6 +437,15 @@ views:
                     button_action:
                       tap_action: { action: navigate, navigation_path: '#person-steffi' }
                     icon_tap_action: { action: navigate, navigation_path: '#person-steffi' }
+                    # Hardlopen deze week, same as Rob's tile - tapping the km
+                    # opens her Strava pop-up rather than her person pop-up.
+                    sub_button:
+                      - entity: sensor.strava_run_week_steffi
+                        icon: mdi:run
+                        show_state: true
+                        show_name: false
+                        show_background: true
+                        tap_action: { action: navigate, navigation_path: '#sport-steffi' }
                     bubble_badges:
                       badges:
                         - name: Thuis
@@ -775,6 +838,7 @@ views:
           - !include popups/bpp_energy_water.yaml    # #water ← Water
           - !include popups/bpp_person_rob.yaml      # #person-rob ← Rob
           - !include popups/bpp_strava.yaml          # #sport ← Strava (via Rob's popup)
+          - !include popups/bpp_strava_steffi.yaml   # #sport-steffi ← Strava (via Steffi's popup)
           - !include popups/bpp_person_steffi.yaml   # #person-steffi ← Steffi
           - !include popups/bpp_person_eva.yaml      # #person-eva ← Eva
           - !include popups/bpp_person_noa.yaml      # #person-noa ← Noa
@@ -856,6 +920,37 @@ views:
             button_action:
               tap_action: { action: navigate, navigation_path: '#klimaat-beneden' }
             modules: [bubble_neon_icon_only]
+            # The neon module paints this tile red: its hue matcher sees
+            # "indoor_temp" in the entity id and picks the heating hue. Right in
+            # January, wrong in August - the Altherma cools as well as heats.
+            # So drive the colour off climate.warmtepomp's hvac_action:
+            # blue while cooling, red/orange while heating, neutral when idle.
+            #
+            # Doubled class names beat the module's own rules on the same
+            # elements without depending on injection order. The icon GLYPH
+            # cannot follow state as of Bubble Card 3.2.x - it accepts no
+            # template in `icon:`, neither ${} nor Jinja - so colour has to
+            # carry the meaning. Jinja in config fields is slated for a coming
+            # release; then this can be mdi:snowflake while cooling and
+            # mdi:heat-pump while heating, and the colour becomes reinforcement
+            # rather than the only signal.
+            styles: |
+              .bubble-main-icon-container.bubble-main-icon-container {
+                ${(() => {
+                  const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action;
+                  if (a === 'cooling') return 'background: linear-gradient(135deg, hsl(205 85% 55%), hsl(190 80% 58%)) !important; box-shadow: 0 0 18px hsl(205 85% 58% / 0.45) !important;';
+                  if (a === 'heating') return 'background: linear-gradient(135deg, hsl(6 80% 55%), hsl(28 80% 58%)) !important; box-shadow: 0 0 18px hsl(12 85% 58% / 0.45) !important;';
+                  return 'background: rgba(255,255,255,0.14) !important; box-shadow: none !important;';
+                })()}
+              }
+              .bubble-button-container.bubble-button-container {
+                ${(() => {
+                  const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action;
+                  const hue = a === 'cooling' ? 205 : a === 'heating' ? 12 : null;
+                  if (hue === null) return '';
+                  return 'background-image: radial-gradient(140% 120% at 8% -10%, hsl(' + hue + ' 90% 60% / 0.26), transparent 55%) !important; border: 1px solid hsl(' + hue + ' 85% 62% / 0.60) !important;';
+                })()}
+              }
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1194,7 +1289,7 @@ views:
               .bubble-state { font-size: 0 !important; }
               .bubble-state::after {
                 font-size: 13px !important;
-                content: "${(() => { const flow = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); const daily = parseFloat(hass.states['sensor.water_daily']?.state); const f = isNaN(flow) ? 0 : flow; const d = isNaN(daily) ? '?' : (Math.round(daily * 100) / 100); return f + ' L/min · ' + d + ' m³ vandaag'; })()}";
+                content: "${(() => { const flow = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); const daily = parseFloat(hass.states['sensor.water_daily']?.state); const f = (isNaN(flow) ? 0 : flow).toFixed(1); const d = isNaN(daily) ? '?' : (Math.round(daily * 100) / 100); return f + ' L/min · ' + d + ' m³ vandaag'; })()}";
               }
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card

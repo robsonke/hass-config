@@ -230,3 +230,21 @@ cards:
         tap_action: { action: toggle }
         double_tap_action: { action: more-info }
         hold_action: { action: more-info }
+  # ── tijdlijn ──────────────────────────────────────────────────────
+  # "Automatisch aan" is the input_boolean the darkness automations set
+  # themselves (via script.lights_on_home / _away, cleared by the got-lighter
+  # and bedtime automations), so it marks only the automatic stretches - a
+  # manual switch-on shows on the "Alle lampen" row but not on that one.
+  # The lux line underneath is the sensor those automations trigger on (< 30).
+  # Reaches back at most recorder's purge_keep_days (10).
+  - type: custom:bubble-card
+    card_type: separator
+    name: Tijdlijn
+  - type: history-graph
+    title: Automatisch aan door donker (4 dagen)
+    hours_to_show: 96
+    entities:
+      - entity: input_boolean.lights_downstairs_auto_dark
+        name: Automatisch aan
+      - entity: light.lights_downstairs
+        name: Alle lampen beneden
