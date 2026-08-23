@@ -36,18 +36,18 @@ blueprint:
 variables:
   window_sensor: !input 'window_sensor'
   min_temp: !input 'min_temp'
-trigger:
-- platform: homeassistant
+triggers:
+- trigger: homeassistant
   event: start
-- platform: event
+- trigger: event
   event_type: automation_reloaded
 - below: !input 'min_temp'
   entity_id: !input 'temp_sensor'
-  platform: numeric_state
-- platform: state
+  trigger: numeric_state
+- trigger: state
   entity_id: !input 'window_sensor'
   to: 'on'
-condition:
+conditions:
 - below: !input 'min_temp'
   entity_id: !input 'temp_sensor'
   condition: numeric_state
@@ -55,7 +55,7 @@ condition:
   entity_id: !input 'window_sensor'
   state: 'on'
   match: any
-action:
+actions:
 - choose: []
   default: !input 'actions'
 mode: single

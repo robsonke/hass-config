@@ -142,19 +142,19 @@ variables:
     {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
     {{ local_day_brightness }}
     {% else %} {{ local_night_brightness }} {% endif %}
-trigger:
+triggers:
   trigger: state
   entity_id: !input motion_entity
   from: 'off'
   to: 'on'
-condition:
+conditions:
   - condition: numeric_state
     entity_id: !input lux_entity
     below: !input lux_level
   - condition: template
     value_template: >
       {{ today_at(local_sleep_end) < now() and now() < today_at(local_sleep_start) }}
-action:
+actions:
 - service: light.turn_on
   target: !input light_target
   data:

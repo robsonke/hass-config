@@ -116,23 +116,23 @@ trigger_variables:
   run_on_friday: !input run_on_friday
   run_on_saturday: !input run_on_saturday
   run_on_sunday: !input run_on_sunday
-trigger:
-- platform: homeassistant
+triggers:
+- trigger: homeassistant
   event: start
-- platform: event
+- trigger: event
   event_type: automation_reloaded
-- platform: time_pattern
+- trigger: time_pattern
   minutes: /10
-- platform: state
+- trigger: state
   entity_id: !input price_level_sensor
-condition:
+conditions:
 - condition: template
   value_template: "{{ \n  (current_day == 0 and run_on_monday) or \n  (current_day\
     \ == 1 and run_on_tuesday) or \n  (current_day == 2 and run_on_wednesday) or\n\
     \  (current_day == 3 and run_on_thursday) or \n  (current_day == 4 and run_on_friday)\
     \ or\n  (current_day == 5 and run_on_saturday) or\n  (current_day == 6 and run_on_sunday)\n\
     }}"
-action:
+actions:
 - choose:
   - conditions:
     - condition: numeric_state

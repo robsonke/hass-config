@@ -365,8 +365,6 @@ template:
     - name: "Current Price Electricity"
       unique_id: current_price_electricity
       unit_of_measurement: "EUR/kWh"
-      # Was set through `homeassistant: customize:` at the top of this file, 300
-      # lines from the definition it applied to. Declared here instead.
       state_class: measurement
       attributes:
         avg_price: >

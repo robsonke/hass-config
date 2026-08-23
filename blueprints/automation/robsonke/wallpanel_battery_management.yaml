@@ -45,18 +45,18 @@ blueprint:
           multiple: false
   source_url: https://gist.github.com/robsonke/bf0098f98b91786e2ba0533377d2e13a
 mode: single
-trigger:
-- platform: homeassistant
+triggers:
+- trigger: homeassistant
   event: start
-- platform: event
+- trigger: event
   event_type: automation_reloaded
-- platform: numeric_state
+- trigger: numeric_state
   entity_id: !input battery
   above: !input charged_percent
-- platform: numeric_state
+- trigger: numeric_state
   entity_id: !input battery
   below: !input low_percent
-action:
+actions:
 - choose:
   - conditions:
     - condition: numeric_state

@@ -16,6 +16,7 @@
       - action: persistent_notification.create
         metadata: {}
         data:
+          notification_id: battery_low_battery_level_detection_notification_for_all_battery_sensors
           title: Battery low
           message: "\U0001F50B Low battery warning for {{sensors|replace(\"_\",\"
             \")}}"
@@ -879,7 +880,7 @@
         de {{ trigger.payload_json["after"]["camera"] }} camera
       data:
         persistent: true
-        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        image: /api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: camera.{{trigger.payload_json["after"]["camera"]}}
@@ -937,6 +938,7 @@
         tag: persistent
   - action: persistent_notification.create
     data:
+      notification_id: vacuum_sjorsje_bin_full
       title: Opvangbak Sjorsje
       message: "\U0001F9F9 Sjorsje's opvangbak zit vol"
 - alias: Vacuum - Sjorsje Battery Empty
@@ -954,6 +956,7 @@
         tag: persistent
   - action: persistent_notification.create
     data:
+      notification_id: vacuum_sjorsje_battery_empty
       title: Accu Sjorsje
       message: "\U0001F50B Sjorsje's accu raakt leeg"
 - id: '1620203713941'
@@ -1000,7 +1003,6 @@
     - alarm_control_panel.alarmo
     from: disarmed
     to: armed_night
-  condition: []
   actions:
   - action: switch.turn_on
     target:
@@ -1030,7 +1032,6 @@
     - alarm_control_panel.alarmo
     from: armed_night
     to: disarmed
-  condition: []
   actions:
   - action: switch.turn_off
     target:
@@ -1074,7 +1075,6 @@
     for: '1800'
     from: 'off'
     to: 'on'
-  condition: []
   actions:
   - action: notify.all_phones
     data:
@@ -1095,10 +1095,10 @@
       minutes: 0
       seconds: 0
     from: 'off'
-  condition: []
   actions:
   - action: persistent_notification.create
     data:
+      notification_id: doors_nuki_battery_critical
       title: Batterij Nuki
       message: Let op, batterij status van het voordeur slot is kritiek!
   mode: single
@@ -1481,7 +1481,6 @@
     for: '1800'
     from: 'off'
     to: 'on'
-  condition: []
   actions:
   - action: notify.all_phones
     data:
@@ -1791,7 +1790,6 @@
       minutes: 0
       seconds: 0
       milliseconds: 0
-  condition: []
   actions:
   - action: notify.all_phones
     data:
@@ -1814,6 +1812,7 @@
   actions:
   - action: persistent_notification.create
     data:
+      notification_id: system_notify_entities_being_offline
       title: Belangrijke devices
       message: "\U0001F4A1 Er is een belangrijke entity offline: {{ state_attr('sensor.unavailable_entities',
         'names') }}\n"
@@ -1922,7 +1921,6 @@
   triggers:
   - trigger: time
     at: 09:55
-  condition: []
   actions:
   - action: switch.turn_on
     target:
@@ -1934,7 +1932,6 @@
   triggers:
   - trigger: time
     at: '22:05:00'
-  condition: []
   actions:
   - action: switch.turn_off
     target:
@@ -2363,7 +2360,6 @@
     not_from:
     - unavailable
     - unknown
-  condition: []
   actions:
   - choose:
     - conditions:
@@ -2461,6 +2457,7 @@
             tag: persistent
       - action: persistent_notification.create
         data:
+          notification_id: system_alert_when_the_kitchen_cooling_is_off_too_long
           title: Koelkast schuur!
           message: "\U0001F9CA Let op, de koelkast staat al een half uur uit!"
 - id: '1663353341942'
@@ -2477,6 +2474,7 @@
   actions:
   - action: persistent_notification.create
     data:
+      notification_id: system_alert_in_case_of_heavy_water_usage_in_one_day
       title: Water verbruik
       message: "\U0001F4A6 Let op, we hebben vandaag al meer dan 5 kuub water verbruikt!"
   mode: single
@@ -2493,7 +2491,16 @@
     - input_number.hvac_summer_target_temperature
   - trigger: time
     at: 02:00:00
-  conditions: []
+  conditions:
+  # The two `| float` calls in the branches below have no default, so an
+  # unavailable helper would raise. Guarding here means the automation does
+  # nothing in that case rather than pushing a wrong setpoint at the heat pump -
+  # doing nothing is the safe failure for heating.
+  - alias: Both target-temperature helpers have a value
+    condition: template
+    value_template: >
+      {{ has_value('input_number.hvac_winter_target_temperature')
+         and has_value('input_number.hvac_summer_target_temperature') }}
   actions:
   - choose:
     - conditions:
@@ -2726,7 +2733,6 @@
       hours: 1
       minutes: 0
       seconds: 0
-  condition: []
   actions:
   - action: notify.all_phones
     data:
@@ -2736,6 +2742,7 @@
         tag: persistent
   - action: persistent_notification.create
     data:
+      notification_id: humidifier_alert_when_bin_is_full
       title: Ontvochtiger slaapkamer
       message: "\U0001F4A6 De waterbak van de ontvochtiger zit vol, zsm legen"
   mode: single
@@ -2760,7 +2767,6 @@
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
     - binary_sensor.window_masterbed_2_openclose_contact
-  condition: []
   actions:
   - choose:
     - conditions:
@@ -2831,7 +2837,6 @@
       hours: 0
       minutes: 5
       seconds: 0
-  condition: []
   actions:
   - action: notify.mobile_app_iphone_rob
     data:
@@ -2841,6 +2846,7 @@
         tag: persistent
   - action: persistent_notification.create
     data:
+      notification_id: system_inform_frigate_off
       title: Frigate Addon
       message: "\U0001F3A5 Frigate staat uit, aanzetten aub"
   mode: single
@@ -2860,6 +2866,7 @@
   actions:
   - action: persistent_notification.create
     data:
+      notification_id: vacuum_alert_sjorsje_offline
       title: Sjorsje kwijt
       message: "\U0001F5D1 Sjorsje is onbereikbaar"
   mode: single
@@ -2902,10 +2909,16 @@
   actions:
   - choose:
     - conditions:
-      - condition: template
-        value_template: '{{ states.number.fairland_zwembad_wpu_target_temperature_heating.state
-          | int(default=0) - states.sensor.fairland_zwembad_wpu_temp_inlet.state |
-          int(default=0) > 0 }}'
+      # Was the same arithmetic inline, via
+      # `states.number.X.state | int(default=0) - states.sensor.Y.state | int(default=0)`.
+      # Two problems: object access raises if an entity is missing, and int(default=0)
+      # turns an unavailable source into 0 - the exact trap documented on
+      # sensor.pool_heating_temperature_diff in pkg_pool.yaml, which already computes
+      # this difference WITH an availability guard. Reusing it means an unavailable
+      # source makes this condition false instead of silently reading as a 0 diff.
+      - condition: numeric_state
+        entity_id: sensor.pool_heating_temperature_diff
+        above: 0
         alias: If we are about to get close to the target temperature
       sequence:
       - action: select.select_option
@@ -2926,15 +2939,14 @@
   alias: Pool - Alert when ph or redox values are not oke
   description: ''
   triggers:
+  # No `for:` here - it used to be all zeros, which reads as a debounce but is a
+  # no-op. Alerting immediately is fine: the 16-hour cooldown condition below is
+  # what stops this from repeating.
   - trigger: state
     entity_id:
     - sensor.eps_pool_ph_level
     - sensor.eps_pool_rx_level
     - binary_sensor.pool_pump_active
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -2984,12 +2996,20 @@
             minutes: 30
             seconds: 0
   - condition: template
-    value_template: "{% if as_timestamp(now()) | int -\n as_timestamp(states.automation.pool_alert_when_ph_or_redox_values_are_not_oke.attributes.last_triggered)\n
-      \     | int > 57600 %} true {% else %} false {% endif %}"
-    alias: Only trigger this automation once per 16 hours max
+    alias: Not alerted in the last 16 hours
+    # `as_timestamp(..., 0)` supplies the default the old version lacked - with
+    # no default it raises when last_triggered is None, which is the state after
+    # this automation is renamed or recreated, and would then block it for good.
+    # `this` instead of the hardcoded states.automation.pool_alert_... path so a
+    # rename cannot silently detach the cooldown from its own automation.
+    value_template: >
+      {{ this is not defined
+         or (as_timestamp(now())
+             - as_timestamp(this.attributes.last_triggered, 0)) | int > 57600 }}
   actions:
   - action: persistent_notification.create
     data:
+      notification_id: pool_alert_when_ph_or_redox_values_are_not_oke
       title: Zwembad waardes
       message: "\U0001F3CA De ph/orp waardes of flow van het zwembad zijn niet in
         orde."
@@ -3019,7 +3039,6 @@
       minutes: 30
       seconds: 0
     above: 25
-  condition: []
   actions:
   - action: notify.all_phones
     data:
@@ -3274,6 +3293,7 @@
   actions:
   - action: persistent_notification.create
     data:
+      notification_id: system_alert_when_addons_are_down
       title: Addons down
       message: "\U0001F4A1 Let op, er zijn addons down"
   mode: single
@@ -3298,10 +3318,15 @@
   alias: Music - Control sonos bedroom
   description: ''
   triggers:
-  - value_template: "{{ \n  is_state_attr('event.hue_tap_switch_master_action', 'event_type',
-      'press_release') \n  and \n  is_state_attr('event.hue_tap_switch_master_action',
-      'button', 'button_4') \n}}\n"
-    trigger: template
+  # State trigger on the event entity rather than a template trigger on its
+  # attributes. A template trigger fires only on a false->true transition, and
+  # pressing button_4 twice in a row leaves both attributes unchanged - the second
+  # press re-rendered `true` with no transition and so did nothing. The event
+  # entity's state is a timestamp that changes on every press, so this fires each
+  # time; the choose branch below filters to the button we care about, and the
+  # outer choose has no `default:`, so the extra firings are inert.
+  - trigger: state
+    entity_id: event.hue_tap_switch_master_action
   - trigger: state
     entity_id:
     - sensor.hue_tap_switch_master_action_type
@@ -3314,10 +3339,16 @@
   actions:
   - choose:
     - conditions:
-      - condition: template
-        value_template: "{{ \n  is_state_attr('event.hue_tap_switch_master_action',
-          'event_type', 'press_release') \n  and \n  is_state_attr('event.hue_tap_switch_master_action',
-          'button', 'button_4') \n}}\n"
+      # `condition: state` supports `attribute:`, so this needs no template at all.
+      # A conditions list is implicitly AND.
+      - condition: state
+        entity_id: event.hue_tap_switch_master_action
+        attribute: event_type
+        state: press_release
+      - condition: state
+        entity_id: event.hue_tap_switch_master_action
+        attribute: button
+        state: button_4
       sequence:
       - alias: If sonos plays, stop, otherwise play radio 2
         choose:
@@ -3398,7 +3429,6 @@
     event_type: ios.action_fired
     event_data:
       actionName: open_frontdoor
-  condition: []
   actions:
   - action: script.open_front_door
     data: {}
@@ -3448,7 +3478,13 @@
       - timer.alarm_pause_warning
   mode: single
 - id: '1716736577091'
-  alias: Frigate / Generative AI / Notification TEST
+  alias: Frigate - AI camera description
+  # Deliberately left DISABLED. Renamed from "... / Notification TEST" - it is a
+  # complete ai_task feature, not scaffolding. The entity_id stays
+  # automation.frigate_generative_ai_notification_test because the registry pins
+  # entity_id to the automation id, which is also why disabling it survived the
+  # rename. Enabling it will double up with "Alarm - Notify of person events on
+  # camera" until the two are reconciled.
   description: ''
   triggers:
   - trigger: mqtt
@@ -3481,8 +3517,10 @@
       state: armed_night
     alias: Are we away or is the night alarm active
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.frigate_generative_ai_notification_test.attributes.last_triggered,
-      0) | int > 20 }}'
+    value_template: >
+      {{ this is not defined
+         or (as_timestamp(now())
+             - as_timestamp(this.attributes.last_triggered, 0)) | int > 20 }}
     alias: Only trigger once per 20 seconds
   - condition: state
     entity_id: input_boolean.guest_mode
@@ -3507,13 +3545,14 @@
       entity_id: input_text.camera_analysis
   - action: persistent_notification.create
     data:
+      notification_id: frigate_generative_ai_notification_test
       title: Camera
-      message: '{{ generated_content.data }} ![image](https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
+      message: '{{ generated_content.data }} ![image](/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg)'
   - action: notify.mobile_app_iphone_rob
     data:
       message: ' {{ generated_content.data }} '
       data:
-        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
+        image: /api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg
         tag: '{{trigger.payload_json["after"]["id"]}}'
         when: '{{trigger.payload_json["after"]["start_time"]|int}}'
         entity_id: '{{ camera_entity }}'
@@ -3561,7 +3600,6 @@
   - trigger: numeric_state
     entity_id: sensor.current_price_electricity
     above: 0
-  condition: []
   actions:
   - choose:
     - conditions:
@@ -3581,6 +3619,7 @@
         alias: Disable the solar panels
       - action: persistent_notification.create
         data:
+          notification_id: energy_disable_solar_panels_in_case_of_negative_pricing
           title: Zonnepanelen
           message: "\U0001F31E De zonnepanelen zijn uitgezet vanwege een stroomprijs
             van {{ states('sensor.current_price_electricity') }} cent."
@@ -3601,6 +3640,7 @@
         alias: Enable the solar panels
       - action: persistent_notification.create
         data:
+          notification_id: energy_disable_solar_panels_in_case_of_negative_pricing
           title: Zonnepanelen
           message: "\U0001F31E De zonnepanelen zijn weer aangezet vanwege een stroomprijs
             van {{ states('sensor.current_price_electricity') }} cent."
@@ -3611,7 +3651,6 @@
   triggers:
   - trigger: time
     at: 04:00:00
-  condition: []
   actions:
   - action: recorder.purge_entities
     metadata: {}
@@ -3684,6 +3723,7 @@
   - action: persistent_notification.create
     metadata: {}
     data:
+      notification_id: system_check_if_the_power_in_the_shed_is_oke
       message: Is the power in the shed still oke? Either the Outdoor AP or fridge
         is off / unavailable. Please check
       title: Power issue shed?
@@ -3840,7 +3880,7 @@
       data:
         persistent: true
         tag: eva-sound
-        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/local/messages/{{ snap1 }}
+        image: /local/messages/{{ snap1 }}
   - repeat:
       count: 2
       sequence:
@@ -3874,7 +3914,7 @@
       data:
         persistent: true
         tag: eva-sound
-        image: https://7o7iyujs1r100sur6x38o5obvo9cr0ny.ui.nabu.casa/local/messages/{{ snap2 }}
+        image: /local/messages/{{ snap2 }}
         push:
           sound:
             name: default

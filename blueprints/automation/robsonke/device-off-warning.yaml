@@ -32,8 +32,8 @@ variables:
   max_time_off: !input max_time_off
   switch: !input switch
   actions: !input actions
-trigger:
-- platform: state
+triggers:
+- trigger: state
   entity_id:
   - !input switch
   to: 'off'
@@ -41,7 +41,7 @@ trigger:
     hours: 0
     minutes: !input max_time_off
     seconds: 0
-action:
+actions:
 - choose: []
   default: !input actions
 mode: single

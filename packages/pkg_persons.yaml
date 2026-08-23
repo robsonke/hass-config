@@ -12,6 +12,7 @@ person:
   - name: Rob
     id: rob
     user_id: 56ef6157f087451399aa545f32dc78d3
+    picture: "/local/images/rob_icon-mirror.png"
     device_trackers:
       #- device_tracker.rob_presence
       - device_tracker.iphone_rob
@@ -20,6 +21,7 @@ person:
   - name: Steffi
     id: steffi
     user_id: 71e44d7d313b4695a8bf51705f7adfc3
+    picture: "/local/images/steffi_icon.png"
     device_trackers:
       #- device_tracker.steffi_presence
       - device_tracker.iphone_steffi
@@ -34,15 +36,12 @@ notify:
       - service: mobile_app_iphone
       #- service: mobile_app_iphone_steffi
 
-homeassistant:
-  customize_domain:
-    light:
-      assumed_state: false
-  customize:
-    person.rob:
-      entity_picture: "/local/images/rob_icon-mirror.png"
-    person.steffi:
-      entity_picture: "/local/images/steffi_icon.png"
+# No `homeassistant:` block here any more. It held
+# `customize_domain: light: assumed_state: false` - a blanket override on every
+# light, inherited from the old packages/customize.yaml (deleted 2023-07-02).
+# It dated from an integration that could not read its own state back; removed
+# 2026-08-23. If a light ever shows separate on/off buttons instead of a single
+# toggle, that light reports assumed_state and this is why.
 
 sensor:
   - platform: history_stats

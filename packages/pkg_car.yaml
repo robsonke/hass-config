@@ -14,3 +14,50 @@ template:
           {% set d = strptime(states('sensor.ix3_service_next_inspection_date'),
                               '%d.%m.%Y %H:%M:%S %Z', none) %}
           {{ d.strftime('%d-%m-%Y') if d else 'onbekend' }}
+
+  - binary_sensor:
+      # Recreates binary_sensor.ix3_windows, which the automation
+      # "Car - Alert when car windows open too long" has always triggered on - and
+      # which never existed, so that automation could never fire. The cardata
+      # integration exposes one sensor per window plus the sunroof instead, each
+      # reporting CLOSED when shut.
+      #
+      # Tested with `not in` rather than `== 'OPEN'`: BMW also reports intermediate
+      # states (tilted / partially open) and those count as open for a
+      # "don't let the rain in" alert. The sunroof is included deliberately - it
+      # lets in more rain than a cracked window.
+      #
+      # `availability` matters here: without it a cardata dropout would make every
+      # source read as not-CLOSED and fire the one-hour rain alert on every API
+      # hiccup. `open_parts` names what is actually open, for the notification.
+      - name: iX3 Windows
+        unique_id: ix3_windows
+        device_class: opening
+        icon: mdi:car-door
+        availability: >
+          {{ has_value('sensor.ix3_front_driver_side_window_status')
+             and has_value('sensor.ix3_front_passenger_side_window_status')
+             and has_value('sensor.ix3_rear_driver_side_window_status')
+             and has_value('sensor.ix3_rear_passenger_side_window_status')
+             and has_value('sensor.ix3_sunroof_status') }}
+        state: >
+          {{ states('sensor.ix3_front_driver_side_window_status') != 'CLOSED'
+             or states('sensor.ix3_front_passenger_side_window_status') != 'CLOSED'
+             or states('sensor.ix3_rear_driver_side_window_status') != 'CLOSED'
+             or states('sensor.ix3_rear_passenger_side_window_status') != 'CLOSED'
+             or states('sensor.ix3_sunroof_status') != 'CLOSED' }}
+        attributes:
+          open_parts: >
+            {% set parts = {
+                 'voor links': 'sensor.ix3_front_driver_side_window_status',
+                 'voor rechts': 'sensor.ix3_front_passenger_side_window_status',
+                 'achter links': 'sensor.ix3_rear_driver_side_window_status',
+                 'achter rechts': 'sensor.ix3_rear_passenger_side_window_status',
+                 'dak': 'sensor.ix3_sunroof_status' } %}
+            {% set ns = namespace(open=[]) %}
+            {% for label, eid in parts.items() %}
+              {% if states(eid) != 'CLOSED' %}
+                {% set ns.open = ns.open + [label] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.open | join(', ') }}

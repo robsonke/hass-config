@@ -25,6 +25,10 @@ zone:
     radius: 75
     icon: mdi:briefcase
 
+# Kept as `customize:` deliberately - the zone integration has an `icon:` option
+# but no picture field, so there is no native alternative. The person pictures
+# that used to sit alongside this moved onto the person integration itself
+# (see pkg_persons.yaml); this one has nowhere better to live.
 homeassistant:
   customize:
     zone.home:

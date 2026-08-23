@@ -51,21 +51,21 @@ variables:
   notifyServiceEntity: !input notify_service
   todo_list: !input todo_list
 
-trigger:
-  - platform: conversation
+triggers:
+  - trigger: conversation
     command: !input assist_command
     id: "assist_command_triggered"
-  - platform: event
+  - trigger: event
     event_type: mobile_app_notification_action
     event_data:
       action: "dismiss_reminder"
     id: "dismissed_reminder"
   # Since there is no wawy to trigger on a todo due date yet, we have to trigger every minute and check
-  - platform: time_pattern
+  - trigger: time_pattern
     minutes: "/1"
     id: "every_minute"
 
-action:
+actions:
   - alias: "Select correct trigger"
     choose:
       - alias: "The assist sentence was triggered"

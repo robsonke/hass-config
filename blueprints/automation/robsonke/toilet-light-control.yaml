@@ -90,9 +90,9 @@ variables:
     {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
     {{ local_day_brightness }}
     {% else %} {{ local_night_brightness }} {% endif %}
-trigger:
+triggers:
   # no more motion for a while
-  - platform: state
+  - trigger: state
     entity_id: !input motion_entity
     from: 'on'
     to: 'off'
@@ -102,22 +102,22 @@ trigger:
       seconds: 0
     id: motion_off
   # there's motion!
-  - platform: state
+  - trigger: state
     entity_id: !input motion_entity
     from: 'off'
     to: 'on'
   # the door is closed
-  - platform: state
+  - trigger: state
     entity_id: !input door_entity
     from: 'on'
     to: 'off'
   # the door is opened
-  - platform: state
+  - trigger: state
     entity_id: !input door_entity
     from: 'off'
     to: 'on'
-condition: []
-action:
+conditions: []
+actions:
   - choose:
     - conditions:
       - condition: state
@@ -140,7 +140,7 @@ action:
             seconds: 15
           alias: "Just wait a bit, in case the light wasn't on for more than 15 seconds, it's probably somebody opening and closing doors"
         - wait_for_trigger:
-            - platform: state
+            - trigger: state
               alias: "Wait till there's no motion for the time we configured as wait time"
               entity_id: !input motion_entity
               from: 'on'
@@ -148,7 +148,7 @@ action:
                 hours: 0
                 minutes: !input no_motion_wait
                 seconds: 0
-            - platform: state
+            - trigger: state
               alias: "Or continue when the door closes"
               entity_id: !input door_entity
               from: "on"
