@@ -8,7 +8,7 @@ esp8266:
   board: esp01_1m
 
 <<: !include .common.yaml
-  
+
 logger:
   level: INFO
 
@@ -52,12 +52,12 @@ sensor:
       name: Pool Shelly 3EM Phase A
       voltage:
         name: Voltage Phase A
-        filters: 
+        filters:
           - delta: 1
           - throttle: 10s
       current:
         name: Current Phase A
-        filters: 
+        filters:
           - delta: 0.01
         accuracy_decimals: 3
       active_power: Active Power Phase A
@@ -70,12 +70,12 @@ sensor:
       name: Pool Shelly 3EM Phase B
       voltage:
         name: Voltage Phase B
-        filters: 
+        filters:
           - delta: 1
           - throttle: 10s
       current:
         name: Current Phase B
-        filters: 
+        filters:
           - delta: 0.01
         accuracy_decimals: 3
       active_power: Active Power Phase B
@@ -88,12 +88,12 @@ sensor:
       name: Pool Shelly 3EM Phase C
       voltage:
         name: Voltage Phase C
-        filters: 
+        filters:
           - delta: 1
           - throttle: 10s
       current:
         name: Current Phase C
-        filters: 
+        filters:
           - delta: 0.01
         accuracy_decimals: 3
       active_power: Active Power Phase C
@@ -106,7 +106,7 @@ sensor:
       name: Pool Shelly 3EM Neutral
       current:
         name: Current Neutral
-        filters: 
+        filters:
           - delta: 0.01
         accuracy_decimals: 3
       calibration:
