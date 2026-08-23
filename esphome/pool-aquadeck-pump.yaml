@@ -94,4 +94,3 @@ cover:
     close_endstop: pool_deck_closed
     stop_action:
       - switch.turn_on: pool_relay_cover_closed
-  
