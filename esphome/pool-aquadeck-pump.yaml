@@ -9,7 +9,11 @@ esp32:
   framework:
     type: arduino
 
-<<: !include .common.yaml
+# `packages:` rather than a `<<` merge key: `<<` does not merge nested
+# sections - the first definition wins and the rest is dropped, which is how
+# device-level api:/ota:/logger: blocks silently discarded the shared ones.
+packages:
+  common: !include .common.yaml
 
 # Enable logging
 logger:
