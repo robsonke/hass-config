@@ -28,7 +28,7 @@ logger:
   # Drop back to INFO once the protocol is settled.
   level: DEBUG
   hardware_uart: UART0
-  
+
 api:
   encryption:
     key: !secret api_key
@@ -89,7 +89,7 @@ uart:
       bytes: 64
     sequence:
       - lambda: UARTDebug::log_string(direction, bytes);
- 
+
 # No modbus/modbus_controller here on purpose. The controller does not speak
 # Modbus - it answers nothing, so every poll logged "Stop waiting for response
 # from 1" and the 8 bytes that came back were our own request echoed by the
