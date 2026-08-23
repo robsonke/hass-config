@@ -1,4 +1,3 @@
-
 substitutions:
   device_name: slimmelezer-p1
   device_description: "DIY P1 module to read your smart meter"
