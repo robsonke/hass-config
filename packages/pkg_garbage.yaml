@@ -115,4 +115,3 @@ template:
           {%- endif %}
         attributes:
           days: "{{ state_attr('sensor.afvalinfo_home_papier','days_until_collection_date') | int(999) }}"
-

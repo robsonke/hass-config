@@ -25,7 +25,7 @@ jobs:
           VALIDATE_YAML: true
           FILTER_REGEX_EXCLUDE: '^(custom_components/|blueprints/|esphome/custom_components/|esphome/archive/|www/|.vscode/)'
           DISABLE_LINTERS: >
-            CHECKOV  
+            CHECKOV
             GITHUB_ACTIONS
   home-assistant:
     name: "Home Assistant Core ${{ matrix.version }} Configuration Check"

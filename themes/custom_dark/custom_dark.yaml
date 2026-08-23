@@ -155,7 +155,6 @@ custom-dark:
       state-alarm_control_panel-armed_night-color: var(--orange)
 
 
-
     ####################################################
     #                                                  #
     #                     CARD-MOD                     #
@@ -191,7 +190,7 @@ custom-dark:
           display: block;
           height: 80px;
           width: 100%;
-          background-color: transparent; 
+          background-color: transparent;
         }
       }
       /* Hide the main tabs in the upper bar */

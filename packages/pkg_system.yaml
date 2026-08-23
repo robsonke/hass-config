@@ -16,31 +16,23 @@ script: !include ../scripts.yaml
 
 shell_command:
   convert_lovelace: "python /config/utils/json2yaml.py /config/.storage/lovelace /config/lovelace-ui.yaml"
-  # Touching a YAML dashboard file makes HA re-read it (and its !includes).
-  # main-dashboard.yaml was removed from this list when that dashboard was
-  # retired — `touch` would otherwise have recreated it as an empty file.
   refresh_lovelace: "touch /config/dashboards/bubble-dashboard.yaml /config/dashboards/backdoor-dashboard.yaml"
-  # Camera snapshots that get attached to notifications are written to
-  # /config/www, which HA serves as /local WITHOUT authentication - so anyone who
-  # knows the path can fetch the newest one over the Nabu Casa URL. The Eva sound
-  # automation therefore writes a random filename per run instead of a fixed
-  # evabed_sound.jpg, and calls this to sweep the old ones. 120 minutes so a run's
-  # own files always survive its 2-minute escalation window. No pipes or globbing
-  # by the shell here on purpose: HA may run shell_command without a shell.
   prune_message_snapshots: "find /config/www/messages -name evabed_*.jpg -mmin +120 -delete"
 
 logger:
   default: info
   logs:
     homeassistant.components.calendar: error
-    homeassistant.components.websocket_api: fatal
-    homeassistant.components.camera: fatal
+    homeassistant.components.websocket_api: error
+    homeassistant.components.camera: error
     homeassistant.components.mqtt: warn
-    bleak_retry_connector: debug
+    gql: warning
 
-tts:
-  - platform: google_translate
-    language: 'nl'
+# No `tts:` block: the legacy google_translate YAML platform existed only to
+# provide `tts.google_translate_say` for script.googlehome_say, which nothing
+# called - both removed 2026-08-23. Live TTS is Piper, via
+# media-source://tts/tts.piper in scripts.yaml. If google_translate is ever
+# wanted again, add it through Settings > Devices & Services and call tts.speak.
 
 ios:
   actions:
@@ -310,11 +302,19 @@ template:
           {{ ns.n }}
         # Split out so the number is diagnosable at a glance instead of being a
         # single opaque total.
+        #
+        # These two MUST apply the same filters as the state above or they don't
+        # add up to it: the 15-second `last_changed` grace and, for `unavailable`,
+        # the `group` exclusion. (`unknown` needs no group exclusion - `group` is
+        # not in value_domains.) 15 seconds is `ignore_time` in the state template;
+        # keep the three in step.
         attributes:
           unavailable: >
             {% set ignore_re = '(_last_recognized_plate$|laptop_firefox|probe_[0-9]|tuin_bbq|inkbird|^light\\.kerst_|_spare[0-9])' %}
             {% set ignored = state_attr('group.ignored_entities','entity_id') or [] %}
-            {{ states | selectattr('state','eq','unavailable')
+            {{ states | rejectattr('domain','eq','group')
+               | selectattr('state','eq','unavailable')
+               | selectattr('last_changed','lt', now() - timedelta(seconds=15))
                | rejectattr('entity_id','in',ignored)
                | rejectattr('entity_id','search',ignore_re) | list | count }}
           unknown: >
@@ -325,6 +325,7 @@ template:
             {% set ignored = state_attr('group.ignored_entities','entity_id') or [] %}
             {{ states | selectattr('state','in',['unknown','none'])
                | selectattr('domain','in',value_domains)
+               | selectattr('last_changed','lt', now() - timedelta(seconds=15))
                | rejectattr('entity_id','in',ignored)
                | rejectattr('entity_id','search',ignore_re) | list | count }}
   # Storage for Bubble Card Modules
@@ -333,35 +334,29 @@ template:
         event_type: bubble_card_update_modules
     sensor:
       - name: "Bubble Card Modules"
+        unique_id: bubble_card_modules
         state: "saved"
         icon: "mdi:puzzle"
         attributes:
           modules: "{{ trigger.event.data.modules }}"
           last_updated: "{{ trigger.event.data.last_updated }}"
-  # count all possible updates to one sensor
-  - trigger:
-    - trigger: time_pattern
-      minutes: "*"
-    sensor:
+  # Count of available updates. Consumed as a plain number by the #updates
+  # pop-up header and the dashboard chip (bpp_update.yaml, bubble-dashboard.yaml).
+  #
+  # Used to be a time_pattern sensor firing every minute, whose `updates`
+  # attribute built an HTML <ul> with inline onclick handlers calling cardTools
+  # and browser_mod.close_popup. Nothing read that attribute any more -
+  # bpp_update.yaml renders the list itself with auto-entities +
+  # mushroom-update-card - and the browser_mod call was dead under Bubble Card
+  # native pop-ups regardless.
+  #
+  # No trigger: referencing `states.update` has HA register a listener on the
+  # whole update domain, so this re-renders when an update entity actually
+  # changes rather than 1,440 times a day, and it is correct immediately after a
+  # restart instead of up to a minute late.
+  - sensor:
     - unique_id: ha_all_updates
       name: All Updates
-      attributes:
-        updates: >
-          <ul>
-          {%- for entity in expand(states.update) %}
-            {%- if is_state(entity.entity_id, 'on') %}
-              <li>
-                {%- if state_attr(entity.entity_id, 'release_url') is not none %}
-                <b><a href="#" onclick="window.open('{{ state_attr(entity.entity_id, 'release_url') }}');">{{ state_attr(entity.entity_id, 'friendly_name') }}</a></b>
-                {%- else %}
-                <b>{{ state_attr(entity.entity_id, 'friendly_name') }}</b>
-                {%- endif %}
-                {{ state_attr(entity.entity_id, 'installed_version') }} &#10142; {{ state_attr(entity.entity_id, 'latest_version') }}
-                <ha-icon-button onclick="cardTools.hass.callService('browser_mod', 'close_popup', {}); cardTools.moreInfo('{{ entity.entity_id }}')"><ha-state-icon style="--mdc-icon-size: 24px; vertical-align: 100%;" icon="mdi:cloud-download"></ha-state-icon></ha-icon-button>
-              </li>
-            {%- endif %}
-          {%- endfor %}
-          </ul>
       icon: mdi:update
       state: >
         {{ expand(states.update) | selectattr('state', 'in', ['on']) | list | count }}
@@ -370,6 +365,7 @@ template:
 sensor:
   - platform: rest
     name: hass_release_notes
+    unique_id: hass_release_notes
     resource: https://api.github.com/repos/home-assistant/core/releases/latest
     value_template: >
       {{ value_json.name }}
@@ -379,6 +375,7 @@ sensor:
 
   - platform: rest
     name: hass_release_notes_rc
+    unique_id: hass_release_notes_rc
     resource: https://api.github.com/repos/home-assistant/core/releases?per_page=1
     value_template: >
       {% if value_json and value_json|length > 0 %}

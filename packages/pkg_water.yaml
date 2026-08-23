@@ -33,9 +33,20 @@ utility_meter:
 
 template:
   - sensor:
+    # This is a monotonically rising total, not an instantaneous reading, so
+    # `measurement` had HA recording a meaningless mean and kept the sensor out
+    # of the Energy dashboard's water section. The 5 utility_meters above are
+    # unaffected either way - they track deltas and ignore state_class.
+    #
+    # `availability` matters more now than it did: under total_increasing a
+    # single `0` reading (unavailable counter falling through `float(0)`) reads
+    # as a meter reset, and the next real value would be counted as fresh
+    # consumption. Going unavailable never publishes that 0.
     - unique_id: water_meter_total_m3
       name: Water Meter Total m3
-      state_class: measurement
+      device_class: water
+      state_class: total_increasing
       unit_of_measurement: m³
-      state: "{{ states('counter.watermeter_consumption_counter') |float * 0.001 }}"
+      availability: "{{ has_value('counter.watermeter_consumption_counter') }}"
+      state: "{{ states('counter.watermeter_consumption_counter') | float(0) * 0.001 }}"
       icon: mdi:water-pump

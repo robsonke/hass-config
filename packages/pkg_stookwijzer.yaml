@@ -1,4 +1,4 @@
-# 
+#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
@@ -10,6 +10,9 @@ sensor:
     unique_id: stookwijzer_json_data
     resource: "https://data.rivm.nl/geo/alo/wms?service=WMS&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=stookwijzer_v2&LAYERS=stookwijzer_v2&servicekey=82b124ad-834d-4c10-8bd0-ee730d5c1cc8&STYLES=&BUFFER=1&EXCEPTIONS=INIMAGE&info_format=application%2Fjson&feature_count=1&I=17&J=166&WIDTH=256&HEIGHT=256&CRS=EPSG%3A28992&BBOX=44899.52000000008%2C352899.52%2C155000.0000000001%2C463000"
     method: GET
+    # RIVM publishes a new model run every 6 hours; the rest platform's default
+    # scan_interval is 30 seconds, which was ~2,880 requests/day for nothing.
+    scan_interval: 3600
     headers:
       Content-Type: application/json
     json_attributes_path: "$.features[0].properties"
@@ -28,12 +31,13 @@ template:
   - sensor:
     - unique_id: stookwijzer_advice_1
       attributes:
-        time: "{{ states('sensor.stookwijzer_json_data') | int | timestamp_local }}"
+        time: "{{ states('sensor.stookwijzer_json_data') | float(0) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_0') }}"
       name: Stookwijzer Advies 1
       icon: mdi:fire-alert
+      availability: "{{ has_value('sensor.stookwijzer_json_data') }}"
       state: >
-        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_0') | int %}
+        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_0') | int(-1) %}
         {% if advice == 0 %}
           code_yellow
         {% elif advice == 1 %}
@@ -45,12 +49,13 @@ template:
         {% endif %}
     - unique_id: stookwijzer_advice_2
       attributes:
-        time: "{{ ((states('sensor.stookwijzer_json_data') | int) + (6 * 3600)) | timestamp_local }}"
+        time: "{{ ((states('sensor.stookwijzer_json_data') | float(0)) + (6 * 3600)) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_6') }}"
       name: Stookwijzer Advies 2
       icon: mdi:fire-alert
+      availability: "{{ has_value('sensor.stookwijzer_json_data') }}"
       state: >
-        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_6') | int %}
+        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_6') | int(-1) %}
         {% if advice == 0 %}
           code_yellow
         {% elif advice == 1 %}
@@ -62,12 +67,13 @@ template:
         {% endif %}
     - unique_id: stookwijzer_advice_3
       attributes:
-        time: "{{ ((states('sensor.stookwijzer_json_data') | int) + (12 * 3600)) | timestamp_local }}"
+        time: "{{ ((states('sensor.stookwijzer_json_data') | float(0)) + (12 * 3600)) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_12') }}"
       name: Stookwijzer Advies 3
       icon: mdi:fire-alert
+      availability: "{{ has_value('sensor.stookwijzer_json_data') }}"
       state: >
-        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_12') | int %}
+        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_12') | int(-1) %}
         {% if advice == 0 %}
           code_yellow
         {% elif advice == 1 %}
@@ -79,12 +85,13 @@ template:
         {% endif %}
     - unique_id: stookwijzer_advice_4
       attributes:
-        time: "{{ ((states('sensor.stookwijzer_json_data') | int) + (18 * 3600)) | timestamp_local }}"
+        time: "{{ ((states('sensor.stookwijzer_json_data') | float(0)) + (18 * 3600)) | timestamp_local }}"
         definitive: "{{ state_attr('sensor.stookwijzer_json_data', 'definitief_18') }}"
       name: Stookwijzer Advies 4
       icon: mdi:fire-alert
+      availability: "{{ has_value('sensor.stookwijzer_json_data') }}"
       state: >
-        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_18') | int %}
+        {% set advice = state_attr('sensor.stookwijzer_json_data', 'advies_18') | int(-1) %}
         {% if advice == 0 %}
           code_yellow
         {% elif advice == 1 %}

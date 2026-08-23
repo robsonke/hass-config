@@ -5,7 +5,8 @@
 #
 # Units checked: solaredge_dc_power is W (÷1000); power_consumed = grid IMPORT
 # kW; power_produced = grid EXPORT kW; net_power_consumption = HOME load kW.
-# Nordpool raw_today = 15-min slots; +0.1108 = all-in markup.
+# Nordpool raw_today = 15-min slots; the all-in markup comes from
+# input_number.energy_markup (defined in pkg_energy.yaml).
 # Price level reuses the existing sensor.energy_price_level.
 
 template:
@@ -14,6 +15,7 @@ template:
       - name: Solar power now kW
         unique_id: solar_power_now_kw
         unit_of_measurement: kW
+        state_class: measurement
         device_class: power
         state: >
           {{ (states('sensor.solaredge_dc_power') | float(0) / 1000) | round(2) }}
@@ -22,6 +24,7 @@ template:
       - name: Energy self sufficiency now
         unique_id: energy_self_sufficiency_now
         unit_of_measurement: '%'
+        state_class: measurement
         icon: mdi:home-lightning-bolt
         state: >
           {% set home = states('sensor.net_power_consumption') | float(0) %}
@@ -33,6 +36,7 @@ template:
       - name: Energy self consumption now
         unique_id: energy_self_consumption_now
         unit_of_measurement: '%'
+        state_class: measurement
         icon: mdi:solar-power
         state: >
           {% set solar = states('sensor.solaredge_dc_power') | float(0) / 1000 %}
@@ -49,7 +53,7 @@ template:
         attributes:
           price: >
             {% set r = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021','raw_today') %}
-            {% if r %}{{ ((r | min(attribute='value')).value + 0.1108) | round(2) }}{% else %}0{% endif %}
+            {% if r %}{{ ((r | min(attribute='value')).value + (states('input_number.energy_markup') | float(0.1108))) | round(2) }}{% else %}0{% endif %}
 
       - name: Energy priciest time today
         unique_id: energy_priciest_time_today
@@ -60,4 +64,4 @@ template:
         attributes:
           price: >
             {% set r = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021','raw_today') %}
-            {% if r %}{{ ((r | max(attribute='value')).value + 0.1108) | round(2) }}{% else %}0{% endif %}
+            {% if r %}{{ ((r | max(attribute='value')).value + (states('input_number.energy_markup') | float(0.1108))) | round(2) }}{% else %}0{% endif %}

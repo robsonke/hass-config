@@ -40,6 +40,6 @@ input_datetime:
     initial: 04:00
 
 input_boolean:
-  irrigation_plan_enable: 
+  irrigation_plan_enable:
     name: Irrigatie Actief
     icon: mdi:play-box-lock-open

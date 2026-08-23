@@ -27,7 +27,7 @@ template:
       precipitation_unit: mm
 
   - trigger:
-    - platform: state
+    - trigger: state
       entity_id: weather.home
     action:
       - action: weather.get_forecasts
@@ -51,7 +51,7 @@ template:
           forecast: "{{ forecast_daily['weather.home'].forecast }}"
 
   - trigger:
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: /10
     action:
       - action: weather.get_forecasts
@@ -77,9 +77,11 @@ template:
     - name: "Wind Force"
       icon: mdi:weather-windy
       unique_id: wind_force
+      # Unavailable rather than "0 Bft" when the source drops out - an unguarded
+      # `| float` used to raise, and `| float(0)` would report dead calm.
+      availability: "{{ has_value('sensor.kloetinge_wind_speed') }}"
       state: >
-        {% set wind = states('sensor.kloetinge_wind_speed')|float %}
-        {% set wind_round = wind|round(1) %}
+        {% set wind = states('sensor.kloetinge_wind_speed') | float(0) %}
         {% if wind <= 1 %}0 Bft
         {% elif wind <= 5 %}1 Bft
         {% elif wind <= 11 %}2 Bft
@@ -92,7 +94,7 @@ template:
         {% elif wind <= 89 %}9 Bft
         {% elif wind <= 103 %}10 Bft
         {% elif wind <= 117 %}11 Bft
-        {% else %} > 117 %}12 Bft
+        {% else %}12 Bft
         {%- endif %}
 
   - binary_sensor:

@@ -258,41 +258,6 @@ googlehome_play_sound:
     data:
       entity_id: '{{ googlehome_entity }}'
       is_volume_muted: false
-googlehome_say:
-  alias: Google Home TTS script
-  mode: single
-  icon: mdi:play
-  sequence:
-  - action: media_player.volume_mute
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      is_volume_muted: true
-  - action: media_player.volume_set
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      volume_level: '{{ volume | float }}'
-  - action: media_player.volume_mute
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      is_volume_muted: false
-  - action: tts.google_translate_say
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      message: '{{ message }}'
-  - delay:
-      seconds: '{{ delay | float }}'
-  - action: media_player.volume_mute
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      is_volume_muted: true
-  - action: media_player.volume_set
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      volume_level: '{{ volume_restore | float }}'
-  - action: media_player.volume_mute
-    data:
-      entity_id: '{{ googlehome_entity }}'
-      is_volume_muted: false
 sonos_active_control:
   alias: Sonos - control active group member
   description: >

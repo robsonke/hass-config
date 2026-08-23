@@ -79,7 +79,6 @@ template:
           motor_3_time: 0
       default_entity_id: cover.bed_rob
       icon: mdi:bed-double
-      availability: 'true'
       name: Bed Rob
   - cover:
     - unique_id: bed_steffi
@@ -117,6 +116,4 @@ template:
           motor_3_time: 0
       default_entity_id: cover.bed_steffi
       icon: mdi:bed-double
-      availability: 'true'
       name: Bed Steffi
-

@@ -405,7 +405,7 @@
       seconds: 0
   actions:
   - action: notify.all_phones
-    data_template:
+    data:
       message: "\U0001F4C5  Opletten {{ state_attr(trigger.entity_id, 'friendly_name')
         }}!"
       data:
@@ -843,7 +843,7 @@
     entity_id: input_boolean.guest_mode
   actions:
   - action: script.sonos_say
-    data_template:
+    data:
       sonos_entity: media_player.eetkamer
       volume: 30
       message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
@@ -921,7 +921,7 @@
   - action: light.turn_off
     target:
       entity_id: light.lights_garden
-  mode: single
+  mode: restart
 - id: sjorsje_bin_full
   alias: Vacuum - Sjorsje Bin Full
   triggers:
@@ -1060,7 +1060,7 @@
       state: '0'
   actions:
   - action: script.sonos_say
-    data_template:
+    data:
       sonos_entity: media_player.eetkamer
       volume: 20
       message: Let op, er staan beneden nog ramen of deuren open!
@@ -1101,6 +1101,27 @@
     data:
       title: Batterij Nuki
       message: Let op, batterij status van het voordeur slot is kritiek!
+  mode: single
+- id: nuki_voordeur_battery_low
+  alias: Doors - Nuki battery low
+  description: Early warning that the Nuki front door lock battery dropped below
+    30 percent. The generic low-battery blueprint automation only warns at 20
+    percent and the Nuki's own battery_critical binary sensor fires later still,
+    which leaves little time to charge the pack before the lock stops responding.
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.voordeur_battery
+    below: 30
+    for:
+      minutes: 10
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    data:
+      notification_id: nuki_voordeur_battery_low
+      title: Batterij Nuki
+      message: 'Let op, de batterij van het voordeur slot is gezakt tot {{
+        trigger.to_state.state }}%. Tijd om op te laden.'
   mode: single
 - id: '1623609811213'
   alias: Screens - Close screens voorraam on warm sunny days
@@ -2030,13 +2051,19 @@
   description: Turn off lights in the garden in the evening but keep a few on on low
     brightness. Turn off when we go to bed, guest mode is off or otherwise at 23:00.
   triggers:
-  - at: '23:00'
+  # The 5-minute grace period used to be a `delay:` as the first action. An
+  # in-flight delay is lost on an HA restart, which left the garden lit all
+  # night, and `mode: single` meant a second trigger inside that window was
+  # dropped. Expressing the grace in the triggers themselves removes the long
+  # delay entirely - there is now nothing in flight to lose.
+  - at: '23:05'
     trigger: time
-  - at: 01:00
+  - at: 01:05
     trigger: time
   - entity_id:
     - alarm_control_panel.alarmo
     to: armed_night
+    for: 00:05:00
     trigger: state
   conditions:
   - condition: state
@@ -2061,11 +2088,6 @@
       after: 00:00:00
       before: 02:00:00
   actions:
-  - delay:
-      hours: 0
-      minutes: 5
-      seconds: 0
-      milliseconds: 0
   - action: light.turn_off
     data: {}
     target:
@@ -2104,7 +2126,7 @@
       entity_id:
       - light.hue_lights_garden
       - light.kerst_buiten
-  mode: single
+  mode: restart
 - id: '1645647196286'
   alias: Windows - Masterbedroom open and low temperature
   description: ''
@@ -2480,7 +2502,7 @@
         state: heating
       sequence:
       - action: climate.set_temperature
-        data_template:
+        data:
           temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
             | float }}'
         target:
@@ -2492,7 +2514,7 @@
         state: cooling
       sequence:
       - action: climate.set_temperature
-        data_template:
+        data:
           temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
             | float }}'
         target:
@@ -2658,17 +2680,33 @@
     below: 14
     alias: Today Maximum Temperature Outside is below 18 degrees
   actions:
+  # Switch on, then hand the 30 minutes to timer.bathroom_heaters (restore:
+  # true) instead of an in-line `delay:`. An in-flight delay is lost on an HA
+  # restart, which left both heaters switched on indefinitely - the same failure
+  # already fixed for the alarm pause in pkg_alarm.yaml. The turn-off lives in
+  # "Heating - Turn off heaters bathrooms when the timer finishes".
   - action: switch.turn_on
     data: {}
     target:
       entity_id:
       - switch.shelly_plug_douche_verwarming_relay
       - switch.shelly_plug_badkamer_verwarming_relay
-  - delay:
-      hours: 0
-      minutes: 30
-      seconds: 0
-      milliseconds: 0
+  - action: timer.start
+    target:
+      entity_id: timer.bathroom_heaters
+  mode: restart
+- id: bathroom_heaters_timer_finished
+  alias: Heating - Turn off heaters bathrooms when the timer finishes
+  description: Companion to "Heating - Control heaters bathrooms". Split out so the
+    30-minute run survives an HA restart - a restore:true timer keeps counting,
+    an in-line delay does not.
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.bathroom_heaters
+  conditions: []
+  actions:
   - action: switch.turn_off
     data: {}
     target:
@@ -2691,7 +2729,7 @@
   condition: []
   actions:
   - action: notify.all_phones
-    data_template:
+    data:
       message: "\U0001F4A6 De waterbak van de ontvochtiger zit vol, zsm legen"
       data:
         persistent: true
@@ -3620,63 +3658,6 @@
       night_brightness: 30
       sleep_time_start_helper: '23:59:59'
       sleep_time_end_helper: 00:00:01
-- id: '1735328989280'
-  alias: HVAC - Check and reset the target temp of heat pump
-  description: Temporary automation, something overrules the target temperature and
-    keeps us cold. Most likely a race condition.
-  triggers:
-  - trigger: state
-    entity_id:
-    - climate.warmtepomp
-    attribute: temperature
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  conditions:
-  - condition: template
-    value_template: "{% set current = state_attr('climate.warmtepomp', 'temperature')
-      | float(0) %} {% set wanted = (states('input_number.hvac_winter_target_temperature')
-      | float(0))\n                if is_state('select.operation_mode', 'heating')\n
-      \               else (states('input_number.hvac_summer_target_temperature')
-      | float(0)) %}\n{{ (current - wanted) | abs > 0.01 }}\n"
-  actions:
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      message: Target heatpump temp differs from settings, try resetting in one minute
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 0
-      milliseconds: 0
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: select.operation_mode
-        state: heating
-      sequence:
-      - action: climate.set_temperature
-        data_template:
-          temperature: '{{ states(''input_number.hvac_winter_target_temperature'')
-            | float }}'
-        target:
-          entity_id: climate.warmtepomp
-        alias: Heat - Set temperature to the winter target during the day
-    - conditions:
-      - condition: state
-        entity_id: select.operation_mode
-        state: cooling
-      sequence:
-      - action: climate.set_temperature
-        data_template:
-          temperature: '{{ states(''input_number.hvac_summer_target_temperature'')
-            | float }}'
-        target:
-          entity_id: climate.warmtepomp
-        alias: Cool - Set temperature to the summer target
-    alias: Set the right target temperature, depending on season
-  mode: single
 - id: '1735414213615'
   alias: System - check if the power in the shed is oke
   description: Due to water in the garden, the outside power went off a few times.
@@ -3709,8 +3690,13 @@
   mode: single
 - id: '1736593579794'
   alias: DHW - Correct the target temperature when it goes loko
-  description: Temporary automation, something overrules the target temperature and
-    keeps us cold. Most likely a race condition.
+  description: 'Workaround: something overrules the DHW target temperature and leaves
+    us with cold water - the root cause was never diagnosed. Keep it until it is:
+    this is the ONLY automation anywhere in the config that calls
+    water_heater.set_temperature, so without it an override is never corrected and
+    never reported. (The HVAC twin of this automation was retired on 2026-08-23
+    because "HVAC - Set default temperature" already resets the heat pump nightly;
+    there is no such fallback for hot water.)'
   triggers:
   - trigger: state
     entity_id:
@@ -3729,6 +3715,8 @@
   - action: persistent_notification.create
     metadata: {}
     data:
+      notification_id: dhw_target_temp_corrected
+      title: Warmwater temperatuur
       message: Target hot water temp above 46 degrees, try resetting in one minute
   - delay:
       hours: 0
@@ -3741,7 +3729,7 @@
       temperature: 45
     target:
       entity_id: water_heater.domestic_hot_water_tank
-  mode: single
+  mode: restart
 - id: '1766775549186'
   alias: Motion Lights - Control shed lights
   description: Turn on the light in the shed once entering and turn off after a while

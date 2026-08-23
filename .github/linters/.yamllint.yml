@@ -1,0 +1,64 @@
+---
+# yamllint configuration for Super Linter.
+#
+# Super Linter looks here by default: LINTER_RULES_PATH defaults to
+# `.github/linters` and YAML_CONFIG_FILE to `.yamllint.yml`. No workflow change
+# is needed for this file to take effect.
+#
+# This is Super Linter's own bundled template with exactly two rules disabled,
+# because a Home Assistant config violates them by design rather than by
+# accident. Measured over the 96 tracked YAML files the linter actually sees:
+#
+#   indentation (626 findings) - HA and Lovelace YAML indents a sequence at the
+#     same level as its parent key:
+#
+#         template:
+#           - sensor:
+#             - name: Example
+#
+#     yamllint wants two more spaces per level. This style is used consistently
+#     across packages/, dashboards/, templates/ and esphome/; "fixing" it would
+#     be a ~3,000-line reformat with no functional benefit and a real risk of
+#     breaking working config.
+#
+#   braces (1124 findings) - Lovelace card config leans on flow mappings to stay
+#     readable, e.g.
+#
+#         tap_action: { action: navigate, navigation_path: '#pool' }
+#
+#     yamllint's default forbids the inner spaces. Almost every finding is in
+#     dashboards/ and popups/.
+#
+# Everything else deliberately stays at error level. Trailing whitespace, a
+# missing newline at EOF, duplicate keys and runs of blank lines are genuine
+# problems, they are cheap to keep clean, and key-duplicates in particular
+# catches real config bugs.
+#
+# To reproduce locally:
+#   yamllint -c .github/linters/.yamllint.yml .
+rules:
+  braces: disable
+  brackets: enable
+  colons: enable
+  commas: enable
+  comments:
+    level: warning
+  comments-indentation:
+    level: warning
+  document-end: disable
+  document-start:
+    level: warning
+  empty-lines: enable
+  empty-values: disable
+  hyphens: enable
+  indentation: disable
+  key-duplicates: enable
+  key-ordering: disable
+  line-length: disable
+  new-line-at-end-of-file: enable
+  new-lines: enable
+  octal-values: disable
+  quoted-strings: disable
+  trailing-spaces: enable
+  truthy:
+    level: warning

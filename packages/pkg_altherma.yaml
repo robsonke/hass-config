@@ -32,6 +32,17 @@ climate:
     min_cycle_duration:
       minutes: 5
 
+# 30-minute run for the bathroom towel heaters. `restore: true` so the run
+# survives an HA restart: "Heating - Control heaters bathrooms" used to hold the
+# 30 minutes in an in-line `delay:`, and a restart mid-delay left both heaters
+# switched on indefinitely. Same reasoning as timer.alarm_pause in pkg_alarm.yaml.
+timer:
+  bathroom_heaters:
+    name: Badkamer verwarming
+    icon: mdi:radiator
+    restore: true
+    duration: "00:30:00"
+
 input_boolean:
   enable_automatic_hvac:
     name: Enable HVAC Automation
@@ -77,16 +88,11 @@ input_number:
     unit_of_measurement: "°C"
 
 
-homeassistant:
-  customize:
-    sensor.altherma_energy_usage:
-      device_class: energy
-      state_class: total_increasing
-      unit_of_measurement: kWh
-    sensor.altherma_energy_usage_secundary:
-      device_class: energy
-      state_class: total_increasing
-      unit_of_measurement: kWh
+# No `homeassistant: customize:` block for the two Riemann-sum sensors below:
+# since 2021.9 the `integration` platform derives device_class energy, unit kWh
+# (from unit_prefix: k on a W source) and state_class total by itself. The block
+# only ever overrode its native `total` with `total_increasing`; both record
+# `sum` statistics, so dropping it is compatible.
 
 utility_meter:
   altherma_heatpump_daily:
@@ -206,27 +212,56 @@ template:
       unit_of_measurement: W
       state: "{{ states('sensor.altherma_inv_secundary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
       icon: mdi:flash
+    # COP = thermal output / electrical input, from the same flow/dT pair.
+    # COP uses the primary inverter current; COP2 the secondary, divided by 3
+    # for the three phases.
+    #
+    # These used to emit `0` whenever the pump was not heating, and to divide by
+    # a raw current * voltage product with no guard - which raised
+    # `ZeroDivisionError: float division by zero` (seen in home-assistant.log.old)
+    # whenever the mode read Heating while the current had not caught up yet.
+    #
+    # `availability` instead of a `0` state: state_class measurement means every
+    # idle reading lands in long-term statistics, and a stream of zeros makes the
+    # recorded COP mean meaningless. Unavailable costs gaps in the graph and keeps
+    # the statistic honest. The availability guard is also what makes the division
+    # safe - the state template only renders once the denominator is non-zero.
     - unique_id: altherma_cop
       name: Altherma COP
       unit_of_measurement: 'COP'
       state_class: measurement
+      availability: >
+        {{ is_state('sensor.altherma_operation_mode', 'Heating')
+           and has_value('sensor.altherma_flow_sensor')
+           and has_value('sensor.altherma_leaving_water_temp_before_buh_r1t')
+           and has_value('sensor.altherma_inlet_water_temp_r4t')
+           and states('sensor.altherma_inv_primary_current') | float(0) > 0
+           and states('sensor.altherma_voltage_n_phase') | float(0) > 0 }}
       state: >
-        {% if is_state('sensor.altherma_operation_mode', 'Heating') %}
-        {{
-          ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) )
-            /
-          (states('sensor.altherma_inv_primary_current') | float * states('sensor.altherma_voltage_n_phase') | float / 1000))
-          |round(2)
-        }}
-        {% else %} 0 {%endif%}
+        {% set thermal = states('sensor.altherma_flow_sensor') | float(0) * 0.06 * 1.16
+           * (states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float(0)
+              - states('sensor.altherma_inlet_water_temp_r4t') | float(0)) %}
+        {% set electrical = states('sensor.altherma_inv_primary_current') | float(0)
+           * states('sensor.altherma_voltage_n_phase') | float(0) / 1000 %}
+        {{ (thermal / electrical) | round(2) }}
     - unique_id: altherma_cop2
       name: Altherma COP2
       unit_of_measurement: 'COP'
       state_class: measurement
+      availability: >
+        {{ is_state('sensor.altherma_operation_mode', 'Heating')
+           and has_value('sensor.altherma_flow_sensor')
+           and has_value('sensor.altherma_leaving_water_temp_before_buh_r1t')
+           and has_value('sensor.altherma_inlet_water_temp_r4t')
+           and states('sensor.altherma_inv_secundary_current') | float(0) > 0
+           and states('sensor.altherma_voltage_n_phase') | float(0) > 0 }}
       state: >
-        {% if is_state('sensor.altherma_operation_mode', 'Heating') %}
-        {{ ((states('sensor.altherma_flow_sensor')| float * 0.06 * 1.16 * (states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float - states('sensor.altherma_inlet_water_temp_r4t') | float) ) / (states('sensor.altherma_inv_secundary_current') | float / 3 * states('sensor.altherma_voltage_n_phase') | float / 1000)) |round(2) }}
-        {% else %} 0 {%endif%}
+        {% set thermal = states('sensor.altherma_flow_sensor') | float(0) * 0.06 * 1.16
+           * (states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float(0)
+              - states('sensor.altherma_inlet_water_temp_r4t') | float(0)) %}
+        {% set electrical = states('sensor.altherma_inv_secundary_current') | float(0) / 3
+           * states('sensor.altherma_voltage_n_phase') | float(0) / 1000 %}
+        {{ (thermal / electrical) | round(2) }}
 
   - binary_sensor:
     - unique_id: altherma_main_pump

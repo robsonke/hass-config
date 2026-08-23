@@ -37,14 +37,21 @@ Feature-based YAML packages, each covering a domain: `pkg_lights.yaml`, `pkg_ala
 - `blueprints/` — custom blueprints by robsonke plus community blueprints
 
 ### Dashboards (`dashboards/`)
-- `main-dashboard.yaml` — primary Lovelace dashboard
-- `dashboards/popups/` — 26+ modular popup views (one per device/feature area), used with `browser_mod` for overlay popups
+Both dashboards are YAML-mode, registered in `configuration.yaml` under `lovelace:`:
+- `bubble-dashboard.yaml` — the primary dashboard ("Home", in the sidebar)
+- `backdoor-dashboard.yaml` — a small wall-tablet dashboard ("Bijkeuken", hidden from the sidebar)
+- `dashboards/popups/` — 38 popup files, all named `bpp_*.yaml`, each `!include`d into
+  `bubble-dashboard.yaml`
+
+There is no `main-dashboard.yaml` — it was retired. Do not recreate it; `shell_command.refresh_lovelace`
+in `pkg_system.yaml` used to `touch` it and would resurrect it as an empty file.
 
 ### Templates (`templates/`)
-- `templates/button_card_templates/` — reusable `custom:button-card` templates (`tpl_main.yaml`, `tpl_base.yaml`, etc.)
-- `templates/decluttering_templates.yaml` — decluttering card templates
+- `templates/decluttering_templates.yaml` — the only file here; decluttering card templates
 
-All dashboard cards inherit from these templates for visual consistency. When editing popups, check `tpl_main.yaml` for shared styles and variables.
+The `templates/button_card_templates/` directory no longer exists. The dashboards were migrated off
+`custom:button-card` template inheritance to Bubble Card, so there is no shared `tpl_main.yaml` to
+consult — styling now lives per-card in the `styles:` block of each Bubble Card.
 
 ### ESPHome (`esphome/`)
 Device configs for Shelly Plug S power monitors, water meter, OnJu voice satellites, and pool equipment. Shared settings live in `.common.yaml`.
@@ -62,6 +69,13 @@ Custom Frosted Glass theme (dark/light variants) plus community themes (Mushroom
 
 - **Secrets**: All sensitive values (coordinates, API keys, URLs, passwords) are in `secrets.yaml` (git-ignored). Reference via `!secret key_name`.
 - **Packages over inline config**: Prefer adding entities/automations to the appropriate `packages/pkg_*.yaml` rather than `configuration.yaml`.
-- **Template-driven UI**: Dashboard cards use `custom:button-card` with template inheritance. Avoid hardcoding styles in individual popup files.
-- **Popup pattern**: Each device/area has its own popup YAML in `dashboards/popups/`. Popups are triggered via `browser_mod` service calls.
+- **Bubble Card UI**: Cards are `custom:bubble-card`. Styling goes in each card's own `styles:` block
+  (JS template literals against `hass.states`). Beware: a backtick anywhere inside a Bubble Card
+  `styles:` or `modules:` block — including in a comment — silently kills the entire block.
+- **Popup pattern**: Each device/area has its own `bpp_*.yaml` in `dashboards/popups/`, using Bubble
+  Card's native `card_type: pop-up` with a `hash:` key. They are opened by navigating to that hash
+  (`tap_action: { action: navigate, navigation_path: '#pool' }`), **not** via `browser_mod` service
+  calls — that migration is done. Only two files still reference `browser_mod` at all.
+- **Reloading YAML dashboards**: edits to `!include`d dashboard files are cached; use
+  `shell_command.refresh_lovelace` to force HA to re-read them.
 - **Dutch language**: Automation names, entity friendly names, and TTS scripts use Dutch (`nl`).
