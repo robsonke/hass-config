@@ -2,7 +2,7 @@ substitutions:
   devicename: shelly-plug-s-3-douche
   channel_1: Relay
   ip: !secret shellyplug3_ip
-  
+
   # Higher value gives lower watt readout
   current_res: "0.00290"
   # Lower value gives lower voltage readout
