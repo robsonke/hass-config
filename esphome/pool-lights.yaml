@@ -41,27 +41,24 @@ api:
   # pass-throughs are what packages/pkg_pool.yaml drives light.pool_light with:
   # PDxxx for brightness, PCrrrgggbbb for colour, PSxx for a program (01-14).
   # Exposed in HA as esphome.pool_lights_* (the node is named pool-lights).
+  # Both hand off to script.send_plp rather than touching the bus directly -
+  # see that script for why the pacing matters. They are otherwise identical;
+  # there are two names only because pkg_pool.yaml already calls both.
   services:
     - service: set_color
       variables:
         color: string
       then:
-        - uart.write:
-            id: mod_bus
-            data: !lambda |-
-              std::string str = color;
-              std::vector<uint8_t> vec(str.begin(), str.end());
-              return vec;
+        - script.execute:
+            id: send_plp
+            cmd: !lambda 'return color;'
     - service: send_uart_command
       variables:
         command: string
       then:
-        - uart.write:
-            id: mod_bus
-            data: !lambda |-
-              std::string str = command;
-              std::vector<uint8_t> vec(str.begin(), str.end());
-              return vec;
+        - script.execute:
+            id: send_plp
+            cmd: !lambda 'return command;'
 
 # https://community.home-assistant.io/t/working-esphome-yaml-for-m5stickc/538050
 # https://shop.m5stack.com/products/m5stickc-rs485-hat-aoz1282ci
@@ -94,6 +91,83 @@ uart:
     sequence:
       - lambda: UARTDebug::log_string(direction, bytes);
 
+# Every RS-485 write in this file goes through script.send_plp; nothing writes
+# to mod_bus directly any more. send_plp only *enqueues* - the interval below
+# is what puts bytes on the wire, exactly one command per 80ms tick.
+#
+# Why a paced queue at all:
+#   Framing. The PLP-REM command set has no terminator and no length field, so
+#   the only frame boundary the controller has is an idle gap on the bus.
+#   Driven straight from HA the log showed the switch and both services
+#   arriving as one concatenated blob ("PS01PL1PS01") - to the controller that
+#   is a single unparseable frame, which is why nothing happened even though
+#   the bytes themselves were right. Pacing also fixes ordering: a
+#   light.pool_light that fires turn_on + set_level + set_rgb in one tick can
+#   no longer interleave them mid-command.
+#   80ms is the figure from phendrickx/duratech_PLP-REM_RS485, which paces its
+#   own PL1 -> PDxxx -> PCrrrgggbbb the same way and is the only known working
+#   implementation of this protocol.
+#
+# Why a coalescing queue rather than `script: mode: queued`:
+#   Bubble Card's slider calls the service straight out of its pointermove
+#   handler when slider_live_update is set - checked in
+#   www/community/Bubble-Card/bubble-card.js, `sliderLiveUpdate && J(e, o)`,
+#   with no throttle on that branch. A drag can therefore emit tens of
+#   light.turn_on calls a second, and the pop-up slider for this light does set
+#   slider_live_update. A queued script would need `max_runs` (ESPHome rejects
+#   0 for queued mode) and drops the *newest* run on overflow - i.e. exactly
+#   the final value you wanted to keep, leaving the light on some stale
+#   brightness. Coalescing instead means a drag collapses to one PD per tick
+#   and the last value always lands.
+globals:
+  - id: plp_queue
+    type: std::vector<std::string>
+    restore_value: no
+
+script:
+  - id: send_plp
+    # No delay in the body, so this always runs to completion inside the
+    # caller's tick and can never be "already running" - mode is moot.
+    mode: single
+    parameters:
+      cmd: string
+    then:
+      - lambda: |-
+          auto &q = id(plp_queue);
+          // PD/PC/PT each carry one absolute value, so a copy still sitting in
+          // the queue is worthless the moment a newer value for the same
+          // command shows up - overwrite it in place rather than sending both.
+          // Everything else appends: PL1/PL0 and PRA1/PRA0 are edges, and two
+          // PSxx in a row is a real request to change program twice.
+          if (cmd.size() >= 2) {
+            std::string key = cmd.substr(0, 2);
+            if (key == "PD" || key == "PC" || key == "PT") {
+              for (auto &pending : q) {
+                if (pending.compare(0, 2, key) == 0) {
+                  pending = cmd;
+                  return;
+                }
+              }
+            }
+          }
+          q.push_back(cmd);
+
+# The drain. One command per tick and nothing else touches the bus, so every
+# frame is guaranteed its idle gap - a 11-byte command at 9600 8N1 takes ~11ms,
+# leaving ~69ms of silence behind it. That is also what makes the uart debug
+# block above readable: with 80ms spacing its 30ms idle flush gives one
+# timestamped line per command instead of a run-together blob.
+interval:
+  - interval: 80ms
+    then:
+      - lambda: |-
+          auto &q = id(plp_queue);
+          if (q.empty())
+            return;
+          std::string cmd = q.front();
+          q.erase(q.begin());
+          id(mod_bus).write_str(cmd.c_str());
+
 # No modbus/modbus_controller here on purpose. The controller does not speak
 # Modbus - it answers nothing, so every poll logged "Stop waiting for response
 # from 1" and the 8 bytes that came back were our own request echoed by the
@@ -108,33 +182,74 @@ switch:
     name: Pool Lights
     optimistic: true
     turn_on_action:
-      - uart.write:
-          id: mod_bus
-          data: 'PL1'
+      - script.execute:
+          id: send_plp
+          cmd: 'PL1'
     turn_off_action:
-      - uart.write:
-          id: mod_bus
-          data: 'PL0'
+      - script.execute:
+          id: send_plp
+          cmd: 'PL0'
 
   - platform: template
     id: pool_aux_relay_a
     name: Pool Controller Auxiliary Relay A
     optimistic: true
     turn_on_action:
-      - uart.write:
-          id: mod_bus
-          data: 'PRA1'
+      - script.execute:
+          id: send_plp
+          cmd: 'PRA1'
     turn_off_action:
-      - uart.write:
-          id: mod_bus
-          data: 'PRA0'
+      - script.execute:
+          id: send_plp
+          cmd: 'PRA0'
 
-# No select here either. Program choice is owned by light.pool_light in
+# No *program* select here. Program choice is owned by light.pool_light in
 # packages/pkg_pool.yaml, whose effect_list comes from
 # input_select.pool_light_program_options ("01. Deep Blue Sea" ... "14. Sun
 # White") and which sends PS + the leading two digits. That numbering already
 # matches the manual's PSxx range of 01-14; the modbus optionsmap that used to
 # sit here was 0-10 and disagreed with both.
+#
+# Colour temperature is different: there is no HA-side helper for it and the
+# template light has nowhere to put it, so it lives on the node.
+select:
+  - platform: template
+    id: pool_light_color_temp
+    name: Pool Light Color Temperature
+    # optimistic: same reason as the switches - the controller answers nothing,
+    # so the only state is what we last asked for.
+    optimistic: true
+    options:
+      - 500K
+      - 1000K
+      - 1500K
+      - 2000K
+      - 2500K
+      - 3000K
+      - 3500K
+    set_action:
+      - script.execute:
+          id: send_plp
+          cmd: !lambda |-
+            // PTxxx carries Kelvin/100, zero-padded to three digits, and the
+            // manual's range is PT005-PT035 in 500K steps: "500K" -> PT005,
+            // "3500K" -> PT035. atoi stops at the K, so no stripping needed.
+            char buf[6];
+            snprintf(buf, sizeof(buf), "PT%03d", atoi(x.c_str()) / 100);
+            return std::string(buf);
+
+button:
+  # Tells the controller to re-sync its lamps. Note the case: it really is
+  # capital-P, lowercase-s, capital-S - not a typo for PSS or PsS's siblings
+  # PsU/PsD (next/previous program), which we deliberately do not use because
+  # HA owns the program list and addressing PSxx directly keeps the two in
+  # lockstep instead of chasing a remote cursor nothing reports back.
+  - platform: template
+    name: Pool Light Sync
+    on_press:
+      - script.execute:
+          id: send_plp
+          cmd: 'PsS'
 
 light:
   # Built-in Red Status LED Light. See https://esphome.io/components/light/status_led.html
