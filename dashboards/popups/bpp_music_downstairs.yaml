@@ -1,4 +1,27 @@
 # Bubble Card native pop-up (hash #muziek-beneden) — Muziek tile (Beneden). Sonos.
+#
+# Tab row at the top switches between the three speakers in this zone: Eetkamer,
+# Office and Woonkamer. sonos-card has no service to switch its active player from
+# the outside — it resolves activePlayerId || sessionStorage || entityId — so the
+# tabs set input_select.sonos_beneden_player and a conditional card swaps between
+# three card instances. The Eetkamer branch uses state_not on the OTHER two on
+# purpose: an unavailable or not-yet-reloaded helper then still leaves a player in
+# the pop-up instead of an empty one. Adding a fourth option to the helper means
+# adding it to that state_not list too, or two cards render at once.
+#
+# All three cards are pinned (pin_player: true, see templates/decluttering_templates.yaml):
+# the tab decides which speaker you see, nothing else. No remembered pick from
+# session storage — which a second card would inherit from the first anyway — and
+# no jumping to whatever happens to be playing.
+#
+# Elke tab krijgt rechtsboven een groene stip zodra die speaker zelf speelt
+# (zelfde groen als de header), zodat je ziet dat er achter de andere tab ook
+# muziek aan staat.
+#
+# The Office and Woonkamer cards also deliberately have no grouping/groups
+# section: those are the only two sections that broadcast a window-wide "active
+# player changed" event, which every other sonos-card on the page would follow.
+# Grouping stays in the Eetkamer view.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -6,6 +29,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 760px
 hash: '#muziek-beneden'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Sonos - Beneden
 icon: mdi:music
 # header shows which speakers in this zone are playing (green) or "Niets aan het spelen"
@@ -21,36 +46,131 @@ styles: |
     content: "${(() => { const P=['media_player.eetkamer','media_player.living_room','media_player.eva_eva','media_player.office','media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam','media_player.macbook']; const n=P.map(p=>hass.states[p]).filter(s=>s&&s.state==='playing').map(s=>(s.attributes.friendly_name||'').replace(/^Speakers /,'').replace(/ Speaker$/,'')); return n.length ? n.join(String.fromCharCode(32,183,32)) : 'Niets aan het spelen'; })()}";
   }
 cards:
-  - type: custom:decluttering-card
-    template: sonos_popup
-    variables:
-      - main_player: media_player.eetkamer
-      - entities:
-          - media_player.eetkamer
-          - media_player.living_room
-          - media_player.eva_eva
-          - media_player.office
-          - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-          - media_player.sonos_roam
-          - media_player.macbook
-      - groups:
-          - name: Woon + Eet
-            entities:
-              - player: media_player.eetkamer
-              - player: media_player.living_room
-          - name: Beneden
-            media: ''
-            entities:
-              - player: media_player.eetkamer
-              - player: media_player.office
-              - player: media_player.living_room
-              - player: media_player.macbook
-      - sections:
-          - player
-          - volumes
-          - media browser
-          - grouping
-          - groups
-          - queue
-      - vol_threshold: 40
-      - vol_max: 40
+  # ── Tabs: welke speaker staat hieronder open ───────────────────────
+  # Sub-buttons, niet losse button-cards: een button-card met button_type:
+  # state maakt van het icoon een eigen taptarget dat de more-info dialog
+  # van de media_player opent - een popup bovenop de popup. Een sub-button
+  # doet alleen wat er in zijn tap_action staat.
+  - type: custom:bubble-card
+    card_type: separator
+    sub_button:
+      - name: Eetkamer
+        icon: mdi:silverware-fork-knife
+        show_background: true
+        tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.sonos_beneden_player }, data: { option: Eetkamer } }
+      - name: Office
+        icon: mdi:laptop
+        show_background: true
+        tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.sonos_beneden_player }, data: { option: Office } }
+      - name: Woonkamer
+        icon: mdi:sofa
+        show_background: true
+        tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.sonos_beneden_player }, data: { option: Woonkamer } }
+    styles: |
+      .bubble-line { opacity: 0.35 !important; }
+      /* stip rechtsboven de tab zolang die speaker zelf speelt; zelfde groen
+         als de header. z-index 3 zodat hij boven de needs-outline ::after ligt */
+      .bubble-sub-button-1::before, .bubble-sub-button-2::before, .bubble-sub-button-3::before { content: ""; position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; z-index: 3; pointer-events: none; }
+      /* Bij drie tabs werd de per-tab ternary onleesbaar, dus worden de regels
+         nu gegenereerd. Volgorde van TABS = volgorde van de sub-buttons hierboven
+         (bubble-sub-button-N is 1-based). Eetkamer is de actieve tab zodra de
+         helper iets anders dan Office/Woonkamer is - zelfde fallback als de
+         conditional cards eronder. */
+      ${(() => { const sel = hass.states['input_select.sonos_beneden_player']?.state; const TABS = [['Eetkamer','media_player.eetkamer'],['Office','media_player.office'],['Woonkamer','media_player.living_room']]; return TABS.map((t, i) => { const on = t[0] === 'Eetkamer' ? (sel !== 'Office' && sel !== 'Woonkamer') : (sel === t[0]); const playing = hass.states[t[1]]?.state === 'playing'; const sb = '.bubble-sub-button-' + (i + 1); return sb + ' { opacity: 1 !important; background-color: ' + (on ? 'rgba(55,138,221,0.28)' : 'rgba(255,255,255,0.06)') + ' !important; border: 1px solid ' + (on ? 'rgba(55,138,221,0.65)' : 'transparent') + ' !important; color: ' + (on ? '#d7e7f7' : '#9aa1a8') + ' !important; } ' + sb + '::before { background-color: ' + (playing ? '#2daa73' : 'transparent') + '; }'; }).join(' '); })()}
+  # ── Eetkamer: de volledige kaart (inclusief grouping + groepen) ────
+  - type: conditional
+    conditions:
+      # state_not op BEIDE andere opties: dit blijft de fallback-tak, dus alles
+      # wat geen expliciete eigen tak heeft (unavailable, unknown, een nog niet
+      # herladen helper) landt hier op de Eetkamer in plaats van op een lege pop-up.
+      - condition: state
+        entity: input_select.sonos_beneden_player
+        state_not: Office
+      - condition: state
+        entity: input_select.sonos_beneden_player
+        state_not: Woonkamer
+    card:
+      type: custom:decluttering-card
+      template: sonos_popup
+      variables:
+        - main_player: media_player.eetkamer
+        - entities:
+            - media_player.eetkamer
+            - media_player.living_room
+            - media_player.eva_eva
+            - media_player.office
+            - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+            - media_player.sonos_roam
+            - media_player.macbook
+        - groups:
+            - name: Woon + Eet
+              entities:
+                - player: media_player.eetkamer
+                - player: media_player.living_room
+            - name: Beneden
+              media: ''
+              entities:
+                - player: media_player.eetkamer
+                - player: media_player.office
+                - player: media_player.living_room
+                - player: media_player.macbook
+        - sections:
+            - player
+            - volumes
+            - media browser
+            - grouping
+            - groups
+            - queue
+        # the tab is the single source of truth: always open on eetkamer, never
+        # on a remembered or currently-playing speaker
+        - pin_player: true
+        - vol_threshold: 40
+        - vol_max: 40
+  # ── Office: alleen deze speaker (player · volume · favorieten · queue) ──
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: input_select.sonos_beneden_player
+        state: Office
+    card:
+      type: custom:decluttering-card
+      template: sonos_popup
+      variables:
+        - main_player: media_player.office
+        - entities:
+            - media_player.office
+        - groups: []
+        - sections:
+            - player
+            - volumes
+            - media browser
+            - queue
+        # pinned to office: never read or write the shared session storage, so
+        # switching back to Eetkamer keeps working
+        - pin_player: true
+        - vol_threshold: 40
+        - vol_max: 40
+  # ── Woonkamer: alleen deze speaker (player · volume · favorieten · queue) ──
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: input_select.sonos_beneden_player
+        state: Woonkamer
+    card:
+      type: custom:decluttering-card
+      template: sonos_popup
+      variables:
+        - main_player: media_player.living_room
+        - entities:
+            - media_player.living_room
+        - groups: []
+        - sections:
+            - player
+            - volumes
+            - media browser
+            - queue
+        # pinned to woonkamer: never read or write the shared session storage, so
+        # switching back to Eetkamer keeps working
+        - pin_player: true
+        - vol_threshold: 40
+        - vol_max: 40

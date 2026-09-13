@@ -22,6 +22,14 @@ light_button:
 #                    player — the queue view calls getQueue() on the active
 #                    player and iterates the result, which throws when idle.
 #   - vol_threshold / vol_max : dynamic volume slider tuning
+#   - pin_player   : true = card ALWAYS opens on main_player (boolean).
+#                    sonos-card resolves its player as
+#                    activePlayerId || sessionStorage || entityId, so a second
+#                    card on the same page would inherit the first card's
+#                    remembered speaker. true disables both the read and the
+#                    write of that session storage, pinning the card to
+#                    main_player. Use false for the one card per zone that may
+#                    remember the user's pick.
 sonos_popup:
   card:
     type: custom:sonos-card
@@ -29,6 +37,7 @@ sonos_popup:
     # selecting a speaker rewrites the hash (e.g. #media_player.office) and Bubble's
     # hash-driven pop-up closes. See punxaphil/custom-sonos-card.
     storePlayerInSessionStorage: true
+    doNotRememberSelectedPlayer: '[[pin_player]]'
     sections: '[[sections]]'
     entityId: '[[main_player]]'
     entities: '[[entities]]'
@@ -43,6 +52,10 @@ sonos_popup:
       hideCogwheel: false
     grouping:
       skipApplyButton: true
+      # grouping two speakers normally moves the card to whichever player becomes
+      # the group leader (switchActivePlayerIfNeeded). Keep the card on the player
+      # the pop-up is about instead — the grouping itself still applies.
+      dontSwitchPlayer: true
     mediaBrowser:
       itemsPerRow: 3
       replaceHttpWithHttpsForThumbnails: true

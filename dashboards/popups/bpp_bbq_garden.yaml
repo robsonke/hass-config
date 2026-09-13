@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 880px
 hash: '#bbq'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: BBQ
 icon: mdi:grill
 # header = dome temp (rood bij alarm, warm als heet, dim als uit)

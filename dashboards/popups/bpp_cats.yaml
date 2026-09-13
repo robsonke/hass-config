@@ -7,6 +7,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 620px
 hash: '#katten'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Boris en Puk
 icon: mdi:cat
 # header = kattenluik-beweging (blauw = beweging, groen = rustig) + duur

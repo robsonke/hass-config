@@ -12,7 +12,7 @@ template:
     - unique_id: pool_pump_active
       name: Pool Pump Active
       state: >
-        {{ states('sensor.pool_shelly_3em_active_power_phase_b') | float(0) > 20 }}
+        {{ states('sensor.pool_shelly_3em_phase_b_power') | float(0) > 20 }}
   - lock:
     - unique_id: aquadeck_rol_dek
       name: Aquadeck rol dek
@@ -33,7 +33,7 @@ template:
       icon: mdi:fan-chevron-down
       unique_id: pool_pump_frequency_level
       state: >
-        {% set pumpPower = states('sensor.pool_shelly_3em_active_power_phase_b') | int(default=0) %}
+        {% set pumpPower = states('sensor.pool_shelly_3em_phase_b_power') | int(default=0) %}
         {% if pumpPower > 775 %}
           FULL (3)
         {% elif pumpPower > 620 and pumpPower <= 775 %}
@@ -196,7 +196,7 @@ input_select:
 sensor:
   # Warmtepomp
   - platform: integration
-    source: sensor.pool_shelly_3em_active_power_phase_a
+    source: sensor.pool_shelly_3em_phase_a_power
     name: Pool Shelly 3EM Phase A Heatpump Energy Usage
     unique_id: pool_shelly_3em_phase_a_heatpump_energy_usage
     method: left
@@ -204,7 +204,7 @@ sensor:
     round: 2
   # Pump
   - platform: integration
-    source: sensor.pool_shelly_3em_active_power_phase_b
+    source: sensor.pool_shelly_3em_phase_b_power
     name: Pool Shelly 3EM Phase B Pump Energy Usage
     unique_id: pool_shelly_3em_phase_b_pump_energy_usage
     method: left
@@ -212,7 +212,7 @@ sensor:
     round: 2
   # Lights & Deck
   - platform: integration
-    source: sensor.pool_shelly_3em_active_power_phase_c
+    source: sensor.pool_shelly_3em_phase_c_power
     name: Pool Shelly 3EM Phase C Lights Energy Usage
     unique_id: pool_shelly_3em_phase_c_lights_energy_usage
     method: left

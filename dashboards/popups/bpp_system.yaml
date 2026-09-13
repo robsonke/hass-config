@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 820px
 hash: '#systeem'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Systeem
 icon: mdi:cog
 # header = HA-versie
@@ -41,7 +43,7 @@ cards:
              "26 July 2026 at 20:53" — far too long for the ~97px state area, and
              Bubble marquee-scrolled it. Show elapsed time instead, which is what
              an uptime tile is for. Comma-free by necessity: Bubble eats the
-             character after a comma inside a CSS `content` value. */
+             character after a comma inside a CSS 'content' value. */
           .bubble-state { font-size: 0 !important; }
           .bubble-state::after {
             font-size: 13px !important; font-weight: 500;

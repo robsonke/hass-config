@@ -10,6 +10,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 720px
 hash: '#muziek'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Muziekhub
 icon: mdi:music-circle
 # header = how many rooms are playing right now

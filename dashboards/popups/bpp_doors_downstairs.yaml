@@ -7,6 +7,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 760px
 hash: '#deuren-beneden'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Deuren en ramen beneden
 icon: mdi:door
 # summary in the header: group sensor drives the state line, overridden to

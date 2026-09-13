@@ -22,6 +22,21 @@ input_select:
       - Sonos Roam
     initial: Woonkamer
 
+  # Which speaker the #muziek-beneden pop-up shows. Three conditional sonos-cards
+  # in dashboards/popups/bpp_music_downstairs.yaml key off this — the card has no
+  # service to switch its active player, so the pop-up swaps card instances.
+  # Eetkamer is ook de fallback-tak daar (state_not op de andere twee), dus een
+  # nieuwe optie hier MOET ook in die state_not-lijst worden opgenomen, anders
+  # renderen er twee kaarten tegelijk.
+  sonos_beneden_player:
+    name: Sonos beneden speaker
+    icon: mdi:speaker
+    options:
+      - Eetkamer
+      - Office
+      - Woonkamer
+    initial: Eetkamer
+
 input_text:
   music_hub_search:
     name: Muziek zoeken

@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 700px
 hash: '#muziek-tuin'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Sonos - Tuin
 icon: mdi:music
 # header shows which speakers in this zone are playing (green) or "Niets aan het spelen"
@@ -40,5 +42,7 @@ cards:
           - grouping
           - groups
           - queue
+      # only card in this zone → may remember the user's pick
+      - pin_player: false
       - vol_threshold: 30
       - vol_max: 30

@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 1000px
 hash: '#klimaat-beneden'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Koeling en verwarming beneden
 icon: mdi:thermostat
 # header = beneden temp + heatpump action (warm = verwarmt, blauw = koelt, dim = uit)

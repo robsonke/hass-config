@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 1000px
 hash: '#person-rob'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Rob
 icon: mdi:account
 # header = aanwezigheid (groen thuis, blauw op werk/zone, dim onderweg) + duur
@@ -66,7 +68,6 @@ cards:
                 action: call-service
                 service: rest_command.auping_bed
                 data: { cbu: 2, motor_1_action: 0, motor_1_time: 0, motor_2_action: 1, motor_2_time: 17000, motor_3_action: 0, motor_3_time: 0 }
-  # ── aanwezigheid ──────────────────────────────────────────────────
   # ── sport ─────────────────────────────────────────────────────────
   # Opens the Strava pop-up (#sport). State line shows this week's km plus the
   # last activity title, so the button is informative before you even tap it.
@@ -91,7 +92,33 @@ cards:
         font-size: 13px !important; font-weight: 500; color: #ff8a5c !important;
         content: "${(() => { const w = hass.states['sensor.strava_run_week']?.state; const km = isNaN(parseFloat(w)) ? '—' : parseFloat(w).toFixed(1); const act = hass.states['sensor.strava_rob_sonke_run']?.state; return km + ' km deze week' + (act ? String.fromCharCode(32,183,32) + act : ''); })()}";
       }
-
+  # ── kaart ─────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kaart
+  - type: map
+    default_zoom: 16
+    dark_mode: true
+    hours_to_show: 12
+    entities:
+      - person.rob
+    card_mod:
+      style:
+        .: "#root {\n  height: 22em;\n  padding-bottom: 0 !important;\n}\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n}\nha-card {\n  border-radius: 22px;\n  transition: none;\n  height: 22em !important;\n}\n"
+        ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n  zoom: 140%;\n}\n.leaflet-pane.leaflet-tile-pane {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}"
+  # ── verloop ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Verloop
+  - type: history-graph
+    title: Apparaten (12 uur)
+    hours_to_show: 12
+    entities:
+      - device_tracker.iphone_rob
+      - device_tracker.icloud_iphone_rob
+      - device_tracker.iphonedetect_rob
+      - device_tracker.apple_watch_rob
+  # ── aanwezigheid ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
     name: Aanwezigheid
@@ -138,29 +165,3 @@ cards:
           .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
           .bubble-state { font-size: 0 !important; }
           .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
-  # ── kaart ─────────────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Kaart
-  - type: map
-    default_zoom: 16
-    dark_mode: true
-    hours_to_show: 12
-    entities:
-      - person.rob
-    card_mod:
-      style:
-        .: "#root {\n  height: 22em;\n  padding-bottom: 0 !important;\n}\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n}\nha-card {\n  border-radius: 22px;\n  transition: none;\n  height: 22em !important;\n}\n"
-        ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n  zoom: 140%;\n}\n.leaflet-pane.leaflet-tile-pane {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}"
-  # ── verloop ───────────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Verloop
-  - type: history-graph
-    title: Apparaten (12 uur)
-    hours_to_show: 12
-    entities:
-      - device_tracker.iphone_rob
-      - device_tracker.icloud_iphone_rob
-      - device_tracker.iphonedetect_rob
-      - device_tracker.apple_watch_rob

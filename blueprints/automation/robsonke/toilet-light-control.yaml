@@ -1,7 +1,8 @@
 blueprint:
   name: Toilet light control
-  description: Turn on a light when motion is detected or when the door opens. And turn off once closing again.
-    There are also two timers, on for daytime and one for nighttime.
+  description: Turn on a light when motion is detected or when the door opens. And
+    turn off once closing again. There are also two timers, on for daytime and one
+    for nighttime.
   domain: automation
   input:
     motion_entity:
@@ -13,6 +14,7 @@ blueprint:
           device_class:
           - motion
           multiple: false
+          reorder: false
     door_entity:
       name: Door Sensor
       selector:
@@ -22,6 +24,7 @@ blueprint:
           device_class:
           - door
           multiple: false
+          reorder: false
     light_target:
       name: Light
       selector:
@@ -29,6 +32,7 @@ blueprint:
           multiple: false
           domain:
           - light
+          reorder: false
     no_motion_wait:
       name: Wait time
       description: Time to leave the light on after last motion is detected.
@@ -86,102 +90,96 @@ variables:
   local_light_target: !input light_target
   local_day_brightness: !input day_brightness
   local_night_brightness: !input night_brightness
-  local_current_brightness: >-
-    {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
-    {{ local_day_brightness }}
-    {% else %} {{ local_night_brightness }} {% endif %}
+  local_current_brightness: '{% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
+    {{ local_day_brightness }} {% else %} {{ local_night_brightness }} {% endif %}'
 triggers:
-  # no more motion for a while
-  - trigger: state
-    entity_id: !input motion_entity
-    from: 'on'
-    to: 'off'
-    for:
-      hours: 0
-      minutes: !input no_motion_wait
-      seconds: 0
-    id: motion_off
-  # there's motion!
-  - trigger: state
-    entity_id: !input motion_entity
-    from: 'off'
-    to: 'on'
-  # the door is closed
-  - trigger: state
-    entity_id: !input door_entity
-    from: 'on'
-    to: 'off'
-  # the door is opened
-  - trigger: state
-    entity_id: !input door_entity
-    from: 'off'
-    to: 'on'
+- trigger: state
+  entity_id: !input motion_entity
+  from: 'on'
+  to: 'off'
+  for:
+    hours: 0
+    minutes: !input no_motion_wait
+    seconds: 0
+  id: motion_off
+- trigger: state
+  entity_id: !input motion_entity
+  from: 'off'
+  to: 'on'
+- trigger: state
+  entity_id: !input door_entity
+  from: 'on'
+  to: 'off'
+- trigger: state
+  entity_id: !input door_entity
+  from: 'off'
+  to: 'on'
 conditions: []
 actions:
-  - choose:
-    - conditions:
-      - condition: state
-        alias: "Is the light currently off?"
+- choose:
+  - conditions:
+    - condition: state
+      alias: Is the light currently off?
+      entity_id: !input light_target
+      state: 'off'
+    - condition: not
+      conditions:
+      - condition: trigger
+        id:
+        - motion_off
+    sequence:
+    - service: light.turn_on
+      alias: Lets turn the light on with the brightness based on the time
+      data:
+        brightness_pct: '{{ local_current_brightness }}'
+      target:
         entity_id: !input light_target
-        state: "off"
-      - condition: not
-        conditions:
-          - condition: trigger
-            id:
-              - motion_off
-      sequence:
-        - service: light.turn_on
-          alias: "Lets turn the light on with the brightness based on the time"
-          data:
-            brightness_pct: '{{ local_current_brightness }}'
-          target:
-            entity_id: !input light_target
-        - delay:
-            seconds: 15
-          alias: "Just wait a bit, in case the light wasn't on for more than 15 seconds, it's probably somebody opening and closing doors"
-        - wait_for_trigger:
-            - trigger: state
-              alias: "Wait till there's no motion for the time we configured as wait time"
-              entity_id: !input motion_entity
-              from: 'on'
-              for:
-                hours: 0
-                minutes: !input no_motion_wait
-                seconds: 0
-            - trigger: state
-              alias: "Or continue when the door closes"
-              entity_id: !input door_entity
-              from: "on"
-              to: "off"
-          timeout:
-            minutes: !input no_motion_wait
-          continue_on_timeout: true
-        - service: light.turn_off
-          target:
-            entity_id: !input light_target
-          data:
-            transition: 3
-    # this is a fallback situation, in case the light doesn't go off
-    - conditions:
-      - condition: state
-        alias: "Is the light currently on for at least 15 seconds?"
-        entity_id: !input light_target
-        state: "on"
-        for:
-          hours: 0
-          minutes: 0
-          seconds: 15
-      - condition: state
-        alias: "And is there no movement for a while?"
+    - delay:
+        seconds: 15
+      alias: Just wait a bit, in case the light wasn't on for more than 15 seconds,
+        it's probably somebody opening and closing doors
+    - wait_for_trigger:
+      - trigger: state
+        alias: Wait till there's no motion for the time we configured as wait time
         entity_id: !input motion_entity
-        state: "off"
+        from: 'on'
         for:
           hours: 0
           minutes: !input no_motion_wait
           seconds: 0
-      sequence:
-        - service: light.turn_off
-          target:
-            entity_id: !input light_target
-          data:
-            transition: 3
+      - trigger: state
+        alias: Or continue when the door closes
+        entity_id: !input door_entity
+        from: 'on'
+        to: 'off'
+      timeout:
+        minutes: !input no_motion_wait
+      continue_on_timeout: true
+    - service: light.turn_off
+      target:
+        entity_id: !input light_target
+      data:
+        transition: 3
+  - conditions:
+    - condition: state
+      alias: Is the light currently on for at least 15 seconds?
+      entity_id: !input light_target
+      state: 'on'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 15
+    - condition: state
+      alias: And is there no movement for a while?
+      entity_id: !input motion_entity
+      state: 'off'
+      for:
+        hours: 0
+        minutes: !input no_motion_wait
+        seconds: 0
+    sequence:
+    - service: light.turn_off
+      target:
+        entity_id: !input light_target
+      data:
+        transition: 3

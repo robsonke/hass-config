@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#water'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Waterverbruik
 icon: mdi:water
 # header = huidige doorstroming (blauw = er stroomt water, groen = geen)

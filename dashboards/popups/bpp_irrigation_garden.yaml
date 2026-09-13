@@ -9,6 +9,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 880px
 hash: '#beregening'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Tuin beregening
 icon: mdi:sprinkler
 # header = sproeit nu / planning aan + starttijd / uit

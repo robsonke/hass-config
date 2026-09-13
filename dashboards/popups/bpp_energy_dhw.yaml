@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 760px
 hash: '#warm-water'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Warm water
 icon: mdi:water-boiler
 # header = watertemp + modus (warm = aan/performance, dim = uit)

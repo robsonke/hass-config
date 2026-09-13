@@ -485,9 +485,20 @@
       - condition: state
         entity_id: light.hue_lily_light_fence_1
         state: 'off'
-      - condition: state
-        entity_id: light.garden_lantern_light1
-        state: 'on'
+      # Elke lantaarn telt. Dit stond op alleen lantaarn 1, en een state-
+      # conditie faalt zodra die lamp unavailable is - één kapotte lantaarn
+      # zette deze hele ochtendtak dus stil terwijl 2 en 3 gewoon brandden.
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: light.garden_lantern_light1
+          state: 'on'
+        - condition: state
+          entity_id: light.garden_lantern_light2
+          state: 'on'
+        - condition: state
+          entity_id: light.garden_lantern_light3
+          state: 'on'
       - condition: or
         conditions:
         - condition: numeric_state
@@ -558,11 +569,17 @@
       color_temp_kelvin: 2200
     target:
       entity_id: light.hue_lights_garden
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.kerst_buiten
-    data: {}
+  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_on
+      target:
+        entity_id:
+        - light.kerst_buiten
+      data: {}
   # Marks the start of an "automatisch aan door donker" period for the timeline
   # in the Verlichting tuin pop-up. Cleared by the morning off automation - note
   # the *evening* one only dims the lanterns back to 30%, so the dark stretch
@@ -590,6 +607,17 @@
   - condition: state
     entity_id: input_boolean.enable_automatic_garden_lights
     state: 'on'
+  - condition: template
+    alias: Niet her-armeerd vanuit unavailable/unknown
+    # De 09:00-tijdtrigger heeft geen from_state en glipt via de eerste
+    # clausule ongemoeid door. Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
+    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
+    # en de melding gaat af zonder dat er iets veranderd is.
+    value_template: >
+      {{ trigger is not defined
+         or trigger.from_state is not defined
+         or trigger.from_state is none
+         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
   actions:
   - action: light.turn_off
     data: {}
@@ -623,7 +651,17 @@
     target:
       entity_id:
       - light.garden_light
-      - light.kerst_buiten
+  # Apart en achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_off
+      data: {}
+      target:
+        entity_id:
+        - light.kerst_buiten
   # End of the garden dark stretch - it is light enough again.
   - action: input_boolean.turn_off
     target:
@@ -666,20 +704,23 @@
           entity_id: light.dimmer_hall
         data: {}
       alias: Turn on hall light shortly
+  # Als if/then, niet als kale conditie in de actielijst: die kapte de hele rest af.
+  # De automation mag vanaf 21:00 draaien, dus wie tussen 21:00 en 22:55 naar bed
+  # ging kreeg de input_boolean hieronder nooit uitgezet en bleef de timeline
+  # "automatisch aan door donker" tonen. after > before laat het venster over
+  # middernacht wrappen; dat is hetzelfde bereik als de vorige or-constructie.
   - alias: Turn off the couch and corner light too if it's after 11 pm
-    condition: or
-    conditions:
+    if:
     - condition: time
       after: '22:55:00'
-    - condition: time
-      after: 00:00:00
       before: 05:00:00
-  - action: light.turn_off
-    target:
-      entity_id:
-      - light.socket1_light_corner
-      - light.socket2_light_couch
-    data: {}
+    then:
+    - action: light.turn_off
+      target:
+        entity_id:
+        - light.socket1_light_corner
+        - light.socket2_light_couch
+      data: {}
   # We went to bed - end of the downstairs dark stretch for the pop-up timeline.
   - action: input_boolean.turn_off
     target:
@@ -811,10 +852,16 @@
       entity_id:
       - light.kitchendesk_light
       - light.diningtable_light
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.kerst_binnen
+  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_on
+      target:
+        entity_id:
+        - light.kerst_binnen
   mode: single
 - alias: System - Let's Encrypt Renewal
   id: system_lets_encrypt
@@ -868,8 +915,15 @@
   - condition: template
     value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.alarm_notify_of_person_events_on_camera.attributes.last_triggered,
-      0) | int > 120 }}'
+    alias: Not alerted in the last 2 minutes
+    # `this` in plaats van het hardcoded states.automation.<alias>-pad: dat pad is
+    # afgeleid van de alias terwijl het automation-id presence_frigate_object_detection
+    # is, dus een rename koppelt de cooldown stil los en blokkeert hem voorgoed.
+    # Zelfde vorm als de pool-alert verderop.
+    value_template: >
+      {{ this is not defined
+         or (as_timestamp(now())
+             - as_timestamp(this.attributes.last_triggered, 0)) | int > 120 }}
   - condition: template
     value_template: "{{ trigger.payload_json['after']['camera'] in\n   ['zijkant',
       'terras', 'veranda', 'bijkeuken'] }}\n"
@@ -947,6 +1001,17 @@
   - entity_id: sensor.sjorsje_battery_level
     trigger: numeric_state
     below: 20
+  conditions:
+  - condition: template
+    alias: Niet her-armeerd vanuit unavailable/unknown
+    # Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
+    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
+    # en de melding gaat af zonder dat er iets veranderd is.
+    value_template: >
+      {{ trigger is not defined
+         or trigger.from_state is not defined
+         or trigger.from_state is none
+         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
   actions:
   - action: notify.all_phones
     data:
@@ -1054,11 +1119,13 @@
     from: disarmed
     to: armed_night
   conditions:
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: sensor.open_windows_and_doors_downstairs
-      state: '0'
+  # numeric_state in plaats van "not state == '0'": die laatste is WAAR zodra de
+  # sensor unavailable/unknown is (herstart, template-fout), en dan roept Sonos
+  # midden in de nacht dat er ramen openstaan. numeric_state valt bij een
+  # niet-numerieke state fail-safe op false.
+  - condition: numeric_state
+    entity_id: sensor.open_windows_and_doors_downstairs
+    above: 0
   actions:
   - action: script.sonos_say
     data:
@@ -1343,9 +1410,24 @@
       - switch.zijkant_detect
       - switch.terras_detect
       - switch.veranda_detect
-      - switch.evabed_detect
-      - switch.noabed_detect
       - switch.zwembad_detect
+  # De slaapkamerdetectie hangt aan de alarmstand, niet aan presence. Stonden deze
+  # twee ook in de lijst hierboven, dan zette een GPS-blip 's nachts (iemand van
+  # unknown terug op home) de kinderdetectie uit onder armed_night - en de
+  # tegenhanger (:991) zet hem niet terug, want die triggert alleen op de overgang
+  # disarmed -> armed_night. Spiegelt hoe :991 diezelfde twee switches aanzet.
+  - if:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: armed_night
+    then:
+    - action: switch.turn_off
+      target:
+        entity_id:
+        - switch.evabed_detect
+        - switch.noabed_detect
   mode: single
 - id: '1625773685228'
   alias: Alarm - Disable alarm manually
@@ -1670,6 +1752,32 @@
       - condition: state
         entity_id: light.diningtable_light
         state: 'on'
+    # "when dark" stond wel in de naam maar nergens in de logica; de check
+    # hierboven is een proxy die faalt als er overdag toevallig een lamp aan is.
+    # Dan ging de weg-verlichting om 14:00 aan en bleef die hangen: "Turn off
+    # lights when lighter" triggert op numeric_state above 60, en die vuurt
+    # alleen bij een overgang - is het al 200 lux, dan komt er geen. Zelfde
+    # or-blok en kalibratie als "dark - arriving", die dezelfde sensor gebruikt.
+    - condition: or
+      alias: Dark enough - by light sensor, or by sun elevation if that is dead
+      conditions:
+      - condition: numeric_state
+        entity_id: sensor.light_sensor_living_illuminance
+        below: '30'
+      - condition: and
+        note: >-
+          Fallback for when the living room light sensor goes offline. That
+          sensor crosses 30 lux at about +4.4 deg elevation.
+        conditions:
+        - condition: state
+          entity_id: sensor.light_sensor_living_illuminance
+          state:
+          - unavailable
+          - unknown
+        - condition: numeric_state
+          entity_id: sun.sun
+          attribute: elevation
+          below: 5
   actions:
   - action: light.turn_off
     target:
@@ -1823,7 +1931,7 @@
   use_blueprint:
     path: myGithub-Markus/flashing_lights.yaml
     input:
-      target_lights:
+      light_target:
         entity_id:
         - light.office_light
         - light.livingback_light
@@ -1893,15 +2001,24 @@
           entity_id: light.dimmer_hall
         data: {}
       alias: Turn on hall light shortly
+  # Als if/then, niet als kale conditie: die kapte de rest van de actielijst af.
+  # Dubbel raak hier - de conditie was after 22:55 ZONDER before, dus het venster
+  # liep maar tot middernacht, terwijl de automation zelf tot 05:00 mag draaien.
+  # Good night om 00:30 liet de lampen aan en de input_boolean hieronder open.
+  # before: 05:00 laat het venster over middernacht wrappen, gelijk aan de
+  # buitenste conditie van deze automation.
   - alias: Turn off the couch and corner light too if it's after 11 pm
-    condition: time
-    after: '22:55:00'
-  - action: light.turn_off
-    target:
-      entity_id:
-      - light.socket1_light_corner
-      - light.socket2_light_couch
-    data: {}
+    if:
+    - condition: time
+      after: '22:55:00'
+      before: 05:00:00
+    then:
+    - action: light.turn_off
+      target:
+        entity_id:
+        - light.socket1_light_corner
+        - light.socket2_light_couch
+      data: {}
   # Good night pressed - end of the downstairs dark stretch for the timeline.
   - action: input_boolean.turn_off
     target:
@@ -2122,7 +2239,17 @@
     target:
       entity_id:
       - light.hue_lights_garden
-      - light.kerst_buiten
+  # Apart en achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_off
+      data: {}
+      target:
+        entity_id:
+        - light.kerst_buiten
   mode: restart
 - id: '1645647196286'
   alias: Windows - Masterbedroom open and low temperature
@@ -2267,19 +2394,13 @@
     from:
     - 'off'
   conditions:
+  # Alleen de masterschakelaar hoort hier. De prijs-, temperatuur- en pompconditie
+  # stonden hier ook, en blokkeerden daarmee de default:-tak die de WP uitzet -
+  # juist op de momenten dat dat moet (goedkoop uur voorbij, circulatiepomp uit,
+  # te koud). Ze staan al in de aan-tak hieronder.
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
-  - condition: state
-    entity_id: binary_sensor.cheapest_16_hours_24h
-    state: 'on'
-  - condition: numeric_state
-    entity_id: sensor.today_maximum_temperature
-    above: 15
-  - condition: state
-    entity_id: binary_sensor.pool_pump_active
-    state:
-    - 'on'
   actions:
   - choose:
     - conditions:
@@ -2288,7 +2409,9 @@
         state: 'on'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
-        above: 14
+        # Was 14, maar de (nu verwijderde) top-level conditie eiste 15, dus 15 was
+        # de effectieve drempel. Hier gelijkgetrokken zodat het aan-gedrag niet wijzigt.
+        above: 15
       - condition: state
         entity_id: binary_sensor.pool_pump_active
         state: 'on'
@@ -2468,9 +2591,18 @@
     entity_id: sensor.water_daily
     above: 5
   conditions:
-  - condition: numeric_state
-    entity_id: sensor.water_daily
-    above: 5
+  # De conditie die hier stond (numeric_state above 5) dupliceerde de trigger exact
+  # en kon dus nooit falen - dode code. Vervangen door de guard die wel iets doet.
+  - condition: template
+    alias: Niet her-armeerd vanuit unavailable/unknown
+    # Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
+    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
+    # en de melding gaat af zonder dat er iets veranderd is.
+    value_template: >
+      {{ trigger is not defined
+         or trigger.from_state is not defined
+         or trigger.from_state is none
+         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
   actions:
   - action: persistent_notification.create
     data:
@@ -2636,11 +2768,10 @@
         data: {}
         target:
           entity_id: switch.climate_control
-    default:
-    - action: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.climate_control
+    # Bewust geen default:-tak. Tussen 91% en 115% met warmte-/koelvraag blijft de
+    # huidige stand staan (dode band). Een default die uitschakelt maakte de
+    # 115%-drempel betekenisloos: bij vraag en prijs 100% viel hij hierdoorheen
+    # en ging de pomp toch uit. Alle echte uit-redenen staan in de tak hierboven.
   trace:
     stored_traces: 20
   mode: single
@@ -2939,62 +3070,75 @@
   alias: Pool - Alert when ph or redox values are not oke
   description: ''
   triggers:
-  # No `for:` here - it used to be all zeros, which reads as a debounce but is a
-  # no-op. Alerting immediately is fine: the 16-hour cooldown condition below is
-  # what stops this from repeating.
+  # No `for:` on the sensor trigger - it used to be all zeros, which reads as a
+  # debounce but is a no-op. Alerting immediately is fine: the 16-hour cooldown
+  # condition below is what stops this from repeating.
   - trigger: state
     entity_id:
     - sensor.eps_pool_ph_level
     - sensor.eps_pool_rx_level
-    - binary_sensor.pool_pump_active
+  # Matches the pump condition below, so the automation re-evaluates exactly when
+  # the settling window closes. A bare state trigger on the pump could never
+  # satisfy that condition at the moment it fired, and relying on the next ph/rx
+  # update to notice made alerting depend on how chatty those sensors happen to
+  # be.
+  - trigger: state
+    entity_id: binary_sensor.pool_pump_active
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
-  - condition: or
+  # `for:` is the whole point here. On a cold start the ph/rx probes still hold
+  # yesterday's reading - or read nonsense because there is no flow past them yet
+  # - and they only settle once water has circulated. Without the window every
+  # morning produced a false "waardes niet in orde" notification that had
+  # corrected itself by the time it was read.
+  - alias: Pump has been running for 30 minutes
+    condition: state
+    entity_id: binary_sensor.pool_pump_active
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  # There used to be a sibling branch alerting when the pump had been *off* for
+  # 30 minutes. It was deliberately dropped: this automation is about water
+  # chemistry, and a stopped pump is a different problem wanting a different
+  # message.
+  - alias: Chemistry or sensors not oke
+    condition: or
     conditions:
-    - alias: Pump has been off for more than 30 minutes
-      condition: state
-      entity_id: binary_sensor.pool_pump_active
-      state: 'off'
+    - condition: numeric_state
+      entity_id: sensor.eps_pool_ph_level
+      above: 8.5
+    - condition: numeric_state
+      entity_id: sensor.eps_pool_ph_level
+      below: 6
+    - condition: numeric_state
+      entity_id: sensor.eps_pool_rx_level
+      above: 850
+    - condition: numeric_state
+      entity_id: sensor.eps_pool_rx_level
+      below: 500
+    - condition: state
+      entity_id: sensor.eps_pool_ph_level
+      state: unavailable
       for:
         hours: 0
         minutes: 30
         seconds: 0
-    - alias: Chemistry or sensors not oke while the pump is running
-      condition: and
-      conditions:
-      - condition: state
-        entity_id: binary_sensor.pool_pump_active
-        state: 'on'
-      - condition: or
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.eps_pool_ph_level
-          above: 8.5
-        - condition: numeric_state
-          entity_id: sensor.eps_pool_ph_level
-          below: 6
-        - condition: numeric_state
-          entity_id: sensor.eps_pool_rx_level
-          above: 850
-        - condition: numeric_state
-          entity_id: sensor.eps_pool_rx_level
-          below: 500
-        - condition: state
-          entity_id: sensor.eps_pool_ph_level
-          state: unavailable
-          for:
-            hours: 0
-            minutes: 30
-            seconds: 0
-        - condition: state
-          entity_id: sensor.eps_pool_rx_level
-          state: unavailable
-          for:
-            hours: 0
-            minutes: 30
-            seconds: 0
+    - condition: state
+      entity_id: sensor.eps_pool_rx_level
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
   - condition: template
     alias: Not alerted in the last 16 hours
     # `as_timestamp(..., 0)` supplies the default the old version lacked - with
@@ -3011,8 +3155,7 @@
     data:
       notification_id: pool_alert_when_ph_or_redox_values_are_not_oke
       title: Zwembad waardes
-      message: "\U0001F3CA De ph/orp waardes of flow van het zwembad zijn niet in
-        orde."
+      message: "\U0001F3CA De ph/orp waardes van het zwembad zijn niet in orde."
   mode: single
 - id: '1684059527700'
   alias: Energy - Alert when one of the three phases is high
@@ -3039,6 +3182,17 @@
       minutes: 30
       seconds: 0
     above: 25
+  conditions:
+  - condition: template
+    alias: Niet her-armeerd vanuit unavailable/unknown
+    # Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
+    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
+    # en de melding gaat af zonder dat er iets veranderd is.
+    value_template: >
+      {{ trigger is not defined
+         or trigger.from_state is not defined
+         or trigger.from_state is none
+         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
   actions:
   - action: notify.all_phones
     data:
@@ -3052,13 +3206,31 @@
   description: When one of us is at home or the guest mode is enabled, keep the deck
     unlocked. Otherwise locked.
   triggers:
+  # to:/from: zijn nodig: zonder die filters vuurt een state-trigger ook op
+  # attribuut-updates, en person-entities krijgen bij elke GPS-fix nieuwe
+  # coordinaten/accuracy. Dat gaf 22 runs en 18 overbodige lock.unlock-calls in
+  # vijf uur op een dek dat al open stond.
   - trigger: state
     entity_id:
     - person.rob
     - person.steffi
+    to: home
+  - trigger: state
+    entity_id:
+    - person.rob
+    - person.steffi
+    from: home
   - trigger: state
     entity_id:
     - input_boolean.guest_mode
+  # armed_night stond wel in de condities maar niet in de triggers, dus scherp
+  # zetten 's nachts vergrendelde het dek niet.
+  - trigger: state
+    entity_id: alarm_control_panel.alarmo
+    to: armed_night
+  - trigger: state
+    entity_id: alarm_control_panel.alarmo
+    from: armed_night
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -3162,6 +3334,11 @@
       night_brightness: 25
       no_motion_wait_night: 180
       night_time_end_helper: 08:00:00
+      # Bewust GEEN sleep_time_*_helper hier. De blueprint-defaults 23:30-06:00
+      # blijven staan, zodat de gang bij de kinderkamers 's nachts donker blijft -
+      # precies waar dat venster voor bedoeld is. night_brightness/no_motion_wait
+      # hierboven gelden daardoor alleen 22:00-23:30 en 06:00-08:00. Dat is de
+      # bedoeling; hal en douche/closet zetten het venster wel expres uit.
 - id: '1690717695663'
   alias: BBQ - Timer notifications
   description: Warns us in case of the bbq timer runs out
@@ -3214,8 +3391,13 @@
       entity_id: sensor.tuin_bbq_dome_thermometer_ambient_temperature
       state: unknown
   - condition: template
-    value_template: '{{ as_timestamp(now()) - as_timestamp(states.automation.bbq_dome_alarm.attributes.last_triggered,
-      0) | int > 60 }}'
+    alias: Not alerted in the last minute
+    # `this` in plaats van het hardcoded states.automation-pad, zodat een rename
+    # de cooldown niet stil losmaakt van zijn eigen automation.
+    value_template: >
+      {{ this is not defined
+         or (as_timestamp(now())
+             - as_timestamp(this.attributes.last_triggered, 0)) | int > 60 }}
   actions:
   - action: notify.all_phones
     data:
@@ -3583,7 +3765,17 @@
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
-      - light.kerst_binnen
+  # Apart en achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_off
+      data: {}
+      target:
+        entity_id:
+        - light.kerst_binnen
   # Last lights out at 23:00 - end of the downstairs dark stretch for the timeline.
   - action: input_boolean.turn_off
     target:
@@ -3666,9 +3858,9 @@
       - sensor.power_produced_phase_1
       - sensor.power_consumed_phase_1
       - sensor.winecooler_switch_power
-      - sensor.pool_shelly_3em_active_power_phase_a
-      - sensor.pool_shelly_3em_active_power_phase_b
-      - sensor.pool_shelly_3em_active_power_phase_c
+      - sensor.pool_shelly_3em_phase_a_power
+      - sensor.pool_shelly_3em_phase_b_power
+      - sensor.pool_shelly_3em_phase_c_power
       - sensor.electricity_cost_today
       - sensor.power_langeweide_28
       - sensor.power_production_langeweide_28
@@ -3676,7 +3868,13 @@
       - sensor.runtime
       - sensor.winddir
       domains: weather
-      entity_globs: sensor.*voltage* sensor.shelly_*_power sensor.*detection_fps
+      # Moet een YAML-lijst zijn. Als spatie-gescheiden string maakt cv.ensure_list
+      # er een enkele glob van ("sensor.*voltage* sensor.pool_..."), die op niets
+      # matcht - deze drie groepen werden dus stilzwijgend nooit gepurged.
+      entity_globs:
+      - sensor.*voltage*
+      - sensor.pool_shelly_*_power
+      - sensor.*detection_fps
   mode: single
 - id: '1734980264542'
   alias: Motion Lights - Control hall lights
@@ -3792,6 +3990,12 @@
       night_time_end_helper: 07:00:00
       night_brightness: 100
       no_motion_wait_night: 300
+      # Sleep-venster uitgezet (zoals bij hal en douche/closet). Zonder deze twee
+      # gelden de blueprint-defaults 23:30-06:00 en draait de automation daar
+      # helemaal niet - terwijl de night_*-instellingen hierboven juist voor die
+      # uren bedoeld zijn. In de schuur slaapt niemand.
+      sleep_time_start_helper: '23:59:59'
+      sleep_time_end_helper: 00:00:01
 - id: shed_switch_sync
   alias: Lights - Keep both shed lights in sync
   description: If one of the two switches changes state, the other follows, but only
@@ -3839,7 +4043,19 @@
     entity_id: sensor.evabed_sound_level
     above: sensor.evabed_sound_level_alert_threshold
     for: 00:00:30
+    id: level
   conditions:
+  - condition: template
+    alias: Geluidsniveau niet her-armeerd vanuit unavailable/unknown
+    # Bewust alleen op de numeric_state-tak (trigger.id level): dit is
+    # kinderbewaking, dus een echte melding onderdrukken is erger dan een valse.
+    # De binary_sensor-triggers hierboven blijven volledig ongemoeid.
+    value_template: >
+      {{ trigger is not defined
+         or trigger.id != 'level'
+         or trigger.from_state is not defined
+         or trigger.from_state is none
+         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
   - condition: time
     after: '19:30:00'
     before: '07:00:00'
@@ -3963,3 +4179,54 @@
         show_name: false
         show_state: false
   mode: restart
+- id: pool_light_program_next
+  alias: Zwembad - Volgend lichtprogramma
+  description: 'Roteert input_select.pool_light_program_options en stuurt het bijbehorende
+    PSxx-commando naar de PLP-REM-350. De input_button was er al maar werd door niets
+    opgepakt.
+
+    Bewust expliciet PSxx in plaats van het PsU-commando van de controller: HA bezit
+    de programmalijst, dus een programma direct adresseren houdt HA en de controller
+    gelijk, terwijl een cursor in de controller nergens teruggemeld wordt.
+
+    '
+  triggers:
+  - trigger: state
+    entity_id: input_button.pool_light_program_next
+    not_to:
+    - unknown
+    - unavailable
+  conditions: []
+  actions:
+  - action: input_select.select_next
+    target:
+      entity_id: input_select.pool_light_program_options
+    data:
+      cycle: true
+  - action: esphome.pool_lights_send_uart_command
+    data:
+      command: PS{{ states('input_select.pool_light_program_options')[:2] }}
+  mode: single
+- id: pool_light_program_previous
+  alias: Zwembad - Vorig lichtprogramma
+  description: 'Spiegelbeeld van "Zwembad - Volgend lichtprogramma"; zie die automation
+    voor de reden dat hier PSxx wordt gestuurd en niet PsD.
+
+    '
+  triggers:
+  - trigger: state
+    entity_id: input_button.pool_light_program_previous
+    not_to:
+    - unknown
+    - unavailable
+  conditions: []
+  actions:
+  - action: input_select.select_previous
+    target:
+      entity_id: input_select.pool_light_program_options
+    data:
+      cycle: true
+  - action: esphome.pool_lights_send_uart_command
+    data:
+      command: PS{{ states('input_select.pool_light_program_options')[:2] }}
+  mode: single

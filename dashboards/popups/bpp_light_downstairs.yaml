@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 1000px
 hash: '#verlichting-beneden'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Verlichting beneden
 icon: mdi:lightbulb-group
 # header summary counts the lights shown below (warm = iets aan, dim = alles uit)

@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#sport'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Sport
 icon: mdi:run-fast
 # header = kilometers deze week (utility_meter, resets Monday) + laatste activiteit

@@ -15,6 +15,7 @@ blueprint:
           device_class:
           - motion
           multiple: true
+          reorder: false
     lux_entity:
       name: Illuminance Sensor
       selector:
@@ -24,6 +25,7 @@ blueprint:
           device_class:
           - illuminance
           multiple: false
+          reorder: false
     lux_level:
       name: Illuminance level
       description: If lux is below this value and motion is detected, the light will
@@ -138,22 +140,22 @@ variables:
   local_motion_dim_time: !input dim_time
   local_day_brightness: !input day_brightness
   local_night_brightness: !input night_brightness
-  local_current_brightness: >-
-    {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
-    {{ local_day_brightness }}
-    {% else %} {{ local_night_brightness }} {% endif %}
+  local_current_brightness: '{% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
+    {{ local_day_brightness }} {% else %} {{ local_night_brightness }} {% endif %}'
 triggers:
   trigger: state
   entity_id: !input motion_entity
   from: 'off'
   to: 'on'
 conditions:
-  - condition: numeric_state
-    entity_id: !input lux_entity
-    below: !input lux_level
-  - condition: template
-    value_template: >
-      {{ today_at(local_sleep_end) < now() and now() < today_at(local_sleep_start) }}
+- condition: numeric_state
+  entity_id: !input lux_entity
+  below: !input lux_level
+- condition: template
+  value_template: '{{ today_at(local_sleep_end) < now() and now() < today_at(local_sleep_start)
+    }}
+
+    '
 actions:
 - service: light.turn_on
   target: !input light_target
@@ -164,8 +166,8 @@ actions:
     entity_id: !input motion_entity
     from: 'on'
 - delay: ' {% if today_at(local_night_end) < now() and now() < today_at(local_night_start)  %}
-    {{ local_motion_delay_day - local_motion_dim_time }}
-    {% else %} {{ local_motion_delay_night - local_motion_dim_time }} {% endif %} '
+    {{ local_motion_delay_day - local_motion_dim_time }} {% else %} {{ local_motion_delay_night
+    - local_motion_dim_time }} {% endif %} '
 - service: light.turn_off
   target: !input light_target
   data:

@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#screens'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Screens
 icon: mdi:blinds
 # header summary = per-screen positie (blauw = open/omhoog, groen = dicht/omlaag)

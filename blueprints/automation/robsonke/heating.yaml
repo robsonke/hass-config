@@ -9,29 +9,40 @@ blueprint:
       description: The climate switch to use.
       selector:
         entity:
-          domain: switch
+          domain:
+          - switch
+          multiple: false
+          reorder: false
     temp_sensor:
       name: Temperature Sensor
       description: Temperature Sensor to check.
       selector:
         entity:
-          domain: sensor
-          device_class: temperature
+          domain:
+          - sensor
+          device_class:
+          - temperature
+          multiple: false
+          reorder: false
     price_level_sensor:
       name: Energy Price Level Sensor
       description: Energy Price Level Sensor to check.
       selector:
         entity:
-          domain: sensor
+          domain:
+          - sensor
+          multiple: false
+          reorder: false
     price_level_percentage:
       name: Maximum Price Level Percentage
-      description: The price level sensor should have an attribute called percentage, what should be the max based on the overall average price today
+      description: The price level sensor should have an attribute called percentage,
+        what should be the max based on the overall average price today
       default: 100
       selector:
         number:
-          min: 0
-          max: 150
-          step: 10
+          min: 0.0
+          max: 150.0
+          step: 10.0
           mode: slider
     min_temp:
       name: Minimum Temp
@@ -44,9 +55,12 @@ blueprint:
           step: 1.0
           mode: slider
     window_sensor:
-      description: Window Binary Sensor to check if opened, only start heating when the window is closed. Entity can also be a group of window/door entities.
+      description: Window Binary Sensor to check if opened, only start heating when
+        the window is closed. Entity can also be a group of window/door entities.
       selector:
         entity:
+          multiple: false
+          reorder: false
     time_after:
       name: Time After
       description: After this time the heating turns on, so it's warm in the morning
@@ -116,33 +130,33 @@ trigger_variables:
   run_on_friday: !input run_on_friday
   run_on_saturday: !input run_on_saturday
   run_on_sunday: !input run_on_sunday
-triggers:
-- trigger: homeassistant
+trigger:
+- platform: homeassistant
   event: start
-- trigger: event
+- platform: event
   event_type: automation_reloaded
-- trigger: time_pattern
+- platform: time_pattern
   minutes: /10
-- trigger: state
+- platform: state
   entity_id: !input price_level_sensor
-conditions:
+condition:
 - condition: template
-  value_template: "{{ \n  (current_day == 0 and run_on_monday) or \n  (current_day\
-    \ == 1 and run_on_tuesday) or \n  (current_day == 2 and run_on_wednesday) or\n\
-    \  (current_day == 3 and run_on_thursday) or \n  (current_day == 4 and run_on_friday)\
-    \ or\n  (current_day == 5 and run_on_saturday) or\n  (current_day == 6 and run_on_sunday)\n\
-    }}"
-actions:
+  value_template: "{{ \n  (current_day == 0 and run_on_monday) or \n  (current_day
+    == 1 and run_on_tuesday) or \n  (current_day == 2 and run_on_wednesday) or\n  (current_day
+    == 3 and run_on_thursday) or \n  (current_day == 4 and run_on_friday) or\n  (current_day
+    == 5 and run_on_saturday) or\n  (current_day == 6 and run_on_sunday)\n}}"
+action:
 - choose:
   - conditions:
     - condition: numeric_state
-      entity_id: !input 'temp_sensor'
-      below: !input 'min_temp'
+      entity_id: !input temp_sensor
+      below: !input min_temp
     - condition: time
-      before: !input 'time_before'
-      after: !input 'time_after'
+      before: !input time_before
+      after: !input time_after
     - condition: template
-      value_template: "{{ window_sensor is not defined or states[window_sensor].state == 'off' }}"
+      value_template: '{{ window_sensor is not defined or states[window_sensor].state
+        == ''off'' }}'
     - condition: numeric_state
       entity_id: !input price_level_sensor
       attribute: percentage
@@ -150,10 +164,10 @@ actions:
     sequence:
     - service: switch.turn_on
       data:
-        entity_id: !input 'heating'
+        entity_id: !input heating
   default:
   - service: switch.turn_off
     data:
-      entity_id: !input 'heating'
+      entity_id: !input heating
 mode: single
 max_exceeded: silent

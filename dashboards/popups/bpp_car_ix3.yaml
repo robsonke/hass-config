@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#auto'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: BMW iX3
 icon: mdi:car-electric
 # header = accu % + bereik (groen = laadt, amber = ingeplugd, blauw = losgekoppeld)

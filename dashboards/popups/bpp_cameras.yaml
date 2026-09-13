@@ -9,6 +9,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 960px
 hash: '#cameras'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Camera's
 icon: mdi:cctv
 # header = Frigate status + number of cameras currently in ALERT

@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#energie'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Energie verbruik en kosten
 icon: mdi:flash
 # header = actueel netto vermogen (amber = van net, groen = teruglevering) + prijs

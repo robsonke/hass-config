@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 820px
 hash: '#alarm'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Alarm
 icon: mdi:shield-home
 # header = alarmstatus (groen uit, amber ingeschakeld, rood alarm/aftellen) + duur

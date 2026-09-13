@@ -9,8 +9,12 @@ blueprint:
       description: Temperature Sensor to check.
       selector:
         entity:
-          domain: sensor
-          device_class: temperature
+          domain:
+          - sensor
+          device_class:
+          - temperature
+          multiple: false
+          reorder: false
     min_temp:
       name: Minimum Temp
       description: If temperature is below this value, notify people.
@@ -23,10 +27,12 @@ blueprint:
           mode: slider
     window_sensor:
       name: Window / Door Sensor
-      description: Window Binary Sensor(s) to check if opened. Supports multiple entities.
+      description: Window Binary Sensor to check if opened. Entity can also be a group
+        of window/door entities.
       selector:
         entity:
-          multiple: true
+          multiple: false
+          reorder: false
     actions:
       name: Actions when it's too cold
       description: Actions (e.g. pushing a notification, TTS announcement, ...)
@@ -34,28 +40,26 @@ blueprint:
         action: {}
   source_url: https://gist.github.com/robsonke/753f9841c2337b58f4863942934b43a3
 variables:
-  window_sensor: !input 'window_sensor'
-  min_temp: !input 'min_temp'
-triggers:
-- trigger: homeassistant
+  window_sensor: !input window_sensor
+trigger:
+- platform: homeassistant
   event: start
-- trigger: event
+- platform: event
   event_type: automation_reloaded
-- below: !input 'min_temp'
-  entity_id: !input 'temp_sensor'
-  trigger: numeric_state
-- trigger: state
-  entity_id: !input 'window_sensor'
+- below: !input min_temp
+  entity_id: !input temp_sensor
+  platform: numeric_state
+- platform: state
+  entity_id: !input window_sensor
   to: 'on'
-conditions:
-- below: !input 'min_temp'
-  entity_id: !input 'temp_sensor'
+condition:
+- below: !input min_temp
+  entity_id: !input temp_sensor
   condition: numeric_state
 - condition: state
-  entity_id: !input 'window_sensor'
+  entity_id: !input window_sensor
   state: 'on'
-  match: any
-actions:
+action:
 - choose: []
-  default: !input 'actions'
+  default: !input actions
 mode: single

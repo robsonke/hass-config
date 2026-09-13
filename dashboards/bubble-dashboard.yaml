@@ -243,7 +243,14 @@ views:
                 square: false
                 card_mod:
                   style: |
-                    #root { grid-template-columns: 1fr 1fr 56px !important; gap: 8px !important; }
+                    /* Alarm krijgt meer ruimte dan Gasten: de alarmtegel draagt een
+                       statuslabel ("Inschakelen", "Afwezig") plus de maan-subknop,
+                       Gasten alleen een icoon + korte naam. Breedte is bewust geen
+                       fr-ratio maar calc(50% - 4px): dat is exact een kolom van het
+                       2-koloms personenraster eronder (halve breedte min de halve
+                       gap van 8px), zodat Alarm precies uitlijnt met Rob. Gasten en
+                       de 56px Settings-knop delen de andere helft. */
+                    #root { grid-template-columns: calc(50% - 4px) 1fr 56px !important; gap: 8px !important; }
                 cards:
                   # button_type was `name`, which shows no state at all, and the neon
                   # module colours by entity keyword (/alarm|lock/ -> hue 130), so the
@@ -793,9 +800,27 @@ views:
               tap_action: { action: navigate, navigation_path: '#picnic' }
               button_action:
                 tap_action: { action: navigate, navigation_path: '#picnic' }
+              # Eén badge tegelijk: aantal items in het mandje, groen zodra de
+              # bezorging vandaag is (zelfde taal als de afvalchips: groen =
+              # vandaag). De drie regels sluiten elkaar uit, dus er staat nooit
+              # meer dan één stip rechtsboven het icoon.
+              # Leeg mandje op een bezorgdag is de normale situatie zodra de
+              # bestelling eruit is - dan blijft alleen de groene stip over.
               bubble_badges:
                 badges:
-                  - name: Cart count
+                  - name: Mandje, bezorging vandaag
+                    target: main_icon
+                    entity: sensor.picnic_cart_items_count
+                    color: green
+                    condition:
+                      - condition: numeric_state
+                        entity_id: sensor.picnic_cart_items_count
+                        above: 0
+                      - condition: template
+                        value_template: >
+                          {% set s = states('sensor.picnic_expected_start_of_next_delivery') %}
+                          {{ s not in ['unknown','unavailable','none',''] and as_local(as_datetime(s)).date() == now().date() }}
+                  - name: Mandje
                     target: main_icon
                     entity: sensor.picnic_cart_items_count
                     color: red
@@ -803,18 +828,24 @@ views:
                       - condition: numeric_state
                         entity_id: sensor.picnic_cart_items_count
                         above: 0
-                  # red dot when the next delivery is today
-                  - name: Levering vandaag
+                      - condition: template
+                        value_template: >
+                          {% set s = states('sensor.picnic_expected_start_of_next_delivery') %}
+                          {{ not (s not in ['unknown','unavailable','none',''] and as_local(as_datetime(s)).date() == now().date()) }}
+                  - name: Bezorging vandaag, leeg mandje
                     target: main_icon
                     dot: true
-                    color: red
+                    color: green
                     condition:
+                      - condition: numeric_state
+                        entity_id: sensor.picnic_cart_items_count
+                        below: 1
                       - condition: template
                         value_template: >
                           {% set s = states('sensor.picnic_expected_start_of_next_delivery') %}
                           {{ s not in ['unknown','unavailable','none',''] and as_local(as_datetime(s)).date() == now().date() }}
               modules:
-                - bubble_badges   # badge = cart item count (the "3")
+                - bubble_badges   # badge = aantal items in het mandje
                 - bubble_neon_icon_only
               styles: |
                 /* subtitle = when the next Picnic delivery slot starts */
@@ -990,15 +1021,23 @@ views:
               .bubble-state::after {
                 font-size: 14px !important;
                 font-weight: 500;
+                /* a long room name must not be chopped mid-word against the
+                   sub-button: shrink below min-content and end on an ellipsis */
+                display: block !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
                 content: "${(() => {
                   const members = hass.states['media_player.music_downstairs']?.attributes?.entity_id || [];
                   const st = m => hass.states[m]?.state;
-                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '');
+                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '').replace(' Sonos', '');
                   const playing = members.filter(m => st(m) === 'playing');
                   const paused = members.filter(m => st(m) === 'paused');
-                  if (playing.length === 1) return 'Speelt in ' + room(playing[0]);
+                  if (playing.length === 1) return room(playing[0]);
                   if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
-                  if (paused.length === 1) return 'Gepauzeerd in ' + room(paused[0]);
+                  if (paused.length === 1) return room(paused[0]) + ' · pauze';
                   if (paused.length > 1) return 'Gepauzeerd';
                   return 'Uit';
                 })()}";
@@ -1129,15 +1168,23 @@ views:
               .bubble-state::after {
                 font-size: 14px !important;
                 font-weight: 500;
+                /* a long room name must not be chopped mid-word against the
+                   sub-button: shrink below min-content and end on an ellipsis */
+                display: block !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
                 content: "${(() => {
                   const members = hass.states['media_player.music_upstairs']?.attributes?.entity_id || [];
                   const st = m => hass.states[m]?.state;
-                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '');
+                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '').replace(' Sonos', '');
                   const playing = members.filter(m => st(m) === 'playing');
                   const paused = members.filter(m => st(m) === 'paused');
-                  if (playing.length === 1) return 'Speelt in ' + room(playing[0]);
+                  if (playing.length === 1) return room(playing[0]);
                   if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
-                  if (paused.length === 1) return 'Gepauzeerd in ' + room(paused[0]);
+                  if (paused.length === 1) return room(paused[0]) + ' · pauze';
                   if (paused.length > 1) return 'Gepauzeerd';
                   return 'Uit';
                 })()}";
@@ -1430,15 +1477,23 @@ views:
               .bubble-state::after {
                 font-size: 14px !important;
                 font-weight: 500;
+                /* a long room name must not be chopped mid-word against the
+                   sub-button: shrink below min-content and end on an ellipsis */
+                display: block !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
                 content: "${(() => {
                   const members = hass.states['media_player.muziek_tuin']?.attributes?.entity_id || [];
                   const st = m => hass.states[m]?.state;
-                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '');
+                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '').replace(' Sonos', '');
                   const playing = members.filter(m => st(m) === 'playing');
                   const paused = members.filter(m => st(m) === 'paused');
-                  if (playing.length === 1) return 'Speelt in ' + room(playing[0]);
+                  if (playing.length === 1) return room(playing[0]);
                   if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
-                  if (paused.length === 1) return 'Gepauzeerd in ' + room(paused[0]);
+                  if (paused.length === 1) return room(paused[0]) + ' · pauze';
                   if (paused.length > 1) return 'Gepauzeerd';
                   return 'Uit';
                 })()}";

@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#person-noa'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Noa
 icon: mdi:bed
 # header = kamerlicht (warm = aan) + temperatuur en luchtvochtigheid.

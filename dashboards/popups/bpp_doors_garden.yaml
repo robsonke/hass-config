@@ -7,6 +7,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 680px
 hash: '#deuren-tuin'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Deuren in de tuin
 icon: mdi:door-sliding
 # summary lives in the pop-up header: entity drives the header state line,

@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 1000px
 hash: '#person-steffi'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Steffi
 icon: mdi:account
 # header = aanwezigheid (groen thuis, blauw op werk/zone, dim onderweg) + duur
@@ -21,67 +23,6 @@ styles: |
     content: "${(() => { const p = hass.states['person.steffi']; const s = p?.state; const label = ({ home: 'Thuis', not_home: 'Onderweg' })[s] || s; const t = p?.last_changed; const secs = (Date.now() - new Date(t)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return label + ' · ' + d; })()}";
   }
 cards:
-  # ── aanwezigheid ──────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Aanwezigheid
-  - type: grid
-    columns: 3
-    square: false
-    cards:
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: device_tracker.iphonedetect_steffi
-        name: Router
-        icon: mdi:wifi
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
-          .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: device_tracker.icloud_iphone_steffi
-        name: iCloud
-        icon: mdi:apple
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
-          .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: device_tracker.iphone_steffi
-        name: GPS
-        icon: mdi:cellphone
-        card_layout: large
-        tap_action: { action: more-info }
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
-          .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
-  # ── kaart ─────────────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Kaart
-  - type: map
-    default_zoom: 16
-    dark_mode: true
-    hours_to_show: 12
-    entities:
-      - person.steffi
-    card_mod:
-      style:
-        .: "#root {\n  height: 22em;\n  padding-bottom: 0 !important;\n}\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n}\nha-card {\n  border-radius: 22px;\n  transition: none;\n  height: 22em !important;\n}\n"
-        ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n  zoom: 140%;\n}\n.leaflet-pane.leaflet-tile-pane {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}"
   # ── bed (Auping) ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -151,7 +92,20 @@ cards:
         font-size: 13px !important; font-weight: 500; color: #ff8a5c !important;
         content: "${(() => { const w = hass.states['sensor.strava_run_week_steffi']?.state; const km = isNaN(parseFloat(w)) ? '—' : parseFloat(w).toFixed(1); const act = hass.states['sensor.strava_steffi_berks_run']?.state; return km + ' km deze week' + (act ? String.fromCharCode(32,183,32) + act : ''); })()}";
       }
-
+  # ── kaart ─────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Kaart
+  - type: map
+    default_zoom: 16
+    dark_mode: true
+    hours_to_show: 12
+    entities:
+      - person.steffi
+    card_mod:
+      style:
+        .: "#root {\n  height: 22em;\n  padding-bottom: 0 !important;\n}\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n}\nha-card {\n  border-radius: 22px;\n  transition: none;\n  height: 22em !important;\n}\n"
+        ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n  zoom: 140%;\n}\n.leaflet-pane.leaflet-tile-pane {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}"
   # ── verloop ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -163,3 +117,50 @@ cards:
       - device_tracker.iphone_steffi
       - device_tracker.icloud_iphone_steffi
       - device_tracker.iphonedetect_steffi
+  # ── aanwezigheid ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Aanwezigheid
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: device_tracker.iphonedetect_steffi
+        name: Router
+        icon: mdi:wifi
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: device_tracker.icloud_iphone_steffi
+        name: iCloud
+        icon: mdi:apple
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: device_tracker.iphone_steffi
+        name: GPS
+        icon: mdi:cellphone
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }

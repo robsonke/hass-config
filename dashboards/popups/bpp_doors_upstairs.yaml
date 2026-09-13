@@ -7,6 +7,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 760px
 hash: '#ramen-boven'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Deuren en ramen boven
 icon: mdi:window-closed-variant
 # summary lives in the pop-up header: entity drives the header state line,

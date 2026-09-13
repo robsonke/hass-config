@@ -27,6 +27,15 @@ input_boolean:
   lights_garden_auto_dark:
     name: Tuin automatisch aan (donker)
     icon: mdi:weather-night
+  # Seizoensschakelaar voor light.kerst_binnen / light.kerst_buiten. Die groepen
+  # hangen om stopcontacten die buiten december uit het stopcontact zijn, dus
+  # staan ze de rest van het jaar op unavailable. Ze werden wel jaarrond
+  # aangestuurd door de schemer-/avondautomatiseringen, wat elke keer een
+  # "Referenced entities ... are missing or not currently available" warning
+  # opleverde. Alle acties op die twee groepen zitten nu achter deze knop.
+  kerstverlichting:
+    name: Kerstverlichting
+    icon: mdi:pine-tree
 
 light:
   - platform: group

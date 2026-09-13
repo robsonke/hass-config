@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#grasmaaier'
+# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+auto_close: 60000
 name: Grasmaaier
 icon: mdi:robot-mower
 # header = status (NL) + zone + accu%, groen als maaiend, blauw naar dock, rood bij fout

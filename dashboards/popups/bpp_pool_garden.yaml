@@ -8,6 +8,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#zwembad'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Zwembad
 icon: mdi:pool
 # header = watertemp + warmtepompstatus (warm = verwarmt, blauw = koelt)
@@ -204,11 +206,11 @@ cards:
   - type: entities
     show_header_toggle: false
     entities:
-      - entity: sensor.pool_shelly_3em_active_power_phase_b
+      - entity: sensor.pool_shelly_3em_phase_a_power
         name: Pomp & roldek
-      - entity: sensor.pool_shelly_3em_active_power_phase_a
+      - entity: sensor.pool_shelly_3em_phase_b_power
         name: Warmtepomp
-      - entity: sensor.pool_shelly_3em_active_power_phase_c
+      - entity: sensor.pool_shelly_3em_phase_c_power
         name: Verlichting
   # ── aansturing ────────────────────────────────────────────────────
   - type: custom:bubble-card

@@ -113,10 +113,16 @@ lights_on_away:
       - light.socket2_light_couch
       - light.socket1_light_corner
     action: light.turn_on
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.kerst_binnen
+  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_on
+      target:
+        entity_id:
+        - light.kerst_binnen
   # Marks the start of an "automatisch aan door donker" period for the timeline
   # in the Verlichting beneden pop-up. Only the darkness automations call this
   # script, so reaching here always means the lights went on because it was dark.
@@ -138,10 +144,16 @@ lights_on_home:
       - light.socket2_light_couch
       - light.socket1_light_corner
     action: light.turn_on
-  - action: light.turn_on
-    target:
-      entity_id:
-      - light.kerst_binnen
+  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_on
+      target:
+        entity_id:
+        - light.kerst_binnen
   # See lights_on_away - same timeline flag, the "we are home" variant.
   - action: input_boolean.turn_on
     target:
@@ -173,10 +185,16 @@ lights_down_stairs_off:
       - light.ledstrip_book
       - light.ledstrip_tv
     action: light.turn_off
-  - action: light.turn_off
-    target:
-      entity_id:
-      - light.kerst_binnen
+  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  - if:
+    - condition: state
+      entity_id: input_boolean.kerstverlichting
+      state: 'on'
+    then:
+    - action: light.turn_off
+      target:
+        entity_id:
+        - light.kerst_binnen
   # Ends the "automatisch aan door donker" period - this script is what the
   # "turn off lights when lighter" automation calls, i.e. the natural end of
   # the dark stretch. The bedtime/night automations clear the same flag.

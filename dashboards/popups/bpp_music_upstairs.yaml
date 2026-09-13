@@ -6,6 +6,8 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 640px
 hash: '#muziek-boven'
+# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+auto_close: 120000
 name: Sonos - Boven
 icon: mdi:music
 # header shows which speakers in this zone are playing (green) or "Niets aan het spelen"
@@ -28,6 +30,8 @@ cards:
       - entities:
           - media_player.slaapkamer_sonos
       - groups: []
+      # only card in this zone → may remember the user's pick
+      - pin_player: false
       - vol_threshold: 20
       - vol_max: 20
       # single idle player → omit the queue section (see template note)
