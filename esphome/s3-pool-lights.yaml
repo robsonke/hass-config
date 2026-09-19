@@ -1,24 +1,355 @@
+# RS-485 control of the Duratech PLP-REM-350 pool light controller.
+# https://www.duratech.be/en/controller/plp-rem-350
+#
+# Replaces the M5StickC node `pool-lights` (esphome/archive/pool-lights.yaml)
+# on 2026-09-19. Only the *hardware* changed: an M5Stack AtomS3 with an ATOM
+# Tail485 instead of an M5StickC with the RS485 HAT. The PLP-REM protocol, the
+# paced write queue and the HA-facing entities below are carried over verbatim,
+# comments included - every one of those comments records something that was
+# learned the hard way on the StickC and is just as true here.
+#
+# What did NOT carry over, and why:
+#   - `light: status_led` on GPIO10. That was the StickC's red LED. The AtomS3
+#     has no discrete LED at all - the LCD is the indicator - so the entity
+#     light.<node>_led_light no longer exists. Nothing consumed it.
+#   - `binary_sensor` Button A + Button B on GPIO37/39. The AtomS3 has exactly
+#     one button: the whole display face. One `Button` entity below replaces the
+#     two; nothing consumed either of them.
+#   - `remote_transmitter` on GPIO9. Inherited by copy-paste from
+#     archive/pool-fairland-heatpump.yaml and never used by anything. Dropped
+#     rather than re-pinned to the AtomS3's IR LED on a board where it has never
+#     been tested.
+#   - `i2c:` on GPIO21/22. Nothing on this node ever read a device off it.
+
+substitutions:
+  devicename: "s3-pool-lights"
+  ip: !secret s3_pool_lights_ip
+
 esphome:
-  name: s3-pool-lights
+  name: ${devicename}
+  # Entity ids are derived from this, not from `name`: "S3 Pool Lights" ->
+  # switch.s3_pool_lights_pool_lights, and the generated API actions become
+  # esphome.s3_pool_lights_*. packages/pkg_pool.yaml and the two "Zwembad -
+  # (Vorig|Volgend) lichtprogramma" automations address exactly those names, so
+  # changing this string silently breaks the pool light in HA.
   friendly_name: S3 Pool Lights
+  comment: "RS485 Pool light control"
   min_version: 2026.4.0
-  name_add_mac_suffix: false
 
 esp32:
-  variant: esp32s3
+  board: m5stack-atoms3
   framework:
+    # Same reasoning as on the StickC: esp-idf is the framework this protocol
+    # has been proven on. The StickC also had a concrete extra reason - its TX
+    # sat on GPIO0, a strapping pin the two frameworks do not set up
+    # identically - which no longer applies here, but there is nothing to gain
+    # from switching either.
     type: esp-idf
 
-# Enable logging
+# `packages:` rather than a `<<` merge key: `<<` does not merge nested
+# sections - the first definition wins and the rest is dropped, which is how
+# device-level api:/ota:/logger: blocks silently discarded the shared ones.
+packages:
+  common: !include .common.yaml
+
 logger:
+  # DEBUG is the minimum level at which the uart debug block below actually
+  # emits frames (UARTDebug::log_string uses ESP_LOGD). At INFO the debug block
+  # is configured but silent, which is why the bus looked like a black box.
+  # Drop back to INFO once the protocol is settled.
+  #
+  # No `baud_rate: 0` / `hardware_uart: UART0` here, unlike the StickC config:
+  # there the log UART and the RS-485 UART were fighting over the same pins. The
+  # AtomS3 logs over its native USB-CDC, which shares nothing with the Tail485.
+  level: DEBUG
 
-# Enable Home Assistant API
 api:
+  encryption:
+    key: !secret api_key
+  # The PLP-REM-350 takes plain ASCII strings over RS-485 (9600 8N1), not
+  # Modbus - see the command table in the LINK Driver manual. These two generic
+  # pass-throughs are what packages/pkg_pool.yaml drives light.pool_light with:
+  # PDxxx for brightness, PCrrrgggbbb for colour, PSxx for a program (01-14).
+  # Exposed in HA as esphome.s3_pool_lights_* (see friendly_name above).
+  # Both hand off to script.send_plp rather than touching the bus directly -
+  # see that script for why the pacing matters. They are otherwise identical;
+  # there are two names only because pkg_pool.yaml already calls both.
+  services:
+    - service: set_color
+      variables:
+        color: string
+      then:
+        - script.execute:
+            id: send_plp
+            cmd: !lambda 'return color;'
+    - service: send_uart_command
+      variables:
+        command: string
+      then:
+        - script.execute:
+            id: send_plp
+            cmd: !lambda 'return command;'
 
-# Allow Over-The-Air updates
-ota:
-  - platform: esphome
+# ATOM Tail485 (https://docs.m5stack.com/en/atom/atom_tail485). On the original
+# Atom Lite its TXD/RXD land on G26/G32 - see archive/pool-lights-atom.yaml,
+# the bench rig that first proved this protocol. Neither pin is usable on an
+# ESP32-S3 (GPIO26-32 are wired to the SPI flash), and the AtomS3 brings the
+# same bottom-bus positions out on different GPIOs. Those are the two numbers
+# below, and they are the one thing in this file that is board-specific rather
+# than protocol-specific: if the controller stays silent, check these first.
+uart:
+  id: mod_bus
+  tx_pin: GPIO6
+  rx_pin: GPIO5
+  baud_rate: 9600
+  data_bits: 8
+  stop_bits: 1
+  parity: NONE
+  debug:
+    direction: BOTH
+    dummy_receiver: false
+    # Was `delimiter: "\n"`, which never fires: the PLP-REM-350 command set has
+    # no terminator and the controller never replies, so frames just queued up
+    # and flushed together as one blob ("PS01PL1PS01"). Flush on a short idle
+    # gap instead, so each command is its own timestamped line.
+    after:
+      timeout: 30ms
+      bytes: 64
+    sequence:
+      - lambda: UARTDebug::log_string(direction, bytes);
 
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+# Every RS-485 write in this file goes through script.send_plp; nothing writes
+# to mod_bus directly any more. send_plp only *enqueues* - the interval below
+# is what puts bytes on the wire, exactly one command per 80ms tick.
+#
+# Why a paced queue at all:
+#   Framing. The PLP-REM command set has no terminator and no length field, so
+#   the only frame boundary the controller has is an idle gap on the bus.
+#   Driven straight from HA the log showed the switch and both services
+#   arriving as one concatenated blob ("PS01PL1PS01") - to the controller that
+#   is a single unparseable frame, which is why nothing happened even though
+#   the bytes themselves were right. Pacing also fixes ordering: a
+#   light.pool_light that fires turn_on + set_level + set_rgb in one tick can
+#   no longer interleave them mid-command.
+#   80ms is the figure from phendrickx/duratech_PLP-REM_RS485, which paces its
+#   own PL1 -> PDxxx -> PCrrrgggbbb the same way and is the only known working
+#   implementation of this protocol.
+#
+# Why a coalescing queue rather than `script: mode: queued`:
+#   Bubble Card's slider calls the service straight out of its pointermove
+#   handler when slider_live_update is set - checked in
+#   www/community/Bubble-Card/bubble-card.js, `sliderLiveUpdate && J(e, o)`,
+#   with no throttle on that branch. A drag can therefore emit tens of
+#   light.turn_on calls a second, and the pop-up slider for this light does set
+#   slider_live_update. A queued script would need `max_runs` (ESPHome rejects
+#   0 for queued mode) and drops the *newest* run on overflow - i.e. exactly
+#   the final value you wanted to keep, leaving the light on some stale
+#   brightness. Coalescing instead means a drag collapses to one PD per tick
+#   and the last value always lands.
+globals:
+  - id: plp_queue
+    type: std::vector<std::string>
+    restore_value: no
+
+script:
+  - id: send_plp
+    # No delay in the body, so this always runs to completion inside the
+    # caller's tick and can never be "already running" - mode is moot.
+    mode: single
+    parameters:
+      cmd: string
+    then:
+      - lambda: |-
+          auto &q = id(plp_queue);
+          // PD/PC/PT each carry one absolute value, so a copy still sitting in
+          // the queue is worthless the moment a newer value for the same
+          // command shows up - overwrite it in place rather than sending both.
+          // Everything else appends: PL1/PL0 and PRA1/PRA0 are edges, and two
+          // PSxx in a row is a real request to change program twice.
+          if (cmd.size() >= 2) {
+            std::string key = cmd.substr(0, 2);
+            if (key == "PD" || key == "PC" || key == "PT") {
+              for (auto &pending : q) {
+                if (pending.compare(0, 2, key) == 0) {
+                  pending = cmd;
+                  return;
+                }
+              }
+            }
+          }
+          q.push_back(cmd);
+
+# The drain. One command per tick and nothing else touches the bus, so every
+# frame is guaranteed its idle gap - a 11-byte command at 9600 8N1 takes ~11ms,
+# leaving ~69ms of silence behind it. That is also what makes the uart debug
+# block above readable: with 80ms spacing its 30ms idle flush gives one
+# timestamped line per command instead of a run-together blob.
+interval:
+  - interval: 80ms
+    then:
+      - lambda: |-
+          auto &q = id(plp_queue);
+          if (q.empty())
+            return;
+          std::string cmd = q.front();
+          q.erase(q.begin());
+          id(mod_bus).write_str(cmd.c_str());
+
+# No modbus/modbus_controller here on purpose. The controller does not speak
+# Modbus - it answers nothing, so every poll logged "Stop waiting for response
+# from 1" and the 8 bytes that came back were our own request echoed by the
+# auto-direction RS485 HAT. Everything below writes ASCII commands instead.
+
+switch:
+  # optimistic: the controller sends no replies at all, so there is no state to
+  # read back. The real on/off feedback comes from the Shelly power sensor that
+  # packages/pkg_pool.yaml watches.
+  - platform: template
+    id: pool_lights
+    name: Pool Lights
+    optimistic: true
+    turn_on_action:
+      - script.execute:
+          id: send_plp
+          cmd: 'PL1'
+    turn_off_action:
+      - script.execute:
+          id: send_plp
+          cmd: 'PL0'
+
+  - platform: template
+    id: pool_aux_relay_a
+    name: Pool Controller Auxiliary Relay A
+    optimistic: true
+    turn_on_action:
+      - script.execute:
+          id: send_plp
+          cmd: 'PRA1'
+    turn_off_action:
+      - script.execute:
+          id: send_plp
+          cmd: 'PRA0'
+
+# No *program* select here. Program choice is owned by light.pool_light in
+# packages/pkg_pool.yaml, whose effect_list comes from
+# input_select.pool_light_program_options ("01. Deep Blue Sea" ... "14. Sun
+# White") and which sends PS + the leading two digits. That numbering already
+# matches the manual's PSxx range of 01-14; the modbus optionsmap that used to
+# sit here was 0-10 and disagreed with both.
+#
+# Colour temperature is different: there is no HA-side helper for it and the
+# template light has nowhere to put it, so it lives on the node.
+select:
+  - platform: template
+    id: pool_light_color_temp
+    name: Pool Light Color Temperature
+    # optimistic: same reason as the switches - the controller answers nothing,
+    # so the only state is what we last asked for.
+    optimistic: true
+    options:
+      - 500K
+      - 1000K
+      - 1500K
+      - 2000K
+      - 2500K
+      - 3000K
+      - 3500K
+    set_action:
+      - script.execute:
+          id: send_plp
+          cmd: !lambda |-
+            // PTxxx carries Kelvin/100, zero-padded to three digits, and the
+            // manual's range is PT005-PT035 in 500K steps: "500K" -> PT005,
+            // "3500K" -> PT035. atoi stops at the K, so no stripping needed.
+            char buf[6];
+            snprintf(buf, sizeof(buf), "PT%03d", atoi(x.c_str()) / 100);
+            return std::string(buf);
+
+button:
+  # Tells the controller to re-sync its lamps. Note the case: it really is
+  # capital-P, lowercase-s, capital-S - not a typo for PSS or PsS's siblings
+  # PsU/PsD (next/previous program), which we deliberately do not use because
+  # HA owns the program list and addressing PSxx directly keeps the two in
+  # lockstep instead of chasing a remote cursor nothing reports back.
+  - platform: template
+    name: Pool Light Sync
+    on_press:
+      - script.execute:
+          id: send_plp
+          cmd: 'PsS'
+
+# The AtomS3's front face is one big button. Exposed for parity with the
+# StickC's Button A/B; nothing in HA consumes it.
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO41
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    id: button_face
+    name: Button
+
+# The node has no state of its own to show, so the only honest source of "are
+# the lights actually on" is the Shelly clamp on the lights' phase - the same
+# signal packages/pkg_pool.yaml trusts over the optimistic switch above.
+#
+# The StickC config imported sensor.pool_shelly_3em_active_power_phase_c, which
+# has been `unavailable` in HA for as long as the registry goes back: the live
+# entity is phase_c_power. That import fed nothing, so the breakage was
+# invisible. Here it drives the display, where a dead sensor is obvious.
+sensor:
+  - platform: homeassistant
+    name: "Power Usage Pool Lights"
+    entity_id: sensor.pool_shelly_3em_phase_c_power
+    id: pool_lights_power
+
+spi:
+  clk_pin: GPIO17
+  mosi_pin: GPIO21
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto
+    size: 14
+
+# Built-in 0.85" 128x128 IPS panel, GC9107 controller.
+#
+# `model: GC9107` and not M5STACK-ATOMS3R-GC9107: that preset is for the
+# *AtomS3R*, a different product - it pins cs/dc/reset at 14/42/48 and declares
+# `requires: {psram}`, neither of which is true of this board. The generic
+# GC9107 model carries the panel's own geometry (128x128, offset 2/1) and
+# leaves the wiring to us.
+display:
+  - platform: mipi_spi
+    model: GC9107
+    cs_pin: GPIO15
+    dc_pin: GPIO33
+    reset_pin: GPIO34
+    invert_colors: true
+    rotation: 0°
+    update_interval: 2s
+    lambda: |-
+      it.printf(64, 4, id(roboto), TextAlign::TOP_CENTER, "Pool Lights");
+      it.printf(64, 48, id(roboto), TextAlign::TOP_CENTER, "%s",
+                id(pool_lights).state ? "ON" : "OFF");
+      if (id(pool_lights_power).has_state()) {
+        it.printf(64, 80, id(roboto), TextAlign::TOP_CENTER, "%.1f W",
+                  id(pool_lights_power).state);
+      } else {
+        it.printf(64, 80, id(roboto), TextAlign::TOP_CENTER, "-- W");
+      }
+
+light:
+  # The panel backlight. Not a status light - it is here so the screen can be
+  # switched off from HA without taking the node down.
+  - platform: monochromatic
+    output: lcd_backlight
+    name: "Display Backlight"
+    restore_mode: ALWAYS_ON
+
+output:
+  - platform: ledc
+    pin: GPIO16
+    id: lcd_backlight
