@@ -181,6 +181,12 @@ cards:
   - type: grid
     columns: 2
     square: false
+    # Oneven aantal tegels in een 2-koloms grid laat de laatste rij halfleeg.
+    # De laatste tegel (Kerstverlichting) krijgt daarom de volle breedte, zodat
+    # de rij er bedoeld uitziet in plaats van afgebroken.
+    card_mod:
+      style: |
+        #root > *:last-child { grid-column: 1 / -1 !important; }
     cards:
       - type: custom:bubble-card
         card_type: button
@@ -209,6 +215,17 @@ cards:
         entity: input_boolean.enable_automatic_hvac
         name: Klimaat
         icon: mdi:hvac
+        card_layout: large
+      # Seizoensschakelaar: gate voor alle acties op light.kerst_binnen /
+      # light.kerst_buiten in automations.yaml en scripts.yaml. Buiten december
+      # uit, zodat die groepen (stopcontacten, dan unavailable) niet jaarrond
+      # worden aangestuurd. Zie packages/pkg_lights.yaml.
+      - type: custom:bubble-card
+        card_type: button
+        button_type: switch
+        entity: input_boolean.kerstverlichting
+        name: Kerstverlichting
+        icon: mdi:pine-tree
         card_layout: large
   # ── camera detectie ───────────────────────────────────────────────
   - type: custom:bubble-card

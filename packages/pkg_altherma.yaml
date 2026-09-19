@@ -54,6 +54,14 @@ input_boolean:
   cooling_downstairs:
     name: Cooling downstairs
     icon: mdi:fan
+  # Hoofdschakelaar voor de tapwater-zonnesturing. sensor.dhw_target_setpoint
+  # test op `not is_state(..., 'on')` en niet op `is_state(..., 'off')`: als
+  # deze helper ontbreekt of unavailable is, moet het systeem terugvallen op
+  # het normale setpoint in plaats van door te lopen naar de planlogica.
+  # Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
+  dhw_solar_scheduling:
+    name: Tapwater zonnesturing
+    icon: mdi:solar-power-variant
 
 input_number:
   # Controls the hvac operation mode (cooling/heating/off)
@@ -86,6 +94,72 @@ input_number:
     max: 30
     step: 0.5
     unit_of_measurement: "°C"
+
+  # De drie fasen van het tapwater-setpoint. De Daikin bijverwarmt rond 4 K
+  # onder het setpoint (gemeten: aanslag rond 40-41 bij setpoint 45), dus
+  # deze waarden bepalen indirect ook de bijverwarmdrempels.
+  #
+  # Laden start op 52 en niet op 55, zodat er ruimte is om op te schalen nadat
+  # twee weken gemeten is. De bovengrens 58 is bewust hoger dan veldinstelling
+  # [6-0E] op de unit; sensor.dhw_target_setpoint klemt alsnog op max_temp.
+  dhw_setpoint_charge:
+    name: Tapwater laadsetpoint
+    icon: mdi:thermometer-high
+    min: 45
+    max: 58
+    step: 1
+    unit_of_measurement: "°C"
+  # Niet onder 38 zetten: de unit verwarmt zelf bij op ~4 K hieronder, en dat is
+  # het vangnet dat koud water onmogelijk maakt.
+  dhw_setpoint_coast:
+    name: Tapwater uitteersetpoint
+    icon: mdi:thermometer-low
+    min: 38
+    max: 45
+    step: 1
+    unit_of_measurement: "°C"
+  dhw_setpoint_normal:
+    name: Tapwater normaal setpoint
+    icon: mdi:thermometer
+    min: 40
+    max: 50
+    step: 1
+    unit_of_measurement: "°C"
+  # Vanaf welke Solcast-dagprognose we op zon plannen in plaats van op prijs.
+  dhw_solar_threshold:
+    name: Tapwater zonnedrempel
+    icon: mdi:weather-sunny
+    min: 0
+    max: 40
+    step: 1
+    unit_of_measurement: kWh
+  dhw_charge_duration:
+    name: Tapwater laadduur
+    icon: mdi:timer-sand
+    min: 30
+    max: 240
+    step: 15
+    unit_of_measurement: min
+
+input_datetime:
+  # Wordt elke nacht om 00:15 herschreven door "DHW - Plan het laadvenster".
+  dhw_charge_start:
+    name: Tapwater laadstart
+    icon: mdi:clock-start
+    has_date: false
+    has_time: true
+  # Het ochtendvenster waarin een te koud vat voorrang krijgt op de laadfase,
+  # zodat de ochtenddouche gedekt is. Gemeten ochtendcluster: 06:30-09:00.
+  dhw_morning_start:
+    name: Tapwater ochtendvenster start
+    icon: mdi:weather-sunset-up
+    has_date: false
+    has_time: true
+  dhw_morning_end:
+    name: Tapwater ochtendvenster eind
+    icon: mdi:weather-sunset-up
+    has_date: false
+    has_time: true
 
 
 # No `homeassistant: customize:` block for the two Riemann-sum sensors below:
@@ -262,6 +336,103 @@ template:
         {% set electrical = states('sensor.altherma_inv_secundary_current') | float(0) / 3
            * states('sensor.altherma_voltage_n_phase') | float(0) / 1000 %}
         {{ (thermal / electrical) | round(2) }}
+
+    # In welke fase de tapwatersturing op dit moment staat. Dit is de BRON van
+    # de beslislogica; dhw_target_setpoint hieronder vertaalt de fase alleen nog
+    # naar een temperatuur. Die scheiding voorkomt dat dezelfde venster- en
+    # ochtendlogica op twee plekken staat en uit elkaar groeit.
+    #
+    # Vier fasen:
+    #   uit       - hoofdschakelaar niet aan; gedrag van voor deze constructie
+    #   ochtend   - vat te koud vlak voor de ochtenddouche; vangnet gaat voor
+    #   laden     - binnen het zonne- of prijsvenster
+    #   uitteren  - erbuiten; het vat leeft op opgeslagen warmte
+    #
+    # De uitteerfase is het werkzame bestanddeel: laat je het setpoint na de
+    # lading hoog staan, dan verwarmt de unit bij vanaf ~4 K eronder en ben je
+    # slechter af dan zonder deze hele constructie.
+    #
+    # De test is `not is_state(..., 'on')` en NIET `is_state(..., 'off')`:
+    # ontbreekt de helper of is hij unavailable, dan valt het systeem terug
+    # op gewoon gedrag in plaats van door te lopen naar de planlogica.
+    #
+    # De tanktemperatuur is bewust een ongedekte `| float`: die hoort via
+    # `availability` afgevangen te worden, niet via een stille default die een
+    # verkeerde fase zou opleveren.
+    #
+    # Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
+    - unique_id: dhw_phase
+      name: DHW phase
+      icon: >
+        {% if is_state('sensor.dhw_phase', 'laden') %}
+          mdi:water-plus
+        {% elif is_state('sensor.dhw_phase', 'uitteren') %}
+          mdi:water-minus
+        {% elif is_state('sensor.dhw_phase', 'ochtend') %}
+          mdi:weather-sunset-up
+        {% else %}
+          mdi:water-off
+        {% endif %}
+      availability: >
+        {{ has_value('sensor.domestichotwatertank_tank_temperature') }}
+      state: >
+        {% set tank = states(
+             'sensor.domestichotwatertank_tank_temperature') | float %}
+        {% set normal = states('input_number.dhw_setpoint_normal')
+             | float(45) %}
+        {% set start = today_at(states('input_datetime.dhw_charge_start')) %}
+        {% set stop = start + timedelta(
+             minutes=states('input_number.dhw_charge_duration') | int(120)) %}
+        {% set mstart = today_at(states('input_datetime.dhw_morning_start')) %}
+        {% set mstop = today_at(states('input_datetime.dhw_morning_end')) %}
+        {%- if not is_state('input_boolean.dhw_solar_scheduling', 'on') -%}
+          uit
+        {%- elif mstart <= now() < mstop and tank < normal - 3 -%}
+          ochtend
+        {%- elif start <= now() < stop -%}
+          laden
+        {%- else -%}
+          uitteren
+        {%- endif -%}
+
+    # Welk setpoint bij de huidige fase hoort. Bewust dom: geen eigen logica,
+    # alleen een vertaling van sensor.dhw_phase naar een temperatuur, geklemd op
+    # wat de unit accepteert.
+    #
+    # `| min` tegen max_temp is niet cosmetisch: staat veldinstelling [6-0E] op
+    # de unit op 48, dan weigert de integratie een opdracht van 52 en zou de
+    # schrijfautomation stil niets doen.
+    #
+    # De `else`-tak vangt uit, ochtend en elke onverwachte fasewaarde af op het
+    # normale setpoint - de veilige kant.
+    - unique_id: dhw_target_setpoint
+      name: DHW target setpoint
+      device_class: temperature
+      state_class: measurement
+      unit_of_measurement: "°C"
+      icon: mdi:thermostat-box
+      availability: >
+        {{ has_value('sensor.dhw_phase')
+           and has_value('water_heater.domestic_hot_water_tank') }}
+      state: >
+        {% set maxt = state_attr('water_heater.domestic_hot_water_tank',
+                                 'max_temp') | float(48) %}
+        {% if is_state('sensor.dhw_phase', 'laden') %}
+          {% set want = states('input_number.dhw_setpoint_charge')
+               | float(52) %}
+        {% elif is_state('sensor.dhw_phase', 'uitteren') %}
+          {% set want = states('input_number.dhw_setpoint_coast')
+               | float(40) %}
+        {% else %}
+          {% set want = states('input_number.dhw_setpoint_normal')
+               | float(45) %}
+        {% endif %}
+        {# `| float` voor `| round` houdt de uitvoer van dit template zelf
+           consistent: bij de default-tak van een helper levert `| float(52)`
+           een int, en dan rendert het template "52" in plaats van "52.0". HA
+           normaliseert de sensorstate daarna alsnog naar "52", dus dit is puur
+           voor de testbaarheid buiten HA om. #}
+        {{ [want, maxt] | min | float | round(0) }}
 
   - binary_sensor:
     - unique_id: altherma_main_pump

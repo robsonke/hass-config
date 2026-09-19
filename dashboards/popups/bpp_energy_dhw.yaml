@@ -1,32 +1,70 @@
 # Bubble Card native pop-up (hash #warm-water) — Warm water (Altherma DHW tank).
+# Herzien 2026-09-18: van "hoe warm is het water" naar "doet de zonnesturing wat
+# hij moet". De kernvraag is of er nog bijverwarmd wordt tussen 17:00 en 06:00;
+# de verbruiksgrafiek onderaan beantwoordt die in een oogopslag.
+# Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
 popup_mode: centered
 full_width_on_mobile: true
-width_desktop: 760px
+width_desktop: 900px
 hash: '#warm-water'
 # sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
 auto_close: 60000
 name: Warm water
 icon: mdi:water-boiler
-# header = watertemp + modus (warm = aan/performance, dim = uit)
+# header = vattemperatuur + fase, gekleurd naar fase
 entity: water_heater.domestic_hot_water_tank
 show_state: true
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'off' ? 'rgba(255,255,255,0.04)' : 'rgba(240,195,95,0.13)'} !important; }
-  .bubble-icon-container { background-color: ${state === 'off' ? 'rgba(255,255,255,0.07)' : 'rgba(240,195,95,0.20)'} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const p = hass.states['sensor.dhw_phase']?.state; return p === 'laden' ? 'rgba(240,195,95,0.13)' : p === 'uitteren' ? 'rgba(55,138,221,0.14)' : p === 'ochtend' ? 'rgba(158,217,189,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const p = hass.states['sensor.dhw_phase']?.state; return p === 'laden' ? 'rgba(240,195,95,0.20)' : p === 'uitteren' ? 'rgba(55,138,221,0.22)' : p === 'ochtend' ? 'rgba(158,217,189,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
   .bubble-state { font-size: 0 !important; }
   .bubble-state::after {
     font-size: 14px !important; font-weight: 500;
-    color: ${state === 'off' ? '#9b9aac' : '#f0cf8f'} !important;
-    content: "${(() => { const a = hass.states['water_heater.domestic_hot_water_tank']?.attributes; const t = a?.current_temperature; const m = ({on:'Aan', off:'Uit', performance:'Max'})[a?.operation_mode] || a?.operation_mode || ''; return (t != null ? Math.round(t) + '°C' : '—') + (m ? ' · ' + m : ''); })()}";
+    color: ${(() => { const p = hass.states['sensor.dhw_phase']?.state; return p === 'laden' ? '#f0cf8f' : p === 'uitteren' ? '#82bbf0' : p === 'ochtend' ? '#9ed9bd' : '#9b9aac'; })()} !important;
+    content: "${(() => { const t = hass.states['water_heater.domestic_hot_water_tank']?.attributes?.current_temperature; const p = hass.states['sensor.dhw_phase']?.state; const label = ({laden:'laadt', uitteren:'teert uit', ochtend:'ochtendvangnet', uit:'sturing uit'})[p] || p || ''; return (t != null ? Math.round(t) + '°C' : '—') + (label ? ' · ' + label : ''); })()}";
   }
 cards:
-  # ── boiler ────────────────────────────────────────────────────────
+  # ── sturing ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
-    name: Boiler
+    name: Sturing
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: input_boolean.dhw_solar_scheduling
+        name: Zonnesturing
+        icon: mdi:solar-power-variant
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+      # Bedoeld tegenover werkelijk setpoint. Wijken ze af, dan kleurt deze rood:
+      # dat is hetzelfde signaal dat de watchdog-automation bewaakt, en het beste
+      # kapot-signaal dat er is.
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.dhw_target_setpoint
+        name: Setpoint
+        icon: mdi:thermostat-box
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); return (isFinite(w) && isFinite(a) && Math.abs(w - a) >= 0.5) ? 'rgba(221,86,86,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); return (isFinite(w) && isFinite(a) && Math.abs(w - a) >= 0.5) ? 'rgba(221,86,86,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+          .bubble-state { font-size: 0 !important; }
+          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); return (isFinite(w) && isFinite(a) && Math.abs(w - a) >= 0.5) ? '#e88f8f' : '#8f8e9e'; })()} !important; content: "${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); if (!isFinite(w) || !isFinite(a)) return '—'; return Math.abs(w - a) >= 0.5 ? Math.round(a) + '° ipv ' + Math.round(w) + '°' : Math.round(w) + '° actief'; })()}"; }
   - type: tile
     entity: water_heater.domestic_hot_water_tank
     features:
@@ -35,47 +73,124 @@ cards:
           - "on"
           - performance
           - "off"
-  # ── temperatuur ───────────────────────────────────────────────────
+  # ── plan van vandaag ──────────────────────────────────────────────
+  # Waarom het laadvenster staat waar het staat. Zonder de prognose en het
+  # prijsalternatief ernaast is een starttijd een willekeurig getal.
   - type: custom:bubble-card
     card_type: separator
-    name: Temperatuur
+    name: Plan van vandaag
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: sensor.dhw_phase
+        name: Fase
+      - entity: input_datetime.dhw_charge_start
+        name: Laadvenster start
+      - entity: input_number.dhw_charge_duration
+        name: Laadduur
+      - type: divider
+      - entity: sensor.solcast_pv_forecast_forecast_today
+        name: Zonprognose vandaag
+      - entity: input_number.dhw_solar_threshold
+        name: Drempel voor zonnetak
+      - entity: sensor.dhw_cheapest_charge_start
+        name: Goedkoopste blok (alternatief)
+  # ── temperatuur ───────────────────────────────────────────────────
+  # 24 uur en niet 12: bij 12 uur zie je nooit een hele cyclus, bij 24 zie je de
+  # middaglading en de nachtelijke uitteer in een beeld.
+  - type: custom:bubble-card
+    card_type: separator
+    name: Temperatuur (24 uur)
   - type: custom:mini-graph-card
     entities:
-      - entity: water_heater.domestic_hot_water_tank
-        attribute: current_temperature
+      - entity: sensor.domestichotwatertank_tank_temperature
         name: Water
         color: '#e74c3c'
+      - entity: sensor.dhw_target_setpoint
+        name: Bedoeld
+        color: '#f0cf8f'
       - entity: water_heater.domestic_hot_water_tank
         attribute: temperature
-        name: Gewenst
+        name: Ingesteld
         color: white
     show:
       labels: true
     hour24: true
-    hours_to_show: 12
+    hours_to_show: 24
+    points_per_hour: 2
     line_width: 2
-    color_thresholds:
-      - value: 30
-        color: '#f39c12'
-      - value: 40
-        color: '#d35400'
-      - value: 50
-        color: '#c0392b'
-  # ── warmtepomp ────────────────────────────────────────────────────
+  # ── verbruik ──────────────────────────────────────────────────────
+  # DE kernmetriek. Elke piek tussen 17:00 en 06:00 is een nachtelijke
+  # bijverwarmbeurt - precies wat volgens de spec naar nul moet. Nulmeting
+  # 8-17 sep 2026: 20 beurten totaal, 10 daarvan in dat venster.
+  # Bewust de Shelly-meter en niet sensor.altherma_power_usage: die laatste is
+  # een afleiding uit stroom maal spanning over de P1P2-bus.
   - type: custom:bubble-card
     card_type: separator
-    name: Warmtepomp
-  - type: history-graph
-    hours_to_show: 12
-    refresh_interval: 30
+    name: Verbruik warmtepomp (24 uur)
+  - type: statistics-graph
+    title: Vermogen per uur
+    period: hour
+    days_to_show: 1
+    stat_types: mean
+    chart_type: bar
     entities:
-      - entity: sensor.altherma_operation_mode
-        name: Modus
-  # ── activiteit ────────────────────────────────────────────────────
+      - entity: sensor.shelly_warmtepomp_meter_total_active_power
+        name: Warmtepomp
+  - type: entities
+    show_header_toggle: false
+    entities:
+      - entity: sensor.altherma_heatpump_daily
+        name: Verbruik vandaag
+      - entity: sensor.shelly_warmtepomp_meter_total_active_power
+        name: Vermogen nu
+  # ── instellingen ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
-    name: Activiteit
-  - type: logbook
-    entities:
-      - water_heater.domestic_hot_water_tank
-    hours_to_show: 12
+    name: Instellingen
+  - type: custom:expander-card
+    title: Setpoints en venster
+    cards:
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: input_number.dhw_setpoint_charge
+            name: Laden
+          - entity: input_number.dhw_setpoint_coast
+            name: Uitteren
+          - entity: input_number.dhw_setpoint_normal
+            name: Normaal
+          - type: divider
+          - entity: input_number.dhw_solar_threshold
+            name: Zonnedrempel
+          - entity: input_number.dhw_charge_duration
+            name: Laadduur
+          - type: divider
+          - entity: input_datetime.dhw_morning_start
+            name: Ochtendvenster start
+          - entity: input_datetime.dhw_morning_end
+            name: Ochtendvenster eind
+  # ── diagnose ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Diagnose
+  - type: custom:expander-card
+    title: Status en logboek
+    cards:
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.domestichotwatertank_is_in_error_state
+            name: Storing
+          - entity: sensor.domestichotwatertank_heatup_mode
+            name: Opwarmmodus
+          - entity: binary_sensor.domestichotwatertank_is_powerful_mode_active
+            name: Powerful actief
+          - entity: sensor.altherma_operation_mode
+            name: Bedrijfsmodus
+      - type: logbook
+        entities:
+          - water_heater.domestic_hot_water_tank
+          - sensor.dhw_phase
+          - input_boolean.dhw_solar_scheduling
+        hours_to_show: 24

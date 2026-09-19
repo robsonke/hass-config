@@ -3928,43 +3928,46 @@
   mode: single
 - id: '1736593579794'
   alias: DHW - Correct the target temperature when it goes loko
-  description: 'Workaround: something overrules the DHW target temperature and leaves
-    us with cold water - the root cause was never diagnosed. Keep it until it is:
-    this is the ONLY automation anywhere in the config that calls
-    water_heater.set_temperature, so without it an override is never corrected and
-    never reported. (The HVAC twin of this automation was retired on 2026-08-23
-    because "HVAC - Set default temperature" already resets the heat pump nightly;
-    there is no such fallback for hot water.)'
+  description: >-
+    Workaround: something overrules the DHW target temperature and leaves us with
+    cold water - the root cause was never diagnosed. Keep it until it is.
+
+    Herschreven 2026-09-17. Was: alles boven een hardgecodeerde 46 graden
+    terugzetten naar 45. Die drempel botst met de zonnesturing, die bewust naar
+    52 laadt, en zou elke lading binnen een minuut terugdraaien. Vergelijkt nu
+    tegen sensor.dhw_target_setpoint - het setpoint dat het vat volgens de
+    sturing hoort te hebben. Dat is strikt breder dan het origineel, want het
+    vangt ook een te LAAG overgenomen setpoint.
+
+    De is_number-guard is nodig omdat sensor.dhw_target_setpoint unavailable
+    wordt als de tanksensor wegvalt; dan valt er niets te vergelijken en mag er
+    zeker niets geschreven worden.
+
+    Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
   triggers:
-  - trigger: state
-    entity_id:
-    - water_heater.domestic_hot_water_tank
-    attribute: temperature
+  - trigger: template
+    value_template: >-
+      {{ states('sensor.dhw_target_setpoint') | is_number
+         and (state_attr('water_heater.domestic_hot_water_tank',
+                         'temperature') | float(-1)
+              != states('sensor.dhw_target_setpoint') | float) }}
     for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  conditions:
-  - condition: numeric_state
-    entity_id: water_heater.domestic_hot_water_tank
-    attribute: temperature
-    above: 46
+      minutes: 5
+  conditions: []
   actions:
   - action: persistent_notification.create
     metadata: {}
     data:
       notification_id: dhw_target_temp_corrected
       title: Warmwater temperatuur
-      message: Target hot water temp above 46 degrees, try resetting in one minute
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 0
-      milliseconds: 0
+      message: >-
+        Tapwater-setpoint stond op {{
+        state_attr('water_heater.domestic_hot_water_tank', 'temperature') }} in
+        plaats van {{ states('sensor.dhw_target_setpoint') }}. Teruggezet.
   - action: water_heater.set_temperature
     metadata: {}
     data:
-      temperature: 45
+      temperature: "{{ states('sensor.dhw_target_setpoint') | float }}"
     target:
       entity_id: water_heater.domestic_hot_water_tank
   mode: restart
@@ -4024,12 +4027,20 @@
 - id: evabed_sound_detection_armed_night
   alias: Eva Bed Sound Detection - Avond/Nacht
   description: Detecteert nood-geluiden (huilen, gillen, schreeuwen, hoesten) via
-    Frigate's audio classificatie 's avonds en 's nachts. Actief vanaf 19:30 (Eva
-    ligt al in bed voordat het huis in nachtmodus gaat); na middernacht alleen zolang
-    het alarm nog aan staat, dus zodra het nachtalarm 's ochtends uit gaat stoppen
-    de meldingen (in plaats van door te lopen tot 07:00). Bewust "niet disarmed" en
-    niet alleen armed_night, zodat armed_away/armed_home - wij weg, oppas in huis -
-    de monitoring wel aan houdt. Stuurt direct een melding en escaleert naar een
+    Frigate's audio classificatie 's avonds en 's nachts. Actief vanaf 21:00; dat
+    stond op 19:30, maar de slaaproutine loopt vaak nog door na dat tijdstip en dan
+    ging de melding af terwijl wij nog naast haar bed stonden. Gemeten over vijf
+    avonden (9-13 sep 2026) eindigde de routine tussen 19:25 en 20:04, dus 21:00
+    geeft bijna een uur marge. Prijs is een blinde periode 19:30-21:00, precies het
+    moment dat wij wakker beneden zitten. Loopt de routine ooit structureel door na
+    21:00, gebruik dan binary_sensor.eva_slaapkamer_person als gate - die stond
+    's nachts 10 uur onafgebroken uit (2 blips van 5 sec) terwijl hij tijdens de
+    routine 40+ keer wisselde. Motion is daarvoor onbruikbaar met ~98 wisselingen per
+    nacht met alleen Eva in de kamer. Na middernacht alleen zolang het alarm nog
+    aan staat, dus zodra het nachtalarm 's ochtends uit gaat stoppen de meldingen
+    (in plaats van door te lopen tot 07:00). Bewust "niet disarmed" en niet alleen
+    armed_night, zodat armed_away/armed_home - wij weg, oppas in huis - de
+    monitoring wel aan houdt. Stuurt direct een melding en escaleert naar een
     kritieke melding als het geluid binnen 2 minuten nog 2x terugkomt.
   triggers:
   - trigger: state
@@ -4057,12 +4068,12 @@
          or trigger.from_state is none
          or trigger.from_state.state not in ['unknown', 'unavailable'] }}
   - condition: time
-    after: '19:30:00'
+    after: '21:00:00'
     before: '07:00:00'
   - condition: or
     conditions:
     - condition: time
-      after: '19:30:00'
+      after: '21:00:00'
       before: '23:59:59'
     - condition: not
       conditions:
@@ -4229,4 +4240,116 @@
   - action: esphome.pool_lights_send_uart_command
     data:
       command: PS{{ states('input_select.pool_light_program_options')[:2] }}
+  mode: single
+- id: '1789600000001'
+  alias: DHW - Plan het laadvenster
+  description: >-
+    Bepaalt een keer per etmaal wanneer het tapwatervat geladen wordt: rond de
+    zonnepiek als Solcast genoeg belooft, anders in het goedkoopste prijsblok
+    voor 16:00. Draait om 00:15, nadat Nordpool raw_today is doorgerold en de
+    Solcast-dagprognose beschikbaar is.
+
+    Bewust niet op live teruglevering sturen: zodra de pomp laadt trekt hij
+    ~1,5 kW, verdwijnt het overschot en klapt de conditie om. Dat pendelt. Een
+    vat van 200 liter is een trage buffer waar een laadbeurt uren op duurt -
+    die plan je vooruit.
+
+    Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
+  triggers:
+  - trigger: time
+    at: 00:15:00
+  conditions:
+  - condition: state
+    entity_id: input_boolean.dhw_solar_scheduling
+    state: 'on'
+  actions:
+  - variables:
+      solar_ok: >-
+        {{ states('sensor.solcast_pv_forecast_forecast_today') | float(0)
+           >= states('input_number.dhw_solar_threshold') | float(8) }}
+      planned: >-
+        {% if solar_ok and has_value('sensor.solcast_pv_forecast_peak_time_today') %}
+          {% set peak = (states('sensor.solcast_pv_forecast_peak_time_today')
+                         | as_datetime | as_local) - timedelta(minutes=45) %}
+          {{ ([([peak, today_at('10:30')] | max), today_at('15:00')]
+              | min).strftime('%H:%M:%S') }}
+        {% elif has_value('sensor.dhw_cheapest_charge_start') %}
+          {{ states('sensor.dhw_cheapest_charge_start') }}
+        {% else %}
+          {{ states('input_datetime.dhw_charge_start') }}
+        {% endif %}
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.dhw_charge_start
+    data:
+      time: '{{ planned | trim }}'
+  mode: single
+- id: '1789600000002'
+  alias: DHW - Pas het setpoint toe
+  description: >-
+    Schrijft sensor.dhw_target_setpoint naar de warmtepomp zodra die verandert.
+    Bewust dom: alle beslislogica zit in die sensor, zodat er precies een plek
+    is waar het gedrag te lezen en na te rekenen valt.
+
+    Schrijft naar de LOKALE daikin_altherma-entity, niet naar de Onecta-cloud:
+    die heeft een limiet van 200 API-calls per dag.
+
+    De is_number-guard vangt een unavailable tanktemperatuur af. De sensor wordt
+    dan zelf unavailable, en een state-trigger vuurt ook op die overgang - er mag
+    dan geen opdracht uitgaan.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.dhw_target_setpoint
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: template
+    value_template: "{{ states('sensor.dhw_target_setpoint') | is_number }}"
+  actions:
+  - action: water_heater.set_temperature
+    target:
+      entity_id: water_heater.domestic_hot_water_tank
+    data:
+      temperature: "{{ states('sensor.dhw_target_setpoint') | float }}"
+  mode: restart
+- id: '1789600000003'
+  alias: DHW - Waarschuw bij koud vat
+  description: >-
+    Het vat hoort nooit lang onder 36 graden te staan: zelfs in de uitteerfase
+    verwarmt de Daikin uit zichzelf bij op ongeveer 4 K onder het setpoint van
+    40. Blijft hij toch 45 minuten koud, dan verwarmt de unit niet bij en is er
+    iets stuk. Alleen melden, niet ingrijpen - ingrijpen zou het echte probleem
+    maskeren.
+
+    De from_state-guard is nodig omdat
+    sensor.domestichotwatertank_tank_temperature aantoonbaar naar unavailable
+    flikkert (8, 9 en 14 september 2026). Een blip of een herstart zet een
+    numeric_state-trigger opnieuw scherp, waarna een ongewijzigde waarde alsnog
+    vuurt. De platform-check staat er eerst omdat trigger.from_state
+    LoggingUndefined is voor niet-state-triggers.
+
+    Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.domestichotwatertank_tank_temperature
+    below: 36
+    for:
+      minutes: 45
+  conditions:
+  - condition: template
+    value_template: >-
+      {{ trigger.platform != 'numeric_state'
+         or (trigger.from_state is not none
+             and trigger.from_state.state | is_number) }}
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      notification_id: dhw_tank_cold
+      title: Tapwatervat blijft koud
+      message: >-
+        Het tapwatervat staat al 45 minuten onder 36 graden ({{
+        states('sensor.domestichotwatertank_tank_temperature') }} °C). De
+        warmtepomp verwarmt niet bij. Controleer de unit.
   mode: single

@@ -426,6 +426,47 @@ template:
         {% else %}
           {{ ((sumTomorrow / countTomorrow) + (states('input_number.energy_markup') | float(0.1108))) | round(2, 'floor') }}
         {% endif %}
+    # Starttijd van het goedkoopste aaneengesloten blok van dhw_charge_duration
+    # binnen 00:00-16:00, voor "DHW - Plan het laadvenster" op dagen zonder zon.
+    #
+    # De bovengrens 16:00 garandeert dat de avondtapping gedekt is; een blok mag
+    # daar precies op eindigen, niet overheen lopen. Een blok 's nachts is
+    # prima: bij een stilstandsverlies van 0,22 K/u kost laden om 03:00 in
+    # plaats van 13:00 maar ~2 K extra.
+    #
+    # Het aantal slots per uur komt uit `raw_today | count` en staat niet op 24
+    # vast - NL ging in oktober 2025 over op kwartierprijzen, en precies die
+    # aanname brak de vorige versie van cheapest_16_hours_24h hieronder.
+    #
+    # binary_sensor.cheapest_16_hours_24h is hier niet bruikbaar: 16 van de 24
+    # uur is veel te grof om een venster van twee uur mee te kiezen.
+    #
+    # Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
+    # De entity_id komt van `name`, NIET van `unique_id` - een Nederlandse naam
+    # gaf hier sensor.dhw_goedkoopste_laadstart. De rest van dit bestand
+    # gebruikt Engelse sensornamen, dus die lijn hier ook aanhouden.
+    - name: DHW cheapest charge start
+      unique_id: dhw_cheapest_charge_start
+      icon: mdi:cash-clock
+      availability: >-
+        {{ has_value('sensor.nordpool_kwh_nl_eur_3_10_021')
+           and (state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today')
+                | default([], true) | count) > 0 }}
+      state: >-
+        {% set raw = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021',
+                                'raw_today') %}
+        {% set per_hour = ((raw | count) / 24) | round(0) | int %}
+        {% set n = ((states('input_number.dhw_charge_duration') | int(120) / 60)
+                    * per_hour) | round(0) | int %}
+        {% set last = (16 * per_hour) - n %}
+        {% set ns = namespace(best=99999, idx=0) %}
+        {% for i in range(0, last + 1) %}
+          {% set blk = raw[i:i + n] | map(attribute='value') | sum %}
+          {% if blk < ns.best %}
+            {% set ns.best = blk %}{% set ns.idx = i %}
+          {% endif %}
+        {% endfor %}
+        {{ (raw[ns.idx].start | as_datetime | as_local).strftime('%H:%M:%S') }}
 
   - binary_sensor:
     # Is the current price slot among the cheapest 16 hours of today?
