@@ -38,6 +38,12 @@ esphome:
 
 esp32:
   board: m5stack-atoms3
+  # ESPHome's schema defaults flash_size to 4MB and the board entry does not
+  # raise it, so without this line half the flash on an ESP32-S3FN8 (the FN8
+  # suffix *is* 8MB embedded flash) goes unused and the partition table is cut
+  # to match. No `psram:` block and no `variant:`: this is the plain AtomS3, not
+  # the AtomS3R, and the variant is already implied by the board.
+  flash_size: 8MB
   framework:
     # Same reasoning as on the StickC: esp-idf is the framework this protocol
     # has been proven on. The StickC also had a concrete extra reason - its TX
@@ -90,17 +96,28 @@ api:
             id: send_plp
             cmd: !lambda 'return command;'
 
-# ATOM Tail485 (https://docs.m5stack.com/en/atom/atom_tail485). On the original
-# Atom Lite its TXD/RXD land on G26/G32 - see archive/pool-lights-atom.yaml,
-# the bench rig that first proved this protocol. Neither pin is usable on an
-# ESP32-S3 (GPIO26-32 are wired to the SPI flash), and the AtomS3 brings the
-# same bottom-bus positions out on different GPIOs. Those are the two numbers
-# below, and they are the one thing in this file that is board-specific rather
-# than protocol-specific: if the controller stays silent, check these first.
+# ATOM Tail485 (https://docs.m5stack.com/en/atom/tail485). It hangs off the
+# HY2.0-4P *Grove* port, not the bottom header - the Tail485 carries only four
+# signals (TX, RX, 5V, GND) and G26/G32 are not on the Atom Lite's bottom
+# "PIN Interface" (G19/G21/G22/G23/G25/G33) at all.
+#
+# So the translation from archive/pool-lights-atom.yaml - the Atom Lite bench
+# rig that first proved this protocol - is Grove-to-Grove:
+#   Atom Lite Grove: yellow = G26 (TX), white = G32 (RX)
+#   AtomS3    Grove: yellow = G2  (TX), white = G1  (RX)
+# Confirmed against M5's AtomS3 Grove pin table, the AtomS3 schematic netlist
+# (J6 pin1 = GPIO1, pin2 = GPIO2) and M5Unified's Port-A table.
+#
+# Do NOT copy G5/G6 from an "M5 + RS485" example you find: those belong to the
+# *Atomic RS485 Base*, a different product that uses the bottom 1x5 header
+# (3V3/G5/G6/G7/G8). Several write-ups conflate the two.
+#
+# Neither G1 nor G2 is an ESP32-S3 strapping pin (those are GPIO0/3/45/46), so
+# the StickC's original sin - TX on GPIO0 - does not recur here.
 uart:
   id: mod_bus
-  tx_pin: GPIO6
-  rx_pin: GPIO5
+  tx_pin: GPIO2
+  rx_pin: GPIO1
   baud_rate: 9600
   data_bits: 8
   stop_bits: 1
@@ -328,6 +345,11 @@ display:
     dc_pin: GPIO33
     reset_pin: GPIO34
     invert_colors: true
+    # Two knobs to expect to touch on first boot, neither of which can be
+    # settled without the board in hand: `rotation` (0/90/180/270, depending on
+    # which way the Tail485 makes you mount it) and `invert_colors` (flip it if
+    # the screen comes up as a negative). The panel's own 2/1 pixel offset is
+    # already baked into the GC9107 model, so that is not the knob here.
     rotation: 0°
     update_interval: 2s
     lambda: |-
