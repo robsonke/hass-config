@@ -248,15 +248,9 @@ switch:
           id: send_plp
           cmd: 'PRA0'
 
-# No *program* select here. Program choice is owned by light.pool_light in
-# packages/pkg_pool.yaml, whose effect_list comes from
-# input_select.pool_light_program_options ("01. Deep Blue Sea" ... "14. Sun
-# White") and which sends PS + the leading two digits. That numbering already
-# matches the manual's PSxx range of 01-14; the modbus optionsmap that used to
-# sit here was 0-10 and disagreed with both.
-#
-# Colour temperature is different: there is no HA-side helper for it and the
-# template light has nowhere to put it, so it lives on the node.
+# No program select: light.pool_light in pkg_pool.yaml owns program choice via
+# input_select.pool_light_program_options, sending PS+two digits (01-14).
+# Colour temperature has no HA-side helper, so it lives on the node instead.
 select:
   - platform: template
     id: pool_light_color_temp
