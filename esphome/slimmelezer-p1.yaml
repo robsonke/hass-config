@@ -14,19 +14,9 @@ esphome:
   project:
     name: zuidwijk.slimmelezer
     version: "1.0"
-  # on_boot:
-  #   then:
-  #     - if:
-  #         condition:
-  #           lambda: return id(has_key);
-  #         then:
-  #           - lambda: |-
-  #               std::string key(id(stored_decryption_key), 32);
-  #               id(dsmr_instance).set_decryption_key(key);
-  #         else:
-  #           - logger.log:
-  #               level: info
-  #               format: "Not using decryption key. If you need to set a key use Home Assistant service 'ESPHome:  ${device_name}_set_dsmr_key'"
+  # on_boot key restore is commented out (matches the api: service below): the
+  # HA "set_dsmr_key" service currently only logs the key, it never calls
+  # set_decryption_key. Uncomment both blocks together to make it work.
 
 # `packages:` rather than a `<<` merge key: `<<` does not merge nested
 # sections - the first definition wins and the rest is dropped, which is how
@@ -48,13 +38,8 @@ api:
       - logger.log:
           format: Setting private key %s. Set to empty string to disable
           args: [private_key.c_str()]
-      # - globals.set:
-      #     id: has_key
-      #     value: !lambda "return private_key.length() == 32;"
-      # - lambda: |-
-      #     if (private_key.length() == 32)
-      #       private_key.copy(id(stored_decryption_key), 32);
-      #     id(dsmr_instance).set_decryption_key(private_key);
+      # Disabled (pairs with the on_boot loader above): would store the key and
+      # call set_decryption_key. Until uncommented, the service above only logs it.
 
 uart:
   baud_rate: 115200
