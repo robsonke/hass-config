@@ -1,6 +1,18 @@
-# RS-485 control of Duratech PLP-REM-350; AtomS3+Tail485 replacement for the
-# StickC node `pool-lights` - protocol/queue/comments carried over verbatim.
-# Deliberately dropped as unused (do not re-add): status_led, Button A/B, remote_transmitter, i2c.
+# RS-485 control of Duratech PLP-REM-350. Replaces the M5StickC node
+# `pool-lights` (esphome/archive/pool-lights.yaml) with an **M5StickS3**.
+# Protocol, queue and their comments are carried over verbatim; everything
+# board-specific below was rewritten against docs.m5stack.com/en/core/StickS3,
+# the V0.6 schematic netlist and M5GFX's board_M5StickS3 block.
+#
+# The StickS3 is NOT a drop-in successor to the StickC. Different expansion
+# header (16-pin Hat2-Bus, not the StickC's 8-pin), different PMIC (M5PM1 at
+# I2C 0x6E, not an AXP192), and no G0/G26 anywhere on the header. An earlier
+# revision of this file targeted an AtomS3 and had every pin wrong.
+#
+# Display deliberately omitted. The panel is an ST7789P3 135x240 on
+# MOSI=39/SCLK=40/CS=41/DC=45/RST=21, backlight GPIO38, invert_colors, offsets
+# 52/40 - but it also needs the M5PM1's L3B rail switched on first, and this
+# node's job is a UART. Add it back once the lights are proven.
 
 substitutions:
   devicename: "s3-pool-lights"
@@ -18,13 +30,16 @@ esphome:
   min_version: 2026.4.0
 
 esp32:
-  board: m5stack-atoms3
-  # ESPHome's schema defaults flash_size to 4MB and the board entry does not
-  # raise it, so without this line half the flash on an ESP32-S3FN8 (the FN8
-  # suffix *is* 8MB embedded flash) goes unused and the partition table is cut
-  # to match. No `psram:` block and no `variant:`: this is the plain AtomS3, not
-  # the AtomS3R, and the variant is already implied by the board.
+  # ESPHome 2026.9 has no m5stick-s3 board entry and neither does PlatformIO,
+  # so use the generic S3 devkit: `board:` only supplies pin aliases, which we
+  # do not rely on - every pin below is numeric.
+  board: esp32-s3-devkitc-1
+  # ESP32-S3-PICO-1-N8R8: 8MB flash. ESPHome defaults this to 4MB and the
+  # board entry does not raise it, which would cut the partition table in half.
   flash_size: 8MB
+  # No `psram:` block on purpose. The R8 part does have 8MB octal PSRAM, but
+  # nothing here needs it, and a wrong psram mode costs a USB reflash to undo.
+  # Its pins (GPIO33-37) are consumed by the hardware either way.
   framework:
     # Same reasoning as on the StickC: esp-idf is the framework this protocol
     # has been proven on. The StickC also had a concrete extra reason - its TX
@@ -41,9 +56,14 @@ packages:
 
 logger:
   # DEBUG is needed for the uart debug block below to actually emit (ESP_LOGD);
-  # INFO stays silent. No baud_rate/hardware_uart override needed: logging uses
-  # USB-CDC, which shares no pins with the Tail485 UART.
+  # INFO stays silent.
+  #
+  # hardware_uart is NOT optional here. ESPHome's logger claims UART0 by
+  # default, and on the ESP32-S3 UART0 *is* GPIO43/GPIO44 - the exact pins the
+  # Hat2-Bus gives us for RS-485. Left at the default the log and the light
+  # controller would fight over the same two pins.
   level: DEBUG
+  hardware_uart: USB_SERIAL_JTAG
 
 api:
   encryption:
@@ -67,13 +87,18 @@ api:
             id: send_plp
             cmd: !lambda 'return command;'
 
-# ATOM Tail485 uses the Grove port: AtomS3 yellow=G2(TX), white=G1(RX)
-# (confirmed via M5's Grove pin table). Don't copy G5/G6 from other guides -
-# that's the Atomic RS485 Base; unlike the StickC's GPIO0, neither pin here is a strapping pin.
+# Hat2-Bus (2.54-16P) pins 10 and 12 = GPIO43 / GPIO44, per the PinMap table
+# on docs.m5stack.com/en/core/StickS3 and the schematic's EXT_GPIO43/EXT_GPIO44
+# nets. These are the S3's native UART0 pins - see the logger block above,
+# which has to be moved off them.
+#
+# The StickC's G0/G26 do not exist on this header. The one pin that *is* GPIO0
+# (Hat2 pin 5, "Boot") is both an S3 strapping pin and actively driven by the
+# M5PM1's open-drain BOOT_OUT, so it must not be used as TX. G43/G44 are clean.
 uart:
   id: mod_bus
-  tx_pin: GPIO2
-  rx_pin: GPIO1
+  tx_pin: GPIO43
+  rx_pin: GPIO44
   baud_rate: 9600
   data_bits: 8
   stop_bits: 1
@@ -220,18 +245,25 @@ button:
           id: send_plp
           cmd: 'PsS'
 
-# The AtomS3's front face is one big button. Exposed for parity with the
-# StickC's Button A/B; nothing in HA consumes it.
+# BtnA/BtnB, the StickS3's two physical keys: GPIO11 and GPIO12, active low
+# with external 10k pull-ups to 3V3_L2 (so no internal pullup needed).
+# Nothing in HA consumes these - they are kept as a pinmap canary. If either
+# reads permanently "on", the board is not what this file thinks it is. The
+# previous revision had a binary_sensor on GPIO41, which on this board is the
+# LCD chip-select, and it duly sat stuck at "on".
 binary_sensor:
   - platform: gpio
     pin:
-      number: GPIO41
+      number: GPIO11
       inverted: true
-      mode:
-        input: true
-        pullup: true
-    id: button_face
-    name: Button
+    id: button_a
+    name: Button A
+  - platform: gpio
+    pin:
+      number: GPIO12
+      inverted: true
+    id: button_b
+    name: Button B
 
 # No local on/off state; the Shelly clamp on the lights' phase (same signal
 # pkg_pool.yaml trusts) is the only honest "is it on" source - unlike the
@@ -241,59 +273,3 @@ sensor:
     name: "Power Usage Pool Lights"
     entity_id: sensor.pool_shelly_3em_phase_c_power
     id: pool_lights_power
-
-spi:
-  clk_pin: GPIO17
-  mosi_pin: GPIO21
-
-font:
-  - file: "gfonts://Roboto"
-    id: roboto
-    size: 14
-
-# Built-in 0.85" 128x128 IPS panel, GC9107 controller.
-# Use `model: GC9107`, NOT M5STACK-ATOMS3R-GC9107 - that preset is for the
-# AtomS3R (wrong pins, requires psram); the generic GC9107 fits this board.
-display:
-  - platform: mipi_spi
-    model: GC9107
-    cs_pin: GPIO15
-    dc_pin: GPIO33
-    reset_pin: GPIO34
-    # Start true: ESPHome's generic GC9107 leaves this false, but its
-    # M5STACK-ATOMS3R-GC9107 preset - the same 0.85" panel - sets it true.
-    invert_colors: true
-    # First-boot unknowns (need board in hand): rotation, invert_colors,
-    # color_order (bgr default), offset_width/offset_height (GC9107 preset vs
-    # M5GFX geometry disagree). Blank screen = known bug esphome#18815; test with show_test_card first.
-    rotation: 0°
-    update_interval: 2s
-    lambda: |-
-      it.printf(64, 4, id(roboto), TextAlign::TOP_CENTER, "Pool Lights");
-      it.printf(64, 48, id(roboto), TextAlign::TOP_CENTER, "%s",
-                id(pool_lights).state ? "ON" : "OFF");
-      if (id(pool_lights_power).has_state()) {
-        it.printf(64, 80, id(roboto), TextAlign::TOP_CENTER, "%.1f W",
-                  id(pool_lights_power).state);
-      } else {
-        it.printf(64, 80, id(roboto), TextAlign::TOP_CENTER, "-- W");
-      }
-
-light:
-  # The panel backlight. Not a status light - it is here so the screen can be
-  # switched off from HA without taking the node down.
-  - platform: monochromatic
-    output: lcd_backlight
-    name: "Display Backlight"
-    restore_mode: ALWAYS_ON
-
-output:
-  - platform: ledc
-    pin: GPIO16
-    id: lcd_backlight
-    # GPIO16 gates an SGM2578 charge pump rather than driving the LEDs
-    # directly. M5Stack: "The PWM signal frequency for the LCD backlight driver
-    # is recommended to be 500Hz. A frequency that is too high may cause
-    # abnormal brightness adjustment." ESPHome's ledc default is 1000Hz, so
-    # this has to be said out loud.
-    frequency: 500Hz
