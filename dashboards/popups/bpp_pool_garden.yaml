@@ -14,15 +14,17 @@ name: Zwembad
 icon: mdi:pool
 # header = watertemp + warmtepompstatus (warm = verwarmt, blauw = koelt)
 entity: climate.fairland_zwembad_climate
-show_state: true
+state_content: >-
+  {%- set t = state_attr('climate.fairland_zwembad_climate','current_temperature') | float(-99999) -%}
+  {%- set tgt = state_attr('climate.fairland_zwembad_climate','temperature') | float(-99999) -%}
+  {%- set s = states('climate.fairland_zwembad_climate') -%}
+  {{ 'Water ' ~ (((('%.1f' | format(t)) | replace('.', ',')) ~ '°C') if t != -99999 else '—') ~ ((' · doel ' ~ (tgt | round | int) ~ '°') if (s in ['heat','cool','auto'] and tgt != -99999) else '') }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['climate.fairland_zwembad_climate']?.state; return s === 'cool' ? 'rgba(55,138,221,0.16)' : s === 'heat' ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const s = hass.states['climate.fairland_zwembad_climate']?.state; return s === 'cool' ? 'rgba(55,138,221,0.22)' : s === 'heat' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const s = hass.states['climate.fairland_zwembad_climate']?.state; return s === 'cool' ? '#82bbf0' : s === 'heat' ? '#f0cf8f' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const c = hass.states['climate.fairland_zwembad_climate']; const t = parseFloat(c?.attributes?.current_temperature); const tgt = parseFloat(c?.attributes?.temperature); const s = c?.state; let o = 'Water ' + (isFinite(t) ? t.toFixed(1).replace('.', ',') + '°C' : '—'); if ((s === 'heat' || s === 'cool' || s === 'auto') && isFinite(tgt)) o += ' · doel ' + Math.round(tgt) + '°'; return o; })()}";
   }
 cards:
   # ── rol dek ───────────────────────────────────────────────────────
@@ -53,9 +55,11 @@ cards:
           - icon: mdi:arrow-down
             tap_action: { action: perform-action, perform_action: cover.close_cover, target: { entity_id: cover.pool_deck } }
             show_background: true
+        state_content: >-
+          {%- set p = state_attr('cover.pool_deck','current_position') -%}
+          {{ '' if p is none else ('open' if p >= 100 else ('dicht' if p <= 0 else (p ~ '%'))) }}
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const p = hass.states['cover.pool_deck']?.attributes?.current_position; return p == null ? '' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -64,11 +68,11 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: "{{ 'Vergrendeld' if is_state('lock.aquadeck_rol_dek','locked') else 'Ontgrendeld' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'locked' ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'locked' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'locked' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'locked' ? 'Vergrendeld' : 'Ontgrendeld'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'locked' ? '#9ed9bd' : '#8f8e9e'} !important; }
   # ── verlichting ───────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -104,11 +108,16 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: >-
+          {%- if not is_state('switch.pool_pomp_switch','on') -%}uit
+          {%- else -%}
+          {%- set f = states('sensor.pool_pump_frequency_level') -%}
+          {{ (f ~ ' Hz') if f not in ['unknown','unavailable',''] else 'aan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.pool_pomp_switch']?.state !== 'on') return 'uit'; const f = hass.states['sensor.pool_pump_frequency_level']?.state; return (f && f !== 'unknown' && f !== 'unavailable') ? f + ' Hz' : 'aan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -117,11 +126,11 @@ cards:
         icon: mdi:waves
         card_layout: large
         tap_action: { action: more-info }
+        state_content: "{{ 'Ja' if is_state('binary_sensor.pool_pump_active','on') else 'Nee' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'on' ? 'Ja' : 'Nee'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
   # ── water ─────────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

@@ -16,15 +16,14 @@ name: Muziekhub
 icon: mdi:music-circle
 # header = how many rooms are playing right now
 entity: input_select.music_hub_room
-show_state: true
+state_content: >-
+  {%- set P = ['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2'] -%}
+  {%- set n = expand(P) | selectattr('state','eq','playing') | list | count -%}
+  {{ 'Niets aan het spelen' if n == 0 else n ~ (' kamer speelt' if n == 1 else ' kamers spelen') }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
-    font-size: 13px !important; font-weight: 500; color: #b9c0c7 !important;
-    content: "${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; const n=P.filter(p=>hass.states[p]?.state==='playing').length; return n===0 ? 'Niets aan het spelen' : (n+(n===1?' kamer speelt':' kamers spelen')); })()}";
-  }
+  .bubble-state { font-size: 13px !important; font-weight: 500; color: #b9c0c7 !important; }
 cards:
   # ── Kamers (tap = kies kamer · hold = meer info) ───────────────────
   - type: custom:bubble-card
@@ -44,12 +43,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Woonkamer } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.woonkamer_ma_sonos'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.woonkamer_ma_sonos','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Woonkamer'; const playing=hass.states['media_player.woonkamer_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Woonkamer' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.woonkamer_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.woonkamer_ma_sonos']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -60,12 +67,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Eetkamer } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.eetkamer_ma_sonos'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.eetkamer_ma_sonos','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Eetkamer'; const playing=hass.states['media_player.eetkamer_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Eetkamer' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.eetkamer_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.eetkamer_ma_sonos']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -76,12 +91,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Shed } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.office_ma_sonos'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.office_ma_sonos','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Shed'; const playing=hass.states['media_player.office_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Shed' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.office_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.office_ma_sonos']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -92,12 +115,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Office } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.unnamed_room_3'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.unnamed_room_3','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Office'; const playing=hass.states['media_player.unnamed_room_3']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Office' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.unnamed_room_3']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.unnamed_room_3']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -108,12 +139,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Eva } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.unnamed_room'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.unnamed_room','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Eva'; const playing=hass.states['media_player.unnamed_room']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Eva' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.unnamed_room']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.unnamed_room']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -124,12 +163,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: TV Speaker } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.tv_speaker_ma_sonos'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.tv_speaker_ma_sonos','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='TV Speaker'; const playing=hass.states['media_player.tv_speaker_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='TV Speaker' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.tv_speaker_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.tv_speaker_ma_sonos']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -140,12 +187,20 @@ cards:
         button_action:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Sonos Roam } }
           hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.sonos_roam_2'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.sonos_roam_2','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Sonos Roam'; const playing=hass.states['media_player.sonos_roam_2']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Sonos Roam' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.sonos_roam_2']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12px !important; color: #9aa1a8 !important; content: "${(() => { const s=hass.states['media_player.sonos_roam_2']; if(!s) return '—'; if(s.state==='paused') return 'gepauzeerd'; if(['idle','off','unavailable','standby'].includes(s.state)) return 'stil'; const t=(s.attributes.media_title||'').replace(/,/g,' '); return t ? (t.length>24 ? t.slice(0,23)+'…' : t) : 'speelt'; })()}"; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
   # ── Favoriet het huidige nummer op de gekozen kamer ────────────────
   - type: custom:bubble-card
     card_type: button

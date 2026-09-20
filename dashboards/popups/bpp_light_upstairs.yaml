@@ -13,16 +13,14 @@ auto_close: 60000
 name: Verlichting boven
 icon: mdi:lightbulb-group
 entity: light.dimmer_corridor
-show_state: true
+state_content: >-
+  {%- set m = expand(['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom']) -%}
+  {%- set o = m | selectattr('state','eq','on') | list | count -%}
+  {{ 'Alles uit' if o == 0 else o ~ ' aan · ' ~ (m | count - o) ~ ' uit' }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
   .bubble-icon-container { background-color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
-    font-size: 14px !important; font-weight: 500;
-    color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important;
-    content: "${(() => { const m = ['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles uit' : o + ' aan · ' + (m.length - o) + ' uit'; })()}";
-  }
+  .bubble-state { font-size: 14px !important; font-weight: 500; color: ${['light.dimmer_corridor','light.toilet_upstairs_light','light.bedroom_sonos_light','light.dimmer_masterbed','light.dimmer_mastercloset','light.dimmer_masterbath','light.dimmer_eva','light.dimmer_bathroom','light.dimmer_noa','light.dimmer_guestroom'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important; }
 cards:
   - type: custom:bubble-card
     card_type: separator

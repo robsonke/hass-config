@@ -12,16 +12,15 @@ name: Sonos - Tuin
 icon: mdi:music
 # header shows which speakers in this zone are playing (green) or "Niets aan het spelen"
 entity: media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
-show_state: true
+state_content: >-
+  {%- set n = expand(['media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam']) | selectattr('state','eq','playing')
+     | map(attribute='name') | map('regex_replace','^Speakers ','')
+     | map('regex_replace',' Speaker$','') | list -%}
+  {{ n | join(' · ') if n else 'Niets aan het spelen' }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const P=['media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const P=['media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
-    font-size: 13px !important; font-weight: 500;
-    color: ${(() => { const P=['media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam']; return P.some(p=>hass.states[p]?.state==='playing') ? '#9ed9bd' : '#8f8e9e'; })()} !important;
-    content: "${(() => { const P=['media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam']; const n=P.map(p=>hass.states[p]).filter(s=>s&&s.state==='playing').map(s=>(s.attributes.friendly_name||'').replace(/^Speakers /,'').replace(/ Speaker$/,'')); return n.length ? n.join(String.fromCharCode(32,183,32)) : 'Niets aan het spelen'; })()}";
-  }
+  .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const P=['media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos','media_player.sonos_roam']; return P.some(p=>hass.states[p]?.state==='playing') ? '#9ed9bd' : '#8f8e9e'; })()} !important; }
 cards:
   - type: custom:decluttering-card
     template: sonos_popup

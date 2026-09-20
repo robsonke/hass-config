@@ -3934,7 +3934,7 @@
 
     Herschreven 2026-09-17. Was: alles boven een hardgecodeerde 46 graden
     terugzetten naar 45. Die drempel botst met de zonnesturing, die bewust naar
-    52 laadt, en zou elke lading binnen een minuut terugdraaien. Vergelijkt nu
+    52 opwarmt, en zou elke opwarmbeurt binnen een minuut terugdraaien. Vergelijkt nu
     tegen sensor.dhw_target_setpoint - het setpoint dat het vat volgens de
     sturing hoort te hebben. Dat is strikt breder dan het origineel, want het
     vangt ook een te LAAG overgenomen setpoint.
@@ -3942,8 +3942,6 @@
     De is_number-guard is nodig omdat sensor.dhw_target_setpoint unavailable
     wordt als de tanksensor wegvalt; dan valt er niets te vergelijken en mag er
     zeker niets geschreven worden.
-
-    Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
   triggers:
   - trigger: template
     value_template: >-
@@ -4214,7 +4212,7 @@
       entity_id: input_select.pool_light_program_options
     data:
       cycle: true
-  - action: esphome.pool_lights_send_uart_command
+  - action: esphome.s3_pool_lights_send_uart_command
     data:
       command: PS{{ states('input_select.pool_light_program_options')[:2] }}
   mode: single
@@ -4237,24 +4235,22 @@
       entity_id: input_select.pool_light_program_options
     data:
       cycle: true
-  - action: esphome.pool_lights_send_uart_command
+  - action: esphome.s3_pool_lights_send_uart_command
     data:
       command: PS{{ states('input_select.pool_light_program_options')[:2] }}
   mode: single
 - id: '1789600000001'
-  alias: DHW - Plan het laadvenster
+  alias: DHW - Plan het opwarmvenster
   description: >-
-    Bepaalt een keer per etmaal wanneer het tapwatervat geladen wordt: rond de
+    Bepaalt een keer per etmaal wanneer het tapwatervat opgewarmd wordt: rond de
     zonnepiek als Solcast genoeg belooft, anders in het goedkoopste prijsblok
     voor 16:00. Draait om 00:15, nadat Nordpool raw_today is doorgerold en de
     Solcast-dagprognose beschikbaar is.
 
-    Bewust niet op live teruglevering sturen: zodra de pomp laadt trekt hij
+    Bewust niet op live teruglevering sturen: zodra de pomp opwarmt trekt hij
     ~1,5 kW, verdwijnt het overschot en klapt de conditie om. Dat pendelt. Een
-    vat van 200 liter is een trage buffer waar een laadbeurt uren op duurt -
+    vat van 200 liter is een trage buffer waar een opwarmbeurt uren op duurt -
     die plan je vooruit.
-
-    Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
   triggers:
   - trigger: time
     at: 00:15:00
@@ -4316,7 +4312,7 @@
 - id: '1789600000003'
   alias: DHW - Waarschuw bij koud vat
   description: >-
-    Het vat hoort nooit lang onder 36 graden te staan: zelfs in de uitteerfase
+    Het vat hoort nooit lang onder 36 graden te staan: zelfs in de afkoelfase
     verwarmt de Daikin uit zichzelf bij op ongeveer 4 K onder het setpoint van
     40. Blijft hij toch 45 minuten koud, dan verwarmt de unit niet bij en is er
     iets stuk. Alleen melden, niet ingrijpen - ingrijpen zou het echte probleem
@@ -4328,8 +4324,6 @@
     numeric_state-trigger opnieuw scherp, waarna een ongewijzigde waarde alsnog
     vuurt. De platform-check staat er eerst omdat trigger.from_state
     LoggingUndefined is voor niet-state-triggers.
-
-    Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
   triggers:
   - trigger: numeric_state
     entity_id: sensor.domestichotwatertank_tank_temperature

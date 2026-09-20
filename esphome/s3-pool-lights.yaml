@@ -16,9 +16,10 @@
 #     one button: the whole display face. One `Button` entity below replaces the
 #     two; nothing consumed either of them.
 #   - `remote_transmitter` on GPIO9. Inherited by copy-paste from
-#     archive/pool-fairland-heatpump.yaml and never used by anything. Dropped
-#     rather than re-pinned to the AtomS3's IR LED on a board where it has never
-#     been tested.
+#     archive/pool-fairland-heatpump.yaml and never used by anything. The AtomS3
+#     does have an IR LED - on GPIO4, low-side driven through a 22R - so if a
+#     use ever turns up, `remote_transmitter: {pin: GPIO4}` is all it takes.
+#     Dropped here because nothing in HA ever sent through it.
 #   - `i2c:` on GPIO21/22. Nothing on this node ever read a device off it.
 
 substitutions:
@@ -344,12 +345,23 @@ display:
     cs_pin: GPIO15
     dc_pin: GPIO33
     reset_pin: GPIO34
+    # Start true: ESPHome's generic GC9107 leaves this false, but its
+    # M5STACK-ATOMS3R-GC9107 preset - the same 0.85" panel - sets it true.
     invert_colors: true
-    # Two knobs to expect to touch on first boot, neither of which can be
-    # settled without the board in hand: `rotation` (0/90/180/270, depending on
-    # which way the Tail485 makes you mount it) and `invert_colors` (flip it if
-    # the screen comes up as a negative). The panel's own 2/1 pixel offset is
-    # already baked into the GC9107 model, so that is not the knob here.
+    # Knobs to expect to touch on first boot, none of which can be settled
+    # without the board in hand:
+    #   rotation      0/90/180/270, depending on how the Tail485 makes you
+    #                 mount it.
+    #   invert_colors flip if the screen comes up as a negative.
+    #   color_order   defaults to bgr; flip to rgb if red and blue swap. No
+    #                 primary source states this panel's true order.
+    #   offsets       the GC9107 model bakes in 128x128 @ offset 2/1, but
+    #                 M5's own M5GFX drives this panel as 128x160 @ offset_y 32
+    #                 and the two cannot both be right. If the image sits
+    #                 shifted, try offset_width: 0 / offset_height: 32.
+    # If it comes up blank rather than wrong, that is a known one: esphome
+    # issue #18815, still open, against this GC9107 preset family. Prove the
+    # panel with `show_test_card: true` before blaming the lambda.
     rotation: 0°
     update_interval: 2s
     lambda: |-
@@ -375,3 +387,9 @@ output:
   - platform: ledc
     pin: GPIO16
     id: lcd_backlight
+    # GPIO16 gates an SGM2578 charge pump rather than driving the LEDs
+    # directly. M5Stack: "The PWM signal frequency for the LCD backlight driver
+    # is recommended to be 500Hz. A frequency that is too high may cause
+    # abnormal brightness adjustment." ESPHome's ledc default is 1000Hz, so
+    # this has to be said out loud.
+    frequency: 500Hz

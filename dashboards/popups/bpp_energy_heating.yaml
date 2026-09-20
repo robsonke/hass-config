@@ -1,6 +1,5 @@
 # Bubble Card native pop-up (hash #klimaat-beneden) — Klimaat tile (Beneden).
 # Bubble climate card (warmtepomp) + Verwarmen/Koelen toggles + settings expander + graphs.
-# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,15 +13,17 @@ name: Koeling en verwarming beneden
 icon: mdi:thermostat
 # header = beneden temp + heatpump action (warm = verwarmt, blauw = koelt, dim = uit)
 entity: sensor.downstairs_temperature
-show_state: true
+state_content: >-
+  {%- set t = states('sensor.downstairs_temperature') | float(-99999) -%}
+  {%- set tt = ((('%.1f' | format(t)) | replace('.', ',')) ~ '°C') if t != -99999 else '—' -%}
+  {%- set a = state_attr('climate.warmtepomp','hvac_action') -%}
+  {{ 'Beneden ' ~ tt ~ (' · verwarmt' if a == 'heating' else (' · koelt' if a == 'cooling' else '')) }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return a === 'heating' ? 'rgba(240,195,95,0.13)' : a === 'cooling' ? 'rgba(55,138,221,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return a === 'heating' ? 'rgba(240,195,95,0.20)' : a === 'cooling' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return a === 'heating' ? '#f0cf8f' : a === 'cooling' ? '#82bbf0' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const t = parseFloat(hass.states['sensor.downstairs_temperature']?.state); const tt = isFinite(t) ? t.toFixed(1).replace('.', ',') + '°C' : '—'; const a = hass.states['climate.warmtepomp']?.attributes?.hvac_action; return 'Beneden ' + tt + (a === 'heating' ? ' · verwarmt' : a === 'cooling' ? ' · koelt' : ''); })()}";
   }
 cards:
   # ── warmtepomp thermostaat ────────────────────────────────────────
@@ -51,11 +52,11 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: "{{ 'aan' if is_state('input_boolean.heating_downstairs','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -65,11 +66,11 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: "{{ 'aan' if is_state('input_boolean.cooling_downstairs','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
   # ── instellingen (behouden) ───────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

@@ -1,5 +1,5 @@
 # Bubble Card native pop-up (hash #ramen-boven) — Ramen tile (Boven).
-# State-card grid pattern — see docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
+# State-card grid pattern.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,16 +14,19 @@ icon: mdi:window-closed-variant
 # summary lives in the pop-up header: entity drives the header state line,
 # which we override to the computed "N open · M dicht" count.
 entity: binary_sensor.doors_and_windows_upstairs
-show_state: true
+# Bubble Card 3.4.0: tekst komt uit state_content (server-side Jinja), niet meer
+# uit een CSS-::after met font-size 0. Kleur blijft JS.
+state_content: >-
+  {%- set m = expand('binary_sensor.doors_and_windows_upstairs') -%}
+  {%- set o = m | selectattr('state','eq','on') | list | count -%}
+  {{ 'Alles dicht' if o == 0 else o ~ ' open · ' ~ (m | count - o) ~ ' dicht' }}
 styles: |
   /* calm the header's default on-state (blue) to the same soft tint as the cards */
   .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
   .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${state === 'on' ? '#82bbf0' : '#9ed9bd'} !important;
-    content: "${(() => { const g = hass.states['binary_sensor.doors_and_windows_upstairs']; const m = (g?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
   }
 cards:
   # ── section: Master bedroom ───────────────────────────────────────
@@ -43,11 +46,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.window_masterbed_1_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_masterbed_1_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -57,11 +71,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.window_masterbed_2_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_masterbed_2_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
   # ── section: Overig ───────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -79,11 +104,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.window_eva_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_eva_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -93,11 +129,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.window_noaroom_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_noaroom_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -107,8 +154,19 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.window_guestroom_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_guestroom_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }

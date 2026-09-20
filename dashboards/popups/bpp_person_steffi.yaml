@@ -12,15 +12,24 @@ name: Steffi
 icon: mdi:account
 # header = aanwezigheid (groen thuis, blauw op werk/zone, dim onderweg) + duur
 entity: person.steffi
-show_state: true
+state_content: >-
+  {%- set st = states['person.steffi'] -%}
+  {%- if st is none -%}—
+  {%- else -%}
+  {%- set s = (now() - st.last_changed).total_seconds() -%}
+  {%- if s < 60 -%}{%- set d = 'net' -%}
+  {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+  {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+  {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+  {%- endif -%}
+  {{ {'home':'Thuis','not_home':'Onderweg'}.get(st.state, st.state) ~ ' · ' ~ d }}
+  {%- endif -%}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['person.steffi']?.state; return s === 'home' ? 'rgba(45,170,115,0.14)' : (s === 'not_home') ? 'rgba(255,255,255,0.04)' : 'rgba(55,138,221,0.16)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const s = hass.states['person.steffi']?.state; return s === 'home' ? 'rgba(45,170,115,0.20)' : (s === 'not_home') ? 'rgba(255,255,255,0.07)' : 'rgba(55,138,221,0.22)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const s = hass.states['person.steffi']?.state; return s === 'home' ? '#9ed9bd' : (s === 'not_home') ? '#9b9aac' : '#82bbf0'; })()} !important;
-    content: "${(() => { const p = hass.states['person.steffi']; const s = p?.state; const label = ({ home: 'Thuis', not_home: 'Onderweg' })[s] || s; const t = p?.last_changed; const secs = (Date.now() - new Date(t)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return label + ' · ' + d; })()}";
   }
 cards:
   # ── bed (Auping) ──────────────────────────────────────────────────
@@ -84,13 +93,15 @@ cards:
     tap_action: { action: navigate, navigation_path: '#sport-steffi' }
     button_action:
       tap_action: { action: navigate, navigation_path: '#sport-steffi' }
+    state_content: >-
+      {%- set w = states('sensor.strava_run_week_steffi') | float(-1) -%}
+      {%- set a = states('sensor.strava_steffi_berks_run') -%}
+      {{ ('—' if w < 0 else '%.1f' | format(w)) ~ ' km deze week' ~ ((' · ' ~ a) if a not in ['unknown','unavailable',''] else '') }}
     styles: |
       .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.14) !important; }
       .bubble-icon-container { background-color: rgba(252,82,0,0.22) !important; }
-      .bubble-state { font-size: 0 !important; }
-      .bubble-state::after {
+      .bubble-state {
         font-size: 13px !important; font-weight: 500; color: #ff8a5c !important;
-        content: "${(() => { const w = hass.states['sensor.strava_run_week_steffi']?.state; const km = isNaN(parseFloat(w)) ? '—' : parseFloat(w).toFixed(1); const act = hass.states['sensor.strava_steffi_berks_run']?.state; return km + ' km deze week' + (act ? String.fromCharCode(32,183,32) + act : ''); })()}";
       }
   # ── kaart ─────────────────────────────────────────────────────────
   - type: custom:bubble-card
@@ -133,11 +144,11 @@ cards:
         icon: mdi:wifi
         card_layout: large
         tap_action: { action: more-info }
+        state_content: "{{ 'thuis' if is_state('device_tracker.iphonedetect_steffi','home') else 'weg' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -146,11 +157,11 @@ cards:
         icon: mdi:apple
         card_layout: large
         tap_action: { action: more-info }
+        state_content: "{{ 'thuis' if is_state('device_tracker.icloud_iphone_steffi','home') else 'weg' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -159,8 +170,8 @@ cards:
         icon: mdi:cellphone
         card_layout: large
         tap_action: { action: more-info }
+        state_content: "{{ 'thuis' if is_state('device_tracker.iphone_steffi','home') else 'weg' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'home' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'home' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'home' ? 'thuis' : 'weg'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'home' ? '#7db8ec' : '#8f8e9e'} !important; }

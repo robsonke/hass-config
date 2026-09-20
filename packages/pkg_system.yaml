@@ -128,25 +128,39 @@ binary_sensor:
     entities:
       - binary_sensor.sheddoor_openclose_contact
       - binary_sensor.cabindoor_openclose_contact
+  # De hele buitenschil = precies de vereniging van downstairs + upstairs +
+  # garden hieronder. Die gelijkheid is de enige regel die deze groep heeft;
+  # wijkt hij af, dan is er iets vergeten.
+  #
+  # Stond eerder scheef: bevatte door_hallcloset (een binnendeur, zit nu in
+  # interior_doors_downstairs) en miste door_terrace, terwijl dat juist een
+  # buitendeur is die Alarmo bewaakt.
   - platform: group
     unique_id: doors_and_windows
     name: All doors and windows
     device_class: opening
     entities:
+      # beneden (7)
       - binary_sensor.backdoor_sensor_contact
       - binary_sensor.frontdoor_openclose_contact
-      - binary_sensor.sheddoor_openclose_contact
-      - binary_sensor.cabindoor_openclose_contact
+      - binary_sensor.door_terrace_sensor_contact
       - binary_sensor.windowdoor_ground_1_openclose_contact
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
       - binary_sensor.window_office_openclose_contact
-      - binary_sensor.door_hallcloset_openclose_contact
+      # boven (5)
       - binary_sensor.window_noaroom_openclose_contact
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_masterbed_1_openclose_contact
       - binary_sensor.window_masterbed_2_openclose_contact
       - binary_sensor.window_guestroom_openclose_contact
+      # tuin (2)
+      - binary_sensor.sheddoor_openclose_contact
+      - binary_sensor.cabindoor_openclose_contact
+  # De buitenschil beneden. Deze zeven zijn exact de deuren en ramen die Alarmo
+  # beneden bewaakt, dus "alles dicht" hier betekent ook echt "klaar om in te
+  # schakelen". Binnendeuren horen hier niet in - die staan in
+  # interior_doors_downstairs.
   - platform: group
     unique_id: doors_and_windows_downstairs
     name: All doors and windows downstairs
@@ -159,6 +173,17 @@ binary_sensor:
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
       - binary_sensor.window_office_openclose_contact
+  # Binnendeuren. Bewust apart: ze zeggen niets over of het huis dicht is en
+  # Alarmo bewaakt ze niet. Ze hebben wel hun eigen kaart in de deuren-pop-up,
+  # maar tellen niet mee in de kop daarvan.
+  - platform: group
+    unique_id: interior_doors_downstairs
+    name: All interior doors downstairs
+    device_class: opening
+    entities:
+      - binary_sensor.hallwaydoor_sensor_contact
+      - binary_sensor.door_hallcloset_openclose_contact
+      - binary_sensor.toiletdoordownstairs_sensor_contact
 
 group:
   # https://www.home-assistant.io/integrations/group/#old-style-groups

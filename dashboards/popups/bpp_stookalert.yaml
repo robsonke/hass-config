@@ -18,8 +18,6 @@ cards:
         entity: sensor.stookwijzer
         show_name: true
         show_state: true
-        show_last_changed: false
-        show_attribute: false
         styles: |-
           .bubble-button-background {
             opacity: 1 !important;
@@ -32,101 +30,85 @@ cards:
         card_type: button
         button_type: state
         entity: sensor.stookwijzer_advies_1
-        force_icon: true
-        icon: ""
         scrolling_effect: true
-        show_last_changed: false
-        show_attribute: true
-        attribute: time
+        state_content: >-
+          {%- set t = state_attr('sensor.stookwijzer_advies_1','time') -%}
+          {%- set d = t | as_datetime if t is not none else none -%}
+          {{ (d | as_local).strftime('%H:%M') if d is not none else '—' }}
         name: Advies periode 1
         sub_button:
           - show_icon: true
-            show_attribute: false
-            show_state: false
             show_background: false
             state_background: false
+            icon: "{{ 'mdi:lock' if state_attr('sensor.stookwijzer_advies_1','definitive') else '' }}"
         styles: |
           .bubble-button-background {
             opacity: 1 !important;
             background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
           }
-          ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
-        show_state: false
         show_name: false
       - type: custom:bubble-card
         card_type: button
         button_type: state
         entity: sensor.stookwijzer_advies_2
-        force_icon: true
-        icon: ""
         scrolling_effect: true
-        show_last_changed: false
-        show_attribute: true
-        attribute: time
-        name: Advies periode 1
+        state_content: >-
+          {%- set t = state_attr('sensor.stookwijzer_advies_2','time') -%}
+          {%- set d = t | as_datetime if t is not none else none -%}
+          {{ (d | as_local).strftime('%H:%M') if d is not none else '—' }}
+        name: Advies periode 2
         sub_button:
           - show_icon: true
-            show_attribute: false
-            show_state: false
             show_background: false
             state_background: false
+            icon: "{{ 'mdi:lock' if state_attr('sensor.stookwijzer_advies_2','definitive') else '' }}"
         styles: |
           .bubble-button-background {
             opacity: 1 !important;
             background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
           }
-          ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
-        show_state: false
         show_name: false
       - type: custom:bubble-card
         card_type: button
         button_type: state
         entity: sensor.stookwijzer_advies_3
-        force_icon: true
-        icon: ""
         scrolling_effect: true
-        show_last_changed: false
-        show_attribute: true
-        attribute: time
-        name: Advies periode 1
+        state_content: >-
+          {%- set t = state_attr('sensor.stookwijzer_advies_3','time') -%}
+          {%- set d = t | as_datetime if t is not none else none -%}
+          {{ (d | as_local).strftime('%H:%M') if d is not none else '—' }}
+        name: Advies periode 3
         sub_button:
           - show_icon: true
-            show_attribute: false
-            show_state: false
             show_background: false
             state_background: false
+            icon: "{{ 'mdi:lock' if state_attr('sensor.stookwijzer_advies_3','definitive') else '' }}"
         styles: |
           .bubble-button-background {
             opacity: 1 !important;
             background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
           }
-          ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
-        show_state: false
         show_name: false
       - type: custom:bubble-card
         card_type: button
         button_type: state
         entity: sensor.stookwijzer_advies_4
-        force_icon: true
-        icon: ""
         scrolling_effect: true
-        show_last_changed: false
-        show_attribute: true
-        attribute: time
-        name: Advies periode 1
+        state_content: >-
+          {%- set t = state_attr('sensor.stookwijzer_advies_4','time') -%}
+          {%- set d = t | as_datetime if t is not none else none -%}
+          {{ (d | as_local).strftime('%H:%M') if d is not none else '—' }}
+        name: Advies periode 4
         sub_button:
           - show_icon: true
-            show_attribute: false
-            show_state: false
             show_background: false
             state_background: false
+            icon: "{{ 'mdi:lock' if state_attr('sensor.stookwijzer_advies_4','definitive') else '' }}"
         styles: |
           .bubble-button-background {
             opacity: 1 !important;
             background-color: ${(state === 'code_red' ? '#e74c3c' : state === 'code_orange' ? '#ff9409' : 'green')} !important;
           }
-          ${subButtonIcon[0].setAttribute("icon", hass.states[entity].attributes['definitive'] === true ? 'mdi:lock' : '')}
-        show_state: false
         show_name: false
       - type: history-graph
         hours_to_show: 24

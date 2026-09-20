@@ -14,16 +14,17 @@ name: Screens
 icon: mdi:blinds
 # header summary = per-screen positie (blauw = open/omhoog, groen = dicht/omlaag)
 entity: cover.covers_downstairs
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${['cover.voorraam','cover.zijraam'].some(e => hass.states[e]?.state === 'open') ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
   .bubble-icon-container { background-color: ${['cover.voorraam','cover.zijraam'].some(e => hass.states[e]?.state === 'open') ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${['cover.voorraam','cover.zijraam'].some(e => hass.states[e]?.state === 'open') ? '#82bbf0' : '#9ed9bd'} !important;
-    content: "${(() => { const d = id => { const p = hass.states[id]?.attributes?.current_position; return p == null ? '?' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); }; return 'Voor ' + d('cover.voorraam') + ' · Zij ' + d('cover.zijraam'); })()}";
   }
+state_content: >-
+  {%- set pv = state_attr('cover.voorraam','current_position') -%}
+  {%- set pz = state_attr('cover.zijraam','current_position') -%}
+  {{ 'Voor ' ~ ('?' if pv is none else ('open' if pv >= 100 else ('dicht' if pv <= 0 else (pv ~ '%')))) ~ ' · Zij ' ~ ('?' if pz is none else ('open' if pz >= 100 else ('dicht' if pz <= 0 else (pz ~ '%')))) }}
 cards:
   # ── de twee screens ───────────────────────────────────────────────
   - type: custom:bubble-card
@@ -53,8 +54,10 @@ cards:
             tap_action: { action: perform-action, perform_action: cover.close_cover, target: { entity_id: cover.voorraam } }
             show_background: true
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const p = hass.states['cover.voorraam']?.attributes?.current_position; return p == null ? '' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; }
+        state_content: >-
+          {%- set p = state_attr('cover.voorraam','current_position') -%}
+          {{ '' if p is none else ('open' if p >= 100 else ('dicht' if p <= 0 else (p ~ '%'))) }}
       - type: custom:bubble-card
         card_type: button
         button_type: slider
@@ -75,8 +78,10 @@ cards:
             tap_action: { action: perform-action, perform_action: cover.close_cover, target: { entity_id: cover.zijraam } }
             show_background: true
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const p = hass.states['cover.zijraam']?.attributes?.current_position; return p == null ? '' : (p >= 100 ? 'open' : (p <= 0 ? 'dicht' : p + '%')); })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'open' ? '#7db8ec' : '#8fbda6'} !important; }
+        state_content: >-
+          {%- set p = state_attr('cover.zijraam','current_position') -%}
+          {{ '' if p is none else ('open' if p >= 100 else ('dicht' if p <= 0 else (p ~ '%'))) }}
   # ── instellingen ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

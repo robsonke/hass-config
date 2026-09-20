@@ -1,3 +1,16 @@
+# RETIRED 2026-09-19. Superseded by esphome/s3-pool-lights.yaml, which moved
+# this node's RS-485 control of the Duratech PLP-REM-350 from this M5StickC +
+# RS485 HAT onto an M5Stack AtomS3 + ATOM Tail485 at 192.168.0.112.
+#
+# Kept because the comments below are the record of how this protocol was
+# worked out - the new file carries them forward, but this is where the pin,
+# framework and framing decisions were actually paid for.
+#
+# To put the StickC back in service: `git mv esphome/archive/pool-lights.yaml
+# esphome/` and point packages/pkg_pool.yaml + the two "Zwembad -
+# (Vorig|Volgend) lichtprogramma" automations back at esphome.pool_lights_* and
+# switch.m5stickc_pool_lights_pool_lights.
+
 substitutions:
   devicename: "pool-lights"
   ip: !secret m5stickc_pool_lights_ip

@@ -13,15 +13,16 @@ icon: mdi:bed
 # header = kamerlicht (warm = aan) + temperatuur en luchtvochtigheid.
 # Was binary_sensor.noa_bed_presence, maar die detectie werkt niet betrouwbaar.
 entity: light.dimmer_noa
-show_state: true
+state_content: >-
+  {%- set t = states('sensor.climate_sensor_noa_temperature') | float(-999) -%}
+  {%- set h = states('sensor.climate_sensor_noa_humidity') | float(-999) -%}
+  {{ 'Licht aan' if is_state('light.dimmer_noa','on') else 'Licht uit' }} · {{ (((t | round(1)) | string | regex_replace('\.0$','')) ~ '°C') if t != -999 else '—' }} · {{ ((h | round | int) ~ '%') if h != -999 else '—' }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,190,70,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
   .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,190,70,0.24)' : 'rgba(255,255,255,0.07)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
-    content: "${(() => { const lit = hass.states['light.dimmer_noa']?.state === 'on' ? 'Licht aan' : 'Licht uit'; const t = hass.states['sensor.climate_sensor_noa_temperature']?.state; const h = hass.states['sensor.climate_sensor_noa_humidity']?.state; const temp = t ? (Math.round(t * 10) / 10) + '°C' : '—'; const hum = h ? Math.round(h) + '%' : '—'; return lit + ' · ' + temp + ' · ' + hum; })()}";
   }
 cards:
   - type: custom:bubble-card

@@ -49,7 +49,6 @@ views:
           button_type: state
           entity: weather.weather_langeweide_ecowitt
           name: ''
-          show_state: true
           card_layout: large
           tap_action: { action: none }
           button_action:
@@ -79,26 +78,20 @@ views:
                Hand-mapped Dutch (backend is a C locale, frontend is en). Middot via
                fromCharCode: Bubble eats the character after a comma inside a CSS
                content value. */
-            .bubble-state { font-size: 0 !important; }
-            .bubble-state::after {
+            .bubble-state {
               display: block;
               text-align: center;
               font-size: 15px !important;
               font-weight: 500;
               opacity: 0.9;
-              content: "${(() => {
-                const e = 'weather.weather_langeweide_ecowitt';
-                const s = hass.states[e];
-                const dn = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
-                const mn = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
-                const w = { sunny: 'zonnig', 'clear-night': 'heldere nacht', partlycloudy: 'half bewolkt', cloudy: 'bewolkt', rainy: 'regen', pouring: 'stortregen', lightning: 'onweer', 'lightning-rainy': 'onweer en regen', snowy: 'sneeuw', 'snowy-rainy': 'natte sneeuw', fog: 'nevel', windy: 'wind', 'windy-variant': 'wind', hail: 'hagel', exceptional: 'bijzonder' };
-                const d = new Date();
-                const dot = String.fromCharCode(32,183,32);
-                const t = parseFloat(s?.attributes?.temperature);
-                const temp = isNaN(t) ? '--' : Math.round(t) + '°C';
-                return dn[d.getDay()] + ' ' + d.getDate() + ' ' + mn[d.getMonth()] + dot + temp + dot + (w[s?.state] || s?.state || '');
-              })()}";
             }
+          state_content: >-
+            {%- set dn = ['maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag','zondag'] -%}
+            {%- set mn = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'] -%}
+            {%- set w = {'sunny':'zonnig','clear-night':'heldere nacht','partlycloudy':'half bewolkt','cloudy':'bewolkt','rainy':'regen','pouring':'stortregen','lightning':'onweer','lightning-rainy':'onweer en regen','snowy':'sneeuw','snowy-rainy':'natte sneeuw','fog':'nevel','windy':'wind','windy-variant':'wind','hail':'hagel','exceptional':'bijzonder'} -%}
+            {%- set t = state_attr('weather.weather_langeweide_ecowitt','temperature') | float(-99999) -%}
+            {%- set s = states('weather.weather_langeweide_ecowitt') -%}
+            {{ dn[now().weekday()] ~ ' ' ~ now().day ~ ' ' ~ mn[now().month - 1] ~ ' · ' ~ ('--' if t == -99999 else (t | round | int) ~ '°C') ~ ' · ' ~ w.get(s, s) }}
 
       # ── alarm — altijd zichtbaar (numpad verschijnt zodra aan) ────
       - type: custom:alarmo-card
@@ -167,8 +160,11 @@ views:
               styles: |
                 .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.16)' : 'rgba(255,255,255,0.05)'; })()} !important; }
                 .bubble-icon-container { background-color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.24)' : 'rgba(255,255,255,0.08)'; })()} !important; }
-                .bubble-state { font-size: 0 !important; }
-                .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? '#9ed9bd' : '#8f8e9e'; })()} !important; content: "${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return !on ? 'uit' : (p>=5 ? 'draait · '+Math.round(p)+' W' : 'stil'); })()}"; }
+                .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const on=hass.states['switch.wasmachine']?.state==='on'; const p=parseFloat(hass.states['sensor.wasmachine_switch_device_power']?.state)||0; return (on && p>=5) ? '#9ed9bd' : '#8f8e9e'; })()} !important; }
+              state_content: >-
+                {%- set on = is_state('switch.wasmachine','on') -%}
+                {%- set p = states('sensor.wasmachine_switch_device_power') | float(0) -%}
+                {{ 'uit' if not on else (('draait · ' ~ (p | round | int) ~ ' W') if p >= 5 else 'stil') }}
             - type: custom:bubble-card
               card_type: button
               button_type: state
@@ -182,5 +178,8 @@ views:
               styles: |
                 .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.16)' : 'rgba(255,255,255,0.05)'; })()} !important; }
                 .bubble-icon-container { background-color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? 'rgba(45,170,115,0.24)' : 'rgba(255,255,255,0.08)'; })()} !important; }
-                .bubble-state { font-size: 0 !important; }
-                .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? '#9ed9bd' : '#8f8e9e'; })()} !important; content: "${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return !on ? 'uit' : (p>=5 ? 'draait · '+Math.round(p)+' W' : 'stil'); })()}"; }
+                .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const on=hass.states['switch.shelly_plug_droger_relay']?.state==='on'; const p=parseFloat(hass.states['sensor.shelly_plug_droger_power']?.state)||0; return (on && p>=5) ? '#9ed9bd' : '#8f8e9e'; })()} !important; }
+              state_content: >-
+                {%- set on = is_state('switch.shelly_plug_droger_relay','on') -%}
+                {%- set p = states('sensor.shelly_plug_droger_power') | float(0) -%}
+                {{ 'uit' if not on else (('draait · ' ~ (p | round | int) ~ ' W') if p >= 5 else 'stil') }}

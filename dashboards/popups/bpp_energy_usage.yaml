@@ -12,15 +12,21 @@ name: Energie verbruik en kosten
 icon: mdi:flash
 # header = actueel netto vermogen (amber = van net, groen = teruglevering) + prijs
 entity: sensor.net_power_consumption
-show_state: true
+state_content: >-
+  {%- set imp = states('sensor.power_consumed') | float(0) -%}
+  {%- set exp = states('sensor.power_produced') | float(0) -%}
+  {%- set p = states('sensor.current_price_electricity') | float(-99999) -%}
+  {%- if exp > 0.05 -%}{%- set o = (('%.1f' | format(exp)) | replace('.', ',')) ~ ' kW terug' -%}
+  {%- elif imp > 0.05 -%}{%- set o = (('%.1f' | format(imp)) | replace('.', ',')) ~ ' kW van net' -%}
+  {%- else -%}{%- set o = '0 kW' -%}
+  {%- endif -%}
+  {{ o ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.13)' : 'rgba(45,170,115,0.14)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? '#f0cf8f' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state) || 0; const exp = parseFloat(hass.states['sensor.power_produced']?.state) || 0; const p = parseFloat(hass.states['sensor.current_price_electricity']?.state); let o; if (exp > 0.05) o = exp.toFixed(1).replace('.', ',') + ' kW terug'; else if (imp > 0.05) o = imp.toFixed(1).replace('.', ',') + ' kW van net'; else o = '0 kW'; if (isFinite(p)) o += ' · €' + p.toFixed(2).replace('.', ','); return o; })()}";
   }
 cards:
   # ── kosten ────────────────────────────────────────────────────────
@@ -39,11 +45,13 @@ cards:
         icon: mdi:cash
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.electricity_cost_today') | float(-99999) -%}
+          {{ '—' if v == -99999 else (('€' ~ ((('%.2f' | format(v | abs)) | replace('.', ','))) ~ ' verdiend') if v <= 0 else ('€' ~ (('%.2f' | format(v)) | replace('.', ',')))) }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.14)' : 'rgba(240,195,95,0.13)'; })()} !important; }
           .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? 'rgba(45,170,115,0.20)' : 'rgba(240,195,95,0.20)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? '#9ed9bd' : '#f0cf8f'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); if (!isFinite(v)) return '—'; return v <= 0 ? '€' + Math.abs(v).toFixed(2).replace('.', ',') + ' verdiend' : '€' + v.toFixed(2).replace('.', ','); })()}"; }
+          .bubble-state { font-size: 14px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.electricity_cost_today']?.state); return (isFinite(v) && v <= 0) ? '#9ed9bd' : '#f0cf8f'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -52,9 +60,11 @@ cards:
         icon: mdi:calendar-month
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.monthly_cost_langeweide') | float(-99999) -%}
+          {{ ('€' ~ (('%.2f' | format(v)) | replace('.', ','))) if v != -99999 else '—' }}
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.monthly_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+          .bubble-state { font-size: 14px !important; font-weight: 500; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -63,9 +73,11 @@ cards:
         icon: mdi:cash-clock
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.accumulated_cost_langeweide') | float(-99999) -%}
+          {{ ('€' ~ (('%.2f' | format(v)) | replace('.', ','))) if v != -99999 else '—' }}
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.accumulated_cost_langeweide']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+          .bubble-state { font-size: 14px !important; font-weight: 500; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -74,9 +86,11 @@ cards:
         icon: mdi:ev-station
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.easee_sonke_cost_month') | float(-99999) -%}
+          {{ ('€' ~ (('%.2f' | format(v)) | replace('.', ','))) if v != -99999 else '—' }}
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 14px !important; font-weight: 500; content: "${(() => { const v = parseFloat(hass.states['sensor.easee_sonke_cost_month']?.state); return isFinite(v) ? '€' + v.toFixed(2).replace('.', ',') : '—'; })()}"; }
+          .bubble-state { font-size: 14px !important; font-weight: 500; }
   # ── energiestroom ─────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -404,11 +418,14 @@ cards:
         icon: mdi:cash-clock
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set s = states('sensor.energy_price_level') -%}
+          {%- set p = states('sensor.current_price_electricity') | float(-99999) -%}
+          {{ {'cheap':'goedkoop','very_cheap':'goedkoop','low':'goedkoop','normal':'gemiddeld','expensive':'duur','very_expensive':'duur','high':'duur'}.get(s | lower, s) ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.14)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.14)':'rgba(240,195,95,0.13)'); })()} !important; }
           .bubble-icon-container { background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.20)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.22)':'rgba(240,195,95,0.20)'); })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; content: "${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'—'); const p=parseFloat(hass.states['sensor.current_price_electricity']?.state); const map={cheap:'goedkoop',very_cheap:'goedkoop',low:'goedkoop',normal:'gemiddeld',expensive:'duur',very_expensive:'duur',high:'duur'}; const lbl=map[s.toLowerCase()]||s; return lbl+(isFinite(p)?' · €'+p.toFixed(2).replace('.',','):''); })()}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -417,11 +434,17 @@ cards:
         icon: mdi:trending-down
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['sensor.energy_cheapest_time_today'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set p = state_attr('sensor.energy_cheapest_time_today','price') | float(-99999) -%}
+          {{ st.state ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.12) !important; }
           .bubble-icon-container { background-color: rgba(45,170,115,0.20) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; content: "${(() => { const s=hass.states['sensor.energy_cheapest_time_today']; if(!s) return '—'; const p=parseFloat(s.attributes.price); return s.state+(isFinite(p)?' · €'+p.toFixed(2).replace('.',','):''); })()}"; }
+          .bubble-state { font-size: 13px !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -430,11 +453,17 @@ cards:
         icon: mdi:trending-up
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['sensor.energy_priciest_time_today'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set p = state_attr('sensor.energy_priciest_time_today','price') | float(-99999) -%}
+          {{ st.state ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(226,75,74,0.12) !important; }
           .bubble-icon-container { background-color: rgba(226,75,74,0.20) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; content: "${(() => { const s=hass.states['sensor.energy_priciest_time_today']; if(!s) return '—'; const p=parseFloat(s.attributes.price); return s.state+(isFinite(p)?' · €'+p.toFixed(2).replace('.',','):''); })()}"; }
+          .bubble-state { font-size: 13px !important; }
   - type: entities
     title: Tarieven vandaag en morgen
     entities:

@@ -12,15 +12,17 @@ name: BMW iX3
 icon: mdi:car-electric
 # header = accu % + bereik (groen = laadt, amber = ingeplugd, blauw = losgekoppeld)
 entity: sensor.state_of_charge_last_known
-show_state: true
+state_content: >-
+  {%- set soc = states('sensor.state_of_charge_last_known') -%}
+  {%- set r = states('sensor.ix3_remaining_electric_range_km') | float(-99999) -%}
+  {%- set cs = states('sensor.charging_status') -%}
+  {{ ((soc if soc not in ['unknown','unavailable',''] else '—') ~ '%') ~ ((' · ' ~ (r | round | int) ~ ' km') if r != -99999 else '') ~ (' · laadt' if cs == 'CHARGING' else '') }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return 'rgba(45,170,115,0.14)'; if (conn && conn !== 'DISCONNECTED') return 'rgba(240,195,95,0.13)'; return 'rgba(55,138,221,0.14)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return 'rgba(45,170,115,0.20)'; if (conn && conn !== 'DISCONNECTED') return 'rgba(240,195,95,0.20)'; return 'rgba(55,138,221,0.22)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return '#9ed9bd'; if (conn && conn !== 'DISCONNECTED') return '#f0cf8f'; return '#82bbf0'; })()} !important;
-    content: "${(() => { const soc = hass.states['sensor.state_of_charge_last_known']?.state; const r = parseFloat(hass.states['sensor.ix3_remaining_electric_range_km']?.state); const cs = hass.states['sensor.charging_status']?.state; let o = (soc != null ? soc : '—') + '%'; if (isFinite(r)) o += ' · ' + Math.round(r) + ' km'; if (cs === 'CHARGING') o += ' · laadt'; return o; })()}";
   }
 cards:
   # ── auto ──────────────────────────────────────────────────────────
@@ -166,10 +168,12 @@ cards:
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.ix3_measured_tire_pressure_front_left') | float(-99999) -%}
+          {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -178,10 +182,12 @@ cards:
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.ix3_measured_tire_pressure_front_right') | float(-99999) -%}
+          {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -190,10 +196,12 @@ cards:
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.ix3_measured_tire_pressure_rear_left') | float(-99999) -%}
+          {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -202,10 +210,12 @@ cards:
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.ix3_measured_tire_pressure_rear_right') | float(-99999) -%}
+          {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return isFinite(v) ? (v/100).toFixed(1).replace('.', ',') + ' bar' : '—'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
   # ── klimaat ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -222,11 +232,11 @@ cards:
         icon: mdi:air-conditioner
         card_layout: large
         tap_action: { action: more-info }
+        state_content: "{{ 'Aan' if is_state('binary_sensor.ix3_air_conditioning_active','on') else 'Uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#82bbf0' : '#8f8e9e'} !important; content: "${state === 'on' ? 'Aan' : 'Uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#82bbf0' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -235,11 +245,14 @@ cards:
         icon: mdi:car-defrost-front
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set s = states('sensor.ix3_preconditioning_status_air_conditioning') -%}
+          {%- set r = states('sensor.ix3_remaining_duration_preconditioning') | float(-99999) -%}
+          {{ 'Inactief' if (s in ['unknown','unavailable','','INACTIVE']) else (('nog ' ~ (r | round | int) ~ ' min') if (r != -99999 and r > 0) else 'Actief') }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
           .bubble-icon-container { background-color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? '#82bbf0' : '#8f8e9e'; })()} !important; content: "${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; const r = parseFloat(hass.states['sensor.ix3_remaining_duration_preconditioning']?.state); if (!s || s === 'INACTIVE') return 'Inactief'; return (isFinite(r) && r > 0) ? ('nog ' + Math.round(r) + ' min') : 'Actief'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? '#82bbf0' : '#8f8e9e'; })()} !important; }
   # ── laden ─────────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

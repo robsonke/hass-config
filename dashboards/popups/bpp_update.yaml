@@ -14,16 +14,16 @@ name: Update Info
 icon: mdi:package-up
 # header = aantal updates (blauw als er updates zijn, groen up-to-date)
 entity: sensor.all_updates
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? '#82bbf0' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? (n + ' update' + (n === 1 ? '' : 's') + ' beschikbaar') : 'Alles up-to-date'; })()}";
   }
+state_content: >-
+  {%- set n = states('sensor.all_updates') | int(-1) -%}
+  {{ (n ~ ' update' ~ ('' if n == 1 else 's') ~ ' beschikbaar') if n > 0 else 'Alles up-to-date' }}
 cards:
   # ── Home Assistant (versie + release notes) ───────────────────────
   - type: markdown

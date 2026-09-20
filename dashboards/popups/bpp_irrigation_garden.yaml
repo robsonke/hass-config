@@ -1,7 +1,6 @@
 # Bubble Card native pop-up (hash #beregening) — Beregening tile (Tuin).
 # Zone-centric UX: tap a zone = sproei nu, calendar sub-button = in/uit plan,
 # subtitle = plan + duur. Plus algemeen, instellingen, controller, verloop.
-# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -15,15 +14,21 @@ name: Tuin beregening
 icon: mdi:sprinkler
 # header = sproeit nu / planning aan + starttijd / uit
 entity: switch.irrigation_main_switch
-show_state: true
+state_content: >-
+  {%- set zones = {'switch.irrigation_zone_achter_links':'Achter links','switch.irrigation_zone_achter_rechts':'Achter rechts','switch.irrigation_zone_terras_midden':'Terras midden','switch.irrigation_zone_terras_zijkant':'Terras zijkant'} -%}
+  {%- set ns = namespace(on=none) -%}
+  {%- for e, lbl in zones.items() -%}{%- if ns.on is none and is_state(e,'on') -%}{%- set ns.on = lbl -%}{%- endif -%}{%- endfor -%}
+  {%- if ns.on is not none -%}Sproeit: {{ ns.on }}
+  {%- elif is_state('switch.irrigation_main_switch','on') -%}Sproeit nu
+  {%- elif is_state('input_boolean.irrigation_plan_enable','on') -%}Planning aan · start {{ states('input_datetime.irrigation_start_time')[:5] }}
+  {%- else -%}Uit
+  {%- endif -%}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const spray = ['switch.irrigation_zone_achter_links','switch.irrigation_zone_achter_rechts','switch.irrigation_zone_terras_midden','switch.irrigation_zone_terras_zijkant','switch.irrigation_main_switch'].some(e => hass.states[e]?.state === 'on'); const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; return spray ? 'rgba(55,138,221,0.16)' : plan ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const spray = ['switch.irrigation_zone_achter_links','switch.irrigation_zone_achter_rechts','switch.irrigation_zone_terras_midden','switch.irrigation_zone_terras_zijkant','switch.irrigation_main_switch'].some(e => hass.states[e]?.state === 'on'); const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; return spray ? 'rgba(55,138,221,0.22)' : plan ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const spray = ['switch.irrigation_zone_achter_links','switch.irrigation_zone_achter_rechts','switch.irrigation_zone_terras_midden','switch.irrigation_zone_terras_zijkant','switch.irrigation_main_switch'].some(e => hass.states[e]?.state === 'on'); const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; return spray ? '#82bbf0' : plan ? '#9ed9bd' : '#9b9aac'; })()} !important;
-    content: "${(() => { const zones = { 'switch.irrigation_zone_achter_links':'Achter links', 'switch.irrigation_zone_achter_rechts':'Achter rechts', 'switch.irrigation_zone_terras_midden':'Terras midden', 'switch.irrigation_zone_terras_zijkant':'Terras zijkant' }; const on = Object.keys(zones).find(e => hass.states[e]?.state === 'on'); if (on) return 'Sproeit: ' + zones[on]; if (hass.states['switch.irrigation_main_switch']?.state === 'on') return 'Sproeit nu'; const plan = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on'; const start = (hass.states['input_datetime.irrigation_start_time']?.state || '').slice(0,5); return plan ? ('Planning aan · start ' + start) : 'Uit'; })()}";
   }
 cards:
   # ── algemeen ──────────────────────────────────────────────────────
@@ -50,11 +55,11 @@ cards:
         icon: mdi:calendar-clock
         card_layout: large
         tap_action: { action: toggle }
+        state_content: "{{ 'aan' if is_state('input_boolean.irrigation_plan_enable','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -63,11 +68,11 @@ cards:
         icon: mdi:water-pump
         card_layout: large
         tap_action: { action: toggle }
+        state_content: "{{ 'aan' if is_state('switch.irrigation_main_switch','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -76,11 +81,11 @@ cards:
         icon: mdi:arrow-right-circle
         card_layout: large
         tap_action: { action: toggle }
+        state_content: "{{ 'aan' if is_state('switch.auto_advance_next_zone','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; }
   # ── zones (tap = sproei nu, kalender = in/uit plan) ───────────────
   - type: custom:bubble-card
     card_type: separator
@@ -104,11 +109,16 @@ cards:
             show_state: false
             show_background: true
             tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_4_achter_links_enabled } }
+        state_content: >-
+          {%- if is_state('switch.irrigation_zone_achter_links','on') -%}Sproeit nu
+          {%- else -%}
+          {%- set d = states('number.sproeiduur_zone_achter_links') | float(-99999) -%}
+          {{ ('In plan · ' ~ ((d | round | int) if d != -99999 else '?') ~ ' min') if is_state('switch.valve_4_achter_links_enabled','on') else 'Niet in plan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_achter_links']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_4_achter_links_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_achter_links']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -124,11 +134,16 @@ cards:
             show_state: false
             show_background: true
             tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_3_achter_rechts_enabled } }
+        state_content: >-
+          {%- if is_state('switch.irrigation_zone_achter_rechts','on') -%}Sproeit nu
+          {%- else -%}
+          {%- set d = states('number.sproeiduur_zone_achter_rechts') | float(-99999) -%}
+          {{ ('In plan · ' ~ ((d | round | int) if d != -99999 else '?') ~ ' min') if is_state('switch.valve_3_achter_rechts_enabled','on') else 'Niet in plan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_achter_rechts']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_3_achter_rechts_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_achter_rechts']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -144,11 +159,16 @@ cards:
             show_state: false
             show_background: true
             tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_1_terras_midden_enabled } }
+        state_content: >-
+          {%- if is_state('switch.irrigation_zone_terras_midden','on') -%}Sproeit nu
+          {%- else -%}
+          {%- set d = states('number.sproeiduur_zone_terras_midden') | float(-99999) -%}
+          {{ ('In plan · ' ~ ((d | round | int) if d != -99999 else '?') ~ ' min') if is_state('switch.valve_1_terras_midden_enabled','on') else 'Niet in plan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_terras_midden']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_1_terras_midden_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_terras_midden']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -164,11 +184,16 @@ cards:
             show_state: false
             show_background: true
             tap_action: { action: perform-action, perform_action: switch.toggle, target: { entity_id: switch.valve_2_terras_zijkant_enabled } }
+        state_content: >-
+          {%- if is_state('switch.irrigation_zone_terras_zijkant','on') -%}Sproeit nu
+          {%- else -%}
+          {%- set d = states('number.sproeiduur_zone_terras_zijkant') | float(-99999) -%}
+          {{ ('In plan · ' ~ ((d | round | int) if d != -99999 else '?') ~ ' min') if is_state('switch.valve_2_terras_zijkant_enabled','on') else 'Niet in plan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.irrigation_zone_terras_zijkant']?.state === 'on') return 'Sproeit nu'; const en = hass.states['switch.valve_2_terras_zijkant_enabled']?.state === 'on'; const d = parseFloat(hass.states['number.sproeiduur_zone_terras_zijkant']?.state); return en ? ('In plan · ' + (isFinite(d) ? Math.round(d) : '?') + ' min') : 'Niet in plan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
   # ── instellingen (starttijd + sproeiduur per zone) ────────────────
   - type: custom:bubble-card
     card_type: separator

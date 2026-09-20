@@ -1,6 +1,6 @@
 # Bubble Card native pop-up (hash #verlichting-beneden) — Verlichting tile (Beneden).
 # Light slider cards (drag = brightness, tap = toggle, colour = light's own rgb).
-# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md (state-card grid).
+# State-card grid pattern.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,16 +14,14 @@ name: Verlichting beneden
 icon: mdi:lightbulb-group
 # header summary counts the lights shown below (warm = iets aan, dim = alles uit)
 entity: light.kitchen_light
-show_state: true
+state_content: >-
+  {%- set m = expand(['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light']) -%}
+  {%- set o = m | selectattr('state','eq','on') | list | count -%}
+  {{ 'Alles uit' if o == 0 else o ~ ' aan · ' ~ (m | count - o) ~ ' uit' }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
   .bubble-icon-container { background-color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
-    font-size: 14px !important; font-weight: 500;
-    color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important;
-    content: "${(() => { const m = ['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles uit' : o + ' aan · ' + (m.length - o) + ' uit'; })()}";
-  }
+  .bubble-state { font-size: 14px !important; font-weight: 500; color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important; }
 cards:
   - type: custom:bubble-card
     card_type: separator

@@ -74,34 +74,38 @@ template:
   - light:
     - unique_id: pool_light
       # The ESPHome node exposes a *switch*, not a light. The old
-      # light.pool_lights_pool_lights target never existed in the registry,
-      # which is why on/off silently did nothing while colour still worked.
-      # Note the m5stickc_ prefix: this switch predates the node rename and the
-      # registry keeps an entity's original id against its unique_id, so it kept
-      # the old prefix while the newer aux-relay switch got pool_lights_.
-      # Verified live after flashing - do not "tidy" this to match the relay.
+      # light.s3_pool_lights_pool_lights target does not exist in the registry -
+      # pointing at one is why on/off once silently did nothing while colour
+      # still worked.
+      # The s3_pool_lights_ prefix comes from the node name in
+      # esphome/s3-pool-lights.yaml. It replaced the M5StickC node (pool-lights,
+      # whose oldest entities still carried an m5stickc_ prefix from an even
+      # earlier rename) with an AtomS3 on 2026-09-19; a new device means new
+      # unique_ids, so every entity here was renumbered in one go rather than
+      # inheriting the old registry ids.
       turn_on:
       - action: switch.turn_on
         target:
           entity_id:
-          - switch.m5stickc_pool_lights_pool_lights
+          - switch.s3_pool_lights_pool_lights
       turn_off:
       - action: switch.turn_off
         target:
           entity_id:
-          - switch.m5stickc_pool_lights_pool_lights
-      # Node renamed m5stickc-pool-lights -> pool-lights, so the generated
-      # action names lost their m5stickc_ prefix along with it.
+          - switch.s3_pool_lights_pool_lights
+      # The generated action names follow the node name too: node
+      # s3-pool-lights -> esphome.s3_pool_lights_*. Rename the node and these
+      # move with it, silently - HA does not alias the old action name.
       set_level:
-      - action: esphome.pool_lights_send_uart_command
+      - action: esphome.s3_pool_lights_send_uart_command
         data:
           command: PD{{ '%03d' % (brightness / 255 * 100) | float | round(0) }}
       set_rgb:
-      - action: esphome.pool_lights_set_color
+      - action: esphome.s3_pool_lights_set_color
         data:
           color: PC{{ '%03d' % r }}{{ '%03d' % g }}{{ '%03d' % b }}
       set_effect:
-      - action: esphome.pool_lights_send_uart_command
+      - action: esphome.s3_pool_lights_send_uart_command
         data:
           command: PS{{ effect[:2] }}
       default_entity_id: light.pool_light
@@ -109,7 +113,7 @@ template:
       effect_list: '{{ state_attr(''input_select.pool_light_program_options'', ''options'')
         }}'
       effect: '{{ states.input_select.pool_light_program_options.state }}'
-      state: '{{ is_state("switch.m5stickc_pool_lights_pool_lights", "on") }}'
+      state: '{{ is_state("switch.s3_pool_lights_pool_lights", "on") }}'
 
   - select:
     - name: "Fairland Zwembad WPU Power Mode"

@@ -1,6 +1,5 @@
 # Bubble Card native pop-up (hash #klimaat-boven) — Klimaat tile (Boven).
 # Bubble climate card + warm toggle cards for aux heating + humidifier + graph.
-# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,15 +13,17 @@ name: Slaapkamers klimaat
 icon: mdi:thermostat
 # header = master-bedroom temp (always-available sensor) + warm when any heat source is on
 entity: sensor.climate_sensor_masterbedroom_temperature
-show_state: true
+state_content: >-
+  {%- set t = states('sensor.climate_sensor_masterbedroom_temperature') | float(-99999) -%}
+  {%- set tt = ((('%.1f' | format(t)) | replace('.', ',')) ~ '°C') if t != -99999 else '—' -%}
+  {%- set heat = ((expand(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay']) | selectattr('state','eq','on') | list | count) > 0) or is_state('climate.eurom_alutherm_baseboard_heater','heat') -%}
+  {{ 'Slaapkamer ' ~ tt ~ (' · verwarmt' if heat else '') }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
   .bubble-icon-container { background-color: ${(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat') ? '#f0cf8f' : '#9ed9bd'} !important;
-    content: "${(() => { const t = parseFloat(hass.states['sensor.climate_sensor_masterbedroom_temperature']?.state); const tt = isFinite(t) ? t.toFixed(1).replace('.', ',') + '°C' : '—'; const heat = ['switch.infrarood_eva','switch.infrarood_noa','switch.shelly_plug_badkamer_verwarming_relay','switch.shelly_plug_douche_verwarming_relay'].some(e => hass.states[e]?.state === 'on') || hass.states['climate.eurom_alutherm_baseboard_heater']?.state === 'heat'; return 'Slaapkamer ' + tt + (heat ? ' · verwarmt' : ''); })()}";
   }
 cards:
   # ── thermostaat ───────────────────────────────────────────────────
@@ -51,11 +52,16 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: >-
+          {%- if not is_state('switch.infrarood_eva','on') -%}uit
+          {%- else -%}
+          {%- set n = states('sensor.infrarood_eva_power') | float(-99999) -%}
+          {{ ((n | round | int) ~ ' W') if n != -99999 else 'aan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.infrarood_eva']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.infrarood_eva_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -65,11 +71,16 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: >-
+          {%- if not is_state('switch.infrarood_noa','on') -%}uit
+          {%- else -%}
+          {%- set n = states('sensor.infrarood_noa_switch_power') | float(-99999) -%}
+          {{ ((n | round | int) ~ ' W') if n != -99999 else 'aan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.infrarood_noa']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.infrarood_noa_switch_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -79,11 +90,16 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: >-
+          {%- if not is_state('switch.shelly_plug_badkamer_verwarming_relay','on') -%}uit
+          {%- else -%}
+          {%- set n = states('sensor.shelly_plug_badkamer_verwarming_power') | float(-99999) -%}
+          {{ ((n | round | int) ~ ' W') if n != -99999 else 'aan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.shelly_plug_badkamer_verwarming_relay']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.shelly_plug_badkamer_verwarming_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -93,26 +109,36 @@ cards:
         card_layout: large
         tap_action: { action: toggle }
         hold_action: { action: more-info }
+        state_content: >-
+          {%- if not is_state('switch.shelly_plug_douche_verwarming_relay','on') -%}uit
+          {%- else -%}
+          {%- set n = states('sensor.shelly_plug_douche_verwarming_power') | float(-99999) -%}
+          {{ ((n | round | int) ~ ' W') if n != -99999 else 'aan' }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; content: "${(() => { if (hass.states['switch.shelly_plug_douche_verwarming_relay']?.state !== 'on') return 'uit'; const n = parseFloat(hass.states['sensor.shelly_plug_douche_verwarming_power']?.state); return isFinite(n) ? Math.round(n) + ' W' : 'aan'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
   # ── luchtontvochtiger ─────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
     name: Luchtontvochtiger
-  - type: humidifier
+  # 3.4.0 laat card_type: climate ook humidifier besturen. available_modes is het
+  # humidifier-equivalent van hvac_modes, dus de vier modi hoeven niet meer
+  # hardcoded in de YAML. device_class is dehumidifier, dus de kleur komt uit
+  # --bubble-state-humidifier-dehumidifier-on-color. min/max komen van de
+  # entiteit (35-85) en zijn hier vochtigheid, geen temperatuur.
+  - type: custom:bubble-card
+    card_type: climate
     entity: humidifier.master_bedroom
-    features:
-      - type: humidifier-toggle
-      - type: humidifier-modes
-        style: dropdown
-        modes:
-          - Set
-          - Smart
-          - Continuous
-          - Dry
+    name: Luchtontvochtiger
+    icon: mdi:air-humidifier
+    state_color: true
+    sub_button:
+      - name: Modus
+        select_attribute: available_modes
+        show_arrow: false
+        state_background: false
   # ── temperatuurverloop ────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

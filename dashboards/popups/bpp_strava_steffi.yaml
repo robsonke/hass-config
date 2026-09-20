@@ -17,14 +17,15 @@ name: Sport Steffi
 icon: mdi:run-fast
 # header = kilometers deze week (utility_meter, resets Monday) + laatste activiteit
 entity: sensor.strava_run_week_steffi
-show_state: true
+state_content: >-
+  {%- set w = states('sensor.strava_run_week_steffi') | float(-1) -%}
+  {%- set a = states('sensor.strava_steffi_berks_run') -%}
+  {{ ('—' if w < 0 else '%.1f' | format(w)) ~ ' km deze week' ~ ((' · ' ~ a) if a not in ['unknown','unavailable',''] else '') }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.14) !important; }
   .bubble-icon-container { background-color: rgba(252,82,0,0.22) !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500; color: #ff8a5c !important;
-    content: "${(() => { const w = hass.states['sensor.strava_run_week_steffi']?.state; const km = (w === undefined || isNaN(parseFloat(w))) ? '—' : parseFloat(w).toFixed(1); const act = hass.states['sensor.strava_steffi_berks_run']?.state; return km + ' km deze week' + (act ? String.fromCharCode(32,183,32) + act : ''); })()}";
   }
 cards:
   # ── laatste run ───────────────────────────────────────────────────
@@ -116,12 +117,14 @@ cards:
         icon: mdi:thumb-up
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set kv = states('sensor.strava_steffi_berks_run_kudos') | int(0) -%}
+          {%- set tv = states('sensor.strava_steffi_berks_run_trophies') | int(0) -%}
+          {{ kv ~ ' kudos' ~ ((' · ' ~ tv ~ ' trofee') if tv > 0 else '') }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.13) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
+          .bubble-state {
             font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const k = hass.states['sensor.strava_steffi_berks_run_kudos']?.state ?? '0'; const t = hass.states['sensor.strava_steffi_berks_run_trophies']?.state ?? '0'; return k + ' kudos' + (parseInt(t) > 0 ? String.fromCharCode(32,183,32) + t + ' trofee' : ''); })()}";
           }
   # gear + toestel van die run, als rij i.p.v. tegels
   - type: entities
@@ -153,12 +156,14 @@ cards:
         icon: mdi:calendar-week
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set nv = states('sensor.strava_run_week_steffi') | float(-1) -%}
+          {%- set pv = state_attr('sensor.strava_run_week_steffi','last_period') | float(-1) -%}
+          {{ ('—' if nv < 0 else ('%.1f' | format(nv)) ~ ' km') ~ ('' if pv < 0 else ' · vorige ' ~ ('%.1f' | format(pv))) }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.16) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
+          .bubble-state {
             font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const s = hass.states['sensor.strava_run_week_steffi']; const now = parseFloat(s?.state); const prev = parseFloat(s?.attributes?.last_period); const a = isNaN(now) ? '—' : now.toFixed(1) + ' km'; return a + (isNaN(prev) ? '' : String.fromCharCode(32,183,32) + 'vorige ' + prev.toFixed(1)); })()}";
           }
       - type: custom:bubble-card
         card_type: button
@@ -168,12 +173,14 @@ cards:
         icon: mdi:calendar-today
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set nv = states('sensor.strava_run_month_steffi') | float(-1) -%}
+          {%- set pv = state_attr('sensor.strava_run_month_steffi','last_period') | float(-1) -%}
+          {{ ('—' if nv < 0 else ('%.1f' | format(nv)) ~ ' km') ~ ('' if pv < 0 else ' · vorige ' ~ ('%.0f' | format(pv))) }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(252,82,0,0.16) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
+          .bubble-state {
             font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const s = hass.states['sensor.strava_run_month_steffi']; const now = parseFloat(s?.state); const prev = parseFloat(s?.attributes?.last_period); const a = isNaN(now) ? '—' : now.toFixed(1) + ' km'; return a + (isNaN(prev) ? '' : String.fromCharCode(32,183,32) + 'vorige ' + prev.toFixed(0)); })()}";
           }
       - type: custom:bubble-card
         card_type: button
@@ -183,12 +190,14 @@ cards:
         icon: mdi:calendar-month
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set dv = states('sensor.strava_steffi_berks_stats_recent_run_distance') | float(-1) -%}
+          {%- set cv = states('sensor.strava_steffi_berks_stats_recent_run_count') -%}
+          {{ ('—' if dv < 0 else ('%.0f' | format(dv)) ~ ' km') ~ ((' · ' ~ cv ~ 'x') if cv not in ['unknown','unavailable',''] else '') }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
+          .bubble-state {
             font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const d = hass.states['sensor.strava_steffi_berks_stats_recent_run_distance']?.state; const c = hass.states['sensor.strava_steffi_berks_stats_recent_run_count']?.state; return (isNaN(parseFloat(d)) ? '—' : parseFloat(d).toFixed(0) + ' km') + (c ? String.fromCharCode(32,183,32) + c + 'x' : ''); })()}";
           }
       - type: custom:bubble-card
         card_type: button
@@ -198,12 +207,14 @@ cards:
         icon: mdi:calendar-star
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set dv = states('sensor.strava_steffi_berks_stats_ytd_run_distance') | float(-1) -%}
+          {%- set cv = states('sensor.strava_steffi_berks_stats_ytd_run_count') -%}
+          {{ ('—' if dv < 0 else ('%.0f' | format(dv)) ~ ' km') ~ ((' · ' ~ cv ~ 'x') if cv not in ['unknown','unavailable',''] else '') }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
+          .bubble-state {
             font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const d = hass.states['sensor.strava_steffi_berks_stats_ytd_run_distance']?.state; const c = hass.states['sensor.strava_steffi_berks_stats_ytd_run_count']?.state; return (isNaN(parseFloat(d)) ? '—' : parseFloat(d).toFixed(0) + ' km') + (c ? String.fromCharCode(32,183,32) + c + 'x' : ''); })()}";
           }
       - type: custom:bubble-card
         card_type: button
@@ -213,12 +224,14 @@ cards:
         icon: mdi:infinity
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set dv = states('sensor.strava_steffi_berks_stats_all_run_distance') | float(-1) -%}
+          {%- set cv = states('sensor.strava_steffi_berks_stats_all_run_count') -%}
+          {{ ('—' if dv < 0 else ('%.0f' | format(dv)) ~ ' km') ~ ((' · ' ~ cv ~ ' runs') if cv not in ['unknown','unavailable',''] else '') }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
+          .bubble-state {
             font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const d = hass.states['sensor.strava_steffi_berks_stats_all_run_distance']?.state; const c = hass.states['sensor.strava_steffi_berks_stats_all_run_count']?.state; return (isNaN(parseFloat(d)) ? '—' : parseFloat(d).toFixed(0) + ' km') + (c ? String.fromCharCode(32,183,32) + c + ' runs' : ''); })()}";
           }
       # sixth tile so the 2-column grid fills three clean rows
       - type: custom:bubble-card

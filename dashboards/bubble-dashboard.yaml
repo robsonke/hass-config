@@ -292,6 +292,8 @@ views:
                           target:
                             entity_id: alarm_control_panel.alarmo
                     modules: [bubble_neon_icon_only]
+                    state_content: >-
+                      {{ {'disarmed':'Uit','armed_away':'Afwezig','armed_home':'Thuis','armed_night':'Nacht','armed_vacation':'Vakantie','arming':'Inschakelen','pending':'Aftellen','triggered':'ALARM'}.get(states('alarm_control_panel.alarmo'), states('alarm_control_panel.alarmo')) }}
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
                       /* Doubled class beats the neon module's rule on the same element
@@ -309,11 +311,9 @@ views:
                       .bubble-sub-button {
                         ${(() => { const night = hass.states['alarm_control_panel.alarmo']?.state === 'armed_night'; return night ? 'background-color: hsl(45 85% 55% / 0.85) !important; opacity: 1 !important;' : 'background-color: rgba(255,255,255,0.10) !important; opacity: 0.5 !important;'; })()}
                       }
-                      .bubble-state { font-size: 0 !important; }
-                      .bubble-state::after {
+                      .bubble-state {
                         font-size: 13px !important; font-weight: 500;
                         color: ${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; if (st === 'disarmed') return '#9ed9bd'; if (st === 'armed_night') return '#f0cf8f'; if (st === 'arming') return '#82bbf0'; return '#f09a99'; })()} !important;
-                        content: "${(() => { const st = hass.states['alarm_control_panel.alarmo']?.state; return ({ disarmed:'Uit', armed_away:'Afwezig', armed_home:'Thuis', armed_night:'Nacht', armed_vacation:'Vakantie', arming:'Inschakelen', pending:'Aftellen', triggered:'ALARM' })[st] || st; })()}";
                       }
                   - type: custom:bubble-card
                     card_type: button
@@ -510,6 +510,9 @@ views:
                       tap_action: { action: navigate, navigation_path: '#person-eva' }
                     icon_tap_action: { action: navigate, navigation_path: '#person-eva' }
                     modules: [bubble_neon_icon_only]
+                    state_content: >-
+                      {%- set t = states('sensor.climate_sensor_evadownstairs_temperature') | float(-99999) -%}
+                      {{ (((t | round(1)) | string | regex_replace('\.0$','')) ~ '°C') if t != -99999 else '—' }}
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
                       .bubble-entity-picture {
@@ -523,11 +526,9 @@ views:
                       .bubble-button-container.bubble-button-container {
                         ${state === 'on' ? 'background-image: radial-gradient(140% 120% at 8% -10%, hsl(45 95% 62% / 0.40), transparent 55%) !important; border: 1px solid hsl(45 90% 62% / 0.80) !important;' : ''}
                       }
-                      .bubble-state { font-size: 0 !important; }
-                      .bubble-state::after {
+                      .bubble-state {
                         font-size: 13px !important; font-weight: 500;
                         color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
-                        content: "${(() => { const t = hass.states['sensor.climate_sensor_evadownstairs_temperature']?.state; return t ? (Math.round(t * 10) / 10) + '°C' : '—'; })()}";
                       }
                   - type: custom:bubble-card
                     card_type: button
@@ -540,6 +541,9 @@ views:
                       tap_action: { action: navigate, navigation_path: '#person-noa' }
                     icon_tap_action: { action: navigate, navigation_path: '#person-noa' }
                     modules: [bubble_neon_icon_only]
+                    state_content: >-
+                      {%- set t = states('sensor.climate_sensor_noa_temperature') | float(-99999) -%}
+                      {{ (((t | round(1)) | string | regex_replace('\.0$','')) ~ '°C') if t != -99999 else '—' }}
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
                       .bubble-entity-picture {
@@ -551,11 +555,9 @@ views:
                       .bubble-button-container.bubble-button-container {
                         ${state === 'on' ? 'background-image: radial-gradient(140% 120% at 8% -10%, hsl(45 95% 62% / 0.40), transparent 55%) !important; border: 1px solid hsl(45 90% 62% / 0.80) !important;' : ''}
                       }
-                      .bubble-state { font-size: 0 !important; }
-                      .bubble-state::after {
+                      .bubble-state {
                         font-size: 13px !important; font-weight: 500;
                         color: ${state === 'on' ? '#f0c85a' : '#9b9aac'} !important;
-                        content: "${(() => { const t = hass.states['sensor.climate_sensor_noa_temperature']?.state; return t ? (Math.round(t * 10) / 10) + '°C' : '—'; })()}";
                       }
             grid_options: { columns: 12, rows: 4 }
 
@@ -847,12 +849,21 @@ views:
               modules:
                 - bubble_badges   # badge = aantal items in het mandje
                 - bubble_neon_icon_only
+              state_content: >-
+                {%- set s = states('sensor.picnic_expected_start_of_next_delivery') -%}
+                {%- if s in ['unknown','unavailable',''] -%}Geen bezorging
+                {%- else -%}
+                {%- set d = s | as_datetime -%}
+                {%- if d is none -%}Geen bezorging
+                {%- else -%}
+                {%- set dl = d | as_local -%}
+                {%- set dagen = ['ma','di','wo','do','vr','za','zo'] -%}
+                {{ ('vandaag' if dl.date() == now().date() else dagen[dl.weekday()]) ~ ' ' ~ dl.strftime('%H:%M') }}
+                {%- endif -%}{%- endif -%}
               styles: |
                 /* subtitle = when the next Picnic delivery slot starts */
-                .bubble-state { font-size: 0 !important; }
-                .bubble-state::after {
+                .bubble-state {
                   font-size: 12px !important;
-                  content: "${(() => { const s = hass.states['sensor.picnic_expected_start_of_next_delivery']?.state; if (!s || s === 'unknown' || s === 'unavailable') return 'Geen bezorging'; const d = new Date(s); const now = new Date(); const days = ['zo','ma','di','wo','do','vr','za']; const t = d.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); return (d.toDateString() === now.toDateString() ? 'vandaag' : days[d.getDay()]) + ' ' + t; })()}";
                 }
                 @media (max-width: 767px) {
                   .bubble-name-container { display: none !important; }
@@ -934,11 +945,12 @@ views:
                 background-color: ${(state === 'on' ? 'rgba(255, 190, 90, 0.28)' : 'transparent')} !important;
               }
               /* show how many member lights are on (like the windows count) */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const m = hass.states['light.lights_downstairs']?.attributes?.entity_id || []; const on = m.filter(e => hass.states[e]?.state === 'on').length; return on === 0 ? 'Alles uit' : on + ' aan'; })()}";
               }
+            state_content: >-
+              {%- set on = expand('light.lights_downstairs') | selectattr('state','eq','on') | list | count -%}
+              {{ 'Alles uit' if on == 0 else on ~ ' aan' }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1003,6 +1015,16 @@ views:
             button_action:
               tap_action: { action: navigate, navigation_path: '#muziek-beneden' }
             modules: [bubble_neon_icon_only]
+            state_content: >-
+              {%- set members = expand('media_player.music_downstairs') -%}
+              {%- set playing = members | selectattr('state','eq','playing') | list -%}
+              {%- set paused = members | selectattr('state','eq','paused') | list -%}
+              {%- if playing | count == 1 -%}{{ playing[0].name | replace('Speakers ','') | replace(' Sonos','') }}
+              {%- elif playing | count > 1 -%}Speelt in {{ playing | count }} kamers
+              {%- elif paused | count == 1 -%}{{ paused[0].name | replace('Speakers ','') | replace(' Sonos','') }} · pauze
+              {%- elif paused | count > 1 -%}Gepauzeerd
+              {%- else -%}Uit
+              {%- endif -%}
             styles: |
               .bubble-button-background {
                 opacity: 1 !important;
@@ -1014,11 +1036,10 @@ views:
                  "on". Two speakers paused plus two idle therefore read as "On"
                  while nothing is playing, and a single-member group reads the
                  raw "Idle". There is no "mixed" state to show, so derive a real
-                 one from the members. Keep every emitted label plain ASCII and
-                 comma-free: Bubble Card eats the character after a comma inside
-                 a CSS content value. */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+                 one from the members. Label comes from state_content (server-side
+                 Jinja), so the old comma-avoidance rule for CSS content values
+                 no longer applies. */
+              .bubble-state {
                 font-size: 14px !important;
                 font-weight: 500;
                 /* a long room name must not be chopped mid-word against the
@@ -1029,28 +1050,25 @@ views:
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
                 white-space: nowrap !important;
-                content: "${(() => {
-                  const members = hass.states['media_player.music_downstairs']?.attributes?.entity_id || [];
-                  const st = m => hass.states[m]?.state;
-                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '').replace(' Sonos', '');
-                  const playing = members.filter(m => st(m) === 'playing');
-                  const paused = members.filter(m => st(m) === 'paused');
-                  if (playing.length === 1) return room(playing[0]);
-                  if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
-                  if (paused.length === 1) return room(paused[0]) + ' · pauze';
-                  if (paused.length > 1) return 'Gepauzeerd';
-                  return 'Uit';
-                })()}";
               }
-              /* album art of the currently-playing group member */
+              /* Album art van het eerste spelende groepslid, in Jinja.
+                 Reden: JS kan alleen een waarde in een vaste CSS-regel schuiven,
+                 geen hele selector weglaten - vandaar de lege accolades in de
+                 oude versie als er niets speelde. Jinja laat het blok gewoon weg.
+                 Volgorde komt uit attributes.entity_id en NIET uit expand():
+                 die sorteert anders en koos een ander lid. */
+              {% set members = state_attr('media_player.music_downstairs','entity_id') or [] %}
+              {% set ns = namespace(active=none) %}
+              {% for m in members if ns.active is none %}{% if is_state(m,'playing') %}{% set ns.active = m %}{% endif %}{% endfor %}
+              {% set pic = state_attr(ns.active,'entity_picture') if ns.active else none %}
+              {% if pic %}
               .bubble-entity-picture {
-                ${(() => {
-                  const members = hass.states['media_player.music_downstairs']?.attributes?.entity_id || [];
-                  const active = members.find(m => hass.states[m]?.state === 'playing');
-                  const pic = active && hass.states[active]?.attributes?.entity_picture;
-                  return pic ? `display: block !important; background-image: url("${pic}") !important; background-size: cover !important; background-position: center !important;` : '';
-                })()}
+                display: block !important;
+                background-image: url("{{ pic }}") !important;
+                background-size: cover !important;
+                background-position: center !important;
               }
+              {% endif %}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1064,11 +1082,13 @@ views:
               tap_action: { action: navigate, navigation_path: '#deuren-beneden' }
             modules: [bubble_neon_icon_only]
             # subtitle shows a count instead of Open/Closed (no negative red)
+            state_content: >-
+              {%- set m = expand('binary_sensor.doors_and_windows_downstairs') -%}
+              {%- set o = m | selectattr('state','eq','on') | list | count -%}
+              {{ 'Alles dicht' if o == 0 else o ~ ' open · ' ~ (m | count - o) ~ ' dicht' }}
             styles: |
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const m = (hass.states['binary_sensor.doors_and_windows_downstairs']?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
               }
             grid_options: { columns: 6, rows: 2 }
 
@@ -1105,11 +1125,12 @@ views:
                 background-color: ${(state === 'on' ? 'rgba(255, 190, 90, 0.28)' : 'transparent')} !important;
               }
               /* show how many member lights are on (like the windows count) */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const m = hass.states['light.lights_upstairs']?.attributes?.entity_id || []; const on = m.filter(e => hass.states[e]?.state === 'on').length; return on === 0 ? 'Alles uit' : on + ' aan'; })()}";
               }
+            state_content: >-
+              {%- set on = expand('light.lights_upstairs') | selectattr('state','eq','on') | list | count -%}
+              {{ 'Alles uit' if on == 0 else on ~ ' aan' }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1122,12 +1143,13 @@ views:
             button_action:
               tap_action: { action: navigate, navigation_path: '#klimaat-boven' }
             modules: [bubble_neon_icon_only]
+            state_content: >-
+              {%- set t = states('sensor.climate_sensor_masterbedroom_temperature') | float(-99999) -%}
+              {{ (('%.1f' | format(t)) ~ ' °C') if t != -99999 else '—' }}
             styles: |
               /* show the master-bedroom room temperature (the heater has none) */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const t = hass.states['sensor.climate_sensor_masterbedroom_temperature']?.state; return (t && t !== 'unavailable' && t !== 'unknown') ? parseFloat(t).toFixed(1) + ' °C' : '—'; })()}";
               }
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
@@ -1150,6 +1172,16 @@ views:
             button_action:
               tap_action: { action: navigate, navigation_path: '#muziek-boven' }
             modules: [bubble_neon_icon_only]
+            state_content: >-
+              {%- set members = expand('media_player.music_upstairs') -%}
+              {%- set playing = members | selectattr('state','eq','playing') | list -%}
+              {%- set paused = members | selectattr('state','eq','paused') | list -%}
+              {%- if playing | count == 1 -%}{{ playing[0].name | replace('Speakers ','') | replace(' Sonos','') }}
+              {%- elif playing | count > 1 -%}Speelt in {{ playing | count }} kamers
+              {%- elif paused | count == 1 -%}{{ paused[0].name | replace('Speakers ','') | replace(' Sonos','') }} · pauze
+              {%- elif paused | count > 1 -%}Gepauzeerd
+              {%- else -%}Uit
+              {%- endif -%}
             styles: |
               .bubble-button-background {
                 opacity: 1 !important;
@@ -1161,11 +1193,10 @@ views:
                  "on". Two speakers paused plus two idle therefore read as "On"
                  while nothing is playing, and a single-member group reads the
                  raw "Idle". There is no "mixed" state to show, so derive a real
-                 one from the members. Keep every emitted label plain ASCII and
-                 comma-free: Bubble Card eats the character after a comma inside
-                 a CSS content value. */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+                 one from the members. Label comes from state_content (server-side
+                 Jinja), so the old comma-avoidance rule for CSS content values
+                 no longer applies. */
+              .bubble-state {
                 font-size: 14px !important;
                 font-weight: 500;
                 /* a long room name must not be chopped mid-word against the
@@ -1176,28 +1207,25 @@ views:
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
                 white-space: nowrap !important;
-                content: "${(() => {
-                  const members = hass.states['media_player.music_upstairs']?.attributes?.entity_id || [];
-                  const st = m => hass.states[m]?.state;
-                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '').replace(' Sonos', '');
-                  const playing = members.filter(m => st(m) === 'playing');
-                  const paused = members.filter(m => st(m) === 'paused');
-                  if (playing.length === 1) return room(playing[0]);
-                  if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
-                  if (paused.length === 1) return room(paused[0]) + ' · pauze';
-                  if (paused.length > 1) return 'Gepauzeerd';
-                  return 'Uit';
-                })()}";
               }
-              /* album art of the currently-playing group member */
+              /* Album art van het eerste spelende groepslid, in Jinja.
+                 Reden: JS kan alleen een waarde in een vaste CSS-regel schuiven,
+                 geen hele selector weglaten - vandaar de lege accolades in de
+                 oude versie als er niets speelde. Jinja laat het blok gewoon weg.
+                 Volgorde komt uit attributes.entity_id en NIET uit expand():
+                 die sorteert anders en koos een ander lid. */
+              {% set members = state_attr('media_player.music_upstairs','entity_id') or [] %}
+              {% set ns = namespace(active=none) %}
+              {% for m in members if ns.active is none %}{% if is_state(m,'playing') %}{% set ns.active = m %}{% endif %}{% endfor %}
+              {% set pic = state_attr(ns.active,'entity_picture') if ns.active else none %}
+              {% if pic %}
               .bubble-entity-picture {
-                ${(() => {
-                  const members = hass.states['media_player.music_upstairs']?.attributes?.entity_id || [];
-                  const active = members.find(m => hass.states[m]?.state === 'playing');
-                  const pic = active && hass.states[active]?.attributes?.entity_picture;
-                  return pic ? `display: block !important; background-image: url("${pic}") !important; background-size: cover !important; background-position: center !important;` : '';
-                })()}
+                display: block !important;
+                background-image: url("{{ pic }}") !important;
+                background-size: cover !important;
+                background-position: center !important;
               }
+              {% endif %}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1211,11 +1239,13 @@ views:
               tap_action: { action: navigate, navigation_path: '#ramen-boven' }
             modules: [bubble_neon_icon_only]
             styles: |
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const m = (hass.states['binary_sensor.doors_and_windows_upstairs']?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
               }
+            state_content: >-
+              {%- set m = expand('binary_sensor.doors_and_windows_upstairs') -%}
+              {%- set o = m | selectattr('state','eq','on') | list | count -%}
+              {{ 'Alles dicht' if o == 0 else o ~ ' open · ' ~ (m | count - o) ~ ' dicht' }}
             grid_options: { columns: 6, rows: 2 }
 
       # ─────────────────────────── ENERGIE & WATER ───────────────────────────
@@ -1259,6 +1289,11 @@ views:
                 show_name: false
                 show_background: true
             modules: [bubble_neon_icon_only]
+            state_content: >-
+              {%- set usage = states('sensor.net_power_consumption') | float(0) -%}
+              {%- set prod = (states('sensor.solaredge_dc_power') | float(0)) / 1000 -%}
+              {%- set price = states('sensor.current_price_electricity') | float(0) -%}
+              {{ '-' ~ ('%.2f' | format(usage | abs)) ~ ' / +' ~ ('%.2f' | format(prod)) ~ ' kW · €' ~ ('%.2f' | format(price)) }}
             styles: |
               /* hover tooltip explaining the two bottom bars (desktop hover) */
               ${(() => { const c = card.querySelector('.bubble-button-card-container'); if (c) c.title = 'Bars (links → rechts):\n• Prijs: huidige stroomprijs binnen de dagrange — groen = goedkoop, rood = duur.\n• Zon: aandeel van het huidige verbruik dat de zonnepanelen dekken (vol = 100%).'; return ''; })()}
@@ -1278,15 +1313,8 @@ views:
               }
               .bubble-button-card-container { position: relative !important; }
               /* state: usage / +production kW · price per kWh */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 13px !important;
-                content: "${(() => {
-                  const usage = parseFloat(hass.states['sensor.net_power_consumption']?.state) || 0;
-                  const prod = (parseFloat(hass.states['sensor.solaredge_dc_power']?.state) || 0) / 1000;
-                  const price = parseFloat(hass.states['sensor.current_price_electricity']?.state) || 0;
-                  return '-' + Math.abs(usage).toFixed(2) + ' / +' + prod.toFixed(2) + ' kW · €' + price.toFixed(2);
-                })()}";
               }
               /* ── left bar: price position today (green=cheap → red=expensive) ── */
               .bubble-button-card-container::before {
@@ -1333,11 +1361,13 @@ views:
                 background-color: ${(parseFloat(state) > 0 ? 'rgba(60, 140, 245, 0.45)' : 'transparent')} !important;
               }
               /* current flow · today's total usage */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 13px !important;
-                content: "${(() => { const flow = parseFloat(hass.states['sensor.watermeter_water_usage']?.state); const daily = parseFloat(hass.states['sensor.water_daily']?.state); const f = (isNaN(flow) ? 0 : flow).toFixed(1); const d = isNaN(daily) ? '?' : (Math.round(daily * 100) / 100); return f + ' L/min · ' + d + ' m³ vandaag'; })()}";
               }
+            state_content: >-
+              {%- set flow = states('sensor.watermeter_water_usage') | float(0) -%}
+              {%- set daily = states('sensor.water_daily') | float(-99999) -%}
+              {{ ('%.1f' | format(flow)) ~ ' L/min · ' ~ (((daily | round(2)) | string | regex_replace('\.0$','')) if daily != -99999 else '?') ~ ' m³ vandaag' }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1366,11 +1396,12 @@ views:
                 })()} !important;
               }
               /* show the actual water temperature instead of the on/off state */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const t = hass.states['water_heater.domestic_hot_water_tank']?.attributes?.current_temperature; return (t != null ? t + ' °C' : '—'); })()}";
               }
+            state_content: >-
+              {%- set t = state_attr('water_heater.domestic_hot_water_tank','current_temperature') -%}
+              {{ ((t | string | regex_replace('\.0$','')) ~ ' °C') if t is not none else '—' }}
             grid_options: { columns: 6, rows: 2 }
 
       # ─────────────────────────────── TUIN ──────────────────────────────────
@@ -1404,17 +1435,14 @@ views:
                 background-color: ${(state === 'Open' ? 'rgba(60, 180, 210, 0.42)' : 'transparent')} !important;
               }
               /* show water temperature, pH and Rx (ORP) */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 12px !important;
-                content: "${(() => {
-                  const t = hass.states['sensor.fairland_zwembad_wpu_temp_inlet']?.state;
-                  const ph = hass.states['sensor.eps_pool_ph_level']?.state;
-                  const rx = hass.states['sensor.eps_pool_rx_level']?.state;
-                  const temp = (t && t !== 'unavailable') ? parseFloat(t).toFixed(1) + '°C' : '–';
-                  return temp + ' · pH ' + (ph ?? '–') + ' · Rx ' + (rx != null && rx !== 'unavailable' ? Math.round(parseFloat(rx)) : '–');
-                })()}";
               }
+            state_content: >-
+              {%- set t = states('sensor.fairland_zwembad_wpu_temp_inlet') | float(-99999) -%}
+              {%- set ph = states('sensor.eps_pool_ph_level') -%}
+              {%- set rx = states('sensor.eps_pool_rx_level') | float(-99999) -%}
+              {{ ((('%.1f' | format(t)) ~ '°C') if t != -99999 else '–') ~ ' · pH ' ~ (ph if ph not in ['unknown','unavailable',''] else '–') ~ ' · Rx ' ~ ((rx | round | int) if rx != -99999 else '–') }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1433,11 +1461,12 @@ views:
                 background-color: ${(state === 'on' ? 'rgba(255, 190, 90, 0.28)' : 'transparent')} !important;
               }
               /* show how many member lights are on (like the windows count) */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const m = hass.states['light.lights_garden']?.attributes?.entity_id || []; const on = m.filter(e => hass.states[e]?.state === 'on').length; return on === 0 ? 'Alles uit' : on + ' aan'; })()}";
               }
+            state_content: >-
+              {%- set on = expand('light.lights_garden') | selectattr('state','eq','on') | list | count -%}
+              {{ 'Alles uit' if on == 0 else on ~ ' aan' }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1470,11 +1499,10 @@ views:
                  "on". Two speakers paused plus two idle therefore read as "On"
                  while nothing is playing, and a single-member group reads the
                  raw "Idle". There is no "mixed" state to show, so derive a real
-                 one from the members. Keep every emitted label plain ASCII and
-                 comma-free: Bubble Card eats the character after a comma inside
-                 a CSS content value. */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+                 one from the members. Label comes from state_content (server-side
+                 Jinja), so the old comma-avoidance rule for CSS content values
+                 no longer applies. */
+              .bubble-state {
                 font-size: 14px !important;
                 font-weight: 500;
                 /* a long room name must not be chopped mid-word against the
@@ -1485,28 +1513,35 @@ views:
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
                 white-space: nowrap !important;
-                content: "${(() => {
-                  const members = hass.states['media_player.muziek_tuin']?.attributes?.entity_id || [];
-                  const st = m => hass.states[m]?.state;
-                  const room = m => (hass.states[m]?.attributes?.friendly_name || '').replace('Speakers ', '').replace(' Sonos', '');
-                  const playing = members.filter(m => st(m) === 'playing');
-                  const paused = members.filter(m => st(m) === 'paused');
-                  if (playing.length === 1) return room(playing[0]);
-                  if (playing.length > 1) return 'Speelt in ' + playing.length + ' kamers';
-                  if (paused.length === 1) return room(paused[0]) + ' · pauze';
-                  if (paused.length > 1) return 'Gepauzeerd';
-                  return 'Uit';
-                })()}";
               }
-              /* album art of the currently-playing group member */
+              /* Album art van het eerste spelende groepslid, in Jinja.
+                 Reden: JS kan alleen een waarde in een vaste CSS-regel schuiven,
+                 geen hele selector weglaten - vandaar de lege accolades in de
+                 oude versie als er niets speelde. Jinja laat het blok gewoon weg.
+                 Volgorde komt uit attributes.entity_id en NIET uit expand():
+                 die sorteert anders en koos een ander lid. */
+              {% set members = state_attr('media_player.muziek_tuin','entity_id') or [] %}
+              {% set ns = namespace(active=none) %}
+              {% for m in members if ns.active is none %}{% if is_state(m,'playing') %}{% set ns.active = m %}{% endif %}{% endfor %}
+              {% set pic = state_attr(ns.active,'entity_picture') if ns.active else none %}
+              {% if pic %}
               .bubble-entity-picture {
-                ${(() => {
-                  const members = hass.states['media_player.muziek_tuin']?.attributes?.entity_id || [];
-                  const active = members.find(m => hass.states[m]?.state === 'playing');
-                  const pic = active && hass.states[active]?.attributes?.entity_picture;
-                  return pic ? `display: block !important; background-image: url("${pic}") !important; background-size: cover !important; background-position: center !important;` : '';
-                })()}
+                display: block !important;
+                background-image: url("{{ pic }}") !important;
+                background-size: cover !important;
+                background-position: center !important;
               }
+              {% endif %}
+            state_content: >-
+              {%- set members = expand('media_player.muziek_tuin') -%}
+              {%- set playing = members | selectattr('state','eq','playing') | list -%}
+              {%- set paused = members | selectattr('state','eq','paused') | list -%}
+              {%- if playing | count == 1 -%}{{ playing[0].name | replace('Speakers ','') | replace(' Sonos','') }}
+              {%- elif playing | count > 1 -%}Speelt in {{ playing | count }} kamers
+              {%- elif paused | count == 1 -%}{{ paused[0].name | replace('Speakers ','') | replace(' Sonos','') }} · pauze
+              {%- elif paused | count > 1 -%}Gepauzeerd
+              {%- else -%}Uit
+              {%- endif -%}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1520,11 +1555,13 @@ views:
               tap_action: { action: navigate, navigation_path: '#deuren-tuin' }
             modules: [bubble_neon_icon_only]
             styles: |
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const m = (hass.states['binary_sensor.doors_and_windows_garden']?.attributes?.entity_id) || []; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
               }
+            state_content: >-
+              {%- set m = expand('binary_sensor.doors_and_windows_garden') -%}
+              {%- set o = m | selectattr('state','eq','on') | list | count -%}
+              {{ 'Alles dicht' if o == 0 else o ~ ' open · ' ~ (m | count - o) ~ ' dicht' }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1610,25 +1647,22 @@ views:
                 background-color: ${((hass.states['switch.irrigatie_zones']?.state === 'on' || hass.states['input_boolean.irrigation_plan_enable']?.state === 'on') ? 'rgba(60, 140, 245, 0.45)' : 'transparent')} !important;
               }
               /* subtitle: active/planned + pending time */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 13px !important;
-                content: "${(() => {
-                  const on = hass.states['switch.irrigatie_zones']?.state === 'on';
-                  const planned = hass.states['input_boolean.irrigation_plan_enable']?.state === 'on';
-                  const dur = parseFloat(hass.states['sensor.irrigatie_zones_duur']?.state) || 0;    /* total minutes */
-                  const fmt = (mins) => { const h = Math.floor(mins / 60), mm = mins % 60; return h > 0 ? h + 'u ' + String(mm).padStart(2, '0') + 'm' : mins + ' min'; };
-                  if (on) {
-                    /* remaining = start (switch turned on) + duration - now */
-                    const start = new Date(hass.states['switch.irrigatie_zones'].last_changed).getTime();
-                    let rem = Math.round((start + dur * 60000 - Date.now()) / 60000);
-                    if (rem < 0) rem = 0;
-                    return 'Nog ' + fmt(rem);
-                  }
-                  if (planned) return 'Gepland ' + (hass.states['input_datetime.irrigation_start_time']?.state || '').slice(0, 5);
-                  return 'Uit';
-                })()}";
               }
+            state_content: >-
+              {%- set sw = states['switch.irrigatie_zones'] -%}
+              {%- set planned = is_state('input_boolean.irrigation_plan_enable','on') -%}
+              {%- set dur = states('sensor.irrigatie_zones_duur') | float(0) -%}
+              {%- if sw is not none and sw.state == 'on' -%}
+              {%- set rem = (((sw.last_changed.timestamp() + dur * 60) - now().timestamp()) / 60) | round | int -%}
+              {%- set rem = 0 if rem < 0 else rem -%}
+              {%- set h = (rem // 60) | int -%}
+              {%- set mm = (rem % 60) | int -%}
+              Nog {{ (h ~ 'u ' ~ ('%02d' | format(mm)) ~ 'm') if h > 0 else (rem ~ ' min') }}
+              {%- elif planned -%}Gepland {{ states('input_datetime.irrigation_start_time')[:5] }}
+              {%- else -%}Uit
+              {%- endif -%}
             grid_options: { columns: 6, rows: 2 }
 
       # ─────────────────────────── HUIS & AUTO ───────────────────────────────
@@ -1729,18 +1763,20 @@ views:
             entity: cover.covers_downstairs
             name: Screens
             icon: mdi:blinds
-            show_state: true
             tap_action: { action: navigate, navigation_path: '#screens' }
             button_action:
               tap_action: { action: navigate, navigation_path: '#screens' }
             modules: [bubble_neon_icon_only]
             styles: |
               /* subtitle = per-screen position + a flag when automation is off */
-              .bubble-state { font-size: 0 !important; }
-              .bubble-state::after {
+              .bubble-state {
                 font-size: 14px !important;
-                content: "${(() => { const d = id => { const p = hass.states[id]?.attributes?.current_position; return p == null ? '?' : (p === 0 ? 'dicht' : (p === 100 ? 'open' : p + '%')); }; const auto = hass.states['input_boolean.enable_automatic_screens']?.state === 'on'; return 'Voor ' + d('cover.voorraam') + ' · Zij ' + d('cover.zijraam') + (auto ? '' : ' · handmatig'); })()}";
               }
+            state_content: >-
+              {%- set pv = state_attr('cover.voorraam','current_position') -%}
+              {%- set pz = state_attr('cover.zijraam','current_position') -%}
+              {%- set auto = is_state('input_boolean.enable_automatic_screens','on') -%}
+              {{ 'Voor ' ~ ('?' if pv is none else ('dicht' if pv == 0 else ('open' if pv == 100 else (pv ~ '%')))) ~ ' · Zij ' ~ ('?' if pz is none else ('dicht' if pz == 0 else ('open' if pz == 100 else (pz ~ '%')))) ~ ('' if auto else ' · handmatig') }}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button

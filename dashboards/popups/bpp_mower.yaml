@@ -1,6 +1,5 @@
 # Bubble Card native pop-up (hash #grasmaaier) — Grasmaaier (Navimow) tile.
 # Status/battery header, Navimow map (hero), Bediening actions, history graphs.
-# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,16 +13,19 @@ name: Grasmaaier
 icon: mdi:robot-mower
 # header = status (NL) + zone + accu%, groen als maaiend, blauw naar dock, rood bij fout
 entity: lawn_mower.navimow_i108
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? 'rgba(226,75,74,0.16)' : s === 'mowing' ? 'rgba(45,170,115,0.15)' : s === 'returning' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? 'rgba(226,75,74,0.22)' : s === 'mowing' ? 'rgba(45,170,115,0.22)' : s === 'returning' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? '#ec8a89' : s === 'mowing' ? '#7fdcae' : s === 'returning' ? '#82bbf0' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const st = hass.states['lawn_mower.navimow_i108']?.state; const map = { mowing: 'Maait', docked: 'Gedockt', returning: 'Naar dock', paused: 'Gepauzeerd', error: 'Fout', idle: 'Idle', unavailable: 'Offline' }; const s = map[st] || st; const z = hass.states['sensor.navimow_i108_zone']?.state; const b = parseFloat(hass.states['sensor.navimow_i108_battery']?.state); return s + (st === 'mowing' && z && z !== 'unknown' ? ' · zone ' + z : '') + (isFinite(b) ? ' · ' + Math.round(b) + '%' : ''); })()}";
   }
+state_content: >-
+  {%- set st = states('lawn_mower.navimow_i108') -%}
+  {%- set m = {'mowing':'Maait','docked':'Gedockt','returning':'Naar dock','paused':'Gepauzeerd','error':'Fout','idle':'Idle','unavailable':'Offline'} -%}
+  {%- set z = states('sensor.navimow_i108_zone') -%}
+  {%- set b = states('sensor.navimow_i108_battery') | float(-99999) -%}
+  {{ m.get(st, st) ~ ((' · zone ' ~ z) if (st == 'mowing' and z not in ['unknown','unavailable','']) else '') ~ ((' · ' ~ (b | round | int) ~ '%') if b != -99999 else '') }}
 cards:
   # ── kaart (hero) ──────────────────────────────────────────────────
   - type: custom:navimow-map-card

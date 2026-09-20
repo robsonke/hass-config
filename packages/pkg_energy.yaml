@@ -427,11 +427,11 @@ template:
           {{ ((sumTomorrow / countTomorrow) + (states('input_number.energy_markup') | float(0.1108))) | round(2, 'floor') }}
         {% endif %}
     # Starttijd van het goedkoopste aaneengesloten blok van dhw_charge_duration
-    # binnen 00:00-16:00, voor "DHW - Plan het laadvenster" op dagen zonder zon.
+    # binnen 00:00-16:00, voor "DHW - Plan het opwarmvenster" op dagen zonder zon.
     #
     # De bovengrens 16:00 garandeert dat de avondtapping gedekt is; een blok mag
     # daar precies op eindigen, niet overheen lopen. Een blok 's nachts is
-    # prima: bij een stilstandsverlies van 0,22 K/u kost laden om 03:00 in
+    # prima: bij een stilstandsverlies van 0,22 K/u kost opwarmen om 03:00 in
     # plaats van 13:00 maar ~2 K extra.
     #
     # Het aantal slots per uur komt uit `raw_today | count` en staat niet op 24
@@ -440,8 +440,6 @@ template:
     #
     # binary_sensor.cheapest_16_hours_24h is hier niet bruikbaar: 16 van de 24
     # uur is veel te grof om een venster van twee uur mee te kiezen.
-    #
-    # Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
     # De entity_id komt van `name`, NIET van `unique_id` - een Nederlandse naam
     # gaf hier sensor.dhw_goedkoopste_laadstart. De rest van dit bestand
     # gebruikt Engelse sensornamen, dus die lijn hier ook aanhouden.

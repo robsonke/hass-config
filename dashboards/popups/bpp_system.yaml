@@ -14,12 +14,12 @@ name: Systeem
 icon: mdi:cog
 # header = HA-versie
 entity: sensor.hass_version_installed
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.13) !important; }
   .bubble-icon-container { background-color: rgba(45,170,115,0.20) !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after { font-size: 14px !important; font-weight: 500; color: #9ed9bd !important; content: "Home Assistant ${hass.states['sensor.hass_version_installed']?.state || '—'}"; }
+  .bubble-state { font-size: 14px !important; font-weight: 500; color: #9ed9bd !important; }
+state_content: >-
+  {{ 'Home Assistant ' ~ (states('sensor.hass_version_installed') if states('sensor.hass_version_installed') not in ['unknown','unavailable',''] else '—') }}
 cards:
   # ── status ────────────────────────────────────────────────────────
   - type: custom:bubble-card
@@ -44,11 +44,20 @@ cards:
              Bubble marquee-scrolled it. Show elapsed time instead, which is what
              an uptime tile is for. Comma-free by necessity: Bubble eats the
              character after a comma inside a CSS 'content' value. */
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after {
-            font-size: 13px !important; font-weight: 500;
-            content: "${(() => { const t = Date.parse(hass.states['sensor.uptime']?.state); if (isNaN(t)) return '—'; const sec = Math.floor((Date.now() - t) / 1000); const d = Math.floor(sec / 86400); const h = Math.floor((sec % 86400) / 3600); const m = Math.floor((sec % 3600) / 60); if (d > 0) return d + 'd ' + h + 'u'; if (h > 0) return h + 'u ' + m + 'm'; return m + 'm'; })()}";
-          }
+          .bubble-state { font-size: 13px !important; font-weight: 500; }
+        state_content: >-
+          {%- set u = states('sensor.uptime') | as_datetime -%}
+          {%- if u is none -%}—
+          {%- else -%}
+          {%- set sec = (now() - u).total_seconds() | int -%}
+          {%- set d = (sec // 86400) | int -%}
+          {%- set h = ((sec % 86400) // 3600) | int -%}
+          {%- set m = ((sec % 3600) // 60) | int -%}
+          {%- if d > 0 -%}{{ d }}d {{ h }}u
+          {%- elif h > 0 -%}{{ h }}u {{ m }}m
+          {%- else -%}{{ m }}m
+          {%- endif -%}
+          {%- endif -%}
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -69,8 +78,9 @@ cards:
         tap_action: { action: more-info }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${hass.states['sensor.unavailable_entities']?.state ?? '—'}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
+        state_content: >-
+          {{ states('sensor.unavailable_entities') if states('sensor.unavailable_entities') not in ['unknown','unavailable',''] else '—' }}
       # System-wide count (sensor.all_unavailable_entities), as opposed to the
       # tile above which only counts group.monitored_entities. Deliberately NOT
       # red/green: a non-zero total is the normal state here, because whole
@@ -87,8 +97,9 @@ cards:
         tap_action: { action: more-info }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #9bb6c8 !important; content: "${hass.states['sensor.all_unavailable_entities']?.state ?? '—'}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: #9bb6c8 !important; }
+        state_content: >-
+          {{ states('sensor.all_unavailable_entities') if states('sensor.all_unavailable_entities') not in ['unknown','unavailable',''] else '—' }}
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -99,8 +110,9 @@ cards:
         tap_action: { action: more-info }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['binary_sensor.important_addons']?.attributes?.count); return (isFinite(v) && v > 0) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['binary_sensor.important_addons']?.attributes?.count); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${hass.states['binary_sensor.important_addons']?.attributes?.count ?? 0}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['binary_sensor.important_addons']?.attributes?.count); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
+        state_content: >-
+          {{ state_attr('binary_sensor.important_addons','count') if state_attr('binary_sensor.important_addons','count') is not none else 0 }}
   # ── belasting ─────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

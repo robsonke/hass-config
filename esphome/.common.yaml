@@ -6,19 +6,57 @@ wifi:
     gateway: 192.168.0.1
     subnet: 255.255.255.0
 
-captive_portal:
+# No `captive_portal:` here. It only ever serves pages on the fallback AP, and
+# there is no `ap:` block above, so it was compiled into every node and could
+# not be reached on any of them - ESPHome says so out loud ("Captive portal is
+# enabled but no WiFi AP is configured"). Removing it costs nothing that
+# existed and gives flash back on the 1MB esp8285/esp01_1m nodes, which are the
+# tightest here.
+#
+# If a recovery path for a node whose wifi credentials have gone stale is ever
+# wanted, the fix is to add `ap:` under wifi: *and* put `captive_portal:` back -
+# one without the other is the state we just left.
 
 api:
   encryption:
     key: !secret api_key
 
+# One key per device: `encryption:` with no key of its own inherits the api key
+# above, and having it here makes encryption *required* rather than merely
+# offered.
+#
+# This replaces `password: !secret wifi_password`. A password and an encryption
+# block are mutually exclusive, and ESPHome now warns that the password "wastes
+# significant flash and RAM (about 3.5 KB and 60 bytes plus the password on the
+# heap)" once an api key is present, because the key already authenticates any
+# uploader that takes it.
+#
+# MIGRATION, and it is one-way per device: firmware built before ESPHome
+# 2026.9 has no OTA encryption at all - `esphome/components/esphome/ota` in
+# 2026.7.0 does not contain the word - so such a node asks for a password, and
+# an uploader that no longer has one fails with "ESP requests password, but no
+# password given!". Any node still running pre-2026.9 firmware must therefore
+# be flashed *before* this change reaches it. At the time of writing that was
+# Shelly-Plug-S-10 (2025.12.0) and nothing else; every other node here was on
+# 2026.9.0.
 ota:
-  password: !secret wifi_password
   platform: esphome
+  encryption:
 
 web_server:
   port: 80
   version: 3
+  # `ota: false` closes web_server's own /update endpoint. It is a second,
+  # entirely separate OTA path, and with no `auth:` block on this web server it
+  # takes a firmware image from anyone on the LAN with no credentials at all -
+  # which would have made the encryption above pointless (ESPHome warns:
+  # "OTA encryption does not cover the web_server OTA platform; its plaintext
+  # /update endpoint accepts the same image").
+  #
+  # Note this closes the *upload* path only. The rest of the web UI is still
+  # unauthenticated, so anyone on the LAN can still see and toggle these nodes;
+  # closing that needs an `auth:` block here and is a separate decision.
+  ota: false
 
 time:
   - platform: homeassistant

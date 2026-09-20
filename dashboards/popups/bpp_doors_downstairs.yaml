@@ -1,5 +1,5 @@
 # Bubble Card native pop-up (hash #deuren-beneden) — Deuren tile (Beneden).
-# State-card grid pattern — see docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
+# State-card grid pattern.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,17 +14,21 @@ icon: mdi:door
 # summary in the header: group sensor drives the state line, overridden to
 # the computed "N open · M dicht" count (blue = iets open, green = alles dicht).
 entity: binary_sensor.doors_and_windows_downstairs
-show_state: true
+# Bubble Card 3.4.0: tekst komt uit state_content (server-side Jinja), niet meer
+# uit een CSS-::after met font-size 0. Kleur blijft JS.
+state_content: >-
+  {%- set m = expand('binary_sensor.doors_and_windows_downstairs') -%}
+  {%- set o = m | selectattr('state','eq','on') | list | count -%}
+  {{ 'Alles dicht' if o == 0 else o ~ ' open · ' ~ (m | count - o) ~ ' dicht' }}
 styles: |
-  /* header summary counts/tints from the SAME entities shown as cards (the
-     group sensor excludes interior doors, so it would disagree with the cards) */
-  .bubble-button-background { opacity: 1 !important; background-color: ${['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact'].some(e => hass.states[e]?.state === 'on') ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
-  .bubble-icon-container { background-color: ${['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact'].some(e => hass.states[e]?.state === 'on') ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  /* Kop telt de buitenschil-groep, niet alle kaarten eronder. De drie
+     binnendeuren hebben wel een eigen kaart maar zeggen niets over of het huis
+     dicht is, en Alarmo bewaakt ze niet. */
+  .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
+  .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
-    color: ${['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact'].some(e => hass.states[e]?.state === 'on') ? '#82bbf0' : '#9ed9bd'} !important;
-    content: "${(() => { const m = ['binary_sensor.frontdoor_openclose_contact','binary_sensor.backdoor_sensor_contact','binary_sensor.door_terrace_sensor_contact','binary_sensor.windowdoor_ground_1_openclose_contact','binary_sensor.windowdoor_ground_2_openclose_contact','binary_sensor.windowdoor_ground_3_openclose_contact','binary_sensor.hallwaydoor_sensor_contact','binary_sensor.window_office_openclose_contact','binary_sensor.door_hallcloset_openclose_contact','binary_sensor.toiletdoordownstairs_sensor_contact']; const o = m.filter(e => hass.states[e]?.state === 'on').length; return o === 0 ? 'Alles dicht' : o + ' open · ' + (m.length - o) + ' dicht'; })()}";
+    color: ${state === 'on' ? '#82bbf0' : '#9ed9bd'} !important;
   }
 cards:
   # ── section: Buitendeuren ─────────────────────────────────────────
@@ -44,11 +48,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.frontdoor_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.frontdoor_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -58,11 +73,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.backdoor_sensor_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.backdoor_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -72,11 +98,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.door_terrace_sensor_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.door_terrace_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
   # ── section: Kiep/kantel ramen ────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -95,11 +132,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.windowdoor_ground_1_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.windowdoor_ground_1_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -110,11 +158,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.windowdoor_ground_2_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.windowdoor_ground_2_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -125,11 +184,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.windowdoor_ground_3_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.windowdoor_ground_3_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
   # ── section: Overig ───────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -147,11 +217,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.hallwaydoor_sensor_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.hallwaydoor_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -161,11 +242,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.window_office_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.window_office_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -175,11 +267,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.door_hallcloset_openclose_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.door_hallcloset_openclose_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -189,11 +292,22 @@ cards:
         tap_action: { action: more-info }
         button_action:
           tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['binary_sensor.toiletdoordownstairs_sensor_contact'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set s = (now() - st.last_changed).total_seconds() -%}
+          {%- if s < 60 -%}{%- set d = 'net' -%}
+          {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+          {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+          {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+          {%- endif -%}
+          {{ ('open' if st.state == 'on' else 'dicht') ~ ' · ' ~ d }}
+          {%- endif -%}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; content: "${(() => { const w = state === 'on' ? 'open' : 'dicht'; const t = hass.states['binary_sensor.toiletdoordownstairs_sensor_contact']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; let d; if (s < 60) d = 'net'; else if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return w + ' · ' + d; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8fbda6'} !important; }
   # ── section: Voordeur activiteit (neutral info rows, not state cards) ─
   - type: custom:bubble-card
     card_type: separator
@@ -208,11 +322,24 @@ cards:
     tap_action: { action: more-info }
     button_action:
       tap_action: { action: more-info }
+    state_content: >-
+      {%- set st = states['binary_sensor.langeweide_doorbell_visitor'] -%}
+      {%- if st is none -%}—
+      {%- else -%}
+      {%- set s = (now() - st.last_changed).total_seconds() -%}
+      {%- if s < 60 -%}zojuist
+      {%- else -%}
+      {%- if s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+      {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+      {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+      {%- endif -%}
+      {{ d ~ ' geleden' }}
+      {%- endif -%}
+      {%- endif -%}
     styles: |
       .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.045) !important; }
       .bubble-icon-container { background-color: rgba(255,255,255,0.07) !important; }
-      .bubble-state { font-size: 0 !important; }
-      .bubble-state::after { font-size: 12.5px !important; color: #9b9aac !important; content: "${(() => { const t = hass.states['binary_sensor.langeweide_doorbell_visitor']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'zojuist'; let d; if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return d + ' geleden'; })()}"; }
+      .bubble-state { font-size: 12.5px !important; color: #9b9aac !important; }
   - type: custom:bubble-card
     card_type: button
     button_type: state
@@ -223,11 +350,24 @@ cards:
     tap_action: { action: more-info }
     button_action:
       tap_action: { action: more-info }
+    state_content: >-
+      {%- set st = states['binary_sensor.langeweide_doorbell_motion'] -%}
+      {%- if st is none -%}—
+      {%- else -%}
+      {%- set s = (now() - st.last_changed).total_seconds() -%}
+      {%- if s < 60 -%}zojuist
+      {%- else -%}
+      {%- if s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+      {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+      {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+      {%- endif -%}
+      {{ d ~ ' geleden' }}
+      {%- endif -%}
+      {%- endif -%}
     styles: |
       .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.045) !important; }
       .bubble-icon-container { background-color: rgba(255,255,255,0.07) !important; }
-      .bubble-state { font-size: 0 !important; }
-      .bubble-state::after { font-size: 12.5px !important; color: #9b9aac !important; content: "${(() => { const t = hass.states['binary_sensor.langeweide_doorbell_motion']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'zojuist'; let d; if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return d + ' geleden'; })()}"; }
+      .bubble-state { font-size: 12.5px !important; color: #9b9aac !important; }
   - type: custom:bubble-card
     card_type: button
     button_type: state
@@ -238,8 +378,21 @@ cards:
     tap_action: { action: more-info }
     button_action:
       tap_action: { action: more-info }
+    state_content: >-
+      {%- set st = states['binary_sensor.langeweide_doorbell_person'] -%}
+      {%- if st is none -%}—
+      {%- else -%}
+      {%- set s = (now() - st.last_changed).total_seconds() -%}
+      {%- if s < 60 -%}zojuist
+      {%- else -%}
+      {%- if s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+      {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+      {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+      {%- endif -%}
+      {{ d ~ ' geleden' }}
+      {%- endif -%}
+      {%- endif -%}
     styles: |
       .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.045) !important; }
       .bubble-icon-container { background-color: rgba(255,255,255,0.07) !important; }
-      .bubble-state { font-size: 0 !important; }
-      .bubble-state::after { font-size: 12.5px !important; color: #9b9aac !important; content: "${(() => { const t = hass.states['binary_sensor.langeweide_doorbell_person']?.last_changed; const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'zojuist'; let d; if (s < 3600) { const m = Math.round(s/60); d = m >= 60 ? '1 uur' : m + ' min'; } else if (s < 86400) { const h = Math.round(s/3600); d = h >= 24 ? '1 dag' : h + ' uur'; } else { const dy = Math.round(s/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return d + ' geleden'; })()}"; }
+      .bubble-state { font-size: 12.5px !important; color: #9b9aac !important; }

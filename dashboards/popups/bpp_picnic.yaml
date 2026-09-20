@@ -12,16 +12,16 @@ name: Picnic
 icon: mdi:cart
 # header = aantal producten in mandje (blauw als er iets in zit)
 entity: sensor.picnic_cart_items_count
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? '#82bbf0' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const v = parseFloat(hass.states['sensor.picnic_cart_items_count']?.state); return (isFinite(v) && v > 0) ? (v + ' in mandje') : 'Mandje leeg'; })()}";
   }
+state_content: >-
+  {%- set v = states('sensor.picnic_cart_items_count') | float(-99999) -%}
+  {{ ((v | round | int) ~ ' in mandje') if (v != -99999 and v > 0) else 'Mandje leeg' }}
 cards:
   # ── winkelmandje ──────────────────────────────────────────────────
   - type: custom:bubble-card

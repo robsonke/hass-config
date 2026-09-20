@@ -15,16 +15,18 @@ name: Camera's
 icon: mdi:cctv
 # header = Frigate status + number of cameras currently in ALERT
 entity: binary_sensor.frigate_nvr_running
-show_state: true
+state_content: >-
+  {%- set ns = namespace(n=0) -%}
+  {%- for c in ['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'] -%}
+  {%- if is_state('sensor.' ~ c ~ '_review_status','ALERT') -%}{%- set ns.n = ns.n + 1 -%}{%- endif -%}
+  {%- endfor -%}
+  {%- if not is_state('binary_sensor.frigate_nvr_running','on') -%}Frigate offline
+  {%- elif ns.n > 0 -%}{{ ns.n }} camera-alert{{ 's' if ns.n != 1 else '' }}
+  {%- else -%}Alles rustig{%- endif -%}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? 'rgba(226,75,74,0.24)' : 'rgba(45,170,115,0.20)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
-    font-size: 13px !important; font-weight: 500;
-    color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? '#ec8a89' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const on=hass.states['binary_sensor.frigate_nvr_running']?.state==='on'; const n=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].filter(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT').length; if(!on) return 'Frigate offline'; return n>0 ? (n+(n===1?' camera-alert':' camera-alerts')) : 'Alles rustig'; })()}";
-  }
+  .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const A=['deurbel','zijkant','terras','veranda','bijkeuken','zwembad','evabed','noabed'].some(c=>hass.states['sensor.'+c+'_review_status']?.state==='ALERT'); return A ? '#ec8a89' : '#9ed9bd'; })()} !important; }
 cards:
   # ── live grid van alle camera's ────────────────────────────────────
   - type: custom:bubble-card

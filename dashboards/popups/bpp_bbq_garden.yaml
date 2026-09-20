@@ -1,6 +1,6 @@
 # Bubble Card native pop-up (hash #bbq) — BBQ tile (Tuin).
 # Dome temp + probe-ability meat prediction (kept), doelen, kookwekker, grafiek,
-# notificaties. See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
+# notificaties.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,15 +14,16 @@ name: BBQ
 icon: mdi:grill
 # header = dome temp (rood bij alarm, warm als heet, dim als uit)
 entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
-show_state: true
+state_content: >-
+  {%- set v = states('sensor.tuin_bbq_dome_thermometer_ambient_temperature') | float(-99999) -%}
+  {%- set alert = is_state('sensor.dome_alert_temp','Alert') -%}
+  {{ 'Dome uit' if v == -99999 else ('Dome ' ~ (v | round | int) ~ '°C' ~ (' · ALARM' if alert else '')) }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); return alert ? 'rgba(226,75,74,0.18)' : (isFinite(v) && v > 50) ? 'rgba(235,95,45,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); return alert ? 'rgba(226,75,74,0.24)' : (isFinite(v) && v > 50) ? 'rgba(235,95,45,0.24)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); return alert ? '#ec8a89' : (isFinite(v) && v > 50) ? '#f0a878' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const v = parseFloat(hass.states['sensor.tuin_bbq_dome_thermometer_ambient_temperature']?.state); const alert = hass.states['sensor.dome_alert_temp']?.state === 'Alert'; if (!isFinite(v)) return 'Dome uit'; return 'Dome ' + Math.round(v) + '°C' + (alert ? ' · ALARM' : ''); })()}";
   }
 cards:
   # ── temperatuur ───────────────────────────────────────────────────
@@ -53,10 +54,12 @@ cards:
         icon: mdi:thermometer-probe
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.probe_1_temperature') | float(-99999) -%}
+          {{ ((v | round | int) ~ ' °C') if v != -99999 else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return (isFinite(v) && v > 40) ? 'rgba(235,95,45,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return (isFinite(v) && v > 40) ? '#f0a878' : '#8f8e9e'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return isFinite(v) ? Math.round(v) + ' °C' : '—'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${(() => { const v = parseFloat(hass.states['sensor.probe_1_temperature']?.state); return (isFinite(v) && v > 40) ? '#f0a878' : '#8f8e9e'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -65,10 +68,12 @@ cards:
         icon: mdi:thermometer-probe
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.probe_2_temperature') | float(-99999) -%}
+          {{ ((v | round | int) ~ ' °C') if v != -99999 else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return (isFinite(v) && v > 40) ? 'rgba(235,95,45,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return (isFinite(v) && v > 40) ? '#f0a878' : '#8f8e9e'; })()} !important; content: "${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return isFinite(v) ? Math.round(v) + ' °C' : '—'; })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${(() => { const v = parseFloat(hass.states['sensor.probe_2_temperature']?.state); return (isFinite(v) && v > 40) ? '#f0a878' : '#8f8e9e'; })()} !important; }
   # ── vlees voorspelling (probe-ability, behouden) ──────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -157,11 +162,11 @@ cards:
         icon: mdi:bell
         card_layout: large
         tap_action: { action: toggle }
+        state_content: "{{ 'aan' if is_state('input_boolean.enable_bbq_automations','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -170,11 +175,11 @@ cards:
         icon: mdi:timer-outline
         card_layout: large
         tap_action: { action: toggle }
+        state_content: "{{ 'aan' if is_state('automation.bbq_timer_notifications','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -183,8 +188,8 @@ cards:
         icon: mdi:alarm-light
         card_layout: large
         tap_action: { action: toggle }
+        state_content: "{{ 'aan' if is_state('automation.bbq_dome_alarm','on') else 'uit' }}"
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; content: "${state === 'on' ? 'aan' : 'uit'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#9ed9bd' : '#8f8e9e'} !important; }

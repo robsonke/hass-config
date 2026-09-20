@@ -13,15 +13,24 @@ name: Boris en Puk
 icon: mdi:cat
 # header = kattenluik-beweging (blauw = beweging, groen = rustig) + duur
 entity: binary_sensor.motion_sensor_cats_occupancy
-show_state: true
+state_content: >-
+  {%- set st = states['binary_sensor.motion_sensor_cats_occupancy'] -%}
+  {%- if st is none -%}—
+  {%- else -%}
+  {%- set s = (now() - st.last_changed).total_seconds() -%}
+  {%- if s < 60 -%}{%- set d = 'net' -%}
+  {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
+  {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
+  {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
+  {%- endif -%}
+  {{ ('Beweging' if st.state == 'on' else 'Rustig') ~ ' · ' ~ d }}
+  {%- endif -%}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'} !important; }
   .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(45,170,115,0.20)'} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${state === 'on' ? '#82bbf0' : '#9ed9bd'} !important;
-    content: "${(() => { const p = hass.states['binary_sensor.motion_sensor_cats_occupancy']; const on = p?.state === 'on'; const secs = (Date.now() - new Date(p?.last_changed)) / 1000; let d; if (secs < 60) d = 'net'; else if (secs < 3600) d = Math.round(secs/60) + ' min'; else if (secs < 86400) d = Math.round(secs/3600) + ' uur'; else { const dy = Math.round(secs/86400); d = dy + (dy === 1 ? ' dag' : ' dagen'); } return (on ? 'Beweging' : 'Rustig') + ' · ' + d; })()}";
   }
 cards:
   # ── vandaag ───────────────────────────────────────────────────────
@@ -40,10 +49,12 @@ cards:
         icon: mdi:door
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.cat_door_today') -%}
+          {{ (v ~ '×') if v not in ['unknown','unavailable',''] else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = hass.states['sensor.cat_door_today']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + '×' : '—'; })()}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -52,10 +63,12 @@ cards:
         icon: mdi:cctv
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.bijkeuken_cat_sightings_today') -%}
+          {{ (v ~ '×') if v not in ['unknown','unavailable',''] else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.14) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; content: "${(() => { const v = hass.states['sensor.bijkeuken_cat_sightings_today']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + '×' : '—'; })()}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: #82bbf0 !important; }
   # ── sensor ────────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -72,10 +85,12 @@ cards:
         icon: mdi:battery
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.motion_sensor_cats_battery') -%}
+          {{ (v ~ '%') if v not in ['unknown','unavailable',''] else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.motion_sensor_cats_battery']?.state); return (isFinite(v) && v < 20) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.motion_sensor_cats_battery']?.state); return (isFinite(v) && v < 20) ? '#ec8a89' : '#9ed9bd'; })()} !important; content: "${(() => { const v = hass.states['sensor.motion_sensor_cats_battery']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + '%' : '—'; })()}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.motion_sensor_cats_battery']?.state); return (isFinite(v) && v < 20) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -84,10 +99,12 @@ cards:
         icon: mdi:thermometer
         card_layout: large
         tap_action: { action: more-info }
+        state_content: >-
+          {%- set v = states('sensor.motion_sensor_cats_device_temperature') -%}
+          {{ (v ~ ' °C') if v not in ['unknown','unavailable',''] else '—' }}
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.13) !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 13px !important; font-weight: 500; color: #9ed9bd !important; content: "${(() => { const v = hass.states['sensor.motion_sensor_cats_device_temperature']?.state; return (v && v !== 'unknown' && v !== 'unavailable') ? v + ' °C' : '—'; })()}"; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; color: #9ed9bd !important; }
   # ── laatste spot ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

@@ -58,7 +58,6 @@ input_boolean:
   # test op `not is_state(..., 'on')` en niet op `is_state(..., 'off')`: als
   # deze helper ontbreekt of unavailable is, moet het systeem terugvallen op
   # het normale setpoint in plaats van door te lopen naar de planlogica.
-  # Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
   dhw_solar_scheduling:
     name: Tapwater zonnesturing
     icon: mdi:solar-power-variant
@@ -99,11 +98,11 @@ input_number:
   # onder het setpoint (gemeten: aanslag rond 40-41 bij setpoint 45), dus
   # deze waarden bepalen indirect ook de bijverwarmdrempels.
   #
-  # Laden start op 52 en niet op 55, zodat er ruimte is om op te schalen nadat
+  # Opwarmen start op 52 en niet op 55, zodat er ruimte is om op te schalen nadat
   # twee weken gemeten is. De bovengrens 58 is bewust hoger dan veldinstelling
   # [6-0E] op de unit; sensor.dhw_target_setpoint klemt alsnog op max_temp.
   dhw_setpoint_charge:
-    name: Tapwater laadsetpoint
+    name: Tapwater opwarmsetpoint
     icon: mdi:thermometer-high
     min: 45
     max: 58
@@ -112,7 +111,7 @@ input_number:
   # Niet onder 38 zetten: de unit verwarmt zelf bij op ~4 K hieronder, en dat is
   # het vangnet dat koud water onmogelijk maakt.
   dhw_setpoint_coast:
-    name: Tapwater uitteersetpoint
+    name: Tapwater afkoelsetpoint
     icon: mdi:thermometer-low
     min: 38
     max: 45
@@ -134,7 +133,7 @@ input_number:
     step: 1
     unit_of_measurement: kWh
   dhw_charge_duration:
-    name: Tapwater laadduur
+    name: Tapwater opwarmduur
     icon: mdi:timer-sand
     min: 30
     max: 240
@@ -142,13 +141,13 @@ input_number:
     unit_of_measurement: min
 
 input_datetime:
-  # Wordt elke nacht om 00:15 herschreven door "DHW - Plan het laadvenster".
+  # Wordt elke nacht om 00:15 herschreven door "DHW - Plan het opwarmvenster".
   dhw_charge_start:
-    name: Tapwater laadstart
+    name: Tapwater opwarmstart
     icon: mdi:clock-start
     has_date: false
     has_time: true
-  # Het ochtendvenster waarin een te koud vat voorrang krijgt op de laadfase,
+  # Het ochtendvenster waarin een te koud vat voorrang krijgt op de opwarmfase,
   # zodat de ochtenddouche gedekt is. Gemeten ochtendcluster: 06:30-09:00.
   dhw_morning_start:
     name: Tapwater ochtendvenster start
@@ -345,11 +344,11 @@ template:
     # Vier fasen:
     #   uit       - hoofdschakelaar niet aan; gedrag van voor deze constructie
     #   ochtend   - vat te koud vlak voor de ochtenddouche; vangnet gaat voor
-    #   laden     - binnen het zonne- of prijsvenster
-    #   uitteren  - erbuiten; het vat leeft op opgeslagen warmte
+    #   opwarmen  - binnen het zonne- of prijsvenster
+    #   afkoelen  - erbuiten; het vat leeft op opgeslagen warmte
     #
-    # De uitteerfase is het werkzame bestanddeel: laat je het setpoint na de
-    # lading hoog staan, dan verwarmt de unit bij vanaf ~4 K eronder en ben je
+    # De afkoelfase is het werkzame bestanddeel: laat je het setpoint na de
+    # opwarming hoog staan, dan verwarmt de unit bij vanaf ~4 K eronder en ben je
     # slechter af dan zonder deze hele constructie.
     #
     # De test is `not is_state(..., 'on')` en NIET `is_state(..., 'off')`:
@@ -359,14 +358,12 @@ template:
     # De tanktemperatuur is bewust een ongedekte `| float`: die hoort via
     # `availability` afgevangen te worden, niet via een stille default die een
     # verkeerde fase zou opleveren.
-    #
-    # Zie docs/superpowers/specs/2026-09-16-dhw-zonne-sturing-design.md
     - unique_id: dhw_phase
       name: DHW phase
       icon: >
-        {% if is_state('sensor.dhw_phase', 'laden') %}
+        {% if is_state('sensor.dhw_phase', 'opwarmen') %}
           mdi:water-plus
-        {% elif is_state('sensor.dhw_phase', 'uitteren') %}
+        {% elif is_state('sensor.dhw_phase', 'afkoelen') %}
           mdi:water-minus
         {% elif is_state('sensor.dhw_phase', 'ochtend') %}
           mdi:weather-sunset-up
@@ -390,9 +387,9 @@ template:
         {%- elif mstart <= now() < mstop and tank < normal - 3 -%}
           ochtend
         {%- elif start <= now() < stop -%}
-          laden
+          opwarmen
         {%- else -%}
-          uitteren
+          afkoelen
         {%- endif -%}
 
     # Welk setpoint bij de huidige fase hoort. Bewust dom: geen eigen logica,
@@ -417,10 +414,10 @@ template:
       state: >
         {% set maxt = state_attr('water_heater.domestic_hot_water_tank',
                                  'max_temp') | float(48) %}
-        {% if is_state('sensor.dhw_phase', 'laden') %}
+        {% if is_state('sensor.dhw_phase', 'opwarmen') %}
           {% set want = states('input_number.dhw_setpoint_charge')
                | float(52) %}
-        {% elif is_state('sensor.dhw_phase', 'uitteren') %}
+        {% elif is_state('sensor.dhw_phase', 'afkoelen') %}
           {% set want = states('input_number.dhw_setpoint_coast')
                | float(40) %}
         {% else %}

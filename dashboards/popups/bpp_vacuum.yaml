@@ -1,6 +1,5 @@
 # Bubble Card native pop-up (hash #sjorsje) — Sjorsje (stofzuigrobot) tile.
 # Status/battery header, Bediening actions, Status cards, Statistieken expander.
-# See docs/superpowers/specs/2026-07-22-popup-modernization-doors-design.md
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -14,16 +13,19 @@ name: Sjorsje
 icon: mdi:robot-vacuum
 # header = status (NL) + accu%, blauw als actief, rood bij fout
 entity: vacuum.sjorsje
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? 'rgba(226,75,74,0.16)' : (s === 'cleaning' || s === 'returning') ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
   .bubble-icon-container { background-color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? 'rgba(226,75,74,0.22)' : (s === 'cleaning' || s === 'returning') ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500;
     color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? '#ec8a89' : (s === 'cleaning' || s === 'returning') ? '#82bbf0' : '#9ed9bd'; })()} !important;
-    content: "${(() => { const st = hass.states['vacuum.sjorsje']?.state; const charging = hass.states['binary_sensor.woonkamer_sjorsje_charging']?.state === 'on'; const map = { docked: charging ? 'Opladen' : 'Gedockt', cleaning: 'Stofzuigen', returning: 'Naar dock', paused: 'Gepauzeerd', idle: 'Idle', error: 'Fout', unavailable: 'Offline' }; const s = map[st] || st; const b = parseFloat(hass.states['sensor.sjorsje_battery_level']?.state); return s + (isFinite(b) ? ' · ' + Math.round(b) + '%' : ''); })()}";
   }
+state_content: >-
+  {%- set st = states('vacuum.sjorsje') -%}
+  {%- set charging = is_state('binary_sensor.woonkamer_sjorsje_charging','on') -%}
+  {%- set m = {'docked': ('Opladen' if charging else 'Gedockt'),'cleaning':'Stofzuigen','returning':'Naar dock','paused':'Gepauzeerd','idle':'Idle','error':'Fout','unavailable':'Offline'} -%}
+  {%- set b = states('sensor.sjorsje_battery_level') | float(-99999) -%}
+  {{ m.get(st, st) ~ ((' · ' ~ (b | round | int) ~ '%') if b != -99999 else '') }}
 cards:
   # ── bediening ─────────────────────────────────────────────────────
   - type: custom:bubble-card
@@ -89,8 +91,11 @@ cards:
         card_layout: large
         tap_action: { action: more-info }
         styles: |
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: #9ed9bd !important; content: "${(() => { const b = parseFloat(hass.states['sensor.sjorsje_battery_level']?.state); const c = hass.states['binary_sensor.woonkamer_sjorsje_charging']?.state === 'on'; return (isFinite(b) ? Math.round(b) + '%' : '—') + (c ? ' · laden' : ''); })()}"; }
+          .bubble-state { font-size: 12.5px !important; color: #9ed9bd !important; }
+        state_content: >-
+          {%- set b = states('sensor.sjorsje_battery_level') | float(-99999) -%}
+          {%- set c = is_state('binary_sensor.woonkamer_sjorsje_charging','on') -%}
+          {{ (((b | round | int) ~ '%') if b != -99999 else '—') ~ (' · laden' if c else '') }}
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -102,8 +107,8 @@ cards:
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(226,75,74,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(226,75,74,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 0 !important; }
-          .bubble-state::after { font-size: 12.5px !important; color: ${state === 'on' ? '#ec8a89' : '#8f8e9e'} !important; content: "${state === 'on' ? 'Vol — legen' : 'Leeg'}"; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#ec8a89' : '#8f8e9e'} !important; }
+        state_content: "{{ 'Vol — legen' if is_state('binary_sensor.sjorsje_bin_full','on') else 'Leeg' }}"
   # ── statistieken ──────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

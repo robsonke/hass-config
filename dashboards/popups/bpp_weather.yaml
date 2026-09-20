@@ -13,15 +13,17 @@ name: Het weer in Kloetinge
 icon: mdi:weather-partly-cloudy
 # header = huidige temperatuur + (gelokaliseerde) conditie
 entity: weather.weather_langeweide_ecowitt
-show_state: true
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.13) !important; }
   .bubble-icon-container { background-color: rgba(55,138,221,0.20) !important; }
-  .bubble-state { font-size: 0 !important; }
-  .bubble-state::after {
+  .bubble-state {
     font-size: 14px !important; font-weight: 500; color: #82bbf0 !important;
-    content: "${(() => { const w = hass.states['weather.weather_langeweide_ecowitt']; if (!w) return '—'; const t = w.attributes?.temperature; const cond = hass.formatEntityState ? hass.formatEntityState(w) : w.state; return (t != null ? Math.round(t) + '°C' : '—') + (cond ? ' · ' + cond : ''); })()}";
   }
+state_content: >-
+  {%- set t = state_attr('weather.weather_langeweide_ecowitt','temperature') | float(-99999) -%}
+  {%- set s = states('weather.weather_langeweide_ecowitt') -%}
+  {%- set w = {'sunny':'zonnig','clear-night':'heldere nacht','partlycloudy':'half bewolkt','cloudy':'bewolkt','rainy':'regen','pouring':'stortregen','lightning':'onweer','lightning-rainy':'onweer en regen','snowy':'sneeuw','snowy-rainy':'natte sneeuw','fog':'nevel','windy':'wind','windy-variant':'wind','hail':'hagel','exceptional':'bijzonder'} -%}
+  {{ (((t | round | int) ~ '°C') if t != -99999 else '—') ~ ((' · ' ~ w.get(s, s)) if s not in ['unknown','unavailable',''] else '') }}
 cards:
   # ── nu & verwachting ──────────────────────────────────────────────
   - type: custom:bubble-card
