@@ -136,34 +136,11 @@ uart:
     sequence:
       - lambda: UARTDebug::log_string(direction, bytes);
 
-# Every RS-485 write in this file goes through script.send_plp; nothing writes
-# to mod_bus directly any more. send_plp only *enqueues* - the interval below
-# is what puts bytes on the wire, exactly one command per 80ms tick.
-#
-# Why a paced queue at all:
-#   Framing. The PLP-REM command set has no terminator and no length field, so
-#   the only frame boundary the controller has is an idle gap on the bus.
-#   Driven straight from HA the log showed the switch and both services
-#   arriving as one concatenated blob ("PS01PL1PS01") - to the controller that
-#   is a single unparseable frame, which is why nothing happened even though
-#   the bytes themselves were right. Pacing also fixes ordering: a
-#   light.pool_light that fires turn_on + set_level + set_rgb in one tick can
-#   no longer interleave them mid-command.
-#   80ms is the figure from phendrickx/duratech_PLP-REM_RS485, which paces its
-#   own PL1 -> PDxxx -> PCrrrgggbbb the same way and is the only known working
-#   implementation of this protocol.
-#
-# Why a coalescing queue rather than `script: mode: queued`:
-#   Bubble Card's slider calls the service straight out of its pointermove
-#   handler when slider_live_update is set - checked in
-#   www/community/Bubble-Card/bubble-card.js, `sliderLiveUpdate && J(e, o)`,
-#   with no throttle on that branch. A drag can therefore emit tens of
-#   light.turn_on calls a second, and the pop-up slider for this light does set
-#   slider_live_update. A queued script would need `max_runs` (ESPHome rejects
-#   0 for queued mode) and drops the *newest* run on overflow - i.e. exactly
-#   the final value you wanted to keep, leaving the light on some stale
-#   brightness. Coalescing instead means a drag collapses to one PD per tick
-#   and the last value always lands.
+# script.send_plp enqueues; the interval below writes one command per 80ms
+# tick (timing from phendrickx/duratech_PLP-REM_RS485). Pacing avoids frames
+# merging into one unparseable blob (protocol has no terminator). Coalescing,
+# not `script: mode: queued`, because Bubble Card's slider fires calls with no
+# throttle - queued mode would drop the newest value, not the stale one.
 globals:
   - id: plp_queue
     type: std::vector<std::string>
