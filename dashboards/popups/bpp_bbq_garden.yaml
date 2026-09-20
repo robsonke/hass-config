@@ -12,7 +12,7 @@ hash: '#bbq'
 auto_close: 60000
 name: BBQ
 icon: mdi:grill
-# header = dome temp (rood bij alarm, warm als heet, dim als uit)
+# header = dome temp (red on alarm, warm when hot, dim when off)
 entity: sensor.tuin_bbq_dome_thermometer_ambient_temperature
 state_content: >-
   {%- set v = states('sensor.tuin_bbq_dome_thermometer_ambient_temperature') | float(-99999) -%}

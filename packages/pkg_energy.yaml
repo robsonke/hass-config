@@ -1,22 +1,10 @@
-#  ____
-# |  _ \ _____      _____ _ __
-# | |_) / _ \ \ /\ / / _ \ '__|
-# |  __/ (_) \ V  V /  __/ |
-# |_|   \___/ \_/\_/ \___|_|
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
-# All-in markup on top of the Nordpool spot price (energy tax + ODE + VAT + the
-# supplier's fee). Was hardcoded as `0.1108` in 8 templates across this file and
-# pkg_energy_stats.yaml, so a tariff change meant finding all eight.
-#
-# Every consumer reads it as `| float(0.1108)`, so the previous value stays the
-# fallback if the helper is ever missing. It is NOT declared with `initial:` -
-# that would override state restore and make the value unchangeable from the UI -
-# which means a freshly created helper starts at its minimum. Set it to 0.1108
-# once after the restart that creates it.
+# All-in markup on top of the Nordpool spot price (tax + ODE + VAT + supplier fee); replaces
+# `0.1108` previously hardcoded in 8 templates here and in pkg_energy_stats.yaml.
+# Every consumer reads it as `| float(0.1108)` as a fallback. No `initial:` — that would override
+# state restore, so a fresh helper starts at its minimum; set it to 0.1108 once after creation.
 input_number:
   energy_markup:
     name: Energie opslag (all-in)
@@ -28,24 +16,10 @@ input_number:
     unit_of_measurement: "EUR/kWh"
 
 sensor:
-  # - platform: group
-  #   name: Meter readings
-  #   type: last
-  #   unique_id: meter_readings
-  #   entities:
-  #     - sensor.power_consumption
-  #     - sensor.power_consumption_phase_l1
-  #     - sensor.power_consumption_phase_l2
-  #     - sensor.power_consumption_phase_l3
-  #     - sensor.gas_consumption
-  #     - sensor.hourly_gas_consumption
-  #     - sensor.power_tariff
-  #     - sensor.short_power_failure_count
-  #     - sensor.long_power_failure_count
-  #     - sensor.power_production
-  #     - sensor.power_production_phase_l1
-  #     - sensor.power_production_phase_l2
-  #     - sensor.power_production_phase_l3
+  # Disabled: legacy "Meter readings" group sensor (type: last) over old DSMR entity names.
+  # Most of its member entities (power_consumption*, gas_consumption*, power_tariff,
+  # *_power_failure_count) no longer exist anywhere in this config.
+  # Do not blindly re-enable — rebuild the entity list against current sensors first.
 
   - platform: integration
     source: sensor.shelly_plug_office_power
@@ -145,15 +119,9 @@ powercalc:
           entities:
             - create_group: TV Woonkamer Group
               entities:
-              # - entity_id: media_player.tv_room
-              #   name: Sonos TV
-              #   fixed:
-              #     # Sonos Beam Gen 2
-              #     # 6,3W
-              #     power: 6.3
-              #     states_power:
-              #       # 9W
-              #       playing: 9
+              # Disabled: old Sonos TV entry (media_player.tv_room) for this group, superseded
+              # by the Samsung TV entities below.
+              # Kept for the researched wattages (Sonos Beam Gen 2: 6.3W idle / 9W playing) in case it's needed again.
               - entity_id: media_player.samsung_qn95aa_55_tv
                 standby_power: 0.5
                 fixed:
@@ -426,23 +394,10 @@ template:
         {% else %}
           {{ ((sumTomorrow / countTomorrow) + (states('input_number.energy_markup') | float(0.1108))) | round(2, 'floor') }}
         {% endif %}
-    # Starttijd van het goedkoopste aaneengesloten blok van dhw_charge_duration
-    # binnen 00:00-16:00, voor "DHW - Plan het opwarmvenster" op dagen zonder zon.
-    #
-    # De bovengrens 16:00 garandeert dat de avondtapping gedekt is; een blok mag
-    # daar precies op eindigen, niet overheen lopen. Een blok 's nachts is
-    # prima: bij een stilstandsverlies van 0,22 K/u kost opwarmen om 03:00 in
-    # plaats van 13:00 maar ~2 K extra.
-    #
-    # Het aantal slots per uur komt uit `raw_today | count` en staat niet op 24
-    # vast - NL ging in oktober 2025 over op kwartierprijzen, en precies die
-    # aanname brak de vorige versie van cheapest_16_hours_24h hieronder.
-    #
-    # binary_sensor.cheapest_16_hours_24h is hier niet bruikbaar: 16 van de 24
-    # uur is veel te grof om een venster van twee uur mee te kiezen.
-    # De entity_id komt van `name`, NIET van `unique_id` - een Nederlandse naam
-    # gaf hier sensor.dhw_goedkoopste_laadstart. De rest van dit bestand
-    # gebruikt Engelse sensornamen, dus die lijn hier ook aanhouden.
+    # Cheapest contiguous dhw_charge_duration block within 00:00-16:00 (covers the evening tap), for days with no
+    # solar. Slot count comes from `raw_today | count`, not a fixed 24 — NL moved to 15-min slots in Oct 2025, which
+    # broke this; cheapest_16_hours_24h is too coarse for a 2h window. entity_id derives from `name`, not
+    # `unique_id`: a Dutch name here produced sensor.dhw_goedkoopste_laadstart — keep English names.
     - name: DHW cheapest charge start
       unique_id: dhw_cheapest_charge_start
       icon: mdi:cash-clock
@@ -467,32 +422,10 @@ template:
         {{ (raw[ns.idx].start | as_datetime | as_local).strftime('%H:%M:%S') }}
 
   - binary_sensor:
-    # Is the current price slot among the cheapest 16 hours of today?
-    #
-    # Gates the master-bedroom heat (automations.yaml ~1987 / 2024 / 2259).
-    #
-    # The nordpool sensor's STATE already *is* the current slot's price, so there
-    # is no need to locate "now" inside raw_today - only to work out what the
-    # 16th-cheapest hour costs and compare against it. Deriving the slot count
-    # from `raw_today | count` keeps this correct whether nordpool publishes 24
-    # hourly or 96 quarter-hourly entries (NL moved to 15-minute slots in
-    # Oct 2025), which is what broke the previous version.
-    #
-    # That version called `dict.from_keys` - not a method, so the template raised
-    # every render (`fromkeys` is the real one, and it would have keyed on
-    # (hour, price) tuples and then sorted by None). It also looped
-    # `range(0, 23)`, dropping an index, and read raw_today[0..22] as if the
-    # indices were hours - which under 15-minute slots covers 00:00-05:45. It
-    # could not produce a usable state.
-    #
-    # Unavailable rather than `off` when nordpool has no data: `off` reads as
-    # "too expensive" to the heating automations and would silently block heat.
-    #
-    # The 8-hour and 12-hour variants were removed - nothing in the config
-    # referenced either of them.
-    #
-    # `threshold` is exposed so this can be sanity-checked from the states panel
-    # without writing a template in Developer Tools.
+    # Is the current price slot among the cheapest 16 of today? Gates the master-bedroom heat (automations.yaml
+    # ~1987/2024/2259). Slot count derives from `raw_today | count`, not a fixed 24, so this works whether nordpool
+    # publishes 24 hourly or 96 quarter-hourly slots (NL moved to 15-min pricing Oct 2025). Unavailable, not `off`,
+    # when nordpool has no data — `off` would silently block heat as "too expensive".
     - name: Cheapest 16 Hours 24h
       unique_id: cheapest_16_hours_24h
       availability: >

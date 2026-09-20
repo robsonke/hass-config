@@ -1,12 +1,5 @@
-# __        __         _   _
-# \ \      / /__  __ _| |_| |__   ___ _ __
-#  \ \ /\ / / _ \/ _` | __| '_ \ / _ \ '__|
-#   \ V  V /  __/ (_| | |_| | | |  __/ |
-#    \_/\_/ \___|\__,_|\__|_| |_|\___|_|
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
 template:
   - weather:
@@ -98,25 +91,10 @@ template:
         {%- endif %}
 
   - binary_sensor:
-    # Single source of truth for "it is raining RIGHT NOW", from the Ecowitt
-    # piezo rain gauge. Consumers previously each re-derived this:
-    #   * the screens close automations compared `sensor.rate_rain_piezo` to the
-    #     STRING '0.0' — fragile, since the gauge only has to report "0" or
-    #     "0.00" once for the guard to silently stop blocking
-    #   * the screens open automations used numeric_state above 0 for 10s
-    #   * the weather card's rain chip used its own numeric_state condition
-    #
-    # Deliberately NOT derived from weather.weather_langeweide_ecowitt: that
-    # entity reports `rainy` from the forecast even when nothing is falling
-    # (observed 2026-07-26: state `rainy` while the gauge read 0.0 mm/h).
-    #
-    # delay_on 10s  — matches the confirmation the open automations used, so a
-    #                 single spurious tick cannot raise the screens.
-    # delay_off 2m  — a shower's rate momentarily dips to 0 between bursts;
-    #                 without this the sensor (and the card chip) would flap.
-    #                 For "has it rained recently" use sensor.hourly_rain_piezo,
-    #                 not a longer delay_off here — this sensor stays honest
-    #                 about the present.
+    # Single source of truth for "it is raining RIGHT NOW" (Ecowitt piezo gauge) — replaces per-consumer re-derivations,
+    # including a fragile STRING '0.0' compare. Not derived from weather.weather_langeweide_ecowitt: it reports `rainy`
+    # from the forecast even when nothing falls (observed 2026-07-26: `rainy` at 0.0 mm/h). delay_on 10s matches the
+    # open automations' confirmation; delay_off 2m absorbs a shower's between-burst dips.
     - name: Rain Detected
       unique_id: rain_detected
       device_class: moisture

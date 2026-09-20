@@ -12,9 +12,8 @@ name: Alarm
 icon: mdi:shield-home
 # header = alarmstatus (groen uit, amber ingeschakeld, rood alarm/aftellen) + duur
 entity: alarm_control_panel.alarmo
-# Bubble Card 3.4.0: tekst komt uit state_content (server-side Jinja), niet meer
-# uit een CSS-::after met font-size 0. Kleur blijft JS. Bewust dezelfde geclampte
-# leeftijd-buckets als de deur-kaarten (de oude JS miste de >= 60 / >= 24 clamps).
+# Text comes from state_content (server-side Jinja); colour stays JS. Same clamped
+# age buckets as the door cards - the old JS was missing the 60-minute and 24-hour clamps.
 state_content: >-
   {%- set st = states['alarm_control_panel.alarmo'] -%}
   {%- if st is none -%}—

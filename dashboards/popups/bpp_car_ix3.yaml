@@ -1,4 +1,4 @@
-# Bubble Card native pop-up (hash #auto) — BMW iX3 (status, laden, locatie).
+# Bubble Card native pop-up (hash #auto) — BMW iX3 (status, charging, location).
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -6,11 +6,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#auto'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: BMW iX3
 icon: mdi:car-electric
-# header = accu % + bereik (groen = laadt, amber = ingeplugd, blauw = losgekoppeld)
+# header = battery % + range (green = charging, amber = plugged in, blue = disconnected)
 entity: sensor.state_of_charge_last_known
 state_content: >-
   {%- set soc = states('sensor.state_of_charge_last_known') -%}
@@ -25,19 +25,9 @@ styles: |
     color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return '#9ed9bd'; if (conn && conn !== 'DISCONNECTED') return '#f0cf8f'; return '#82bbf0'; })()} !important;
   }
 cards:
-  # ── auto ──────────────────────────────────────────────────────────
-  # The integration ships its own Lovelace card (registered automatically, no
-  # HACS frontend install) and it covers this whole section: the real vehicle
-  # image from image.ix3_vehicle_image instead of a static png, an SOC bar with
-  # range instead of the bar-card gauges, and a door/lock/window/charging
-  # indicator row instead of four hand-styled tiles. Its indicators are also
-  # smarter than what they replace: windows and tailgate only go red when the
-  # car is parked AND locked with the item open, so an open window while
-  # driving no longer reads as a fault.
-  # show_buttons is off on purpose - the card's quick-info labels are hardcoded
-  # English (there is no language option in 5.2.5) and this pop-up is Dutch, so
-  # the two readouts it would add that nothing else covers stay as Bubble tiles
-  # below.
+  # ── auto ── the vehicle's own card replaces this section: real image, SOC+range bar,
+  # and a smarter door/lock/window/charging row (red only when parked, locked and open).
+  # show_buttons stays off (its labels are hardcoded English); those two readouts stay as Bubble tiles below.
   - type: custom:bubble-card
     card_type: separator
     name: Auto

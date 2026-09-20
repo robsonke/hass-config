@@ -14,8 +14,7 @@ icon: mdi:door
 # summary in the header: group sensor drives the state line, overridden to
 # the computed "N open · M dicht" count (blue = iets open, green = alles dicht).
 entity: binary_sensor.doors_and_windows_downstairs
-# Bubble Card 3.4.0: tekst komt uit state_content (server-side Jinja), niet meer
-# uit een CSS-::after met font-size 0. Kleur blijft JS.
+# Text comes from state_content (server-side Jinja); colour stays JS.
 state_content: >-
   {%- set m = expand('binary_sensor.doors_and_windows_downstairs') -%}
   {%- set o = m | selectattr('state','eq','on') | list | count -%}

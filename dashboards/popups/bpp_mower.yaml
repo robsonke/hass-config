@@ -11,7 +11,7 @@ hash: '#grasmaaier'
 auto_close: 60000
 name: Grasmaaier
 icon: mdi:robot-mower
-# header = status (NL) + zone + accu%, groen als maaiend, blauw naar dock, rood bij fout
+# header = Dutch status + zone + battery%, green when mowing, blue returning, red on error
 entity: lawn_mower.navimow_i108
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['lawn_mower.navimow_i108']?.state; return s === 'error' ? 'rgba(226,75,74,0.16)' : s === 'mowing' ? 'rgba(45,170,115,0.15)' : s === 'returning' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }

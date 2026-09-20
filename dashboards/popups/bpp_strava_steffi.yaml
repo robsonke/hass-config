@@ -1,9 +1,6 @@
-# Bubble Card native pop-up (#sport-steffi) — Strava voor Steffi.
-# Opened from a button on her pop-up (#person-steffi) and from the km sub-button
-# on her tile on the overview. Mirrors bpp_strava.yaml (Rob) but without the
-# "Schoenen & fiets" and "Fietsen & records" sections: her account has no
-# per-gear distance sensors, 69 km of rides in total and no swims, so those
-# would be empty tiles. Her shoes show up as a row in "Laatste run" instead.
+# Bubble Card native pop-up (#sport-steffi) — Strava for Steffi. Mirrors bpp_strava.yaml (Rob)
+# but omits "Schoenen & fiets" and "Fietsen & records": her account has no per-gear sensors and
+# only 69 km of rides / no swims, so those would be empty tiles — shoes show as a row in "Laatste run" instead.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -11,11 +8,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#sport-steffi'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: Sport Steffi
 icon: mdi:run-fast
-# header = kilometers deze week (utility_meter, resets Monday) + laatste activiteit
+# header = kilometers this week (utility_meter, resets Monday) + latest activity
 entity: sensor.strava_run_week_steffi
 state_content: >-
   {%- set w = states('sensor.strava_run_week_steffi') | float(-1) -%}
@@ -126,7 +123,7 @@ cards:
           .bubble-state {
             font-size: 13px !important; font-weight: 500;
           }
-  # gear + toestel van die run, als rij i.p.v. tegels
+  # gear + device for that run, as a row instead of tiles
   - type: entities
     entities:
       - entity: sensor.strava_steffi_berks_run_date

@@ -1,12 +1,6 @@
-# Music Assistant hub — helpers + scripts backing the #muziek pop-up.
-#
-# The hub plays presets / search results / favourites to ONE selected room,
-# chosen via input_select.music_hub_room. Each script maps that display name
-# to the Music Assistant media_player entity (and, for favourites, its button).
-# The player map is repeated per script on purpose so each stays self-contained.
-#
-# music_assistant.play_media resolves media_id by NAME (verified: "NPO 3FM"
-# → radiobrowser station), so presets/search just pass a human name + type.
+# Music Assistant hub — helpers/scripts backing the #muziek pop-up; plays to ONE room (input_select.music_hub_room),
+# each script repeating its own room->entity map for self-containment. music_assistant.play_media resolves media_id by
+# NAME (verified: "NPO 3FM" → radiobrowser station), so presets/search just pass a human name + type.
 
 input_select:
   music_hub_room:
@@ -22,12 +16,9 @@ input_select:
       - Sonos Roam
     initial: Woonkamer
 
-  # Which speaker the #muziek-beneden pop-up shows. Three conditional sonos-cards
-  # in dashboards/popups/bpp_music_downstairs.yaml key off this — the card has no
-  # service to switch its active player, so the pop-up swaps card instances.
-  # Eetkamer is ook de fallback-tak daar (state_not op de andere twee), dus een
-  # nieuwe optie hier MOET ook in die state_not-lijst worden opgenomen, anders
-  # renderen er twee kaarten tegelijk.
+  # Which speaker #muziek-beneden shows; 3 conditional sonos-cards in bpp_music_downstairs.yaml key off this since the
+  # card can't switch its own player. Eetkamer is also the fallback there (state_not on the other two) — any new option
+  # here MUST be added to that state_not list too, or two cards render at once.
   sonos_beneden_player:
     name: Sonos beneden speaker
     icon: mdi:speaker

@@ -2,7 +2,8 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 #
-# The default https://www.home-assistant.io/integrations/stookwijzer/ integration is nice but it's lacking the forecasts, so we're fetching those ourselves from the API.
+# The core stookwijzer integration has no forecasts, so these are fetched from
+# the API directly. See https://www.home-assistant.io/integrations/stookwijzer/
 
 sensor:
   - platform: rest

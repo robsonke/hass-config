@@ -1,4 +1,4 @@
-# Bubble Card native pop-up (hash #systeem) — Systeem & instellingen.
+# Bubble Card native pop-up (hash #systeem) — System & settings.
 # Modernized to the state-card grid pattern (separators + bubble tiles),
 # functional cards (bar-card, uptime-card, auto-entities) kept intact.
 type: custom:bubble-card
@@ -8,11 +8,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 820px
 hash: '#systeem'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: Systeem
 icon: mdi:cog
-# header = HA-versie
+# header = HA version
 entity: sensor.hass_version_installed
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.13) !important; }
@@ -81,12 +81,9 @@ cards:
           .bubble-state { font-size: 13px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.unavailable_entities']?.state); return (isFinite(v) && v > 0) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
         state_content: >-
           {{ states('sensor.unavailable_entities') if states('sensor.unavailable_entities') not in ['unknown','unavailable',''] else '—' }}
-      # System-wide count (sensor.all_unavailable_entities), as opposed to the
-      # tile above which only counts group.monitored_entities. Deliberately NOT
-      # red/green: a non-zero total is the normal state here, because whole
-      # domains (button/event/notify/stt/tts/text and most Zigbee config
-      # selects) sit at `unknown` by design until first use. A threshold colour
-      # would be permanently red and stop meaning anything.
+      # System-wide count (sensor.all_unavailable_entities), unlike the tile above which only
+      # counts group.monitored_entities. Whole domains sit at "unknown" by design until first
+      # use, so a non-zero total is normal here — a threshold colour would always be red.
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -193,9 +190,8 @@ cards:
   - type: grid
     columns: 2
     square: false
-    # Oneven aantal tegels in een 2-koloms grid laat de laatste rij halfleeg.
-    # De laatste tegel (Kerstverlichting) krijgt daarom de volle breedte, zodat
-    # de rij er bedoeld uitziet in plaats van afgebroken.
+    # An odd tile count in a 2-column grid leaves the last row half-empty. The last tile
+    # (Kerstverlichting) gets the full width instead, so the row looks intentional.
     card_mod:
       style: |
         #root > *:last-child { grid-column: 1 / -1 !important; }
@@ -228,10 +224,9 @@ cards:
         name: Klimaat
         icon: mdi:hvac
         card_layout: large
-      # Seizoensschakelaar: gate voor alle acties op light.kerst_binnen /
-      # light.kerst_buiten in automations.yaml en scripts.yaml. Buiten december
-      # uit, zodat die groepen (stopcontacten, dan unavailable) niet jaarrond
-      # worden aangestuurd. Zie packages/pkg_lights.yaml.
+      # Seasonal switch: gates every action on light.kerst_binnen / light.kerst_buiten in
+      # automations.yaml and scripts.yaml. Off outside December, so those groups (sockets,
+      # then unavailable) aren't driven year-round. See packages/pkg_lights.yaml.
       - type: custom:bubble-card
         card_type: button
         button_type: switch

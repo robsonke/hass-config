@@ -1,4 +1,4 @@
-# Bubble Card native pop-up (hash #energie) — Energie verbruik, opbrengst, tarieven.
+# Bubble Card native pop-up (hash #energie) — energy usage, yield, tariffs.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -6,11 +6,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#energie'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: Energie verbruik en kosten
 icon: mdi:flash
-# header = actueel netto vermogen (amber = van net, groen = teruglevering) + prijs
+# header = current net power (amber = from grid, green = feed-in) + price
 entity: sensor.net_power_consumption
 state_content: >-
   {%- set imp = states('sensor.power_consumed') | float(0) -%}
@@ -96,13 +96,9 @@ cards:
     card_type: separator
     name: Energiestroom
   - type: custom:power-flow-card-plus
-    # NOTE: this card reports scrollWidth > clientWidth on a phone (measured 522
-    # vs 354), which looks like an overflow but is NOT — its overflow-x is
-    # `visible`, its box ends at x=372 inside a 390px viewport, and every node
-    # renders in full. The extra width is its internal SVG canvas.
-    # A `zoom: 0.8` was tried here and does nothing: zoom scales the container
-    # AND its contents by the same factor, so the ratio — and any real clipping —
-    # would be unchanged. Left at natural size.
+    # NOTE: reports scrollWidth > clientWidth on a phone (522 vs 354) — looks like overflow
+    # but isn't: overflow-x is visible and every node fits inside the 390px viewport (box ends
+    # at x=372); the extra width is its own SVG canvas. zoom: 0.8 was tried and changes nothing.
     entities:
       grid:
         entity:

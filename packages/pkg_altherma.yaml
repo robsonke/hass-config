@@ -1,12 +1,5 @@
-#     _    _ _   _
-#    / \  | | |_| |__   ___ _ __ _ __ ___   __ _
-#   / _ \ | | __| '_ \ / _ \ '__| '_ ` _ \ / _` |
-#  / ___ \| | |_| | | |  __/ |  | | | | | | (_| |
-# /_/   \_\_|\__|_| |_|\___|_|  |_| |_| |_|\__,_|
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
 climate:
   # https://github.com/zacs/ha-dualmodegeneric
@@ -54,10 +47,8 @@ input_boolean:
   cooling_downstairs:
     name: Cooling downstairs
     icon: mdi:fan
-  # Hoofdschakelaar voor de tapwater-zonnesturing. sensor.dhw_target_setpoint
-  # test op `not is_state(..., 'on')` en niet op `is_state(..., 'off')`: als
-  # deze helper ontbreekt of unavailable is, moet het systeem terugvallen op
-  # het normale setpoint in plaats van door te lopen naar de planlogica.
+  # Master switch for DHW solar scheduling. Tests `not is_state(..., 'on')`, not `is_state(..., 'off')`:
+  # if missing/unavailable, fall back to the normal setpoint instead of the schedule logic.
   dhw_solar_scheduling:
     name: Tapwater zonnesturing
     icon: mdi:solar-power-variant
@@ -94,13 +85,9 @@ input_number:
     step: 0.5
     unit_of_measurement: "°C"
 
-  # De drie fasen van het tapwater-setpoint. De Daikin bijverwarmt rond 4 K
-  # onder het setpoint (gemeten: aanslag rond 40-41 bij setpoint 45), dus
-  # deze waarden bepalen indirect ook de bijverwarmdrempels.
-  #
-  # Opwarmen start op 52 en niet op 55, zodat er ruimte is om op te schalen nadat
-  # twee weken gemeten is. De bovengrens 58 is bewust hoger dan veldinstelling
-  # [6-0E] op de unit; sensor.dhw_target_setpoint klemt alsnog op max_temp.
+  # Daikin boosts ~4K under setpoint (measured: kicks in at 40-41 for 45), so these values set the boost thresholds too.
+  # Charge starts at 52, not 55, to leave headroom; ceiling 58 exceeds field setting [6-0E],
+  # which still clamps dhw_target_setpoint.
   dhw_setpoint_charge:
     name: Tapwater opwarmsetpoint
     icon: mdi:thermometer-high
@@ -108,8 +95,8 @@ input_number:
     max: 58
     step: 1
     unit_of_measurement: "°C"
-  # Niet onder 38 zetten: de unit verwarmt zelf bij op ~4 K hieronder, en dat is
-  # het vangnet dat koud water onmogelijk maakt.
+  # Don't set below 38 — the unit heats itself ~4K under this anyway, which is the safety net
+  # that makes cold water impossible.
   dhw_setpoint_coast:
     name: Tapwater afkoelsetpoint
     icon: mdi:thermometer-low
@@ -124,7 +111,7 @@ input_number:
     max: 50
     step: 1
     unit_of_measurement: "°C"
-  # Vanaf welke Solcast-dagprognose we op zon plannen in plaats van op prijs.
+  # Solcast daily forecast threshold above which we plan on solar instead of price.
   dhw_solar_threshold:
     name: Tapwater zonnedrempel
     icon: mdi:weather-sunny
@@ -141,14 +128,14 @@ input_number:
     unit_of_measurement: min
 
 input_datetime:
-  # Wordt elke nacht om 00:15 herschreven door "DHW - Plan het opwarmvenster".
+  # Rewritten every night at 00:15 by the "DHW - Plan het opwarmvenster" automation.
   dhw_charge_start:
     name: Tapwater opwarmstart
     icon: mdi:clock-start
     has_date: false
     has_time: true
-  # Het ochtendvenster waarin een te koud vat voorrang krijgt op de opwarmfase,
-  # zodat de ochtenddouche gedekt is. Gemeten ochtendcluster: 06:30-09:00.
+  # Morning window in which a too-cold tank takes priority over charging, so the morning shower
+  # is covered. Measured morning cluster: 06:30-09:00.
   dhw_morning_start:
     name: Tapwater ochtendvenster start
     icon: mdi:weather-sunset-up
@@ -285,20 +272,10 @@ template:
       unit_of_measurement: W
       state: "{{ states('sensor.altherma_inv_secundary_current') | float(default=0) * states('sensor.altherma_voltage_n_phase') | int(default=0) }}"
       icon: mdi:flash
-    # COP = thermal output / electrical input, from the same flow/dT pair.
-    # COP uses the primary inverter current; COP2 the secondary, divided by 3
-    # for the three phases.
-    #
-    # These used to emit `0` whenever the pump was not heating, and to divide by
-    # a raw current * voltage product with no guard - which raised
-    # `ZeroDivisionError: float division by zero` (seen in home-assistant.log.old)
-    # whenever the mode read Heating while the current had not caught up yet.
-    #
-    # `availability` instead of a `0` state: state_class measurement means every
-    # idle reading lands in long-term statistics, and a stream of zeros makes the
-    # recorded COP mean meaningless. Unavailable costs gaps in the graph and keeps
-    # the statistic honest. The availability guard is also what makes the division
-    # safe - the state template only renders once the denominator is non-zero.
+    # COP = thermal/electrical output from the same flow/dT pair; COP uses the primary inverter current, COP2 the
+    # secondary ÷3 for the three phases. Used to divide unguarded and raise ZeroDivisionError when mode read Heating
+    # before current caught up. `availability` now guards the division (renders only once non-zero) and keeps
+    # zero-readings out of the recorded COP statistic.
     - unique_id: altherma_cop
       name: Altherma COP
       unit_of_measurement: 'COP'
@@ -336,28 +313,10 @@ template:
            * states('sensor.altherma_voltage_n_phase') | float(0) / 1000 %}
         {{ (thermal / electrical) | round(2) }}
 
-    # In welke fase de tapwatersturing op dit moment staat. Dit is de BRON van
-    # de beslislogica; dhw_target_setpoint hieronder vertaalt de fase alleen nog
-    # naar een temperatuur. Die scheiding voorkomt dat dezelfde venster- en
-    # ochtendlogica op twee plekken staat en uit elkaar groeit.
-    #
-    # Vier fasen:
-    #   uit       - hoofdschakelaar niet aan; gedrag van voor deze constructie
-    #   ochtend   - vat te koud vlak voor de ochtenddouche; vangnet gaat voor
-    #   opwarmen  - binnen het zonne- of prijsvenster
-    #   afkoelen  - erbuiten; het vat leeft op opgeslagen warmte
-    #
-    # De afkoelfase is het werkzame bestanddeel: laat je het setpoint na de
-    # opwarming hoog staan, dan verwarmt de unit bij vanaf ~4 K eronder en ben je
-    # slechter af dan zonder deze hele constructie.
-    #
-    # De test is `not is_state(..., 'on')` en NIET `is_state(..., 'off')`:
-    # ontbreekt de helper of is hij unavailable, dan valt het systeem terug
-    # op gewoon gedrag in plaats van door te lopen naar de planlogica.
-    #
-    # De tanktemperatuur is bewust een ongedekte `| float`: die hoort via
-    # `availability` afgevangen te worden, niet via een stille default die een
-    # verkeerde fase zou opleveren.
+    # dhw_phase is the single source of truth for phase logic (off / morning / charging / coasting); dhw_target_setpoint
+    # only translates the phase to a temperature. Tests `not is_state(..., 'on')`, not `is_state(..., 'off')`, so a
+    # missing/unavailable helper falls back to normal behaviour; tank temp stays an uncovered `| float` so a real fault
+    # surfaces via availability, not a silently wrong phase.
     - unique_id: dhw_phase
       name: DHW phase
       icon: >
@@ -392,16 +351,10 @@ template:
           afkoelen
         {%- endif -%}
 
-    # Welk setpoint bij de huidige fase hoort. Bewust dom: geen eigen logica,
-    # alleen een vertaling van sensor.dhw_phase naar een temperatuur, geklemd op
-    # wat de unit accepteert.
-    #
-    # `| min` tegen max_temp is niet cosmetisch: staat veldinstelling [6-0E] op
-    # de unit op 48, dan weigert de integratie een opdracht van 52 en zou de
-    # schrijfautomation stil niets doen.
-    #
-    # De `else`-tak vangt uit, ochtend en elke onverwachte fasewaarde af op het
-    # normale setpoint - de veilige kant.
+    # Which setpoint matches the current phase; deliberately dumb — just translates sensor.dhw_phase to a temperature,
+    # clamped to what the unit accepts. `| min` against max_temp is not cosmetic: if field setting [6-0E] is 48, the
+    # integration refuses 52 and the write would silently do nothing; `else` covers off/morning/unexpected phases with
+    # the normal setpoint.
     - unique_id: dhw_target_setpoint
       name: DHW target setpoint
       device_class: temperature

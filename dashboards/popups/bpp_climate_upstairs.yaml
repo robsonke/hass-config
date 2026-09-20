@@ -35,7 +35,7 @@ cards:
     entity: climate.eurom_alutherm_baseboard_heater
     name: Kachel
     hold_action: { action: more-info }
-  # ── bijverwarming (warm toggle, verbruik als aan) ─────────────────
+  # ── aux heating (warm toggle, power draw when on) ─────────────────
   - type: custom:bubble-card
     card_type: separator
     name: Bijverwarming
@@ -123,11 +123,9 @@ cards:
   - type: custom:bubble-card
     card_type: separator
     name: Luchtontvochtiger
-  # 3.4.0 laat card_type: climate ook humidifier besturen. available_modes is het
-  # humidifier-equivalent van hvac_modes, dus de vier modi hoeven niet meer
-  # hardcoded in de YAML. device_class is dehumidifier, dus de kleur komt uit
-  # --bubble-state-humidifier-dehumidifier-on-color. min/max komen van de
-  # entiteit (35-85) en zijn hier vochtigheid, geen temperatuur.
+  # card_type: climate drives a humidifier too; available_modes is the humidifier
+  # equivalent of hvac_modes, so the four modes need not be hardcoded. min/max come
+  # from the entity (35-85) and are humidity here, not temperature.
   - type: custom:bubble-card
     card_type: climate
     entity: humidifier.master_bedroom

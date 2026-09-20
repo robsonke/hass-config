@@ -1,12 +1,5 @@
-#   ____
-#  / ___|_____   _____ _ __ ___
-# | |   / _ \ \ / / _ \ '__/ __|
-# | |__| (_) \ V /  __/ |  \__ \
-#  \____\___/ \_/ \___|_|  |___/
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
 cover:
   - platform: group

@@ -1,4 +1,4 @@
-# Bubble Card native pop-up (hash #weer) — weer in Kloetinge.
+# Bubble Card native pop-up (hash #weer) — weather in Kloetinge.
 # Modernized from the old layout-card grid to stacked Bubble sections.
 type: custom:bubble-card
 card_type: pop-up
@@ -7,11 +7,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#weer'
-# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 2 min without interaction; every tap/click resets the timer
 auto_close: 120000
 name: Het weer in Kloetinge
 icon: mdi:weather-partly-cloudy
-# header = huidige temperatuur + (gelokaliseerde) conditie
+# header = current temperature + (localised) condition
 entity: weather.weather_langeweide_ecowitt
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: rgba(55,138,221,0.13) !important; }
@@ -55,15 +55,9 @@ cards:
       - entity: sensor.monthly_rain_piezo
         name: Deze maand
         icon: mdi:calendar-month
-  # Was custom:buien-rain-forecast, a 2-hour rain curve. That card is gone from
-  # HACS and outdated, so the same question - "is rain coming and how hard" - is
-  # answered from data already in this instance: Buienradar's own next-hour
-  # forecast sensors, plus the BUILT-IN hourly weather-forecast card.
-  #
-  # weather.home (met.no) reports supported_features 3 = daily + hourly, so it can
-  # drive forecast_type: hourly. weather.kloetinge is daily-only (features 1) and
-  # would render empty. The animated radar loop itself is the picture-glance on
-  # camera.buienradar just below.
+  # Was custom:buien-rain-forecast (gone from HACS); replaced with data already available:
+  # Buienradar's next-hour sensors + the built-in hourly forecast card. weather.home (met.no)
+  # supports hourly (features 3); weather.kloetinge is daily-only and would render empty.
   - type: grid
     columns: 2
     square: false

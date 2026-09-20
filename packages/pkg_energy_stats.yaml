@@ -1,13 +1,7 @@
-# Energy dashboard helpers — backing the #energie pop-up extras.
-#   - live self-sufficiency / self-consumption % (instantaneous, from power
-#     sensors — accurate immediately, no utility_meter / restart needed)
-#   - cheapest / priciest moment today (from Nordpool raw_today)
-#
-# Units checked: solaredge_dc_power is W (÷1000); power_consumed = grid IMPORT
-# kW; power_produced = grid EXPORT kW; net_power_consumption = HOME load kW.
-# Nordpool raw_today = 15-min slots; the all-in markup comes from
-# input_number.energy_markup (defined in pkg_energy.yaml).
-# Price level reuses the existing sensor.energy_price_level.
+# Energy dashboard helpers backing the #energie pop-up: live self-sufficiency/self-consumption %
+# and cheapest/priciest moment today (from Nordpool raw_today).
+# Units: solaredge_dc_power is W (÷1000); power_consumed/produced are grid import/export kW;
+# net_power_consumption is HOME load kW. Markup comes from input_number.energy_markup (pkg_energy.yaml).
 
 template:
   - sensor:

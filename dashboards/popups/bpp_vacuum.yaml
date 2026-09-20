@@ -11,7 +11,7 @@ hash: '#sjorsje'
 auto_close: 60000
 name: Sjorsje
 icon: mdi:robot-vacuum
-# header = status (NL) + accu%, blauw als actief, rood bij fout
+# header = Dutch status + battery%, blue when active, red on error
 entity: vacuum.sjorsje
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['vacuum.sjorsje']?.state; return s === 'error' ? 'rgba(226,75,74,0.16)' : (s === 'cleaning' || s === 'returning') ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }

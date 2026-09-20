@@ -12,7 +12,7 @@ hash: '#beregening'
 auto_close: 60000
 name: Tuin beregening
 icon: mdi:sprinkler
-# header = sproeit nu / planning aan + starttijd / uit
+# header = watering now / schedule on + start time / off
 entity: switch.irrigation_main_switch
 state_content: >-
   {%- set zones = {'switch.irrigation_zone_achter_links':'Achter links','switch.irrigation_zone_achter_rechts':'Achter rechts','switch.irrigation_zone_terras_midden':'Terras midden','switch.irrigation_zone_terras_zijkant':'Terras zijkant'} -%}

@@ -12,7 +12,7 @@ hash: '#updates'
 auto_close: 60000
 name: Update Info
 icon: mdi:package-up
-# header = aantal updates (blauw als er updates zijn, groen up-to-date)
+# header = update count (blue when updates are pending, green when up to date)
 entity: sensor.all_updates
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = parseInt(hass.states['sensor.all_updates']?.state); return (isFinite(n) && n > 0) ? 'rgba(55,138,221,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
@@ -38,7 +38,7 @@ cards:
       {{ state_attr('sensor.hass_release_notes', 'body') }}
       {% endif %}
   # ── beschikbare updates ───────────────────────────────────────────
-  # separator alleen tonen als er updates zijn (auto-entities verbergt zichzelf al)
+  # only show the separator when updates exist (auto-entities already hides itself)
   - type: custom:bubble-card
     card_type: separator
     name: Plugin updates

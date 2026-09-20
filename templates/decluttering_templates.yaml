@@ -9,27 +9,9 @@ light_button:
     features:
       - type: "light-brightness"
 
-# Reusable Sonos popup body (custom:sonos-card). Used as browser_mod popup
-# content. EVERY card must pass ALL of these variables explicitly — the
-# installed decluttering-card does NOT apply `default_variables`, so any
-# placeholder a card omits ships to sonos-card as a literal "[[name]]" string
-# (e.g. predefinedGroups: "[[groups]]" makes sonos-card iterate the string
-# char-by-char → "configEntities is not iterable").
-#   - main_player  : entityId the card opens on (string)
-#   - entities     : list of media_player entities to show
-#   - groups       : predefinedGroups list ([] when the zone has no groups)
-#   - sections     : which sections to show. OMIT `queue` for a single/idle
-#                    player — the queue view calls getQueue() on the active
-#                    player and iterates the result, which throws when idle.
-#   - vol_threshold / vol_max : dynamic volume slider tuning
-#   - pin_player   : true = card ALWAYS opens on main_player (boolean).
-#                    sonos-card resolves its player as
-#                    activePlayerId || sessionStorage || entityId, so a second
-#                    card on the same page would inherit the first card's
-#                    remembered speaker. true disables both the read and the
-#                    write of that session storage, pinning the card to
-#                    main_player. Use false for the one card per zone that may
-#                    remember the user's pick.
+# Reusable Sonos popup body (custom:sonos-card). Pass ALL variables explicitly:
+# the installed decluttering-card ignores `default_variables`, so an omitted one
+# ships as a literal "[[name]]" string and breaks the card.
 sonos_popup:
   card:
     type: custom:sonos-card

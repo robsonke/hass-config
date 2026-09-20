@@ -4,26 +4,10 @@ decluttering_templates: !include ../templates/decluttering_templates.yaml
 
 views:
   # ============================================================================
-  #  Langeweide — Bubble Card dashboard (HA native "sections" view)
-  #  Paste this under `views:` in your dashboard's Raw configuration editor.
-  #
-  #  MODULES USED (custom modules live in bubble_card/modules/*.yaml):
-  #    - weather_forecast          → Bubble Weather
-  #    - bubble_calendar_enhanced  → Bubble Calendar Enhanced
-  #    - bubble_neon_icon_only     → local module (bubble_card/modules/bubble_neon_icon_only.yaml):
-  #                                  per-card icon accent color, no whole-card gradient.
-  #                                  Deliberately NOT the upstream "Bubble Neon" module — that one
-  #                                  colors the entire tile, which doesn't match the approved mockup.
-  #    - bubble_badges             → Bubble Badges 2
-  #
-  #  Layout: HA sections view. A section's internal grid is column_span × 12
-  #  columns (NOT a flat 12). Non-spanned sections use 12 cols (6 = half,
-  #  4 = third). View is capped at max_columns: 3, so the header
-  #  (column_span: 3 → 36 cols) and Tuin (column_span: 2 → 24 cols)
-  #  sections below have their card `columns` scaled up accordingly so
-  #  tiles don't pack too tight / truncate. Header row = 12+13+11 = 36;
-  #  chip strip = 6 chips × 6 = 36.
-  #  Everything is drag-resizable in the UI editor after pasting.
+  #  Langeweide — Bubble Card dashboard (HA native "sections" view). Paste under
+  #  views: in the dashboard's Raw configuration editor.
+  #  Modules: weather_forecast, bubble_calendar_enhanced, bubble_badges, and local
+  #  bubble_neon_icon_only (per-card icon accent only, unlike upstream Bubble Neon's whole-tile glow).
   # ============================================================================
 
   - title: Overzicht
@@ -79,13 +63,9 @@ views:
               hide_icon_background: true
             modules: &weer_modules
               - weather_forecast          # own animated background + weather icon; no neon override
-            # Current temperature as a NATIVE sub-button (renders top-right on the
-            # large layout). This replaces an earlier CSS `.bubble-state::after`
-            # hack that overwrote the state text with "24°C · Zonnig".
-            # The native route is better: `button_type: state` keeps showing the
-            # localised condition on its own line, the value is formatted and
-            # unit-aware via `show_attribute`, and it needs none of the
-            # comma-avoidance required inside a CSS `content` value.
+            # Native sub-button for current temp (top-right on large layout), replacing a CSS
+            # ".bubble-state::after" hack. Native keeps the localised condition text and needs
+            # no comma-escaping, since show_attribute handles formatting and units itself.
             sub_button: &weer_sub
               - entity: *weer_entity
                 icon: mdi:thermometer
@@ -94,13 +74,9 @@ views:
                 show_state: false
                 show_name: false
                 show_background: false
-              # Live rain intensity, shown ONLY while it is actually raining.
-              # Displays sensor.rate_rain_piezo (mm/h comes free — sub-button
-              # state goes through hass.formatEntityState), but the show/hide
-              # decision is delegated to binary_sensor.rain_detected so the
-              # definition of "raining" lives in exactly one place (see
-              # pkg_weather.yaml). That also gives the chip rain_detected's 2-minute
-              # delay_off, so it does not flicker between bursts of a shower.
+              # Live rain intensity, shown only while binary_sensor.rain_detected is on — that
+              # entity is the single source of truth for "raining" (pkg_weather.yaml) and its
+              # 2-minute delay_off stops the chip flickering between shower bursts.
               - entity: sensor.rate_rain_piezo
                 icon: mdi:weather-pouring
                 show_state: true
@@ -145,13 +121,9 @@ views:
                 media_query: "(max-width: 767px)"
             grid_options: { columns: 12, rows: 3 }
 
-          # Bubble Calendar Enhanced (agenda + live clock/date)
-          # Two variants, mutually exclusive on screen width: the full 4-row
-          # agenda on tablet/desktop, a compact 2-row one on phones where the
-          # tall card otherwise pushes everything below the fold. Shared values
-          # are YAML anchors so the gradient and entity list live in one place.
-          # (`visibility` is handled by HA's card wrapper, not Bubble, so it works
-          # here — unlike on a pop-up's child cards, where Bubble ignores it.)
+          # Bubble Calendar Enhanced (agenda + live clock/date): full 4-row agenda on
+          # tablet/desktop, compact 2-row on phones (shared values via YAML anchors). Visibility
+          # works here via HA's card wrapper — unlike in a pop-up's child cards, where Bubble ignores it.
           - type: custom:bubble-card
             card_type: calendar
             rows: 4
@@ -180,12 +152,9 @@ views:
               - condition: screen
                 media_query: "(min-width: 768px)"
             grid_options: { columns: 12, rows: 4 }
-          # MOBILE ONLY — minimal agenda: a single event row, two events, and two
-          # grid rows (was 2/3/3). Bubble's calendar has no alternative layout
-          # mode — `compact_mode` only affects sub-button containers — so height
-          # is controlled purely by `rows` / `limit` / `grid_options.rows`.
-          # `days: 7` is kept so the two events shown are still the next two in
-          # the week rather than only today's.
+          # MOBILE ONLY — minimal agenda: 1 event row, 2 events, 2 grid rows (was 2/3/3).
+          # Height comes purely from rows/limit/grid_options.rows (compact_mode only affects
+          # sub-buttons). days: 7 keeps showing the next two events, not just today's.
           - type: custom:bubble-card
             card_type: calendar
             rows: 1
@@ -262,20 +231,9 @@ views:
                     button_type: state
                     entity: alarm_control_panel.alarmo
                     name: Alarm
-                    # Static on purpose, as of Bubble Card 3.2.x. The icon field takes
-                    # NO template - neither a ${} JS one (Bubble only runs those
-                    # through its style pipeline) nor Jinja, both of which render an
-                    # empty icon. Falling back to the entity icon is no good either:
-                    # Alarmo publishes a fixed icon attribute of mdi:shield-off even
-                    # while armed_away, which would permanently look disarmed. State
-                    # is carried by the colour and the label below instead.
-                    #
-                    # Jinja in config fields is slated for a coming Bubble release.
-                    # Once it lands this can become a state-driven glyph:
-                    #   disarmed -> shield-off-outline, armed_night -> shield-moon,
-                    #   arming -> shield-sync, pending/triggered -> shield-alert,
-                    #   else shield-lock. Then the moon sub-button stops being the
-                    #   only mode-ish thing on the tile.
+                    # Static on purpose: the icon field accepts no template (JS or Jinja) — either
+                    # renders an empty icon. No entity-icon fallback either: Alarmo's icon attribute
+                    # is fixed at mdi:shield-off even when armed, so state stays in colour + label.
                     icon: mdi:shield-home
                     tap_action: { action: navigate, navigation_path: '#alarm' }
                     button_action:
@@ -393,7 +351,7 @@ views:
                     button_action:
                       tap_action: { action: navigate, navigation_path: '#person-rob' }
                     icon_tap_action: { action: navigate, navigation_path: '#person-rob' }
-                    # Hardlopen deze week (utility_meter, reset maandag). Tapping
+                    # Running this week (utility_meter, resets Monday). Tapping
                     # the km opens the Strava pop-up rather than Rob's, so the
                     # number is a shortcut in its own right.
                     sub_button:
@@ -444,8 +402,8 @@ views:
                     button_action:
                       tap_action: { action: navigate, navigation_path: '#person-steffi' }
                     icon_tap_action: { action: navigate, navigation_path: '#person-steffi' }
-                    # Hardlopen deze week, same as Rob's tile - tapping the km
-                    # opens her Strava pop-up rather than her person pop-up.
+                    # Running this week, same as Rob's tile — tapping the km opens
+                    # her Strava pop-up rather than her person pop-up.
                     sub_button:
                       - entity: sensor.strava_run_week_steffi
                         icon: mdi:run
@@ -482,23 +440,9 @@ views:
                       .bubble-name, .bubble-state {
                         opacity: ${state === 'home' ? 1 : 0.6} !important;
                       }
-                  # entity is the bed-presence sensor (drives the state text
-                  # below the name, e.g. "Detected"/"Clear"). Bubble Card has no
-                  # "picture:" override key, so the camera's live snapshot is
-                  # force-shown on the (otherwise hidden, since a binary_sensor
-                  # has no entity_picture) .bubble-entity-picture element via
-                  # the styles: block instead.
-                  # Entity is the bedroom light, not the (non-functional) bed
-                  # presence sensor: the tile lights up warm while her light is
-                  # on and shows the room temperature as subtitle.
-                  #
-                  # Eva sleeps DOWNSTAIRS - area "Eva Slaapkamer" (begane_grond):
-                  # light.dimmer_eva_bedroom + climate_sensor_evadownstairs
-                  # ("Klimaat Eva Beneden", which has no area assigned at all).
-                  # The upstairs area "Eva boven" with light.dimmer_eva and
-                  # climate_sensor_eva is her OLD room - do not use it here.
-                  # Noa is upstairs: light.dimmer_noa (also area-less) plus
-                  # climate_sensor_noa in the area named Noa (whose id is 'eva').
+                  # Entity is the bedroom light, not the non-functional bed-presence sensor: warm
+                  # tile + room temp subtitle. Eva: dimmer_eva_bedroom in "Eva Slaapkamer" (downstairs)
+                  # — NOT the old "Eva boven" area. Noa: dimmer_noa; her climate sensor's area id is 'eva'.
                   - type: custom:bubble-card
                     card_type: button
                     button_type: state
@@ -561,25 +505,9 @@ views:
                       }
             grid_options: { columns: 12, rows: 4 }
 
-          # ── Status chip strip ─────────────────────────────────────────────
-          # Child order is significant — the rules below place children by index.
-          # Order = Bak, Papier | (gap) | Stookwijzer, Updates, Muziek, Picnic.
-          #
-          # Chip width is set HERE, by grid-template-columns — NOT by the
-          # children's `grid_options`, which HA ignores for cards nested inside a
-          # `grid` card (it is a sections-view feature).
-          #
-          # DESKTOP: Bak, Papier and Picnic sit on FIXED 160px tracks, roughly half
-          # the width they had as `1.5fr`. Fixed units are the point — `fr` shares
-          # out all remaining space, so shrinking every fr value proportionally
-          # would have changed nothing at all. The flexible `1fr` gap track (3rd)
-          # now absorbs the leftover width, which keeps Picnic hard against the
-          # right edge. Stookwijzer/Updates/Muziek stay 64px, icon-sized.
-          #
-          # MOBILE: two rows instead of one squeezed line — Bak and Papier take
-          # half the width each on row 1 so their text is actually readable, and
-          # the four icon chips share row 2. This is why these two chips do NOT
-          # hide .bubble-name-container on mobile the way the icon-only ones do.
+          # ── Status chip strip: child order matters — placement below is by index (Bak,
+          # Papier | gap | Stookwijzer, Updates, Muziek, Picnic). Width comes from
+          # grid-template-columns in the card_mod style below, not the children's grid_options.
           - type: grid
             columns: 6
             square: false
@@ -605,13 +533,9 @@ views:
                 }
             grid_options: { columns: 36, rows: auto }
             cards:
-            # Two informative chips replace the three dot-only ones. GFT and
-            # Restafval alternate on Tuesdays so only ONE of them is ever next —
-            # this chip says which, and when. Papier runs monthly on a Monday and
-            # gets its own chip. Both use plain `button_type: state`, because the
-            # sensors in pkg_garbage.yaml already hold the finished Dutch string
-            # ("GFT morgen", "ma 10 aug") — no JS, so nothing to break on the
-            # comma-in-CSS-content trap, and the text survives on mobile.
+            # Two informative chips instead of three dot-only ones: GFT/Restafval alternate on
+            # Tuesdays (chip says which is next), Papier is monthly. Plain button_type: state,
+            # since pkg_garbage.yaml sensors already hold the finished Dutch string — no JS needed.
             - type: custom:bubble-card
               card_type: button
               button_type: state
@@ -700,7 +624,7 @@ views:
                 tap_action: { action: navigate, navigation_path: '#stookwijzer' }
               bubble_badges:
                 badges:
-                  # rode stip = code_red (niet stoken)
+                  # red dot = code_red (do not burn)
                   - name: Alert
                     target: main_icon
                     dot: true
@@ -709,7 +633,7 @@ views:
                       - condition: state
                         entity_id: sensor.stookwijzer
                         state: code_red
-                  # groene stip = overige codes (stoken toegestaan)
+                  # green dot = other codes (burning allowed)
                   - name: OK
                     target: main_icon
                     dot: true
@@ -773,7 +697,7 @@ views:
                 tap_action: { action: navigate, navigation_path: '#muziek' }
               bubble_badges:
                 badges:
-                  # groene stip = er speelt ergens muziek
+                  # green dot = music is playing somewhere
                   - name: Speelt
                     target: main_icon
                     dot: true
@@ -802,12 +726,9 @@ views:
               tap_action: { action: navigate, navigation_path: '#picnic' }
               button_action:
                 tap_action: { action: navigate, navigation_path: '#picnic' }
-              # Eén badge tegelijk: aantal items in het mandje, groen zodra de
-              # bezorging vandaag is (zelfde taal als de afvalchips: groen =
-              # vandaag). De drie regels sluiten elkaar uit, dus er staat nooit
-              # meer dan één stip rechtsboven het icoon.
-              # Leeg mandje op een bezorgdag is de normale situatie zodra de
-              # bestelling eruit is - dan blijft alleen de groene stip over.
+              # One badge at a time (mutually exclusive): green = delivery today, same colour
+              # language as the waste chips. An empty cart on a delivery day is normal once the
+              # order is out — that is expected, not a bug.
               bubble_badges:
                 badges:
                   - name: Mandje, bezorging vandaag
@@ -963,20 +884,9 @@ views:
             button_action:
               tap_action: { action: navigate, navigation_path: '#klimaat-beneden' }
             modules: [bubble_neon_icon_only]
-            # The neon module paints this tile red: its hue matcher sees
-            # "indoor_temp" in the entity id and picks the heating hue. Right in
-            # January, wrong in August - the Altherma cools as well as heats.
-            # So drive the colour off climate.warmtepomp's hvac_action:
-            # blue while cooling, red/orange while heating, neutral when idle.
-            #
-            # Doubled class names beat the module's own rules on the same
-            # elements without depending on injection order. The icon GLYPH
-            # cannot follow state as of Bubble Card 3.2.x - it accepts no
-            # template in `icon:`, neither ${} nor Jinja - so colour has to
-            # carry the meaning. Jinja in config fields is slated for a coming
-            # release; then this can be mdi:snowflake while cooling and
-            # mdi:heat-pump while heating, and the colour becomes reinforcement
-            # rather than the only signal.
+            # Neon's hue matcher would paint this red year-round (sees "indoor_temp" in the entity
+            # id), but the Altherma cools too — colour instead follows climate.warmtepomp's
+            # hvac_action. Icon glyph can't follow state either: icon: takes no template, JS or Jinja.
             styles: |
               .bubble-main-icon-container.bubble-main-icon-container {
                 ${(() => {
@@ -1697,17 +1607,9 @@ views:
                 show_background: true
             bubble_badges:
               badges:
-                # Two mutually-exclusive badges on the main icon, so charging
-                # visually REPLACES the plug rather than stacking on top of it:
-                #   plugged in + not charging  → orange plug   (waiting)
-                #   charging                   → blue flash
-                #   unplugged                  → no badge
-                #
-                # Both read the Easee charger, never the BMW entities. The car's
-                # cardata is cloud-polled and lags badly — observed 2026-07-26
-                # reporting DISCONNECTED / NOCHARGING while the charger was
-                # actually delivering 4.35 kW. The Tibber ix3_plug / ix3_charging
-                # pair is worse still: both have only ever reported `unknown`.
+                # Two mutually-exclusive badges replace rather than stack: orange plug = plugged
+                # in, not charging; blue flash = charging; none = unplugged. Reads the Easee
+                # charger only — BMW cardata lags badly (stuck disconnected at 4.35 kW); Tibber ix3 is always unknown.
                 - name: Plugged in
                   target: main_icon
                   icon: mdi:ev-plug-type2
@@ -1815,12 +1717,9 @@ views:
               - bubble_neon_icon_only
             grid_options: { columns: 6, rows: 2 }
 
-      # ──────────────────────── BOTTOM NAV (navbar-card) ─────────────────────
-      # navbar-card, MOBILE ONLY — the section is hidden above 767px via the
-      # visibility condition below. On the wall tablet / desktop you navigate by
-      # scrolling and use the Settings button in the presence panel; the phone
-      # gets the full bottom nav. Scroll routes (Huis/Beneden/Boven) jump to the
-      # anchor-card targets above. Routes point at /lovelace-bubble/overzicht.
+      # BOTTOM NAV (navbar-card) — MOBILE ONLY, hidden above 767px. Desktop/tablet uses
+      # scrolling plus the Settings button in the presence panel instead. Scroll routes jump
+      # to the anchor-card targets above, at /lovelace-bubble/overzicht.
       - type: grid
         column_span: 3
         visibility:

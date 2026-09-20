@@ -14,8 +14,7 @@ icon: mdi:door-sliding
 # summary lives in the pop-up header: entity drives the header state line,
 # overridden to the computed "N open · M dicht" count (calmed tint, not blue).
 entity: binary_sensor.doors_and_windows_garden
-# Bubble Card 3.4.0: tekst komt uit state_content (server-side Jinja), niet meer
-# uit een CSS-::after met font-size 0. Kleur blijft JS.
+# Text comes from state_content (server-side Jinja); colour stays JS.
 state_content: >-
   {%- set m = expand('binary_sensor.doors_and_windows_garden') -%}
   {%- set o = m | selectattr('state','eq','on') | list | count -%}

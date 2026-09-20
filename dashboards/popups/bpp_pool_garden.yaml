@@ -8,11 +8,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 920px
 hash: '#zwembad'
-# sluit automatisch na 2 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 2 min without interaction; every tap/click resets the timer
 auto_close: 120000
 name: Zwembad
 icon: mdi:pool
-# header = watertemp + warmtepompstatus (warm = verwarmt, blauw = koelt)
+# header = water temp + heat pump status (warm = heating, blue = cooling)
 entity: climate.fairland_zwembad_climate
 state_content: >-
   {%- set t = state_attr('climate.fairland_zwembad_climate','current_temperature') | float(-99999) -%}
@@ -182,13 +182,9 @@ cards:
             name: Uitgaande temperatuur
           - entity: sensor.fairland_zwembad_wpu_compressor_percent
             name: Vermogen warmtepomp
-  # ── warmtepomp historie ───────────────────────────────────────────
-  # Same two views as the car's Laadhistorie section, for the same reasons.
-  # The bar chart is built from LONG-TERM statistics so it survives recorder's
-  # 10-day purge_keep_days; the history graph can only reach back those 10 days
-  # but shows *when* during the day the unit ran and how hard.
-  # The Verwarmt row goes unavailable whenever the WPU drops off the bus, so
-  # expect gaps there - that is the integration, not the card.
+  # ── warmtepomp historie: same two views as the car's Laadhistorie, for the same reasons —
+  # bar chart (long-term stats) survives the 10-day purge_keep_days; history graph shows
+  # when/how hard but only reaches 10 days. Verwarmt gaps = WPU off the bus, not a card bug.
   - type: custom:bubble-card
     card_type: separator
     name: Warmtepomp historie

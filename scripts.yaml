@@ -113,7 +113,7 @@ lights_on_away:
       - light.socket2_light_couch
       - light.socket1_light_corner
     action: light.turn_on
-  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -144,7 +144,7 @@ lights_on_home:
       - light.socket2_light_couch
       - light.socket1_light_corner
     action: light.turn_on
-  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -185,7 +185,7 @@ lights_down_stairs_off:
       - light.ledstrip_book
       - light.ledstrip_tv
     action: light.turn_off
-  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -314,13 +314,9 @@ sonos_active_control:
             entity_id: "{{ active }}"
 open_front_door:
   alias: Voordeur openen
-  # Single entry point for "open the front door". Deliberately a script rather
-  # than only an iOS Action: the YAML `ios: actions:` push to the companion app
-  # stopped reaching the phone after the 2026.5.4 -> 2026.7.x upgrade, and
-  # scripts are reachable from surfaces that need no sync at all — CarPlay
-  # lists the script domain directly, and Apple Shortcuts ("Perform action")
-  # can call it from the Watch, a complication, or Siri.
-  # "iOS - Open frontdoor" calls this too, so every route behaves identically.
+  # Deliberately a script, not just an iOS Action: the `ios: actions:` push to the
+  # companion app stopped reaching the phone after the 2026.5.4 upgrade. Scripts
+  # stay reachable from CarPlay and Apple Shortcuts too.
   sequence:
   - action: lock.open          # unlatch — lock reports supported_features 1 (OPEN)
     target:
@@ -332,17 +328,9 @@ open_front_door:
       code: automation
   mode: single
   icon: mdi:door-open
-# Auping bed, Rob's side — for home-screen app icon shortcuts.
-#
-# CBU 2 = Rob's side (1 = Steffi). This bed uses motor 2, so motors 1 and 3 are
-# always sent as Action 0 / 0 ms. Action: 1 = up, 2 = down, 0 = stop.
-# TimeInMs is how long the motor runs, i.e. how far it travels. Up uses 14000
-# (~14 s) and down 20000 (~20 s); the cover entities in pkg_bed.yaml use 30000
-# for a full run in either direction.
-#
-# These call rest_command.auping_bed directly and deliberately have no retry
-# wrapper — see the note in pkg_bed.yaml about the old script.auping_bed, which
-# recursed into itself and meant the POST never reached the bed.
+# Auping bed, Rob's side (CBU 2, motor 2 - motors 1/3 always 0/0ms). Action:
+# 1=up 2=down 0=stop; TimeInMs 14000/20000 here vs 30000 in pkg_bed.yaml. No
+# retry wrapper: the old script recursed into itself and never reached the bed.
 bed_rob_up:
   alias: Bed Rob up
   icon: mdi:bed-double

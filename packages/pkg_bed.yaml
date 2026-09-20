@@ -4,25 +4,9 @@
 # https://github.com/robsonke/hass-config
 #
 
-#
-# /api/cbu/motor/extended = POST to control the bed
-# /api/config = GET all info about the bed
-# both require the X-Key header
-#
-# CBU: 0=both bedsides in sync, 1=left side, 2=right side
-# Action: 0, 1 or 2 (stop, up or down)
-# Time: is used to set the time until stop
-#
-# To stop the bed:
-# {
-#   "CBU": 1,
-#   "motor_1": { "Action": 0, "TimeInMs": 0 },
-#   "motor_2": { "Action": 0, "TimeInMs": 0 },
-#   "motor_3": { "Action": 0, "TimeInMs": 0 }
-# }
-# Our bed uses motor 2
-# 1 = steffi
-# 2 = rob
+# POST /api/cbu/motor/extended controls the bed, GET /api/config reads it; both need the X-Key header.
+# CBU: 0=synced, 1=left, 2=right side (1=Steffi, 2=Rob).
+# Action 0/1/2 = stop/up/down, Time sets the duration until stop; this bed uses motor 2.
 
 rest_command:
   auping_bed:
@@ -35,12 +19,9 @@ rest_command:
     timeout: 15
     payload: '{"CBU":{{ cbu }},"motor_1":{"Action":{{ motor_1_action }},"TimeInMs": {{ motor_1_time }} },"motor_2":{"Action":{{ motor_2_action }},"TimeInMs": {{ motor_2_time }} },"motor_3":{"Action":{{ motor_3_action }},"TimeInMs": {{ motor_3_time }} }}'
 
-# NOTE: there used to be a `script.auping_bed` retry wrapper here. It was
-# broken — it called `script.auping_bed` (itself) instead of
-# `rest_command.auping_bed`, and with `mode: restart` each call killed the
-# previous one, so the POST never reached the bed and the buttons did nothing.
-# Removed: the covers and dashboard now call rest_command.auping_bed directly
-# (which is what worked before the wrapper was introduced).
+# There used to be a `script.auping_bed` retry wrapper here that called itself instead of
+# `rest_command.auping_bed`; `mode: restart` killed each call before the POST reached the bed.
+# Removed — covers and dashboard now call rest_command.auping_bed directly; don't reintroduce a same-named wrapper.
 
 template:
   - cover:

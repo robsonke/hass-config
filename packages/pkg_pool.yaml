@@ -1,12 +1,5 @@
-#  ____             _
-# |  _ \ ___   ___ | |
-# | |_) / _ \ / _ \| |
-# |  __/ (_) | (_) | |
-# |_|   \___/ \___/|_|
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 template:
   - binary_sensor:
     - unique_id: pool_pump_active
@@ -73,16 +66,10 @@ template:
 
   - light:
     - unique_id: pool_light
-      # The ESPHome node exposes a *switch*, not a light. The old
-      # light.s3_pool_lights_pool_lights target does not exist in the registry -
-      # pointing at one is why on/off once silently did nothing while colour
-      # still worked.
-      # The s3_pool_lights_ prefix comes from the node name in
-      # esphome/s3-pool-lights.yaml. It replaced the M5StickC node (pool-lights,
-      # whose oldest entities still carried an m5stickc_ prefix from an even
-      # earlier rename) with an AtomS3 on 2026-09-19; a new device means new
-      # unique_ids, so every entity here was renumbered in one go rather than
-      # inheriting the old registry ids.
+      # The ESPHome node exposes a *switch*, not a light — targeting light.s3_pool_lights_pool_lights (doesn't exist) is
+      # why on/off once silently did nothing while colour still worked. s3_pool_lights_ comes from
+      # esphome/s3-pool-lights.yaml, replacing the M5StickC node with an AtomS3 (2026-09-19); new device = new
+      # unique_ids, so entities here were renumbered wholesale.
       turn_on:
       - action: switch.turn_on
         target:

@@ -11,7 +11,7 @@ auto_close: 120000
 name: Noa
 icon: mdi:bed
 # header = kamerlicht (warm = aan) + temperatuur en luchtvochtigheid.
-# Was binary_sensor.noa_bed_presence, maar die detectie werkt niet betrouwbaar.
+# Was binary_sensor.noa_bed_presence, but that detection is not reliable.
 entity: light.dimmer_noa
 state_content: >-
   {%- set t = states('sensor.climate_sensor_noa_temperature') | float(-999) -%}
@@ -70,8 +70,8 @@ cards:
           style: chevrons
   # ── kamer (licht + klimaat) ───────────────────────────────────────
   # Licht en klimaatsensor komen uit light.lights_upstairs (pkg_lights.yaml) en
-  # niet uit de area's - die spreken elkaar tegen. 2 kolommen, want een 3-koloms
-  # grid knijpt de labels op mobiel dicht tot een scrollende marquee.
+  # not from the areas, which contradict each other. Two columns: a three-column
+  # grid squeezes the labels into a scrolling marquee on mobile.
   - type: custom:bubble-card
     card_type: separator
     name: Kamer

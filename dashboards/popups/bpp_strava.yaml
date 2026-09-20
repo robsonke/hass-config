@@ -8,11 +8,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#sport'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: Sport
 icon: mdi:run-fast
-# header = kilometers deze week (utility_meter, resets Monday) + laatste activiteit
+# header = kilometers this week (utility_meter, resets Monday) + latest activity
 entity: sensor.strava_run_week
 state_content: >-
   {%- set w = states('sensor.strava_run_week') | float(-1) -%}
@@ -123,7 +123,7 @@ cards:
           .bubble-state {
             font-size: 13px !important; font-weight: 500;
           }
-  # gear + toestel van die run, als rij i.p.v. tegels
+  # gear + device for that run, as a row instead of tiles
   - type: entities
     entities:
       - entity: sensor.strava_rob_sonke_run_date
@@ -259,20 +259,9 @@ cards:
         name: Deze maand
         icon: mdi:calendar-today
         max: 300
-  # Kilometers per week over time.
-  #
-  # Deliberately a `statistics-graph` on the ALL-TIME total rather than an
-  # apexcharts card on state history: recorder keeps only 10 days
-  # (purge_keep_days), so any state-history chart would show a week and a half at
-  # most. Long-term statistics are never purged, so this keeps growing forever.
-  #
-  # `stat_types: change` with `period: week` gives exactly "km added in that
-  # week" — the weekly delta of the cumulative total — so one bar per week.
-  # Sourced from the Strava total, not from sensor.strava_run_week, so the chart
-  # does not depend on the utility_meter's reset timing.
-  #
-  # NB the Strava integration was only added 2026-07-26, so there is no history
-  # to draw yet. Bars appear one per week from here on.
+  # Kilometers per week: a statistics-graph on the ALL-TIME total, not an apexcharts state-history
+  # chart — recorder purges after 10 days, but long-term stats never expire. stat_types: change +
+  # period: week gives the weekly delta, sourced from the Strava total, not the resettable utility_meter sensor.
   - type: statistics-graph
     title: Kilometers per week
     chart_type: bar
@@ -285,8 +274,7 @@ cards:
         name: Hardlopen
 
   # ── materiaal ─────────────────────────────────────────────────────
-  # Kilometerstanden per paar schoenen — handig om te zien wanneer een paar
-  # versleten is (Brooks rekent op ~800 km).
+  # Mileage per pair of shoes — handy to see when a pair is worn out (Brooks rates ~800 km).
   - type: custom:bubble-card
     card_type: separator
     name: Schoenen & fiets

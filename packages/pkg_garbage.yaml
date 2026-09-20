@@ -1,13 +1,5 @@
-#   ____            _
-#  / ___| __ _ _ __| |__   __ _  __ _  ___
-# | |  _ / _` | '__| '_ \ / _` |/ _` |/ _ \
-# | |_| | (_| | |  | |_) | (_| | (_| |  __/
-#  \____|\__,_|_|  |_.__/ \__,_|\__, |\___|
-#                               |___/
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
 template:
   - sensor:
@@ -60,17 +52,10 @@ template:
             {{ names[stateInt] if stateInt < names | length else '%s d'%stateInt }}
         icon: mdi:trash-can
 
-      # ── the two questions the dashboard actually has to answer ────────────
-      #
-      # GFT and Restafval alternate on Tuesdays (GFT 28 Jul, Rest 4 Aug, GFT
-      # 11 Aug, …) so they never compete — the only question is WHICH of the two
-      # is next. Papier runs monthly on a Monday. Both sensors below put the
-      # human-readable answer in the STATE, so the dashboard chips can use a
-      # plain `button_type: state` with no JS: that keeps them readable on
-      # mobile and avoids Bubble Card's comma-in-CSS-content trap.
-      #
-      # Dutch day/month abbreviations are hardcoded because timestamp_custom
-      # follows the system locale (C -> English), which would render "Tue".
+      # GFT and Restafval alternate on Tuesdays, so they never compete — only WHICH is next matters; Papier runs
+      # monthly. The human-readable answer is put in the STATE so dashboard chips can use plain `button_type: state`
+      # with no JS, avoiding Bubble Card's comma-in-CSS-content trap. Dutch day/month abbreviations are hardcoded:
+      # timestamp_custom follows the system locale (C -> English), which would otherwise render "Tue".
       - unique_id: next_bin_gft_or_rest
         name: Next Bin GFT or Rest
         icon: mdi:trash-can

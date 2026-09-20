@@ -1,42 +1,14 @@
-#  ___ _
-# / __| |_ _ _ __ ___ ______ _
-# \__ \  _| '_/ _` \ V / _` |
-# |___/\__|_| \__,_|\_/\__,_|
-#
-# Author: Rob Sonke
-# https://github.com/robsonke/hass-config
-#
-# ha_strava exposes only three aggregates per sport: `recent`, `ytd` and `all`.
-# Beware `recent`: in Strava's API that means the LAST FOUR WEEKS, not this
-# week (it read 172.67 km / 14 runs while the current week was a fraction of
-# that). There is no weekly figure at all, so this package derives one.
-#
-# IMPORTANT: utility_meter has NO reload service. Adding or changing the meter
-# below requires a full Home Assistant restart — a YAML/template reload will
-# not create it.
-#
-# The meters do NOT read ha_strava's sensor directly. That sensor goes
-# `unavailable` for ~8 seconds immediately BEFORE every refresh, e.g.
-#     26 Jul 12:41:16  unavailable
-#     26 Jul 12:41:25  7832.02   (+23.93 km)
-#     27 Jul 19:44:56  unavailable
-#     27 Jul 19:45:04  7843.27   (+11.25 km)
-# and utility_meter throws away its `last_valid_state` across an unavailable
-# period, then silently re-baselines on the next reading. Since the blip happens
-# on EVERY update, every single run was swallowed and both meters sat at 0
-# forever — not just for one week. `sensor.strava_run_total` below is a
-# trigger-based mirror that only ever accepts numeric readings (and, being
-# trigger-based, restores its value across a restart), so the meters see a
-# source that never goes unavailable.
+# Author: Rob Sonke — https://github.com/robsonke/hass-config
+# ha_strava only exposes `recent`/`ytd`/`all`; `recent` means the LAST FOUR WEEKS, not this week, so this package
+# derives a real weekly figure. utility_meter has no reload service — a changed meter needs a full restart. Meters don't
+# read ha_strava directly: it blips unavailable ~8s before every refresh, dropping utility_meter's last_valid_state and
+# re-baselining to 0 each time; sensor.strava_run_total is a trigger-based mirror that never goes unavailable.
 
 utility_meter:
-  # Both meters accumulate the deltas of the all-time total (state_class: total,
-  # device_class: distance). Their `last_period` attribute holds the previous
-  # period's total for free, which the pop-up shows next to the current one.
-  #
-  # `strava_run_month` is a CALENDAR month (resets on the 1st) and is therefore
-  # not the same thing as the pop-up's "4 weken" tile — that one is Strava's own
-  # rolling four-week `recent` window. Both are shown deliberately.
+  # Both meters accumulate deltas of the all-time total; `last_period` holds the previous
+  # period's total for free, shown next to the current one in the pop-up.
+  # `strava_run_month` is a CALENDAR month (resets on the 1st) — NOT the pop-up's "4 weken"
+  # tile, which is Strava's own rolling four-week `recent` window; both are shown deliberately.
   strava_run_week:
     name: Strava run week
     source: sensor.strava_run_total
@@ -59,20 +31,10 @@ utility_meter:
     cycle: monthly
 
 template:
-  # Blip-proof mirror of ha_strava's all-time run total — see the note above.
-  #
-  # The `homeassistant: start` trigger is NOT decoration. A trigger-based
-  # template sensor is born with no state and only gets one when a trigger
-  # fires, so a freshly created mirror sits at `unknown` until the athlete's
-  # next run — and that run then becomes the utility_meter's first reading,
-  # i.e. its baseline, contributing 0. That is exactly how Steffi's 18.7 km on
-  # 12 Aug went missing: her mirror was created 9 Aug and stayed `unknown`
-  # until 12 Aug 09:53, so her run WAS the baseline. Firing on start means the
-  # mirror always carries the current total before any run can arrive.
-  #
-  # The condition is the safety rail: without it, a start while ha_strava is
-  # still `unavailable` would write 0 through `| float(0)`, and the next real
-  # reading would look like a +7000 km delta to the meter.
+  # Blip-proof mirror of ha_strava's all-time run total (see note above); `homeassistant: start` is NOT decoration — a
+  # fresh trigger-based sensor sits `unknown` until the next run, which would otherwise become the meter's zero baseline
+  # (how Steffi's 18.7 km run went missing). The condition is the safety rail: without it, a start while ha_strava is
+  # still unavailable would write 0, and the next real reading would look like a +7000 km delta.
   - trigger:
       - trigger: state
         entity_id: sensor.strava_rob_sonke_stats_all_run_distance

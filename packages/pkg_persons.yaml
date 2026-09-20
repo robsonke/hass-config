@@ -1,12 +1,5 @@
-#  ____
-# |  _ \ ___ _ __ ___  ___  _ __  ___
-# | |_) / _ \ '__/ __|/ _ \| '_ \/ __|
-# |  __/  __/ |  \__ \ (_) | | | \__ \
-# |_|   \___|_|  |___/\___/|_| |_|___/
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
 person:
   - name: Rob
@@ -36,12 +29,9 @@ notify:
       - service: mobile_app_iphone
       #- service: mobile_app_iphone_steffi
 
-# No `homeassistant:` block here any more. It held
-# `customize_domain: light: assumed_state: false` - a blanket override on every
-# light, inherited from the old packages/customize.yaml (deleted 2023-07-02).
-# It dated from an integration that could not read its own state back; removed
-# 2026-08-23. If a light ever shows separate on/off buttons instead of a single
-# toggle, that light reports assumed_state and this is why.
+# No `homeassistant:` block here any more — it held a blanket `customize_domain: light: assumed_state: false`, removed
+# 2026-08-23. If a light ever shows separate on/off buttons instead of one toggle, that light reports assumed_state and
+# this override used to hide it.
 
 sensor:
   - platform: history_stats

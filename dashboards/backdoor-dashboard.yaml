@@ -1,49 +1,22 @@
-# YAML dashboard for the Shelly Wall Display by the back door (Bijkeuken).
-# url_path: dashboard-backdoor  (registered in configuration.yaml)
-# Small ~480x480 touchscreen → big touch targets, single compact column.
-#
-# Focus-on-disarm: the clock header and the machine tiles are wrapped in
-# `conditional` cards that only render while the alarm is DISARMED. As soon
-# as it's armed/arming/pending/triggered, they disappear and the alarm card
-# (now showing the numpad, since code_arm_required is false) is the only
-# thing on screen — all focus on keying in the disarm code.
+# Wall Display dashboard (url_path: dashboard-backdoor) for the back door. Small screen, so
+# big touch targets and a single column. Clock/machine tiles render only while DISARMED; once
+# armed/arming/pending/triggered only the alarm numpad shows (code_arm_required: false).
 title: Bijkeuken
 views:
   - title: Bijkeuken
     path: home
     cards:
-      # ── tijd + weer (alleen als alarm uit staat) ──────────────────
-      # History, so nobody re-treads it: this was custom:clock-weather-card, which
-      # was uninstalled from HACS and left a "Configuration error" panel on the wall
-      # display (gone from www/community, from lovelace_resources AND from
-      # frontend.extra_module_url). It then became a markdown card, which worked but
-      # read like a text file. Now it uses the two Bubble modules below, which live
-      # in bubble_card/modules/ - local files, so nothing can uninstall them from
-      # under this dashboard again.
+      # Time + weather (only while disarmed). Was custom:clock-weather-card, which HACS
+      # uninstalled and broke the panel, then a plain markdown card. Now uses the two local
+      # Bubble modules below (bubble_card/modules/), so nothing external can remove them again.
       - type: conditional
         conditions:
           - entity: alarm_control_panel.alarmo
             state: disarmed
         card:
-          # Two Bubble modules stacked on one button card:
-          #
-          #  weather_forecast (Bubble Weather v1.2.0) in `background_only` paints the
-          #    animated sky - clouds that drift with the actual wind speed, rain/snow
-          #    particles, night mode - and drops its forecast grid.
-          #  bubble_calendar_enhanced in `time_only_full` draws the clock on top,
-          #    with `background: none` so it does not paint over that sky.
-          #
-          # Why the clock comes from the module and the date/weather line from CSS:
-          # calendar_enhanced runs its own setInterval, so the time is always exact,
-          # whereas a JS-in-styles clock only re-renders when Bubble re-renders and
-          # could sit on a stale minute. The date and temperature change at most
-          # daily/every few minutes, so for those the styles route is fine - and it
-          # is the only way to get DUTCH, since the module formats via the frontend
-          # locale and this instance runs language: en (that is what produced
-          # "Thursday 13 August" before).
-          #
-          # `time_only_full` deliberately omits the module's own date for the same
-          # reason. Reverting to the plain markdown version is one git revert away.
+          # Two Bubble modules stacked: weather_forecast (background_only) paints the animated
+          # sky; bubble_calendar_enhanced (time_only_full) draws the exact clock via its own
+          # setInterval. Date/weather stay in CSS, the only way to render Dutch (language: en).
           type: custom:bubble-card
           card_type: button
           button_type: state
@@ -93,7 +66,7 @@ views:
             {%- set s = states('weather.weather_langeweide_ecowitt') -%}
             {{ dn[now().weekday()] ~ ' ' ~ now().day ~ ' ' ~ mn[now().month - 1] ~ ' · ' ~ ('--' if t == -99999 else (t | round | int) ~ '°C') ~ ' · ' ~ w.get(s, s) }}
 
-      # ── alarm — altijd zichtbaar (numpad verschijnt zodra aan) ────
+      # ── alarm — always visible (numpad appears once armed) ────
       - type: custom:alarmo-card
         entity: alarm_control_panel.alarmo
         name: ''
@@ -139,7 +112,7 @@ views:
               display: inline-flex !important;
             }
 
-      # ── machines (alleen als alarm uit staat) ─────────────────────
+      # ── machines (only while disarmed) ─────────────────────
       - type: conditional
         conditions:
           - entity: alarm_control_panel.alarmo

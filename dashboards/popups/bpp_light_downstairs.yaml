@@ -8,11 +8,11 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 1000px
 hash: '#verlichting-beneden'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: Verlichting beneden
 icon: mdi:lightbulb-group
-# header summary counts the lights shown below (warm = iets aan, dim = alles uit)
+# header summary counts the lights shown below (warm = something on, dim = everything off)
 entity: light.kitchen_light
 state_content: >-
   {%- set m = expand(['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light']) -%}
@@ -230,13 +230,9 @@ cards:
         tap_action: { action: toggle }
         double_tap_action: { action: more-info }
         hold_action: { action: more-info }
-  # ── tijdlijn ──────────────────────────────────────────────────────
-  # "Automatisch aan" is the input_boolean the darkness automations set
-  # themselves (via script.lights_on_home / _away, cleared by the got-lighter
-  # and bedtime automations), so it marks only the automatic stretches - a
-  # manual switch-on shows on the "Alle lampen" row but not on that one.
-  # The lux line underneath is the sensor those automations trigger on (< 30).
-  # Reaches back at most recorder's purge_keep_days (10).
+  # ── tijdlijn: "Automatisch aan" is the input_boolean the darkness automations set/clear —
+  # it marks only automatic stretches, not a manual switch-on (that only shows on "Alle
+  # lampen"). Lux line is the trigger sensor (< 30); history is capped by purge_keep_days (10).
   - type: custom:bubble-card
     card_type: separator
     name: Tijdlijn

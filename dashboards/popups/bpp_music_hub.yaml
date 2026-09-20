@@ -201,7 +201,7 @@ cards:
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Sonos Roam' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.sonos_roam_2']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
           .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
-  # ── Favoriet het huidige nummer op de gekozen kamer ────────────────
+  # ── Favourite the current track on the selected room ───────────────
   - type: custom:bubble-card
     card_type: button
     button_type: name

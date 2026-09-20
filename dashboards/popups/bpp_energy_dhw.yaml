@@ -1,7 +1,7 @@
 # Bubble Card native pop-up (hash #warm-water) — Warm water (Altherma DHW tank).
-# Herzien 2026-09-18: van "hoe warm is het water" naar "doet de zonnesturing wat
-# hij moet". De kernvraag is of er nog bijverwarmd wordt tussen 17:00 en 06:00;
-# de verbruiksgrafiek onderaan beantwoordt die in een oogopslag.
+# Revised 2026-09-18: shifted focus from "how warm is the water" to "is the solar
+# control doing its job". The key question is whether extra heating still happens
+# between 17:00 and 06:00; the usage graph at the bottom answers that at a glance.
 type: custom:bubble-card
 card_type: pop-up
 buttons_position: left
@@ -9,14 +9,14 @@ popup_mode: centered
 full_width_on_mobile: true
 width_desktop: 900px
 hash: '#warm-water'
-# sluit automatisch na 1 min zonder interactie; elke tap/klik reset de timer
+# auto-closes after 1 min without interaction; every tap/click resets the timer
 auto_close: 60000
 name: Warm water
 icon: mdi:water-boiler
-# header = vattemperatuur + fase, gekleurd naar fase
+# header = tank temperature + phase, coloured by phase
 entity: water_heater.domestic_hot_water_tank
-# Bubble Card 3.4.0: de tekst komt uit state_content (server-side Jinja), niet
-# meer uit een CSS-::after met font-size 0 op de echte state. Kleur blijft JS.
+# Bubble Card 3.4.0: text comes from state_content (server-side Jinja), no longer
+# a CSS ::after with font-size 0 on the real state. Colour stays JS.
 state_content: >-
   {%- set t = state_attr('water_heater.domestic_hot_water_tank','current_temperature') -%}
   {%- set p = states('sensor.dhw_phase') -%}
@@ -49,9 +49,8 @@ cards:
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
           .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
-      # Bedoeld tegenover werkelijk setpoint. Wijken ze af, dan kleurt deze rood:
-      # dat is hetzelfde signaal dat de watchdog-automation bewaakt, en het beste
-      # kapot-signaal dat er is.
+      # Intended vs actual setpoint. If they diverge this turns red — the same signal
+      # the watchdog automation monitors, and the best broken-signal there is.
       - type: custom:bubble-card
         card_type: button
         button_type: state
@@ -71,25 +70,22 @@ cards:
           .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); return (isFinite(w) && isFinite(a) && Math.abs(w - a) >= 0.5) ? 'rgba(221,86,86,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
           .bubble-icon-container { background-color: ${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); return (isFinite(w) && isFinite(a) && Math.abs(w - a) >= 0.5) ? 'rgba(221,86,86,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
           .bubble-state { font-size: 12.5px !important; color: ${(() => { const w = parseFloat(hass.states['sensor.dhw_target_setpoint']?.state); const a = parseFloat(hass.states['water_heater.domestic_hot_water_tank']?.attributes?.temperature); return (isFinite(w) && isFinite(a) && Math.abs(w - a) >= 0.5) ? '#e88f8f' : '#8f8e9e'; })()} !important; }
-  # 3.4.0 laat card_type: climate ook water_heater besturen, dus de native
-  # tile-kaart is hier niet meer nodig. min_temp/max_temp bewust weggelaten:
-  # de kaart leest ze van de entiteit (nu 30-55), zodat een gewijzigde
-  # veldinstelling op de unit vanzelf doorwerkt.
+  # 3.4.0 lets card_type: climate control water_heater too, so the native tile card is
+  # no longer needed. min_temp/max_temp deliberately omitted: the card reads them from
+  # the entity (currently 30-55), so a changed field setting on the unit takes effect automatically.
   - type: custom:bubble-card
     card_type: climate
     entity: water_heater.domestic_hot_water_tank
     name: Tapwater
     icon: mdi:water-boiler
-    # state_color uit: de water_heater-aan-kleur is fel geel en vecht met de
-    # ingetogen tinten van de rest van deze pop-up. De fase-kleur staat al in de
-    # kop, dus hier is kleur dubbelop.
+    # state_color off: the water_heater on-colour is bright yellow and clashes with this
+    # pop-up's muted tones. The phase colour is already in the header, so this would be redundant.
     state_color: false
     sub_button:
       - select_attribute: operation_list
         state_background: false
-  # ── plan van vandaag ──────────────────────────────────────────────
-  # Waarom het opwarmvenster staat waar het staat. Zonder de prognose en het
-  # prijsalternatief ernaast is een starttijd een willekeurig getal.
+  # ── plan van vandaag ── why the heating window sits where it does — without the
+  # forecast and price alternative next to it, a start time is just an arbitrary number.
   - type: custom:bubble-card
     card_type: separator
     name: Plan van vandaag
@@ -109,9 +105,8 @@ cards:
         name: Drempel voor zonnetak
       - entity: sensor.dhw_cheapest_charge_start
         name: Goedkoopste blok (alternatief)
-  # ── temperatuur ───────────────────────────────────────────────────
-  # 24 uur en niet 12: bij 12 uur zie je nooit een hele cyclus, bij 24 zie je de
-  # middagopwarming en de nachtelijke afkoeling in een beeld.
+  # ── temperatuur ── 24h, not 12h: at 12 you never see a full cycle, at 24 you see
+  # the afternoon heat-up and the overnight cool-down in one view.
   - type: custom:bubble-card
     card_type: separator
     name: Temperatuur (24 uur)
@@ -133,12 +128,9 @@ cards:
     hours_to_show: 24
     points_per_hour: 2
     line_width: 2
-  # ── verbruik ──────────────────────────────────────────────────────
-  # DE kernmetriek. Elke piek tussen 17:00 en 06:00 is een nachtelijke
-  # bijverwarmbeurt - precies wat volgens de spec naar nul moet. Nulmeting
-  # 8-17 sep 2026: 20 beurten totaal, 10 daarvan in dat venster.
-  # Bewust de Shelly-meter en niet sensor.altherma_power_usage: die laatste is
-  # een afleiding uit stroom maal spanning over de P1P2-bus.
+  # ── verbruik: the core metric. Peaks between 17:00-06:00 are nightly reheats, which the
+  # spec wants at zero (baseline 8-17 Sep 2026: 20 total, 10 in that window). Uses the Shelly
+  # meter, not sensor.altherma_power_usage (a derived current×voltage value off the P1P2 bus).
   - type: custom:bubble-card
     card_type: separator
     name: Verbruik warmtepomp (24 uur)

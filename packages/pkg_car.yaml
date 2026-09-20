@@ -1,10 +1,6 @@
-# Car (BMW iX3) helpers
-#
-# The cardata integration exposes sensor.ix3_service_next_inspection_date as a
-# plain string like "01.06.2027 00:00:00 UTC". Parse it with strptime and
-# re-emit just the date (dd-mm-yyyy) for the picture-elements label in #auto.
-# (A device_class: date sensor would render as raw ISO in a state-label, hence
-# the explicit strftime here.)
+# Car (BMW iX3) helpers.
+# cardata exposes ix3_service_next_inspection_date as a raw string ("01.06.2027 00:00:00 UTC"),
+# parsed via strptime and re-emitted as dd-mm-yyyy since a device_class: date sensor would render raw ISO.
 template:
   - sensor:
       - name: "iX3 Next inspection date"
@@ -16,20 +12,10 @@ template:
           {{ d.strftime('%d-%m-%Y') if d else 'onbekend' }}
 
   - binary_sensor:
-      # Recreates binary_sensor.ix3_windows, which the automation
-      # "Car - Alert when car windows open too long" has always triggered on - and
-      # which never existed, so that automation could never fire. The cardata
-      # integration exposes one sensor per window plus the sunroof instead, each
-      # reporting CLOSED when shut.
-      #
-      # Tested with `not in` rather than `== 'OPEN'`: BMW also reports intermediate
-      # states (tilted / partially open) and those count as open for a
-      # "don't let the rain in" alert. The sunroof is included deliberately - it
-      # lets in more rain than a cracked window.
-      #
-      # `availability` matters here: without it a cardata dropout would make every
-      # source read as not-CLOSED and fire the one-hour rain alert on every API
-      # hiccup. `open_parts` names what is actually open, for the notification.
+      # Recreates binary_sensor.ix3_windows — never existed, so "Car - Alert when car windows open too long" could never
+      # fire; cardata exposes one sensor per window + sunroof. Tests `not in` (not `== 'OPEN'`) since BMW also reports
+      # tilted/partially-open as open; sunroof included deliberately. `availability` guards against a cardata dropout
+      # reading every source as not-CLOSED and firing the rain alert on every API hiccup.
       - name: iX3 Windows
         unique_id: ix3_windows
         device_class: opening

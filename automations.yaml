@@ -485,9 +485,9 @@
       - condition: state
         entity_id: light.hue_lily_light_fence_1
         state: 'off'
-      # Elke lantaarn telt. Dit stond op alleen lantaarn 1, en een state-
-      # conditie faalt zodra die lamp unavailable is - één kapotte lantaarn
-      # zette deze hele ochtendtak dus stil terwijl 2 en 3 gewoon brandden.
+      # Every lantern counts: this used to check only lantern 1, and a state
+      # condition fails once that lamp is unavailable - one broken lantern
+      # silenced this whole morning branch while 2 and 3 kept working.
       - condition: or
         conditions:
         - condition: state
@@ -569,7 +569,7 @@
       color_temp_kelvin: 2200
     target:
       entity_id: light.hue_lights_garden
-  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -609,10 +609,10 @@
     state: 'on'
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # De 09:00-tijdtrigger heeft geen from_state en glipt via de eerste
-    # clausule ongemoeid door. Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
-    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
-    # en de melding gaat af zonder dat er iets veranderd is.
+    # The 09:00 time trigger has no from_state and slips through the first clause
+    # unfiltered. A numeric_state trigger also rearms after a restart or sensor
+    # blip: the value returns from unavailable, counts as a crossing, and the
+    # notification fires with no real change.
     value_template: >
       {{ trigger is not defined
          or trigger.from_state is not defined
@@ -651,7 +651,7 @@
     target:
       entity_id:
       - light.garden_light
-  # Apart en achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Separate, and behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -704,11 +704,9 @@
           entity_id: light.dimmer_hall
         data: {}
       alias: Turn on hall light shortly
-  # Als if/then, niet als kale conditie in de actielijst: die kapte de hele rest af.
-  # De automation mag vanaf 21:00 draaien, dus wie tussen 21:00 en 22:55 naar bed
-  # ging kreeg de input_boolean hieronder nooit uitgezet en bleef de timeline
-  # "automatisch aan door donker" tonen. after > before laat het venster over
-  # middernacht wrappen; dat is hetzelfde bereik als de vorige or-constructie.
+  # if/then, not a bare condition in the action list, which would abort the rest.
+  # after > before wraps the window past midnight, matching the automation's own
+  # 21:00-05:00 range.
   - alias: Turn off the couch and corner light too if it's after 11 pm
     if:
     - condition: time
@@ -852,7 +850,7 @@
       entity_id:
       - light.kitchendesk_light
       - light.diningtable_light
-  # Achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -916,10 +914,10 @@
     value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
   - condition: template
     alias: Not alerted in the last 2 minutes
-    # `this` in plaats van het hardcoded states.automation.<alias>-pad: dat pad is
-    # afgeleid van de alias terwijl het automation-id presence_frigate_object_detection
-    # is, dus een rename koppelt de cooldown stil los en blokkeert hem voorgoed.
-    # Zelfde vorm als de pool-alert verderop.
+    # `this` instead of the hardcoded states.automation.<alias> path: that path is
+    # derived from the alias while the automation id is
+    # presence_frigate_object_detection, so a rename would silently break the
+    # cooldown. Same pattern as the pool alert further down.
     value_template: >
       {{ this is not defined
          or (as_timestamp(now())
@@ -941,8 +939,8 @@
   mode: single
 - id: '1628796760216'
   alias: Alarm - Turn on lights when person events on camera
-  description: Alle tuinlichten aan bij een persoon op een buitencamera terwijl het
-    alarm staat
+  description: Turns on all garden lights when a person is detected on an outdoor
+    camera while the alarm is armed
   triggers:
   - trigger: mqtt
     topic: frigate/events
@@ -1004,9 +1002,9 @@
   conditions:
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
-    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
-    # en de melding gaat af zonder dat er iets veranderd is.
+    # A numeric_state trigger rearms after an HA restart or sensor blip: the value
+    # returns from unavailable to its old reading, which counts as a crossing, so
+    # the notification fires even though nothing actually changed.
     value_template: >
       {{ trigger is not defined
          or trigger.from_state is not defined
@@ -1119,10 +1117,10 @@
     from: disarmed
     to: armed_night
   conditions:
-  # numeric_state in plaats van "not state == '0'": die laatste is WAAR zodra de
-  # sensor unavailable/unknown is (herstart, template-fout), en dan roept Sonos
-  # midden in de nacht dat er ramen openstaan. numeric_state valt bij een
-  # niet-numerieke state fail-safe op false.
+  # numeric_state instead of "not state == '0'": the latter is TRUE whenever the
+  # sensor is unavailable/unknown (restart, template error), which would make
+  # Sonos announce open windows in the middle of the night. numeric_state fails
+  # safe to false on a non-numeric state.
   - condition: numeric_state
     entity_id: sensor.open_windows_and_doors_downstairs
     above: 0
@@ -1411,11 +1409,11 @@
       - switch.terras_detect
       - switch.veranda_detect
       - switch.zwembad_detect
-  # De slaapkamerdetectie hangt aan de alarmstand, niet aan presence. Stonden deze
-  # twee ook in de lijst hierboven, dan zette een GPS-blip 's nachts (iemand van
-  # unknown terug op home) de kinderdetectie uit onder armed_night - en de
-  # tegenhanger (:991) zet hem niet terug, want die triggert alleen op de overgang
-  # disarmed -> armed_night. Spiegelt hoe :991 diezelfde twee switches aanzet.
+  # Bedroom detection is tied to the alarm state, not presence. Were these two
+  # also in the list above, a nighttime GPS blip (someone flipping unknown back
+  # to home) would turn off child detection under armed_night, and the
+  # counterpart (:991) would not restore it since it only fires on the
+  # disarmed -> armed_night transition.
   - if:
     - condition: not
       conditions:
@@ -1752,12 +1750,9 @@
       - condition: state
         entity_id: light.diningtable_light
         state: 'on'
-    # "when dark" stond wel in de naam maar nergens in de logica; de check
-    # hierboven is een proxy die faalt als er overdag toevallig een lamp aan is.
-    # Dan ging de weg-verlichting om 14:00 aan en bleef die hangen: "Turn off
-    # lights when lighter" triggert op numeric_state above 60, en die vuurt
-    # alleen bij een overgang - is het al 200 lux, dan komt er geen. Zelfde
-    # or-blok en kalibratie als "dark - arriving", die dezelfde sensor gebruikt.
+    # This check is only a proxy for "dark" - it can be true in daylight if a lamp
+    # is already on. The "lighter" trigger only fires on a transition, so it won't
+    # undo that. Same or-block and calibration as "dark - arriving" (same sensor).
     - condition: or
       alias: Dark enough - by light sensor, or by sun elevation if that is dead
       conditions:
@@ -1876,13 +1871,9 @@
       - media_player.eetkamer
       - media_player.office
       - media_player.living_room
-      # The Shed speaker. Three names for one box (RINCON_347E5C5077FE01400):
-      # the music hub calls it "Shed" via its Music Assistant entity
-      # media_player.office_ma_sonos, the garden pop-up calls it "Tuin", and the
-      # native Sonos entity below is named "Speakers Overkapping Sonos".
-      # Targeting the native Sonos one matches the three entries above and
-      # pauses it whichever way playback was started, since Music Assistant
-      # streams through this same player.
+      # The Shed speaker has three names for one box (RINCON_347E5C5077FE01400).
+      # Targeting the native Sonos entity here pauses it regardless of whether
+      # playback started via Music Assistant or Sonos directly.
       - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
     data: {}
   mode: single
@@ -2001,12 +1992,9 @@
           entity_id: light.dimmer_hall
         data: {}
       alias: Turn on hall light shortly
-  # Als if/then, niet als kale conditie: die kapte de rest van de actielijst af.
-  # Dubbel raak hier - de conditie was after 22:55 ZONDER before, dus het venster
-  # liep maar tot middernacht, terwijl de automation zelf tot 05:00 mag draaien.
-  # Good night om 00:30 liet de lampen aan en de input_boolean hieronder open.
-  # before: 05:00 laat het venster over middernacht wrappen, gelijk aan de
-  # buitenste conditie van deze automation.
+  # if/then, not a bare condition, which would abort the rest of the action list.
+  # before: 05:00 wraps the window past midnight, matching this automation's own
+  # outer condition (it previously stopped at midnight instead).
   - alias: Turn off the couch and corner light too if it's after 11 pm
     if:
     - condition: time
@@ -2239,7 +2227,7 @@
     target:
       entity_id:
       - light.hue_lights_garden
-  # Apart en achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Separate, and behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -2394,10 +2382,9 @@
     from:
     - 'off'
   conditions:
-  # Alleen de masterschakelaar hoort hier. De prijs-, temperatuur- en pompconditie
-  # stonden hier ook, en blokkeerden daarmee de default:-tak die de WP uitzet -
-  # juist op de momenten dat dat moet (goedkoop uur voorbij, circulatiepomp uit,
-  # te koud). Ze staan al in de aan-tak hieronder.
+  # Only the master switch belongs here. The price/temperature/pump conditions
+  # used to be here too, blocking the default: branch that turns the heat pump
+  # off exactly when it should. They already live in the on-branch below.
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
@@ -2409,8 +2396,8 @@
         state: 'on'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
-        # Was 14, maar de (nu verwijderde) top-level conditie eiste 15, dus 15 was
-        # de effectieve drempel. Hier gelijkgetrokken zodat het aan-gedrag niet wijzigt.
+        # Was 14, but the (now removed) top-level condition required 15, making
+        # 15 the effective threshold. Aligned here to keep the on-behavior unchanged.
         above: 15
       - condition: state
         entity_id: binary_sensor.pool_pump_active
@@ -2591,13 +2578,13 @@
     entity_id: sensor.water_daily
     above: 5
   conditions:
-  # De conditie die hier stond (numeric_state above 5) dupliceerde de trigger exact
-  # en kon dus nooit falen - dode code. Vervangen door de guard die wel iets doet.
+  # The condition that used to be here (numeric_state above 5) exactly duplicated
+  # the trigger, so it could never fail - dead code. Replaced with a real guard.
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
-    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
-    # en de melding gaat af zonder dat er iets veranderd is.
+    # A numeric_state trigger rearms after an HA restart or sensor blip: the value
+    # returns from unavailable to its old reading, which counts as a crossing, so
+    # the notification fires even though nothing actually changed.
     value_template: >
       {{ trigger is not defined
          or trigger.from_state is not defined
@@ -2768,10 +2755,9 @@
         data: {}
         target:
           entity_id: switch.climate_control
-    # Bewust geen default:-tak. Tussen 91% en 115% met warmte-/koelvraag blijft de
-    # huidige stand staan (dode band). Een default die uitschakelt maakte de
-    # 115%-drempel betekenisloos: bij vraag en prijs 100% viel hij hierdoorheen
-    # en ging de pomp toch uit. Alle echte uit-redenen staan in de tak hierboven.
+    # Deliberately no default: branch. Between 91% and 115% with heat/cool demand,
+    # the current state holds (dead band). A default that switches off would make
+    # the 115% threshold meaningless. All real off-reasons are in the branch above.
   trace:
     stored_traces: 20
   mode: single
@@ -3040,13 +3026,9 @@
   actions:
   - choose:
     - conditions:
-      # Was the same arithmetic inline, via
-      # `states.number.X.state | int(default=0) - states.sensor.Y.state | int(default=0)`.
-      # Two problems: object access raises if an entity is missing, and int(default=0)
-      # turns an unavailable source into 0 - the exact trap documented on
-      # sensor.pool_heating_temperature_diff in pkg_pool.yaml, which already computes
-      # this difference WITH an availability guard. Reusing it means an unavailable
-      # source makes this condition false instead of silently reading as a 0 diff.
+      # Reuses sensor.pool_heating_temperature_diff (pkg_pool.yaml) instead of inline
+      # arithmetic: int(default=0) silently turns an unavailable source into 0. That
+      # sensor's availability guard makes this condition false instead, when it happens.
       - condition: numeric_state
         entity_id: sensor.pool_heating_temperature_diff
         above: 0
@@ -3096,7 +3078,7 @@
   # `for:` is the whole point here. On a cold start the ph/rx probes still hold
   # yesterday's reading - or read nonsense because there is no flow past them yet
   # - and they only settle once water has circulated. Without the window every
-  # morning produced a false "waardes niet in orde" notification that had
+  # morning produced a false "values not OK" notification that had
   # corrected itself by the time it was read.
   - alias: Pump has been running for 30 minutes
     condition: state
@@ -3185,9 +3167,9 @@
   conditions:
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # Een numeric_state-trigger her-armeert na een HA-herstart of sensorblip: de
-    # sensor gaat van unavailable naar zijn oude waarde, dat telt als overschrijding
-    # en de melding gaat af zonder dat er iets veranderd is.
+    # A numeric_state trigger rearms after an HA restart or sensor blip: the value
+    # returns from unavailable to its old reading, which counts as a crossing, so
+    # the notification fires even though nothing actually changed.
     value_template: >
       {{ trigger is not defined
          or trigger.from_state is not defined
@@ -3206,10 +3188,10 @@
   description: When one of us is at home or the guest mode is enabled, keep the deck
     unlocked. Otherwise locked.
   triggers:
-  # to:/from: zijn nodig: zonder die filters vuurt een state-trigger ook op
-  # attribuut-updates, en person-entities krijgen bij elke GPS-fix nieuwe
-  # coordinaten/accuracy. Dat gaf 22 runs en 18 overbodige lock.unlock-calls in
-  # vijf uur op een dek dat al open stond.
+  # to:/from: are needed: without them a state trigger also fires on attribute
+  # updates, and person entities get new coordinates/accuracy on every GPS fix.
+  # That produced 22 runs and 18 redundant lock/unlock calls in five hours on a
+  # deck that was already open.
   - trigger: state
     entity_id:
     - person.rob
@@ -3223,8 +3205,8 @@
   - trigger: state
     entity_id:
     - input_boolean.guest_mode
-  # armed_night stond wel in de condities maar niet in de triggers, dus scherp
-  # zetten 's nachts vergrendelde het dek niet.
+  # armed_night was in the conditions but not the triggers, so arming at night
+  # did not lock the deck.
   - trigger: state
     entity_id: alarm_control_panel.alarmo
     to: armed_night
@@ -3334,11 +3316,10 @@
       night_brightness: 25
       no_motion_wait_night: 180
       night_time_end_helper: 08:00:00
-      # Bewust GEEN sleep_time_*_helper hier. De blueprint-defaults 23:30-06:00
-      # blijven staan, zodat de gang bij de kinderkamers 's nachts donker blijft -
-      # precies waar dat venster voor bedoeld is. night_brightness/no_motion_wait
-      # hierboven gelden daardoor alleen 22:00-23:30 en 06:00-08:00. Dat is de
-      # bedoeling; hal en douche/closet zetten het venster wel expres uit.
+      # Deliberately NO sleep_time_*_helper here. The blueprint defaults 23:30-06:00
+      # keep the hallway by the kids' rooms dark at night, which is the intent.
+      # night_brightness/no_motion_wait above therefore only apply 22:00-23:30 and
+      # 06:00-08:00; the hall and shower/closet do turn this window off on purpose.
 - id: '1690717695663'
   alias: BBQ - Timer notifications
   description: Warns us in case of the bbq timer runs out
@@ -3372,8 +3353,8 @@
   mode: single
 - id: '1720370000001'
   alias: BBQ - Dome alarm
-  description: Waarschuwt wanneer de BBQ dome temperatuur buiten het ingestelde bereik
-    komt
+  description: Warns when the BBQ dome temperature goes outside the configured
+    range
   triggers:
   - trigger: state
     entity_id: sensor.dome_alert_temp
@@ -3392,8 +3373,8 @@
       state: unknown
   - condition: template
     alias: Not alerted in the last minute
-    # `this` in plaats van het hardcoded states.automation-pad, zodat een rename
-    # de cooldown niet stil losmaakt van zijn eigen automation.
+    # `this` instead of the hardcoded states.automation path, so a rename does not
+    # silently detach the cooldown from its own automation.
     value_template: >
       {{ this is not defined
          or (as_timestamp(now())
@@ -3500,13 +3481,9 @@
   alias: Music - Control sonos bedroom
   description: ''
   triggers:
-  # State trigger on the event entity rather than a template trigger on its
-  # attributes. A template trigger fires only on a false->true transition, and
-  # pressing button_4 twice in a row leaves both attributes unchanged - the second
-  # press re-rendered `true` with no transition and so did nothing. The event
-  # entity's state is a timestamp that changes on every press, so this fires each
-  # time; the choose branch below filters to the button we care about, and the
-  # outer choose has no `default:`, so the extra firings are inert.
+  # State trigger on the event entity, not a template trigger on its attributes:
+  # the latter only fires on false->true, so pressing button_4 twice in a row
+  # would not re-fire. The event's timestamp state changes on every press instead.
   - trigger: state
     entity_id: event.hue_tap_switch_master_action
   - trigger: state
@@ -3661,12 +3638,9 @@
   mode: single
 - id: '1716736577091'
   alias: Frigate - AI camera description
-  # Deliberately left DISABLED. Renamed from "... / Notification TEST" - it is a
-  # complete ai_task feature, not scaffolding. The entity_id stays
-  # automation.frigate_generative_ai_notification_test because the registry pins
-  # entity_id to the automation id, which is also why disabling it survived the
-  # rename. Enabling it will double up with "Alarm - Notify of person events on
-  # camera" until the two are reconciled.
+  # Deliberately DISABLED - a complete feature despite the "_test" entity_id, which
+  # is pinned to the automation id and did not follow the rename. Enabling this
+  # will duplicate "Alarm - Notify of person events on camera" until reconciled.
   description: ''
   triggers:
   - trigger: mqtt
@@ -3765,7 +3739,7 @@
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
-  # Apart en achter de seizoensknop: zie input_boolean.kerstverlichting.
+  # Separate, and behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -3868,9 +3842,9 @@
       - sensor.runtime
       - sensor.winddir
       domains: weather
-      # Moet een YAML-lijst zijn. Als spatie-gescheiden string maakt cv.ensure_list
-      # er een enkele glob van ("sensor.*voltage* sensor.pool_..."), die op niets
-      # matcht - deze drie groepen werden dus stilzwijgend nooit gepurged.
+      # Must be a YAML list. As a space-separated string, cv.ensure_list turns it
+      # into one glob ("sensor.*voltage* sensor.pool_...") that matches nothing -
+      # these three groups were silently never purged.
       entity_globs:
       - sensor.*voltage*
       - sensor.pool_shelly_*_power
@@ -3929,19 +3903,14 @@
 - id: '1736593579794'
   alias: DHW - Correct the target temperature when it goes loko
   description: >-
-    Workaround: something overrules the DHW target temperature and leaves us with
-    cold water - the root cause was never diagnosed. Keep it until it is.
+    Workaround: something overrides the DHW target temperature and leaves us with
+    cold water - the root cause was never found. Compares against
+    sensor.dhw_target_setpoint, the setpoint the tank should have, which also
+    catches a too-low setpoint, not just too-high.
 
-    Herschreven 2026-09-17. Was: alles boven een hardgecodeerde 46 graden
-    terugzetten naar 45. Die drempel botst met de zonnesturing, die bewust naar
-    52 opwarmt, en zou elke opwarmbeurt binnen een minuut terugdraaien. Vergelijkt nu
-    tegen sensor.dhw_target_setpoint - het setpoint dat het vat volgens de
-    sturing hoort te hebben. Dat is strikt breder dan het origineel, want het
-    vangt ook een te LAAG overgenomen setpoint.
-
-    De is_number-guard is nodig omdat sensor.dhw_target_setpoint unavailable
-    wordt als de tanksensor wegvalt; dan valt er niets te vergelijken en mag er
-    zeker niets geschreven worden.
+    The is_number guard is needed because that sensor goes unavailable when the
+    tank sensor drops out, so nothing gets written when there is nothing to
+    compare against.
   triggers:
   - trigger: template
     value_template: >-
@@ -3991,10 +3960,10 @@
       night_time_end_helper: 07:00:00
       night_brightness: 100
       no_motion_wait_night: 300
-      # Sleep-venster uitgezet (zoals bij hal en douche/closet). Zonder deze twee
-      # gelden de blueprint-defaults 23:30-06:00 en draait de automation daar
-      # helemaal niet - terwijl de night_*-instellingen hierboven juist voor die
-      # uren bedoeld zijn. In de schuur slaapt niemand.
+      # Sleep window turned off (as with hall and shower/closet). Without these
+      # two, the blueprint defaults 23:30-06:00 apply and the automation would not
+      # run during the hours the night_* settings above are meant for. Nobody
+      # sleeps in the shed.
       sleep_time_start_helper: '23:59:59'
       sleep_time_end_helper: 00:00:01
 - id: shed_switch_sync
@@ -4056,9 +4025,9 @@
   conditions:
   - condition: template
     alias: Geluidsniveau niet her-armeerd vanuit unavailable/unknown
-    # Bewust alleen op de numeric_state-tak (trigger.id level): dit is
-    # kinderbewaking, dus een echte melding onderdrukken is erger dan een valse.
-    # De binary_sensor-triggers hierboven blijven volledig ongemoeid.
+    # Deliberately only on the numeric_state branch (trigger.id level): this is
+    # child monitoring, so suppressing a real alert is worse than a false one.
+    # The binary_sensor triggers above are left untouched.
     value_template: >
       {{ trigger is not defined
          or trigger.id != 'level'
@@ -4149,11 +4118,9 @@
   mode: single
 - id: doorbell_camera_popup
   alias: Deurbel - Popup camera bij bellen of persoon
-  description: 'Toont de voordeurcamera in een popup (browser_mod) zodra er wordt
-    aangebeld of een persoon wordt gedetecteerd. Gebruikt persoon-detectie i.p.v.
-    ruwe beweging om te voorkomen dat de popup bij elke auto/voorbijganger opent.
-
-    '
+  description: Shows the front door camera in a popup (browser_mod) when the
+    doorbell rings or a person is detected. Uses person detection rather than raw
+    motion so the popup does not open for every passing car or pedestrian.
   triggers:
   - trigger: state
     entity_id:
@@ -4190,15 +4157,11 @@
   mode: restart
 - id: pool_light_program_next
   alias: Zwembad - Volgend lichtprogramma
-  description: 'Roteert input_select.pool_light_program_options en stuurt het bijbehorende
-    PSxx-commando naar de PLP-REM-350. De input_button was er al maar werd door niets
-    opgepakt.
-
-    Bewust expliciet PSxx in plaats van het PsU-commando van de controller: HA bezit
-    de programmalijst, dus een programma direct adresseren houdt HA en de controller
-    gelijk, terwijl een cursor in de controller nergens teruggemeld wordt.
-
-    '
+  description: >-
+    Rotates input_select.pool_light_program_options and sends the matching PSxx
+    command to the PLP-REM-350. Uses PSxx (direct select) rather than the
+    controller's PsU (cursor) command, because HA owns the program list and the
+    controller never reports its cursor position back.
   triggers:
   - trigger: state
     entity_id: input_button.pool_light_program_next
@@ -4218,10 +4181,8 @@
   mode: single
 - id: pool_light_program_previous
   alias: Zwembad - Vorig lichtprogramma
-  description: 'Spiegelbeeld van "Zwembad - Volgend lichtprogramma"; zie die automation
-    voor de reden dat hier PSxx wordt gestuurd en niet PsD.
-
-    '
+  description: Mirror of "Zwembad - Volgend lichtprogramma"; see that automation
+    for why PSxx is sent here instead of PsD.
   triggers:
   - trigger: state
     entity_id: input_button.pool_light_program_previous
@@ -4242,15 +4203,14 @@
 - id: '1789600000001'
   alias: DHW - Plan het opwarmvenster
   description: >-
-    Bepaalt een keer per etmaal wanneer het tapwatervat opgewarmd wordt: rond de
-    zonnepiek als Solcast genoeg belooft, anders in het goedkoopste prijsblok
-    voor 16:00. Draait om 00:15, nadat Nordpool raw_today is doorgerold en de
-    Solcast-dagprognose beschikbaar is.
+    Decides once a day when to heat the DHW tank: around solar peak if Solcast
+    promises enough, otherwise in the cheapest price block before 16:00. Runs at
+    00:15, after Nordpool raw_today rolls over and the Solcast forecast is ready.
 
-    Bewust niet op live teruglevering sturen: zodra de pomp opwarmt trekt hij
-    ~1,5 kW, verdwijnt het overschot en klapt de conditie om. Dat pendelt. Een
-    vat van 200 liter is een trage buffer waar een opwarmbeurt uren op duurt -
-    die plan je vooruit.
+    Deliberately not driven by live solar surplus: once the pump heats it draws
+    ~1.5 kW, the surplus disappears and the condition flips, causing oscillation.
+    A 200-liter tank is a slow buffer that takes hours to heat, so this is
+    planned a day ahead instead.
   triggers:
   - trigger: time
     at: 00:15:00
@@ -4283,16 +4243,14 @@
 - id: '1789600000002'
   alias: DHW - Pas het setpoint toe
   description: >-
-    Schrijft sensor.dhw_target_setpoint naar de warmtepomp zodra die verandert.
-    Bewust dom: alle beslislogica zit in die sensor, zodat er precies een plek
-    is waar het gedrag te lezen en na te rekenen valt.
+    Writes sensor.dhw_target_setpoint to the heat pump whenever it changes.
+    Deliberately dumb: all decision logic lives in that sensor, so there is one
+    place to read and verify the behavior.
 
-    Schrijft naar de LOKALE daikin_altherma-entity, niet naar de Onecta-cloud:
-    die heeft een limiet van 200 API-calls per dag.
-
-    De is_number-guard vangt een unavailable tanktemperatuur af. De sensor wordt
-    dan zelf unavailable, en een state-trigger vuurt ook op die overgang - er mag
-    dan geen opdracht uitgaan.
+    Writes to the LOCAL daikin_altherma entity, not the Onecta cloud, which is
+    limited to 200 API calls per day. The is_number guard catches an unavailable
+    tank temperature: this sensor also goes unavailable then, and its own
+    state-trigger would otherwise fire a command on that transition.
   triggers:
   - trigger: state
     entity_id:
@@ -4312,18 +4270,16 @@
 - id: '1789600000003'
   alias: DHW - Waarschuw bij koud vat
   description: >-
-    Het vat hoort nooit lang onder 36 graden te staan: zelfs in de afkoelfase
-    verwarmt de Daikin uit zichzelf bij op ongeveer 4 K onder het setpoint van
-    40. Blijft hij toch 45 minuten koud, dan verwarmt de unit niet bij en is er
-    iets stuk. Alleen melden, niet ingrijpen - ingrijpen zou het echte probleem
-    maskeren.
+    The tank should never stay below 36 degrees for long: even while cooling, the
+    Daikin self-heats at about 4K below the 40-degree setpoint. If it stays cold
+    for 45 minutes, the unit is not reheating and something is broken. Notify
+    only, do not act - intervening would mask the real problem.
 
-    De from_state-guard is nodig omdat
-    sensor.domestichotwatertank_tank_temperature aantoonbaar naar unavailable
-    flikkert (8, 9 en 14 september 2026). Een blip of een herstart zet een
-    numeric_state-trigger opnieuw scherp, waarna een ongewijzigde waarde alsnog
-    vuurt. De platform-check staat er eerst omdat trigger.from_state
-    LoggingUndefined is voor niet-state-triggers.
+    The from_state guard is needed because this sensor is known to flicker to
+    unavailable (observed 8, 9 and 14 Sept 2026); a blip or restart rearms the
+    numeric_state trigger and it fires again on an unchanged value. The platform
+    check comes first because trigger.from_state is undefined for non-state
+    triggers.
   triggers:
   - trigger: numeric_state
     entity_id: sensor.domestichotwatertank_tank_temperature

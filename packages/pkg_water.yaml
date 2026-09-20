@@ -1,12 +1,5 @@
-# __        __    _
-# \ \      / /_ _| |_ ___ _ __
-#  \ \ /\ / / _` | __/ _ \ '__|
-#   \ V  V / (_| | ||  __/ |
-#    \_/\_/ \__,_|\__\___|_|
-#
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
-#
 
 counter:
   watermeter_consumption_counter:
@@ -33,15 +26,10 @@ utility_meter:
 
 template:
   - sensor:
-    # This is a monotonically rising total, not an instantaneous reading, so
-    # `measurement` had HA recording a meaningless mean and kept the sensor out
-    # of the Energy dashboard's water section. The 5 utility_meters above are
-    # unaffected either way - they track deltas and ignore state_class.
-    #
-    # `availability` matters more now than it did: under total_increasing a
-    # single `0` reading (unavailable counter falling through `float(0)`) reads
-    # as a meter reset, and the next real value would be counted as fresh
-    # consumption. Going unavailable never publishes that 0.
+    # Monotonically rising total, not an instantaneous reading — `measurement` had HA recording a meaningless mean and
+    # kept it out of the Energy dashboard's water section. `availability` matters under total_increasing: an unavailable
+    # counter falling through `float(0)` would read as a meter reset, counting the next real value as fresh consumption;
+    # going unavailable never publishes that 0.
     - unique_id: water_meter_total_m3
       name: Water Meter Total m3
       device_class: water
