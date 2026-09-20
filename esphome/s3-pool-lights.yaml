@@ -1,26 +1,6 @@
-# RS-485 control of the Duratech PLP-REM-350 pool light controller.
-# https://www.duratech.be/en/controller/plp-rem-350
-#
-# Replaces the M5StickC node `pool-lights` (esphome/archive/pool-lights.yaml)
-# on 2026-09-19. Only the *hardware* changed: an M5Stack AtomS3 with an ATOM
-# Tail485 instead of an M5StickC with the RS485 HAT. The PLP-REM protocol, the
-# paced write queue and the HA-facing entities below are carried over verbatim,
-# comments included - every one of those comments records something that was
-# learned the hard way on the StickC and is just as true here.
-#
-# What did NOT carry over, and why:
-#   - `light: status_led` on GPIO10. That was the StickC's red LED. The AtomS3
-#     has no discrete LED at all - the LCD is the indicator - so the entity
-#     light.<node>_led_light no longer exists. Nothing consumed it.
-#   - `binary_sensor` Button A + Button B on GPIO37/39. The AtomS3 has exactly
-#     one button: the whole display face. One `Button` entity below replaces the
-#     two; nothing consumed either of them.
-#   - `remote_transmitter` on GPIO9. Inherited by copy-paste from
-#     archive/pool-fairland-heatpump.yaml and never used by anything. The AtomS3
-#     does have an IR LED - on GPIO4, low-side driven through a 22R - so if a
-#     use ever turns up, `remote_transmitter: {pin: GPIO4}` is all it takes.
-#     Dropped here because nothing in HA ever sent through it.
-#   - `i2c:` on GPIO21/22. Nothing on this node ever read a device off it.
+# RS-485 control of Duratech PLP-REM-350; AtomS3+Tail485 replacement for the
+# StickC node `pool-lights` - protocol/queue/comments carried over verbatim.
+# Deliberately dropped as unused (do not re-add): status_led, Button A/B, remote_transmitter, i2c.
 
 substitutions:
   devicename: "s3-pool-lights"
@@ -87,11 +67,9 @@ api:
             id: send_plp
             cmd: !lambda 'return command;'
 
-# ATOM Tail485 uses the Grove port (TX/RX/5V/GND), not the bottom header:
-# AtomS3 Grove yellow=G2(TX), white=G1(RX) (confirmed via M5's Grove pin table
-# and schematic). Don't copy G5/G6 from other guides - that's the different
-# Atomic RS485 Base product. Neither pin is an S3 strapping pin (unlike the
-# StickC's original GPIO0 TX).
+# ATOM Tail485 uses the Grove port: AtomS3 yellow=G2(TX), white=G1(RX)
+# (confirmed via M5's Grove pin table). Don't copy G5/G6 from other guides -
+# that's the Atomic RS485 Base; unlike the StickC's GPIO0, neither pin here is a strapping pin.
 uart:
   id: mod_bus
   tx_pin: GPIO2
@@ -114,10 +92,8 @@ uart:
       - lambda: UARTDebug::log_string(direction, bytes);
 
 # script.send_plp enqueues; the interval below writes one command per 80ms
-# tick (timing from phendrickx/duratech_PLP-REM_RS485). Pacing avoids frames
-# merging into one unparseable blob (protocol has no terminator). Coalescing,
-# not `script: mode: queued`, because Bubble Card's slider fires calls with no
-# throttle - queued mode would drop the newest value, not the stale one.
+# tick, avoiding frames merging into one unparseable blob (no terminator in
+# this protocol). Coalescing, not `script: mode: queued`, keeps the latest value from a fast slider drag.
 globals:
   - id: plp_queue
     type: std::vector<std::string>
@@ -287,10 +263,9 @@ display:
     # Start true: ESPHome's generic GC9107 leaves this false, but its
     # M5STACK-ATOMS3R-GC9107 preset - the same 0.85" panel - sets it true.
     invert_colors: true
-    # First-boot unknowns needing the board in hand: rotation, invert_colors,
-    # color_order (bgr default), and offsets (try offset_width:0/offset_height:32
-    # if shifted - GC9107 preset vs M5GFX geometry disagree). Blank screen is a
-    # known bug (esphome#18815) - prove the panel with show_test_card first.
+    # First-boot unknowns (need board in hand): rotation, invert_colors,
+    # color_order (bgr default), offset_width/offset_height (GC9107 preset vs
+    # M5GFX geometry disagree). Blank screen = known bug esphome#18815; test with show_test_card first.
     rotation: 0°
     update_interval: 2s
     lambda: |-
