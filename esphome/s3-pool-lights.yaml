@@ -124,15 +124,15 @@ api:
   # Plain ASCII over RS-485 (9600 8N1), not Modbus - see LINK Driver manual.
   # pkg_pool.yaml drives light.pool_light via these: PDxxx (brightness),
   # PCrrrgggbbb (colour), PSxx (program 01-14) - both hand off to send_plp.
-  services:
-    - service: set_color
+  actions:
+    - action: set_color
       variables:
         color: string
       then:
         - script.execute:
             id: send_plp
             cmd: !lambda 'return color;'
-    - service: send_uart_command
+    - action: send_uart_command
       variables:
         command: string
       then:
