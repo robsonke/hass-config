@@ -309,14 +309,9 @@ binary_sensor:
     id: button_face
     name: Button
 
-# The node has no state of its own to show, so the only honest source of "are
-# the lights actually on" is the Shelly clamp on the lights' phase - the same
-# signal packages/pkg_pool.yaml trusts over the optimistic switch above.
-#
-# The StickC config imported sensor.pool_shelly_3em_active_power_phase_c, which
-# has been `unavailable` in HA for as long as the registry goes back: the live
-# entity is phase_c_power. That import fed nothing, so the breakage was
-# invisible. Here it drives the display, where a dead sensor is obvious.
+# No local on/off state; the Shelly clamp on the lights' phase (same signal
+# pkg_pool.yaml trusts) is the only honest "is it on" source - unlike the
+# StickC config, which imported a long-unavailable sensor alias that fed nothing.
 sensor:
   - platform: homeassistant
     name: "Power Usage Pool Lights"
@@ -333,12 +328,8 @@ font:
     size: 14
 
 # Built-in 0.85" 128x128 IPS panel, GC9107 controller.
-#
-# `model: GC9107` and not M5STACK-ATOMS3R-GC9107: that preset is for the
-# *AtomS3R*, a different product - it pins cs/dc/reset at 14/42/48 and declares
-# `requires: {psram}`, neither of which is true of this board. The generic
-# GC9107 model carries the panel's own geometry (128x128, offset 2/1) and
-# leaves the wiring to us.
+# Use `model: GC9107`, NOT M5STACK-ATOMS3R-GC9107 - that preset is for the
+# AtomS3R (wrong pins, requires psram); the generic GC9107 fits this board.
 display:
   - platform: mipi_spi
     model: GC9107
@@ -348,20 +339,10 @@ display:
     # Start true: ESPHome's generic GC9107 leaves this false, but its
     # M5STACK-ATOMS3R-GC9107 preset - the same 0.85" panel - sets it true.
     invert_colors: true
-    # Knobs to expect to touch on first boot, none of which can be settled
-    # without the board in hand:
-    #   rotation      0/90/180/270, depending on how the Tail485 makes you
-    #                 mount it.
-    #   invert_colors flip if the screen comes up as a negative.
-    #   color_order   defaults to bgr; flip to rgb if red and blue swap. No
-    #                 primary source states this panel's true order.
-    #   offsets       the GC9107 model bakes in 128x128 @ offset 2/1, but
-    #                 M5's own M5GFX drives this panel as 128x160 @ offset_y 32
-    #                 and the two cannot both be right. If the image sits
-    #                 shifted, try offset_width: 0 / offset_height: 32.
-    # If it comes up blank rather than wrong, that is a known one: esphome
-    # issue #18815, still open, against this GC9107 preset family. Prove the
-    # panel with `show_test_card: true` before blaming the lambda.
+    # First-boot unknowns needing the board in hand: rotation, invert_colors,
+    # color_order (bgr default), and offsets (try offset_width:0/offset_height:32
+    # if shifted - GC9107 preset vs M5GFX geometry disagree). Blank screen is a
+    # known bug (esphome#18815) - prove the panel with show_test_card first.
     rotation: 0°
     update_interval: 2s
     lambda: |-
