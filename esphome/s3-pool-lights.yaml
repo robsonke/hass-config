@@ -140,25 +140,43 @@ api:
             id: send_plp
             cmd: !lambda 'return command;'
 
-# Hat2-Bus (2.54-16P) pins 10 and 12 = GPIO43 / GPIO44, per the PinMap table
-# on docs.m5stack.com/en/core/StickS3 and the schematic's EXT_GPIO43/EXT_GPIO44
-# nets. These are the S3's native UART0 pins - see the logger block above,
-# which has to be moved off them.
+# The RS-485 HAT is the legacy M5StickC one (U067, SP485EEN + AOZ1282CI),
+# plugged straight onto the StickS3's Hat2-Bus. M5Stack publishes no HAT of any
+# kind for this board, so nothing about this combination is documented; the pin
+# mapping below is derived from the U067 schematic and the StickS3 schematic
+# (K150 V0.6) read side by side.
 #
-# The StickC's G0/G26 do not exist on this header. The one pin that *is* GPIO0
-# (Hat2 pin 5, "Boot") is both an S3 strapping pin and actively driven by the
-# M5PM1's open-drain BOOT_OUT, so it must not be used as TX. G43/G44 are clean.
+# The Hat2-Bus is a 2x8 socket whose odd-numbered row repeats the StickC's old
+# 8-pin order. All five power pins therefore land correctly (GND, EXT_5V, BAT,
+# 3V3_L2, 5V_IN) - that part looks deliberate. The two signal pins do not:
+#
+#   HAT position 5, the Stick's TX (was GPIO0 on a StickC) -> GPIO8
+#   HAT position 3, the Stick's RX (was GPIO26)            -> Boot / GPIO0
+#
+# So TX is GPIO8, not GPIO43. G43/G44 are on the *even* row and a plugged-in
+# HAT never touches them.
+#
+# `rx_pin` is deliberately absent. Its pin is GPIO0 - an ESP32-S3 strapping pin
+# - and the SP485EEN's receiver output drives push-pull, so configuring it
+# would be pointing a driven line at the boot strap for no gain: the
+# PLP-REM-350 answers nothing, so there has never been anything to receive.
+#
+# The transceiver still drives GPIO0 physically whenever it has power. At rest
+# an idle RS-485 line holds RO high, which is the normal-boot level, so this is
+# benign. Note the HAT echoes our own transmissions back on RO (the archived
+# StickC config hit exactly that - see the modbus note below), so the one bad
+# case is a reset landing mid-transmission: the node would come up in download
+# mode. If it ever boots strangely, unplug the HAT and power-cycle.
 uart:
   id: mod_bus
-  tx_pin: GPIO43
-  rx_pin: GPIO44
+  tx_pin: GPIO8
   baud_rate: 9600
   data_bits: 8
   stop_bits: 1
   parity: NONE
   debug:
-    direction: BOTH
-    dummy_receiver: false
+    # TX, not BOTH: there is no rx_pin to observe.
+    direction: TX
     # Was `delimiter: "\n"`, which never fires: the PLP-REM-350 command set has
     # no terminator and the controller never replies, so frames just queued up
     # and flushed together as one blob ("PS01PL1PS01"). Flush on a short idle
