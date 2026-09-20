@@ -60,27 +60,17 @@ packages:
   common: !include .common.yaml
 
 logger:
-  # DEBUG is the minimum level at which the uart debug block below actually
-  # emits frames (UARTDebug::log_string uses ESP_LOGD). At INFO the debug block
-  # is configured but silent, which is why the bus looked like a black box.
-  # Drop back to INFO once the protocol is settled.
-  #
-  # No `baud_rate: 0` / `hardware_uart: UART0` here, unlike the StickC config:
-  # there the log UART and the RS-485 UART were fighting over the same pins. The
-  # AtomS3 logs over its native USB-CDC, which shares nothing with the Tail485.
+  # DEBUG is needed for the uart debug block below to actually emit (ESP_LOGD);
+  # INFO stays silent. No baud_rate/hardware_uart override needed: logging uses
+  # USB-CDC, which shares no pins with the Tail485 UART.
   level: DEBUG
 
 api:
   encryption:
     key: !secret api_key
-  # The PLP-REM-350 takes plain ASCII strings over RS-485 (9600 8N1), not
-  # Modbus - see the command table in the LINK Driver manual. These two generic
-  # pass-throughs are what packages/pkg_pool.yaml drives light.pool_light with:
-  # PDxxx for brightness, PCrrrgggbbb for colour, PSxx for a program (01-14).
-  # Exposed in HA as esphome.s3_pool_lights_* (see friendly_name above).
-  # Both hand off to script.send_plp rather than touching the bus directly -
-  # see that script for why the pacing matters. They are otherwise identical;
-  # there are two names only because pkg_pool.yaml already calls both.
+  # Plain ASCII over RS-485 (9600 8N1), not Modbus - see LINK Driver manual.
+  # pkg_pool.yaml drives light.pool_light via these: PDxxx (brightness),
+  # PCrrrgggbbb (colour), PSxx (program 01-14) - both hand off to send_plp.
   services:
     - service: set_color
       variables:
@@ -97,24 +87,11 @@ api:
             id: send_plp
             cmd: !lambda 'return command;'
 
-# ATOM Tail485 (https://docs.m5stack.com/en/atom/tail485). It hangs off the
-# HY2.0-4P *Grove* port, not the bottom header - the Tail485 carries only four
-# signals (TX, RX, 5V, GND) and G26/G32 are not on the Atom Lite's bottom
-# "PIN Interface" (G19/G21/G22/G23/G25/G33) at all.
-#
-# So the translation from archive/pool-lights-atom.yaml - the Atom Lite bench
-# rig that first proved this protocol - is Grove-to-Grove:
-#   Atom Lite Grove: yellow = G26 (TX), white = G32 (RX)
-#   AtomS3    Grove: yellow = G2  (TX), white = G1  (RX)
-# Confirmed against M5's AtomS3 Grove pin table, the AtomS3 schematic netlist
-# (J6 pin1 = GPIO1, pin2 = GPIO2) and M5Unified's Port-A table.
-#
-# Do NOT copy G5/G6 from an "M5 + RS485" example you find: those belong to the
-# *Atomic RS485 Base*, a different product that uses the bottom 1x5 header
-# (3V3/G5/G6/G7/G8). Several write-ups conflate the two.
-#
-# Neither G1 nor G2 is an ESP32-S3 strapping pin (those are GPIO0/3/45/46), so
-# the StickC's original sin - TX on GPIO0 - does not recur here.
+# ATOM Tail485 uses the Grove port (TX/RX/5V/GND), not the bottom header:
+# AtomS3 Grove yellow=G2(TX), white=G1(RX) (confirmed via M5's Grove pin table
+# and schematic). Don't copy G5/G6 from other guides - that's the different
+# Atomic RS485 Base product. Neither pin is an S3 strapping pin (unlike the
+# StickC's original GPIO0 TX).
 uart:
   id: mod_bus
   tx_pin: GPIO2
