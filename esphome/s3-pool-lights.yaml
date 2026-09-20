@@ -28,6 +28,25 @@ esphome:
   friendly_name: S3 Pool Lights
   comment: "RS485 Pool light control"
   min_version: 2026.4.0
+  on_boot:
+    # Default priority (600) is after the i2c bus comes up at BUS priority, so
+    # the PMIC is reachable here.
+    then:
+      - lambda: |-
+          // Register 0x09: the M5PM1 sleeps its I2C interface when idle and
+          // then stops ACKing. Clear it first or the write below is lost.
+          id(m5pm1).write_byte(0x09, 0x00);
+          // PWR_CFG bit 3 = EXT_5V boost. Read-modify-write rather than
+          // writing 0x1F blind: the same register also holds CHG_EN and the
+          // two 3V3 rail enables, and clobbering those would be exciting.
+          uint8_t cfg;
+          if (id(m5pm1).read_byte(0x06, &cfg)) {
+            id(m5pm1).write_byte(0x06, cfg | 0x08);
+            ESP_LOGI("m5pm1", "PWR_CFG 0x%02X -> 0x%02X (EXT_5V on)", cfg,
+                     cfg | 0x08);
+          } else {
+            ESP_LOGE("m5pm1", "no ACK from PMIC at 0x6E - hat 5V stays OFF");
+          }
 
 esp32:
   # ESPHome 2026.9 has no m5stick-s3 board entry and neither does PlatformIO,
@@ -53,6 +72,40 @@ esp32:
 # device-level api:/ota:/logger: blocks silently discarded the shared ones.
 packages:
   common: !include .common.yaml
+
+# ---------------------------------------------------------------------------
+# M5PM1 power management. THIS IS WHAT MAKES THE RS-485 HAT WORK.
+#
+# The Hat2-Bus 5V pin (EXT_5V, pin 3) is dead at power-on. It is fed by the
+# M5PM1's 5V boost, and that boost is bit 3 of PWR_CFG (register 0x06), whose
+# reset value is 0x17 - bit 3 clear. M5Stack's own docs say so plainly: "In the
+# default initialization of M5Unified, EXT_5V_EN is disabled. This operation
+# turns off the power supply to the Grove, Hat EXT_5V interfaces, and IR
+# TX/RX."
+#
+# An RS-485 HAT takes its logic supply from that 5V pin. So without the write
+# below the transceiver is simply unpowered: the node boots, the queue drains,
+# the UART dutifully clocks bytes out of GPIO43 - and absolutely nothing
+# reaches the bus, in either A/B orientation. That is exactly the symptom this
+# file was debugged against, and no amount of swapping wires fixes it.
+#
+# Note 3V3_L2 (Hat2 pin 13) is always live - it is the rail the ESP32-S3 itself
+# runs on - so a HAT that only needs 3V3 would have worked all along. Ours does
+# not.
+i2c:
+  id: bus_a
+  sda: GPIO47
+  scl: GPIO48
+  # scan on purpose: the boot log then lists 0x6E (M5PM1), 0x68 (BMI270) and
+  # 0x18 (ES8311). If 0x6E is missing, the writes below are going nowhere and
+  # that is the first thing to check.
+  scan: true
+
+i2c_device:
+  - id: m5pm1
+    address: 0x6E
+
+# ---------------------------------------------------------------------------
 
 logger:
   # DEBUG is needed for the uart debug block below to actually emit (ESP_LOGD);
