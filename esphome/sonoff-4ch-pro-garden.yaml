@@ -82,11 +82,6 @@ api:
 # authenticates OTA with the api encryption key instead of a password, and the
 # two cannot be combined - ESPHome rejects the merged config with "'password'
 # cannot be combined with 'encryption'".
-#
-# That also retires sonoff_garden_ota_password, which was committed to a public
-# repo in plaintext and has been compromised ever since. Nothing inherits it
-# any more, so it can be dropped from esphome/secrets.yaml.
-
 sprinkler:
   - id: controller
     main_switch: "Irrigation Main Switch"
