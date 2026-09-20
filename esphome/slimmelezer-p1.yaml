@@ -30,7 +30,7 @@ logger:
 
 # Enable Home Assistant API
 api:
-  services:
+  actions:
     service: set_dsmr_key
     variables:
       private_key: string
