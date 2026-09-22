@@ -1201,7 +1201,7 @@ views:
             modules: [bubble_neon_icon_only]
             state_content: >-
               {%- set usage = states('sensor.net_power_consumption') | float(0) -%}
-              {%- set prod = (states('sensor.solaredge_dc_power') | float(0)) / 1000 -%}
+              {%- set prod = (states('sensor.solaredge_ac_power') | float(0)) / 1000 -%}
               {%- set price = states('sensor.current_price_electricity') | float(0) -%}
               {{ '-' ~ ('%.2f' | format(usage | abs)) ~ ' / +' ~ ('%.2f' | format(prod)) ~ ' kW · €' ~ ('%.2f' | format(price)) }}
             styles: |
@@ -1213,7 +1213,7 @@ views:
                 opacity: 1 !important;
                 background-color: ${(() => {
                   const usage = parseFloat(hass.states['sensor.net_power_consumption']?.state);
-                  const prod = (parseFloat(hass.states['sensor.solaredge_dc_power']?.state) || 0) / 1000;
+                  const prod = (parseFloat(hass.states['sensor.solaredge_ac_power']?.state) || 0) / 1000;
                   if (isNaN(usage)) return 'transparent';
                   const diff = prod - usage;                             /* >0 = producing more than using */
                   if (diff > 0.2) return 'rgba(70, 200, 120, 0.45)';     /* green */
@@ -1247,7 +1247,7 @@ views:
                 height: 5px; border-radius: 999px; z-index: 2; pointer-events: none;
                 background: ${(() => {
                   const usage = parseFloat(hass.states['sensor.net_power_consumption']?.state);
-                  const prod = (parseFloat(hass.states['sensor.solaredge_dc_power']?.state) || 0) / 1000;
+                  const prod = (parseFloat(hass.states['sensor.solaredge_ac_power']?.state) || 0) / 1000;
                   let cov = (usage > 0) ? (prod / usage * 100) : 100;
                   cov = Math.max(0, Math.min(100, cov)).toFixed(0);
                   return `linear-gradient(90deg, #46c77a ${cov}%, rgba(255,255,255,0.13) ${cov}%)`;

@@ -1,0 +1,175 @@
+blueprint:
+  name: Zigbee2MQTT switch - toggle and hold to dim
+  description: >-
+    Drive one or more lights from a Zigbee2MQTT action event entity. A short press toggles, holding ramps the
+    brightness, releasing stops the ramp. Replaces the ControllerX AppDaemon apps for switches that cannot be
+    bound directly at the Zigbee level.
+  domain: automation
+  author: Rob Sonke
+  source_url: https://github.com/robsonke/hass-config/blob/master/blueprints/automation/robsonke/z2m-switch-light.yaml
+  homeassistant:
+    min_version: "2024.10.0"
+  input:
+    devices:
+      name: Devices
+      icon: mdi:light-switch
+      input:
+        controller:
+          name: Switch
+          description: The Zigbee2MQTT action event entity of the switch.
+          selector:
+            entity:
+              domain: event
+        button:
+          name: Button
+          description: >-
+            Which button to react to, matched against the event entity's button attribute. Leave on "any" when
+            every button of the switch should drive the same light.
+          default: any
+          selector:
+            select:
+              custom_value: true
+              options:
+                - any
+                - left
+                - right
+                - button_1
+                - button_2
+                - button_3
+                - button_4
+        lights:
+          name: Light(s)
+          selector:
+            entity:
+              domain: light
+              multiple: true
+    tuning:
+      name: Dimming
+      icon: mdi:brightness-6
+      collapsed: true
+      input:
+        dim_step:
+          name: Step size
+          description: Brightness change per step while a button is held.
+          default: 10
+          selector:
+            number:
+              min: 1
+              max: 25
+              step: 1
+              unit_of_measurement: "%"
+        dim_interval:
+          name: Step interval
+          description: Delay between steps while a button is held.
+          default: 0.35
+          selector:
+            number:
+              min: 0.1
+              max: 2
+              step: 0.05
+              unit_of_measurement: s
+        debounce:
+          name: Debounce
+          description: >-
+            Ignore a second short press landing within this window of the light actually changing. Only needed
+            for a switch that reports every actuation twice, which a wall module in a rocker mode does. Off by
+            default: the modules here are all on push-button modes and report once.
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 2
+              step: 0.05
+              unit_of_measurement: s
+        max_steps:
+          name: Safety cap
+          description: >-
+            Maximum steps in a single hold. Ends the ramp when the stop event never arrives, which a dropped
+            Zigbee packet can cause.
+          default: 40
+          selector:
+            number:
+              min: 5
+              max: 200
+              step: 5
+
+# single, not restart: the switch resends hold about every 800 ms, and restarting would recompute the ramp
+# direction each time, reversing it the moment brightness crosses half. Dropped reruns keep one direction.
+mode: single
+max_exceeded: silent
+
+triggers:
+  - trigger: state
+    entity_id: !input controller
+    # Event entities restore their last timestamp and attributes on startup, so an unguarded trigger replays the
+    # last press as a real one. Measured on hue_hall_switch: five such restores in five days.
+    not_from:
+      - unknown
+      - unavailable
+    not_to:
+      - unknown
+      - unavailable
+
+variables:
+  controller_id: !input controller
+  want_button: !input button
+  light_ids: !input lights
+  step: !input dim_step
+  interval: !input dim_interval
+  cap: !input max_steps
+  debounce: !input debounce
+  action_type: "{{ trigger.to_state.attributes.event_type | default('', true) }}"
+  action_button: "{{ trigger.to_state.attributes.button | default('any', true) }}"
+  first_light: >-
+    {{ (light_ids if light_ids is sequence and light_ids is not string else [light_ids]) | first }}
+  # The duplicate press arrives after the light has already changed, so the light's own last_changed is the
+  # marker to debounce against. 999 when the entity is gone, which lets the press through rather than swallow it.
+  since_light_change: >-
+    {{ 999 if states[first_light] is none
+       else (now() - states[first_light].last_changed).total_seconds() | round(3) }}
+  # brightness_move_* carries its own direction. A plain hold has none, so pick it from the current level, which
+  # makes consecutive holds alternate the way ControllerX's hold_brightness_toggle did.
+  ramp_up: >-
+    {{ action_type == 'brightness_move_up'
+       or (action_type != 'brightness_move_down'
+           and (not is_state(first_light, 'on')
+                or (state_attr(first_light, 'brightness') | float(0)) < 128)) }}
+
+conditions:
+  - condition: template
+    value_template: "{{ want_button == 'any' or action_button == want_button }}"
+
+actions:
+  - choose:
+      - alias: Short press toggles
+        conditions:
+          - condition: template
+            value_template: >-
+              {{ action_type == 'press_release'
+                 and (debounce <= 0 or since_light_change > debounce) }}
+        sequence:
+          - action: light.toggle
+            target:
+              entity_id: !input lights
+      - alias: Hold ramps the brightness
+        conditions:
+          - condition: template
+            value_template: "{{ action_type in ['hold', 'brightness_move_up', 'brightness_move_down'] }}"
+        sequence:
+          - repeat:
+              sequence:
+                - action: light.turn_on
+                  target:
+                    entity_id: !input lights
+                  data:
+                    brightness_step_pct: "{{ step if ramp_up else -step }}"
+                - delay:
+                    milliseconds: "{{ (interval * 1000) | int }}"
+              while:
+                # In single mode the release event is dropped rather than delivered, so the loop watches the
+                # switch itself. Worst case it overruns by one interval; a lost release falls through to the cap.
+                - condition: template
+                  value_template: >-
+                    {{ repeat.index < cap
+                       and state_attr(controller_id, 'event_type')
+                           not in ['hold_release', 'press_release', 'brightness_stop'] }}

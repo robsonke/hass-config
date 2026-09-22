@@ -1,18 +1,20 @@
 # Energy dashboard helpers backing the #energie pop-up: live self-sufficiency/self-consumption %
 # and cheapest/priciest moment today (from Nordpool raw_today).
-# Units: solaredge_dc_power is W (÷1000); power_consumed/produced are grid import/export kW;
-# net_power_consumption is HOME load kW. Markup comes from input_number.energy_markup (pkg_energy.yaml).
+# Units: solaredge_ac_power is W (÷1000); net_power_consumption is HOME load kW. Grid import/export come from
+# the per-phase kW sensors, never the aggregate power_consumed/produced — those carry an ESPHome `delta: 1`
+# filter on a kW sensor (slimmelezer-p1.yaml ~78), a 1000 W deadband. Markup: input_number.energy_markup.
 
 template:
   - sensor:
-      # solar production in kW (solaredge_dc_power is W) — for the gauge
+      # solar production in kW (solaredge_ac_power is W) — for the gauge. AC not DC: DC is pre-inverter, so it
+      # disagrees with both the Energy Dashboard (which totals AC) and the AC-side export used below.
       - name: Solar power now kW
         unique_id: solar_power_now_kw
         unit_of_measurement: kW
         state_class: measurement
         device_class: power
         state: >
-          {{ (states('sensor.solaredge_dc_power') | float(0) / 1000) | round(2) }}
+          {{ (states('sensor.solaredge_ac_power') | float(0) / 1000) | round(2) }}
 
       # % of the house's current load covered by own solar (rest from grid)
       - name: Energy self sufficiency now
@@ -22,7 +24,7 @@ template:
         icon: mdi:home-lightning-bolt
         state: >
           {% set home = states('sensor.net_power_consumption') | float(0) %}
-          {% set imp = states('sensor.power_consumed') | float(0) %}
+          {% set imp = states('sensor.grid_power_in') | float(0) %}
           {% set v = (100 * (home - imp) / home) if home > 0.05 else 0 %}
           {{ [[v, 0] | max, 100] | min | round(0) }}
 
@@ -33,8 +35,8 @@ template:
         state_class: measurement
         icon: mdi:solar-power
         state: >
-          {% set solar = states('sensor.solaredge_dc_power') | float(0) / 1000 %}
-          {% set exp = states('sensor.power_produced') | float(0) %}
+          {% set solar = states('sensor.solaredge_ac_power') | float(0) / 1000 %}
+          {% set exp = states('sensor.grid_power_out') | float(0) %}
           {% set v = (100 * (solar - exp) / solar) if solar > 0.05 else 0 %}
           {{ [[v, 0] | max, 100] | min | round(0) }}
 

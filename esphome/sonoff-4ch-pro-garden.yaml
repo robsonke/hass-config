@@ -73,8 +73,8 @@ logger:
 
 # Enable Home Assistant API
 api:
-  services:
-    - service: next_valve
+  actions:
+    - action: next_valve
       then:
         - sprinkler.next_valve: controller
 

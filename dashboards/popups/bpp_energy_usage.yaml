@@ -13,8 +13,8 @@ icon: mdi:flash
 # header = current net power (amber = from grid, green = feed-in) + price
 entity: sensor.net_power_consumption
 state_content: >-
-  {%- set imp = states('sensor.power_consumed') | float(0) -%}
-  {%- set exp = states('sensor.power_produced') | float(0) -%}
+  {%- set imp = states('sensor.grid_power_in') | float(0) -%}
+  {%- set exp = states('sensor.grid_power_out') | float(0) -%}
   {%- set p = states('sensor.current_price_electricity') | float(-99999) -%}
   {%- if exp > 0.05 -%}{%- set o = (('%.1f' | format(exp)) | replace('.', ',')) ~ ' kW terug' -%}
   {%- elif imp > 0.05 -%}{%- set o = (('%.1f' | format(imp)) | replace('.', ',')) ~ ' kW van net' -%}
@@ -22,11 +22,11 @@ state_content: >-
   {%- endif -%}
   {{ o ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.13)' : 'rgba(45,170,115,0.14)'; })()} !important; }
-  .bubble-icon-container { background-color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const imp = parseFloat(hass.states['sensor.grid_power_in']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.13)' : 'rgba(45,170,115,0.14)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const imp = parseFloat(hass.states['sensor.grid_power_in']?.state); return (isFinite(imp) && imp > 0.05) ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
   .bubble-state {
     font-size: 14px !important; font-weight: 500;
-    color: ${(() => { const imp = parseFloat(hass.states['sensor.power_consumed']?.state); return (isFinite(imp) && imp > 0.05) ? '#f0cf8f' : '#9ed9bd'; })()} !important;
+    color: ${(() => { const imp = parseFloat(hass.states['sensor.grid_power_in']?.state); return (isFinite(imp) && imp > 0.05) ? '#f0cf8f' : '#9ed9bd'; })()} !important;
   }
 cards:
   # ── kosten ────────────────────────────────────────────────────────
@@ -101,14 +101,15 @@ cards:
     # at x=372); the extra width is its own SVG canvas. zoom: 0.8 was tried and changes nothing.
     entities:
       grid:
+        # Not power_consumed/power_produced: those carry a 1000 W deadband (see sensor.grid_power_in).
         entity:
-          consumption: sensor.power_consumed
-          production: sensor.power_produced
+          consumption: sensor.grid_power_in
+          production: sensor.grid_power_out
         invert_state: false
         use_metadata: false
         color_value: true
       solar:
-        entity: sensor.solaredge_dc_power
+        entity: sensor.solaredge_ac_power
         display_zero_state: true
       home:
         entity: sensor.net_power_consumption
@@ -370,7 +371,8 @@ cards:
     title: Energie totalen
     state_color: false
     entities:
-      - entity: sensor.power_consumed
+      - entity: sensor.grid_power_in
+        name: Vermogen van net
       - entity: sensor.daily_consumption_energy
         name: Netverbruik vandaag
         icon: mdi:transmission-tower-import

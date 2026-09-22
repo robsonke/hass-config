@@ -41,7 +41,9 @@ cards:
     name: Bediening
   - type: custom:alarmo-card
     entity: alarm_control_panel.alarmo
-  # pre-arm check: groen "Alles dicht" of amber "N open" (deuren/ramen)
+  # Pre-arm check. Counts exactly the ten sensors Alarmo monitors: the downstairs group plus the
+  # three upstairs windows it watches. Master bedroom windows, interior doors and the garden are
+  # deliberately not monitored, so they must not make this card say the house is not ready.
   - type: custom:bubble-card
     card_type: button
     button_type: name
@@ -50,20 +52,18 @@ cards:
     card_layout: large
     tap_action: { action: none }
     state_content: >-
-      {%- set n = states.binary_sensor
-           | selectattr('attributes.device_class','defined')
-           | selectattr('attributes.device_class','in',['door','window'])
-           | selectattr('state','eq','on')
-           | rejectattr('entity_id','eq','binary_sensor.doors_and_windows_upstairs')
-           | rejectattr('entity_id','search','pool_deck')
-           | list | count -%}
+      {%- set bewaakt = expand('binary_sensor.doors_and_windows_downstairs')
+           + expand(['binary_sensor.window_noaroom_openclose_contact',
+                     'binary_sensor.window_eva_openclose_contact',
+                     'binary_sensor.window_guestroom_openclose_contact']) -%}
+      {%- set n = bewaakt | selectattr('state','eq','on') | list | count -%}
       {{ (n ~ ' open — nog niet dicht') if n > 0 else 'Alles dicht — klaar' }}
     styles: |
-      .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.14)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-      .bubble-icon-container { background-color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
+      .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const n = [...(hass.states['binary_sensor.doors_and_windows_downstairs']?.attributes?.entity_id || []), 'binary_sensor.window_noaroom_openclose_contact', 'binary_sensor.window_eva_openclose_contact', 'binary_sensor.window_guestroom_openclose_contact'].filter(e => hass.states[e]?.state === 'on').length; return n > 0 ? 'rgba(240,195,95,0.14)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+      .bubble-icon-container { background-color: ${(() => { const n = [...(hass.states['binary_sensor.doors_and_windows_downstairs']?.attributes?.entity_id || []), 'binary_sensor.window_noaroom_openclose_contact', 'binary_sensor.window_eva_openclose_contact', 'binary_sensor.window_guestroom_openclose_contact'].filter(e => hass.states[e]?.state === 'on').length; return n > 0 ? 'rgba(240,195,95,0.20)' : 'rgba(45,170,115,0.20)'; })()} !important; }
       .bubble-name {
         font-size: 13.5px !important; font-weight: 500;
-        color: ${(() => { const n = Object.values(hass.states).filter(s => s.entity_id.startsWith('binary_sensor.') && ['door','window'].includes(s.attributes.device_class) && s.state === 'on' && !['binary_sensor.doors_and_windows_upstairs'].includes(s.entity_id) && !s.entity_id.includes('pool_deck')).length; return n > 0 ? '#f0cf8f' : '#9ed9bd'; })()} !important;
+        color: ${(() => { const n = [...(hass.states['binary_sensor.doors_and_windows_downstairs']?.attributes?.entity_id || []), 'binary_sensor.window_noaroom_openclose_contact', 'binary_sensor.window_eva_openclose_contact', 'binary_sensor.window_guestroom_openclose_contact'].filter(e => hass.states[e]?.state === 'on').length; return n > 0 ? '#f0cf8f' : '#9ed9bd'; })()} !important;
       }
   # ── voordeur ──────────────────────────────────────────────────────
   - type: custom:bubble-card

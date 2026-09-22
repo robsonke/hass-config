@@ -1,10 +1,22 @@
-# RETIRED 2026-09-19. Superseded by esphome/s3-pool-lights.yaml, which moved
-# this node's RS-485 control of the Duratech PLP-REM-350 from this M5StickC +
-# RS485 HAT onto an M5Stack AtomS3 + ATOM Tail485 at 192.168.0.112.
+# RETIRED 2026-09-19, proven replaced 2026-09-20. Superseded by
+# esphome/s3-pool-lights.yaml, which moved this node's RS-485 control of the
+# Duratech PLP-REM-350 from this M5StickC onto an **M5StickS3** at
+# 192.168.0.112. The RS485 HAT itself did not change - the same U067 moved
+# across - only the host board did.
+#
+# (An earlier version of this header said "AtomS3 + ATOM Tail485". That was
+# wrong, and it cost two days: the board was misidentified up front, so the
+# replacement config had every board-specific pin wrong and the RS-485 stayed
+# silent. Corrected here so the archive does not preserve the mistake.)
 #
 # Kept because the comments below are the record of how this protocol was
 # worked out - the new file carries them forward, but this is where the pin,
 # framework and framing decisions were actually paid for.
+#
+# Note the StickS3 needed one thing this board never did: its M5PM1 PMIC
+# leaves the HAT's 5V rail switched off at boot, so the transceiver is
+# unpowered until an I2C write enables it. On this StickC the HAT's 5V came up
+# by itself, which is why nothing here mentions it.
 #
 # To put the StickC back in service: `git mv esphome/archive/pool-lights.yaml
 # esphome/` and point packages/pkg_pool.yaml + the two "Zwembad -

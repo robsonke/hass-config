@@ -1203,7 +1203,7 @@
     attribute: azimuth
     above: 90
   - trigger: numeric_state
-    entity_id: sensor.solaredge_dc_power
+    entity_id: sensor.solaredge_ac_power
     above: 2000
     for:
       minutes: 5
@@ -1223,7 +1223,7 @@
     attribute: elevation
     above: 15
   - condition: numeric_state
-    entity_id: sensor.solaredge_dc_power
+    entity_id: sensor.solaredge_ac_power
     above: 2000
   - condition: numeric_state
     entity_id: sensor.solarradiation
@@ -1266,7 +1266,7 @@
     attribute: azimuth
     above: 253
   - trigger: numeric_state
-    entity_id: sensor.solaredge_dc_power
+    entity_id: sensor.solaredge_ac_power
     below: 800
     for:
       minutes: 15
@@ -1326,7 +1326,7 @@
     below: 6.5
     id: sundown
   - trigger: numeric_state
-    entity_id: sensor.solaredge_dc_power
+    entity_id: sensor.solaredge_ac_power
     below: 800
     for:
       minutes: 15
@@ -2290,7 +2290,7 @@
     attribute: azimuth
     above: 200
   - trigger: numeric_state
-    entity_id: sensor.solaredge_dc_power
+    entity_id: sensor.solaredge_ac_power
     above: 2000
     for:
       minutes: 5
@@ -2310,7 +2310,7 @@
     attribute: elevation
     above: 7
   - condition: numeric_state
-    entity_id: sensor.solaredge_dc_power
+    entity_id: sensor.solaredge_ac_power
     above: 2000
   - condition: numeric_state
     entity_id: sensor.solarradiation
@@ -3911,15 +3911,34 @@
     The is_number guard is needed because that sensor goes unavailable when the
     tank sensor drops out, so nothing gets written when there is nothing to
     compare against.
+
+    A setpoint of exactly 60 is not an override but the unit's own weekly
+    anti-legionella run - the tank hit 60 on 29 Aug, 5, 12 and 19 Sep 2026, all
+    Saturdays. Correcting it fights a safety cycle, and on 19 Sep the write was
+    ignored anyway: the tank kept climbing to 60. No flag marks that cycle -
+    Reheat, Storage eco, Storage comfort, Powerful DHW and Tank preheat all
+    stayed OFF across the 52 -> 60 jump - so the value itself is the only signal.
+    Hence two triggers: everything else is corrected after 5 minutes, a 60 only
+    after 2 hours, which is the backstop for one that sticks after the cycle.
   triggers:
+  # Any override other than the disinfection setpoint; corrected after 5 minutes.
   - trigger: template
     value_template: >-
-      {{ states('sensor.dhw_target_setpoint') | is_number
-         and (state_attr('water_heater.domestic_hot_water_tank',
-                         'temperature') | float(-1)
-              != states('sensor.dhw_target_setpoint') | float) }}
+      {% set want = states('sensor.dhw_target_setpoint') %}
+      {% set have = state_attr('water_heater.domestic_hot_water_tank',
+                               'temperature') | float(-1) %}
+      {{ want | is_number and have != (want | float) and have != 60 }}
     for:
       minutes: 5
+  # The disinfection setpoint: let the cycle finish, only correct a 60 that sticks.
+  - trigger: template
+    value_template: >-
+      {% set want = states('sensor.dhw_target_setpoint') %}
+      {% set have = state_attr('water_heater.domestic_hot_water_tank',
+                               'temperature') | float(-1) %}
+      {{ want | is_number and have != (want | float) and have == 60 }}
+    for:
+      hours: 2
   conditions: []
   actions:
   - action: persistent_notification.create
@@ -4303,3 +4322,171 @@
         states('sensor.domestichotwatertank_tank_temperature') }} °C). De
         warmtepomp verwarmt niet bij. Controleer de unit.
   mode: single
+
+# Zigbee2MQTT wall switches and remotes. These replace the ControllerX AppDaemon apps; remove an app from
+# appdaemon/apps/apps.yaml as you enable its automation here, or every press fires twice.
+- id: switch_master_main
+  alias: Switches - Master bedroom main light
+  description: Tap dial button 2.
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_tap_switch_master_action
+      button: button_2
+      lights:
+      - light.dimmer_masterbed
+- id: switch_master_closetbath
+  alias: Switches - Master bedroom closet and bathroom
+  description: Tap dial button 1.
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_tap_switch_master_action
+      button: button_1
+      lights:
+      - light.dimmer_master_closetbath
+- id: switch_master_bed
+  alias: Switches - Master bedroom bed light
+  description: Tap dial button 3.
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_tap_switch_master_action
+      button: button_3
+      lights:
+      - light.bedroom_sonos_light
+- id: switch_bathroom
+  alias: Switches - Bathroom
+  description: Both rockers drive the bathroom light.
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_bathroom_switch_action
+      button: any
+      lights:
+      - light.dimmer_bathroom
+- id: switch_hall_right
+  alias: Switches - Hall right, downstairs hall
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_hall_switch_action
+      button: right
+      lights:
+      - light.dimmer_hall
+- id: switch_hall_left
+  alias: Switches - Hall left, upstairs corridor
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_hall_switch_action
+      button: left
+      lights:
+      - light.dimmer_corridor
+- id: switch_corridor1_left
+  alias: Switches - Corridor 1 left, downstairs hall
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_corridor_switch_action
+      button: left
+      lights:
+      - light.dimmer_hall
+- id: switch_corridor1_right
+  alias: Switches - Corridor 1 right, upstairs corridor
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_corridor_switch_action
+      button: right
+      lights:
+      - light.dimmer_corridor
+- id: switch_corridor2
+  alias: Switches - Corridor 2, upstairs corridor
+  description: Both rockers drive the upstairs corridor light.
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_corridor2_switch_action
+      button: any
+      lights:
+      - light.dimmer_corridor
+- id: switch_eva
+  alias: Switches - Eva's room
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_eva_switch_action
+      button: any
+      lights:
+      - light.dimmer_eva
+- id: switch_noa
+  alias: Switches - Noa's room
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_noa_switch_action
+      button: any
+      lights:
+      - light.dimmer_noa
+- id: switch_guestroom
+  alias: Switches - Guest room
+  use_blueprint:
+    path: robsonke/z2m-switch-light.yaml
+    input:
+      controller: event.hue_guestroom_switch_action
+      button: any
+      lights:
+      - light.dimmer_guestroom
+- id: switch_office
+  alias: Switches - Office
+  description: >-
+    IKEA Styrbar. Rocker and its hold both switch outright, the arrows step the brightness, matching the old
+    ControllerX mapping. The colour actions its defaults added were no-ops on this brightness-only light.
+  triggers:
+  - trigger: state
+    entity_id: event.office_light_switch_action
+    not_from:
+    - unknown
+    - unavailable
+    not_to:
+    - unknown
+    - unavailable
+  variables:
+    action_type: "{{ trigger.to_state.attributes.event_type | default('', true) }}"
+  actions:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ action_type in ['on', 'brightness_move_up'] }}"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.office_light
+    - conditions:
+      - condition: template
+        value_template: "{{ action_type in ['off', 'brightness_move_down'] }}"
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.office_light
+    - conditions:
+      - condition: template
+        value_template: "{{ action_type == 'arrow_right_click' }}"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.office_light
+        data:
+          brightness_step_pct: 10
+    - conditions:
+      - condition: template
+        value_template: "{{ action_type == 'arrow_left_click' }}"
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.office_light
+        data:
+          brightness_step_pct: -10
+  mode: restart
+  max_exceeded: silent

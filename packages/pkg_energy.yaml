@@ -315,6 +315,36 @@ template:
       device_class: energy
       state_class: total_increasing
       state: "{{ states('sensor.yearly_energy_offpeak')|float(0) + states('sensor.yearly_energy_peak')|float(0) }}"
+    # Grid import/export in kW, summed from the three phases. These exist because the aggregate
+    # power_consumed/power_produced carry an ESPHome `delta: 1` filter on a kW sensor (slimmelezer-p1.yaml
+    # ~78) — a 1000 W deadband that froze them for 40 min at a time. Use these anywhere a single grid
+    # entity is needed; the phase sensors are throttled to 5s with no deadband.
+    - unique_id: grid_power_in
+      name: "Grid power in"
+      icon: mdi:transmission-tower-export
+      unit_of_measurement: kW
+      device_class: power
+      state_class: measurement
+      availability: >
+        {{ ['sensor.power_consumed_phase_1', 'sensor.power_consumed_phase_2',
+            'sensor.power_consumed_phase_3'] | select('has_value') | list | count == 3 }}
+      state: >
+        {{ (['sensor.power_consumed_phase_1', 'sensor.power_consumed_phase_2',
+             'sensor.power_consumed_phase_3'] | map('states') | map('float', 0) | sum) | round(3) }}
+
+    - unique_id: grid_power_out
+      name: "Grid power out"
+      icon: mdi:transmission-tower-import
+      unit_of_measurement: kW
+      device_class: power
+      state_class: measurement
+      availability: >
+        {{ ['sensor.power_produced_phase_1', 'sensor.power_produced_phase_2',
+            'sensor.power_produced_phase_3'] | select('has_value') | list | count == 3 }}
+      state: >
+        {{ (['sensor.power_produced_phase_1', 'sensor.power_produced_phase_2',
+             'sensor.power_produced_phase_3'] | map('states') | map('float', 0) | sum) | round(3) }}
+
     - unique_id: net_power_consumption
       name: "Net Power Consumption"
       # Top-level key, not an `attributes:` entry - as an attribute it set nothing.
@@ -322,7 +352,14 @@ template:
       unit_of_measurement: kW
       device_class: power
       state_class: measurement
-      state: "{{ states('sensor.solaredge_dc_power')|float(default=0) / 1000 - states('sensor.power_produced')|float(default=0) + states('sensor.power_consumed')|float(default=0) }}"
+      # Home load = grid import - export + solar. Solar is AC, not DC: DC is pre-inverter and would overstate
+      # the home load by ~1.5% of production. Grid comes from the deadband-free helpers defined above.
+      availability: >
+        {{ has_value('sensor.grid_power_in') and has_value('sensor.grid_power_out')
+           and has_value('sensor.solaredge_ac_power') }}
+      state: >
+        {{ (states('sensor.grid_power_in') | float(0) - states('sensor.grid_power_out') | float(0)
+            + states('sensor.solaredge_ac_power') | float(0) / 1000) | round(3) }}
     # convert the uptime one to a real value
     - unique_id: ha_uptime
       name: 'HA uptime minutes'
@@ -442,3 +479,66 @@ template:
           {% set raw = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') %}
           {% set slots = ((16 * (raw | count)) / 24) | round(0) | int %}
           {{ (raw | map(attribute='value') | sort | list)[slots - 1] | round(4) }}
+
+  # Residual load: whole-house power minus every device the Energy Dashboard tracks. The dashboard shows this
+  # gap as an unnamed grey bar; as a live sensor it is something you can hunt with — flip a breaker, watch it
+  # drop. Measured 2026-09: ~185 W overnight, ~345 W evening.
+  - trigger:
+      # Polled rather than state-driven: the P1 meter updates ~1 Hz, and a state trigger would write ~86k
+      # recorder rows a day for this one sensor. 10s is responsive enough for breaker hunting.
+      - platform: time_pattern
+        seconds: /10
+    variables:
+      # Both lists must stay in step with the Energy Dashboard's device_consumption list (.storage/energy),
+      # which is edited in the UI and not in this repo — a device added there but not here inflates the residual.
+      measured:
+        - sensor.office_power
+        - sensor.shelly_plug_kachel_slaapkamer_power
+        - sensor.shelly_plug_s_6_meterkast1_power
+        - sensor.shelly_plug_s_7_meterkast2_power
+        - sensor.shelly_plug_s_8_fridge1_power
+        - sensor.shelly_plug_koelkast_power
+        - sensor.shelly_plug_droger_power
+        - sensor.easee_sonke_power
+        - sensor.shelly_plug_douche_verwarming_power
+        - sensor.shelly_plug_badkamer_verwarming_power
+        - sensor.pool_shelly_3em_phase_a_power
+        - sensor.pool_shelly_3em_phase_b_power
+        - sensor.pool_shelly_3em_phase_c_power
+        - sensor.shelly_warmtepomp_meter_total_active_power
+        - sensor.winecooler_switch_power
+        - sensor.shellyplugsg3_e4b063e46a84_power
+        - sensor.wasmachine_switch_power
+        - sensor.infrarood_noa_switch_power
+        - sensor.infrarood_eva_power
+      # Powercalc models, not measurements. Kept separate so their ~115 W overnight share of the subtraction
+      # stays visible: model error lands in the residual and would otherwise read as a phantom mystery load.
+      estimated:
+        - sensor.all_light_power
+        - sensor.all_housekeeping_entities_power
+        - sensor.all_media_player_power
+      # Home load comes from sensor.net_power_consumption (kW, defined earlier in this file): it already sums
+      # the grid phases and adds AC solar. One definition rather than two that drift apart, and its own
+      # availability guard covers the phase and solar dropouts on this sensor's behalf. x1000 for kW -> W.
+      house_w: "{{ states('sensor.net_power_consumption') | float(0) * 1000 }}"
+      measured_w: "{{ measured | map('states') | map('float', 0) | sum }}"
+      estimated_w: "{{ estimated | map('states') | map('float', 0) | sum }}"
+    sensor:
+      - name: Unmeasured power
+        unique_id: unmeasured_power
+        device_class: power
+        state_class: measurement
+        unit_of_measurement: W
+        # Unavailable rather than wrong: without grid or solar the house total is meaningless. Device sensors
+        # fall back to 0 instead, and `unavailable_inputs` counts them so a dropout shows up instead of hiding.
+        availability: "{{ has_value('sensor.net_power_consumption') }}"
+        # Deliberately not clamped at zero: a negative residual means over-subtraction — powercalc running hot,
+        # or a device counted twice — which is worth seeing rather than hiding behind a max(0).
+        state: >
+          {{ ((house_w | float(0)) - (measured_w | float(0)) - (estimated_w | float(0))) | round(1) }}
+        attributes:
+          house_w: "{{ house_w | float(0) | round(1) }}"
+          measured_w: "{{ measured_w | float(0) | round(1) }}"
+          estimated_w: "{{ estimated_w | float(0) | round(1) }}"
+          unavailable_inputs: >
+            {{ (measured + estimated) | select('is_state', 'unavailable') | list | count }}

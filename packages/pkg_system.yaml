@@ -164,6 +164,9 @@ binary_sensor:
   # Interior doors — deliberately separate: they say nothing about whether the house is
   # shut, and Alarmo ignores them. They have their own card in the doors pop-up but don't
   # count toward its header.
+  # All four groups here have a registry-pinned entity_id that drops the "all_" that `name`
+  # would otherwise produce. HA derives the id from `name`, not `unique_id`, so a new group
+  # lands as all_<name> until it is renamed in the registry once.
   - platform: group
     unique_id: interior_doors_downstairs
     name: All interior doors downstairs
