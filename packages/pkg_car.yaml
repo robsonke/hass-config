@@ -1,45 +1,47 @@
-# Car (BMW iX3) helpers.
-# cardata exposes ix3_service_next_inspection_date as a raw string ("01.06.2027 00:00:00 UTC"),
-# parsed via strptime and re-emitted as dd-mm-yyyy since a device_class: date sensor would render raw ISO.
+# Car (BMW iX3 50 xDrive) helpers.
 template:
   - sensor:
-      - name: "iX3 Next inspection date"
-        unique_id: ix3_next_inspection_date_short
-        icon: mdi:calendar-wrench
+      # cardata has no "energy to full" descriptor. battery_hv_energy_content is not the stored energy
+      # (it reads ~109.9 kWh at 92 % and at 99 % alike), so derive it from usable capacity and SOC instead.
+      - name: "iX3 50 xDrive Energy to full"
+        unique_id: ix3_50_xdrive_energy_to_full
+        unit_of_measurement: kWh
+        device_class: energy_storage
+        state_class: measurement
+        icon: mdi:lightning-bolt
+        availability: >
+          {{ has_value('sensor.ix3_50_xdrive_battery_hv_max_size')
+             and has_value('sensor.ix3_50_xdrive_battery_ev_state_of_charge') }}
         state: >
-          {% set d = strptime(states('sensor.ix3_service_next_inspection_date'),
-                              '%d.%m.%Y %H:%M:%S %Z', none) %}
-          {{ d.strftime('%d-%m-%Y') if d else 'onbekend' }}
+          {% set cap = states('sensor.ix3_50_xdrive_battery_hv_max_size') | float(0) %}
+          {% set soc = states('sensor.ix3_50_xdrive_battery_ev_state_of_charge') | float(0) %}
+          {{ [cap * (100 - soc) / 100, 0] | max | round(1) }}
 
   - binary_sensor:
-      # Recreates binary_sensor.ix3_windows — never existed, so "Car - Alert when car windows open too long" could never
-      # fire; cardata exposes one sensor per window + sunroof. Tests `not in` (not `== 'OPEN'`) since BMW also reports
-      # tilted/partially-open as open; sunroof included deliberately. `availability` guards against a cardata dropout
-      # reading every source as not-CLOSED and firing the rain alert on every API hiccup.
+      # Feeds "Car - Alert when car windows open too long"; cardata exposes one sensor per window, no sunroof on this car.
+      # Tests `!= 'CLOSED'` (not `== 'OPEN'`) since BMW also reports tilted/partially-open. `availability` guards against
+      # a cardata dropout reading every window as not-CLOSED and firing the rain alert on every API hiccup.
       - name: iX3 Windows
         unique_id: ix3_windows
         device_class: opening
         icon: mdi:car-door
         availability: >
-          {{ has_value('sensor.ix3_front_driver_side_window_status')
-             and has_value('sensor.ix3_front_passenger_side_window_status')
-             and has_value('sensor.ix3_rear_driver_side_window_status')
-             and has_value('sensor.ix3_rear_passenger_side_window_status')
-             and has_value('sensor.ix3_sunroof_status') }}
+          {{ has_value('sensor.ix3_50_xdrive_window_state_front_driver')
+             and has_value('sensor.ix3_50_xdrive_window_state_front_passenger')
+             and has_value('sensor.ix3_50_xdrive_window_state_rear_driver')
+             and has_value('sensor.ix3_50_xdrive_window_state_rear_passenger') }}
         state: >
-          {{ states('sensor.ix3_front_driver_side_window_status') != 'CLOSED'
-             or states('sensor.ix3_front_passenger_side_window_status') != 'CLOSED'
-             or states('sensor.ix3_rear_driver_side_window_status') != 'CLOSED'
-             or states('sensor.ix3_rear_passenger_side_window_status') != 'CLOSED'
-             or states('sensor.ix3_sunroof_status') != 'CLOSED' }}
+          {{ states('sensor.ix3_50_xdrive_window_state_front_driver') != 'CLOSED'
+             or states('sensor.ix3_50_xdrive_window_state_front_passenger') != 'CLOSED'
+             or states('sensor.ix3_50_xdrive_window_state_rear_driver') != 'CLOSED'
+             or states('sensor.ix3_50_xdrive_window_state_rear_passenger') != 'CLOSED' }}
         attributes:
           open_parts: >
             {% set parts = {
-                 'voor links': 'sensor.ix3_front_driver_side_window_status',
-                 'voor rechts': 'sensor.ix3_front_passenger_side_window_status',
-                 'achter links': 'sensor.ix3_rear_driver_side_window_status',
-                 'achter rechts': 'sensor.ix3_rear_passenger_side_window_status',
-                 'dak': 'sensor.ix3_sunroof_status' } %}
+                 'voor links': 'sensor.ix3_50_xdrive_window_state_front_driver',
+                 'voor rechts': 'sensor.ix3_50_xdrive_window_state_front_passenger',
+                 'achter links': 'sensor.ix3_50_xdrive_window_state_rear_driver',
+                 'achter rechts': 'sensor.ix3_50_xdrive_window_state_rear_passenger' } %}
             {% set ns = namespace(open=[]) %}
             {% for label, eid in parts.items() %}
               {% if states(eid) != 'CLOSED' %}

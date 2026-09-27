@@ -84,6 +84,17 @@ sensor:
     method: left
     unit_prefix: k
     round: 2
+  # Seasonal price level for the HVAC offset thresholds. January 2026 averaged €0.245 all-in,
+  # September €0.38; a fixed euro threshold is right for one and wrong for the other. Seven
+  # days because the recorder keeps ten and the helper reloads only what is still there.
+  - platform: statistics
+    unique_id: electricity_price_7d_mean
+    name: Electricity Price 7d Mean
+    entity_id: sensor.current_price_electricity
+    state_characteristic: average_step
+    max_age:
+      days: 7
+    sampling_size: 700
 
 powercalc:
   create_utility_meters: true
@@ -109,11 +120,40 @@ powercalc:
               daily_fixed_energy:
                 value: 30
                 unit_of_measurement: W
-            - name: Air Quality
+            # Mechanische ventilatie has no HA entity, so a flat 20 W stands in for a 10-40 W speed-dependent
+            # draw. unique_id stays air_quality so the entity_id and its history survive the rename.
+            - name: Mechanische ventilatie
               unique_id: air_quality
               daily_fixed_energy:
                 value: 20
                 unit_of_measurement: W
+            # PoE switches on unmeasured circuits; totals (switch + PoE out) from the controller readout. The big
+            # meterkast switch (hall) is absent on purpose: it sits on a meterkast plug and is measured there.
+            - name: PoE switch bijkeuken
+              unique_id: poe_switch_bijkeuken
+              daily_fixed_energy:
+                value: 20
+                unit_of_measurement: W
+            - name: PoE switch schuur
+              unique_id: poe_switch_schuur
+              daily_fixed_energy:
+                value: 15
+                unit_of_measurement: W
+            - name: PoE switch zwembad
+              unique_id: poe_switch_zwembad
+              daily_fixed_energy:
+                value: 10
+                unit_of_measurement: W
+            # Navimow i108 dock, keyed on the mower's charging flag. No wattage data: the i108 charger is rated
+            # ~1.5 A at 28 V, so ~50 W at the wall while charging and a few W of dock standby otherwise.
+            - entity_id: binary_sensor.navimow_i108_battery_charging
+              name: Navimow i108
+              unique_id: navimow_i108_dock
+              # off = standby_power, not an "off" key: powercalc treats a binary_sensor 'off' as device-off.
+              standby_power: 2
+              fixed:
+                states_power:
+                  "on": 50
         - create_group: All Media
           # this is also part of sensor.all_media_player_power automatically
           entities:
@@ -196,7 +236,7 @@ powercalc:
                 min_power: 0.5
                 max_power: 15
             # Hall and upstairs
-            - entity_id: light.hal
+            - entity_id: light.dimmer_hall
               linear:
                 # 5 * 5.5W
                 min_power: 0.5
@@ -263,6 +303,32 @@ powercalc:
                 # 2 * wall (5W)
                 min_power: 0.5
                 max_power: 58
+            # No fixture data for these; estimates on the house 5.5 W/spot convention, correct in place when
+            # known. terras/zijkant floodlights are deliberately absent: they are the Reolink cameras' own spots,
+            # fed over PoE and counted in the PoE-switch entries. pool_light is on the pool 3EM phase C.
+            - entity_id: light.veranda_light
+              linear:
+                # estimate: 2 * 5.5W
+                min_power: 0.5
+                max_power: 11
+            - entity_id: light.roofceiling_garden_light
+              linear:
+                # estimate: CC LED driver, ~15W fixture
+                min_power: 0.5
+                max_power: 15
+            - entity_id: light.woodshed_light
+              linear:
+                # estimate: 2 * 5.5W
+                min_power: 0.5
+                max_power: 11
+            - entity_id: light.shed_light_back
+              fixed:
+                # estimate: 1 * 10W E27 on an on/off relay
+                power: 10
+            - entity_id: light.shed_light_front
+              fixed:
+                # estimate: 1 * 10W E27 on an on/off relay
+                power: 10
 
 
 utility_meter:
@@ -492,7 +558,7 @@ template:
       # Both lists must stay in step with the Energy Dashboard's device_consumption list (.storage/energy),
       # which is edited in the UI and not in this repo — a device added there but not here inflates the residual.
       measured:
-        - sensor.office_power
+        - sensor.shelly_plug_office_power
         - sensor.shelly_plug_kachel_slaapkamer_power
         - sensor.shelly_plug_s_6_meterkast1_power
         - sensor.shelly_plug_s_7_meterkast2_power
@@ -521,8 +587,23 @@ template:
       # the grid phases and adds AC solar. One definition rather than two that drift apart, and its own
       # availability guard covers the phase and solar dropouts on this sensor's behalf. x1000 for kW -> W.
       house_w: "{{ states('sensor.net_power_consumption') | float(0) * 1000 }}"
-      measured_w: "{{ measured | map('states') | map('float', 0) | sum }}"
-      estimated_w: "{{ estimated | map('states') | map('float', 0) | sum }}"
+      # Unit-aware sums: sensor.easee_sonke_power reports kW while every other input is W. A raw sum counted
+      # the charger at 1/1000th and pushed the residual up by ~10 kW during every session (seen 2026-09-24
+      # 00:20: house 11089 W, measured 162 W). Check units, not just availability, when adding an input.
+      measured_w: >-
+        {%- set ns = namespace(w=0) -%}
+        {%- for e in measured -%}
+          {%- set v = states(e) | float(0) -%}
+          {%- set ns.w = ns.w + (v * 1000 if state_attr(e, 'unit_of_measurement') == 'kW' else v) -%}
+        {%- endfor -%}
+        {{ ns.w }}
+      estimated_w: >-
+        {%- set ns = namespace(w=0) -%}
+        {%- for e in estimated -%}
+          {%- set v = states(e) | float(0) -%}
+          {%- set ns.w = ns.w + (v * 1000 if state_attr(e, 'unit_of_measurement') == 'kW' else v) -%}
+        {%- endfor -%}
+        {{ ns.w }}
     sensor:
       - name: Unmeasured power
         unique_id: unmeasured_power

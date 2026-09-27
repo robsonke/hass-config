@@ -15,13 +15,13 @@ icon: mdi:lightbulb-group
 # header summary counts the lights shown below (warm = something on, dim = everything off)
 entity: light.kitchen_light
 state_content: >-
-  {%- set m = expand(['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light']) -%}
+  {%- set m = expand(['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_eva_bedroom','light.dimmer_eva_bathroom','light.dimmer_hall','light.toilet_downstairs_light']) -%}
   {%- set o = m | selectattr('state','eq','on') | list | count -%}
   {{ 'Alles uit' if o == 0 else o ~ ' aan · ' ~ (m | count - o) ~ ' uit' }}
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
-  .bubble-icon-container { background-color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
-  .bubble-state { font-size: 14px !important; font-weight: 500; color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_eva_bedroom','light.dimmer_eva_bathroom','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.13)' : 'rgba(255,255,255,0.04)'} !important; }
+  .bubble-icon-container { background-color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_eva_bedroom','light.dimmer_eva_bathroom','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+  .bubble-state { font-size: 14px !important; font-weight: 500; color: ${['light.kitchen_light','light.kitchencabin_light','light.kitchendesk_light','light.livingback_light','light.livingfront_light','light.socket2_light_couch','light.socket1_light_corner','light.ledstrip_tv','light.dining_light','light.diningtable_light','light.ledstrip_book','light.office_light','light.ledstrip_office','light.eva_corridor_light','light.dimmer_eva_bedroom','light.dimmer_eva_bathroom','light.dimmer_hall','light.toilet_downstairs_light'].some(e => hass.states[e]?.state === 'on') ? '#f0cf8f' : '#9b9aac'} !important; }
 cards:
   - type: custom:bubble-card
     card_type: separator
@@ -195,7 +195,7 @@ cards:
             show_background: true
   - type: custom:bubble-card
     card_type: separator
-    name: Overig
+    name: Eva
   - type: grid
     columns: 2
     square: false
@@ -203,13 +203,40 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: slider
-        entity: light.eva_corridor_light
-        name: Gang Eva
+        entity: light.dimmer_eva_bedroom
+        name: Slaapkamer
         card_layout: large
         slider_live_update: true
         tap_action: { action: toggle }
         double_tap_action: { action: more-info }
         hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.dimmer_eva_bathroom
+        name: Badkamer
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.eva_corridor_light
+        name: Gang
+        card_layout: large
+        slider_live_update: true
+        tap_action: { action: toggle }
+        double_tap_action: { action: more-info }
+        hold_action: { action: more-info }
+  - type: custom:bubble-card
+    card_type: separator
+    name: Overig
+  - type: grid
+    columns: 2
+    square: false
+    cards:
       - type: custom:bubble-card
         card_type: button
         button_type: slider

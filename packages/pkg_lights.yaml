@@ -66,6 +66,8 @@ light:
       - light.toilet_downstairs_light
       - light.dining_light
       - light.eva_corridor_light
+      - light.dimmer_eva_bedroom
+      - light.dimmer_eva_bathroom
       - light.ledstrip_book
       - light.diningtable_light
       - light.kitchen_light

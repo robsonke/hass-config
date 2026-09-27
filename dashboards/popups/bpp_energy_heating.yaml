@@ -71,6 +71,55 @@ cards:
           .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
           .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
           .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#7db8ec' : '#8f8e9e'} !important; }
+  # ── sturing: what the offset plan is doing, and the switch that lets it write ──────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Sturing watertemperatuur
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: input_boolean.hvac_offset_control
+        name: Offset schrijven
+        icon: mdi:sine-wave
+        card_layout: large
+        tap_action: { action: toggle }
+        hold_action: { action: more-info }
+        state_content: "{{ 'aan' if is_state('input_boolean.hvac_offset_control','on') else 'uit (droogloop)' }}"
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,195,95,0.14)' : 'rgba(255,255,255,0.04)'} !important; }
+          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(240,195,95,0.20)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#f0cf8f' : '#8f8e9e'} !important; }
+      # Target now versus what the Daikin actually holds; a gap here is the write not landing.
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.hvac_offset_target
+        name: Offset nu
+        icon: mdi:thermometer-water
+        card_layout: large
+        hold_action: { action: more-info }
+        state_content: >-
+          {%- set t = states('sensor.hvac_offset_target') | int(0) -%}
+          {%- set a = state_attr('climate.leaving_water_offset','temperature') -%}
+          {{ '%+d' % t }} K · {{ state_attr('sensor.hvac_offset_target','reason') }}{{ (' · Daikin ' ~ ('%+d' % (a | int(0)))) if a is not none else '' }}
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseInt(state); return v > 0 ? 'rgba(240,195,95,0.14)' : v < 0 ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+          .bubble-state { font-size: 12.5px !important; }
+  # Collapsed by default: the header card already shows the current block; the full day is
+  # for when you want to know why.
+  - type: custom:expander-card
+    title: Plan vandaag
+    cards:
+      - type: markdown
+        content: >-
+          {% set b = state_attr('sensor.hvac_offset_plan','blocks') or [] %}
+          {% if b | count == 0 %}Geen plan — Nordpool of Solcast ontbreekt.{% endif %}
+          {% for x in b if x.base != 0 %}**{{ x.start }}** {{ '%+d' % x.base }} K · {{ x.reason }}{{ (' · ' ~ ('%.2f' | format(x.price)) | replace('.', ',') ~ ' €') if x.price is not none else '' }}{{ (' · ' ~ x.pv ~ ' kW') if x.pv > 0 else '' }}<br>
+          {% endfor %}
   # ── instellingen (behouden) ───────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -93,11 +142,38 @@ cards:
           - entity: schedule.hvac_schedule
           - entity: input_boolean.enable_automatic_hvac
           - type: divider
-          - entity: sensor.shelly_warmtepomp_meter_total_active_power
+          - entity: input_number.hvac_band_low
+            name: Comfortband onder
+          - entity: input_number.hvac_band_high
+            name: Comfortband boven
+          - entity: input_number.hvac_offset_neutral
+            name: Offset neutraal
+          - entity: input_number.hvac_solar_surplus_threshold
+            name: Zonoverschot drempel
+          - entity: input_datetime.hvac_warm_window_start
+            name: Warm venster start
+          - entity: input_datetime.hvac_warm_window_end
+            name: Warm venster eind
+          - entity: input_number.hvac_price_spread_min
+            name: Minimale prijsspreiding
+          - entity: sensor.electricity_price_7d_mean
+            name: Prijsniveau 7 dagen
+          - type: divider
+          - entity: binary_sensor.heating_season
+            name: Stookseizoen
+          - entity: sensor.outdoor_temperature_3d_mean
+            name: Buiten 3-daags gemiddelde
+          - type: divider
+          - entity: sensor.altherma_power_true
             name: Altherma verbruik huidig
           - entity: sensor.altherma_heatpump_daily
             name: Altherma verbruik vandaag
-          - entity: sensor.altherma_cop
+          - entity: sensor.altherma_scop_space_daily
+            name: SCOP verwarming vandaag
+          - entity: sensor.altherma_cop_dhw_daily
+            name: COP tapwater vandaag
+          - entity: sensor.altherma_buh_hours_daily
+            name: Backup-heater uren vandaag
   # ── verloop ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

@@ -52,6 +52,11 @@ input_boolean:
   dhw_solar_scheduling:
     name: Tapwater zonnesturing
     icon: mdi:solar-power-variant
+  # Gates WRITES to climate.leaving_water_offset only. The plan and target sensors compute
+  # regardless, so a dry run is this switch off with the dashboard showing what it would do.
+  hvac_offset_control:
+    name: Watertemperatuur-sturing
+    icon: mdi:sine-wave
 
 input_number:
   # Controls the hvac operation mode (cooling/heating/off)
@@ -127,6 +132,76 @@ input_number:
     step: 15
     unit_of_measurement: min
 
+  # Comfort band downstairs. Last winter the house lived at ~19 °C (Jan 2026 daily means
+  # 18.7-19.7), so the band centres on 20, not the nominal 21 that was never reached.
+  # hvac_band_high doubles as the parked setpoint of the Daikin's own room thermostat.
+  hvac_band_low:
+    name: Comfortband onder
+    icon: mdi:thermometer-chevron-down
+    min: 17
+    max: 22
+    step: 0.5
+    unit_of_measurement: "°C"
+  hvac_band_high:
+    name: Comfortband boven
+    icon: mdi:thermometer-chevron-up
+    min: 19
+    max: 24
+    step: 0.5
+    unit_of_measurement: "°C"
+  # The Daikin keeps room control with its setpoint parked above the band, so its modulation
+  # is a constant upward bias on the curve. This is the calibrated "quiet" offset that holds
+  # 20.0 at net zero; every plan row is relative to it. Tuned in phase 2.
+  hvac_offset_neutral:
+    name: Offset neutraal
+    icon: mdi:target
+    min: -6
+    max: 0
+    step: 1
+    unit_of_measurement: K
+  hvac_solar_surplus_threshold:
+    name: Zonoverschot drempel
+    icon: mdi:solar-power-variant
+    min: 0
+    max: 8
+    step: 0.1
+    unit_of_measurement: kW
+  hvac_cheap_percentile:
+    name: Goedkoop percentiel
+    icon: mdi:cash-minus
+    min: 5
+    max: 50
+    step: 5
+    unit_of_measurement: "%"
+  hvac_expensive_percentile:
+    name: Duur percentiel
+    icon: mdi:cash-plus
+    min: 50
+    max: 95
+    step: 5
+    unit_of_measurement: "%"
+  # Price rows only apply when the day has real spread: January's was often €0.06, and
+  # swinging the curve 6 K for six cents is compressor cycling for pennies.
+  hvac_price_spread_min:
+    name: Minimale prijsspreiding
+    icon: mdi:arrow-expand-vertical
+    min: 0
+    max: 0.30
+    step: 0.01
+    unit_of_measurement: "EUR/kWh"
+  hvac_price_ceiling_factor:
+    name: Prijsplafond factor
+    icon: mdi:arrow-collapse-up
+    min: 1.0
+    max: 3.0
+    step: 0.1
+  hvac_price_floor_factor:
+    name: Prijsbodem factor
+    icon: mdi:arrow-collapse-down
+    min: 0.3
+    max: 1.0
+    step: 0.05
+
 input_datetime:
   # Rewritten every night at 00:15 by the "DHW - Plan het opwarmvenster" automation.
   dhw_charge_start:
@@ -146,6 +221,18 @@ input_datetime:
     icon: mdi:weather-sunset-up
     has_date: false
     has_time: true
+  # The warm part of the day: outdoor temperature peaks here, so a heating hour costs less COP
+  # than the same hour at night. A cheap night block gets +1, a cheap warm block +2.
+  hvac_warm_window_start:
+    name: Warm venster start
+    icon: mdi:weather-sunny
+    has_date: false
+    has_time: true
+  hvac_warm_window_end:
+    name: Warm venster eind
+    icon: mdi:weather-sunny
+    has_date: false
+    has_time: true
 
 
 # No `homeassistant: customize:` block for the two Riemann-sum sensors below:
@@ -154,10 +241,31 @@ input_datetime:
 # only ever overrode its native `total` with `total_increasing`; both record
 # `sum` statistics, so dropping it is compatible.
 
+# Daily electrical total from the Shelly 3EM, which counts the backup heater and the pump;
+# the P1P2-derived sensor.altherma_energy_usage misses both (see sensor.altherma_power_true).
 utility_meter:
   altherma_heatpump_daily:
-    source: sensor.altherma_energy_usage
+    source: sensor.shelly_warmtepomp_meter_total_active_energy
     cycle: daily
+  altherma_dhw_daily:
+    source: sensor.altherma_energy_usage_dhw
+    cycle: daily
+  altherma_thermal_space_daily:
+    source: sensor.altherma_thermal_energy_space
+    cycle: daily
+  altherma_thermal_dhw_daily:
+    source: sensor.altherma_thermal_energy_dhw
+    cycle: daily
+
+binary_sensor:
+  # On below 14 °C, off above 17 °C (lower ± hysteresis). Both `lower` and `upper` together
+  # would make this a range sensor, which is a different thing. No unique_id: the threshold
+  # YAML platform rejects the option (config error on 2026-09-26), so the id derives from name.
+  - platform: threshold
+    name: Heating Season
+    entity_id: sensor.outdoor_temperature_3d_mean
+    lower: 15.5
+    hysteresis: 1.5
 
 sensor:
   - platform: min_max
@@ -195,8 +303,175 @@ sensor:
     method: left
     unit_prefix: k
     round: 2
+  # max_sub_interval matters: thermal power holds one value for long stretches of a run, and
+  # without it a left Riemann sum does not advance until the source changes.
+  - platform: integration
+    source: sensor.altherma_thermal_power_space
+    name: Altherma Thermal Energy Space
+    unique_id: altherma_thermal_energy_space
+    method: left
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+  - platform: integration
+    source: sensor.altherma_thermal_power_dhw
+    name: Altherma Thermal Energy DHW
+    unique_id: altherma_thermal_energy_dhw
+    method: left
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+  - platform: integration
+    source: sensor.altherma_power_dhw
+    name: Altherma Energy Usage DHW
+    unique_id: altherma_energy_usage_dhw
+    method: left
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+  - platform: history_stats
+    unique_id: altherma_buh_hours_daily
+    name: Altherma BUH Hours Daily
+    entity_id: binary_sensor.altherma_buh_active
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
+  # Season signal: a 3-day mean of the unit's own outdoor sensor. A single-day value flaps for
+  # weeks in October; the threshold helper adds the hysteresis on top.
+  - platform: statistics
+    unique_id: outdoor_temperature_3d_mean
+    name: Outdoor Temperature 3d Mean
+    entity_id: sensor.climatecontrol_outdoor_temperature
+    state_characteristic: average_step
+    max_age:
+      days: 3
+    sampling_size: 600
 
 template:
+  # Day-ahead plan, recomputed when an input changes rather than on every render: the block
+  # loop is O(48 × slots) and would otherwise run every minute. Mirrors "DHW - Plan het
+  # opwarmvenster": plan once, let a dumb sensor translate. Block grid is Solcast's 30 minutes;
+  # a block's price is the mean of the Nordpool slots it overlaps, so 15-, 60-minute and DST
+  # days all work. Prices are all-in (markup added) so the euro thresholds are comparable.
+  - triggers:
+      - trigger: time
+        at: "00:05:00"
+      # not_to: the statistics helper blips to unavailable for under a second on every template
+      # reload (seen 2026-09-26, four times); rendering on that blip produces an unpriced plan.
+      - trigger: state
+        entity_id:
+          - sensor.nordpool_kwh_nl_eur_3_10_021
+          - sensor.solcast_pv_forecast_forecast_today
+          - sensor.electricity_price_7d_mean
+        not_to:
+          - unavailable
+          - unknown
+      - trigger: state
+        entity_id:
+          - input_number.hvac_solar_surplus_threshold
+          - input_number.hvac_cheap_percentile
+          - input_number.hvac_expensive_percentile
+          - input_number.hvac_price_spread_min
+          - input_number.hvac_price_ceiling_factor
+          - input_number.hvac_price_floor_factor
+          - input_datetime.hvac_warm_window_start
+          - input_datetime.hvac_warm_window_end
+      - trigger: homeassistant
+        event: start
+    sensor:
+      - unique_id: hvac_offset_plan
+        name: HVAC Offset Plan
+        icon: mdi:calendar-clock
+        # A cheap summary for the header. It deliberately avoids `this`, so the sensor renders
+        # outside HA and the harness can test it; the per-row counts live in `blocks`.
+        state: >
+          {% set raw = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') or [] %}
+          {% set fc = state_attr('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast') or [] %}
+          {% set solar_min = states('input_number.hvac_solar_surplus_threshold') | float(2.5) %}
+          {% set zon = fc | selectattr('pv_estimate', 'ge', solar_min) | list | count %}
+          {{ zon }}× zon · {{ raw | count }} prijsslots · {{ fc | count }} blokken
+        attributes:
+          blocks: >
+            {% set raw = state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'raw_today') or [] %}
+            {% set fc = state_attr('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast') or [] %}
+            {% set markup = states('input_number.energy_markup') | float(0.1108) %}
+            {% set mean7 = states('sensor.electricity_price_7d_mean') | float(none) %}
+            {% set solar_min = states('input_number.hvac_solar_surplus_threshold') | float(2.5) %}
+            {% set pct_cheap = states('input_number.hvac_cheap_percentile') | float(30) %}
+            {% set pct_exp = states('input_number.hvac_expensive_percentile') | float(75) %}
+            {% set spread_min = states('input_number.hvac_price_spread_min') | float(0.05) %}
+            {% set wstart = today_at(states('input_datetime.hvac_warm_window_start')) %}
+            {% set wend = today_at(states('input_datetime.hvac_warm_window_end')) %}
+            {% set day0 = today_at('00:00') %}
+            {# pass 1: per-block price (mean of overlapping slots) and pv #}
+            {% set ns = namespace(prices=[], pvs=[], starts=[]) %}
+            {% for i in range(48) %}
+              {% set bstart = day0 + timedelta(minutes=30 * i) %}
+              {% set bend = bstart + timedelta(minutes=30) %}
+              {% set acc = namespace(sum=0.0, n=0, pv=0.0) %}
+              {% for s in raw %}
+                {% set ss = s.start | as_datetime | as_local %}
+                {% set se = s.end | as_datetime | as_local %}
+                {% if (ss >= bstart and ss < bend) or (ss <= bstart and se > bstart) %}
+                  {% set acc.sum = acc.sum + (s.value | float(0)) %}
+                  {% set acc.n = acc.n + 1 %}
+                {% endif %}
+              {% endfor %}
+              {% for e in fc %}
+                {% if (e.period_start | as_datetime | as_local) == bstart %}
+                  {% set acc.pv = e.pv_estimate | float(0) %}
+                {% endif %}
+              {% endfor %}
+              {% set ns.starts = ns.starts + [bstart.strftime('%H:%M')] %}
+              {% set ns.prices = ns.prices + [(acc.sum / acc.n + markup) | round(4) if acc.n > 0 else none] %}
+              {% set ns.pvs = ns.pvs + [acc.pv | round(2)] %}
+            {% endfor %}
+            {# thresholds over the slot prices themselves, count-agnostic #}
+            {% set slot_prices = raw | map(attribute='value') | map('float', 0) | list %}
+            {% set sorted_p = slot_prices | sort %}
+            {% set n = sorted_p | count %}
+            {% if n > 0 and mean7 is not none %}
+              {# rounded like the block prices, or 0.2 + 0.1 != round(0.2 + 0.1, 4) by one ulp #}
+              {% set p30 = (sorted_p[((n - 1) * pct_cheap / 100) | round(0) | int] + markup) | round(4) %}
+              {% set p75 = (sorted_p[((n - 1) * pct_exp / 100) | round(0) | int] + markup) | round(4) %}
+              {% set ceiling = (mean7 * states('input_number.hvac_price_ceiling_factor') | float(1.5)) | round(4) %}
+              {% set floor = (mean7 * states('input_number.hvac_price_floor_factor') | float(0.8)) | round(4) %}
+              {% set spread_ok = ((p75 - p30) | round(4)) >= spread_min %}
+              {% set priced = true %}
+            {% else %}
+              {% set p30 = none %}{% set p75 = none %}{% set ceiling = none %}{% set floor = none %}
+              {% set spread_ok = false %}{% set priced = false %}
+            {% endif %}
+            {# pass 2: classify, first match wins (spec section 7) #}
+            {% set out = namespace(blocks=[]) %}
+            {% for i in range(48) %}
+              {% set bstart = day0 + timedelta(minutes=30 * i) %}
+              {% set p = ns.prices[i] %}
+              {% set pv = ns.pvs[i] %}
+              {% set warm = wstart <= bstart < wend %}
+              {% if pv >= solar_min %}
+                {% set base = 3 %}{% set why = 'zon' %}
+              {% elif priced and p is not none and p >= ceiling %}
+                {% set base = -4 %}{% set why = 'duur-absoluut' %}
+              {% elif priced and spread_ok and p is not none and p <= p30 and warm %}
+                {% set base = 2 %}{% set why = 'goedkoop' %}
+              {% elif priced and spread_ok and p is not none and p <= p30 %}
+                {% set base = 1 %}{% set why = 'goedkoop-nacht' %}
+              {% elif warm %}
+                {% set base = 1 %}{% set why = 'warm' %}
+              {% elif priced and spread_ok and p is not none and p >= p75 and p > floor %}
+                {% set base = -4 %}{% set why = 'duur' %}
+              {% else %}
+                {% set base = 0 %}{% set why = 'neutraal' %}
+              {% endif %}
+              {% set out.blocks = out.blocks + [{'start': ns.starts[i], 'price': p, 'pv': pv,
+                                                  'base': base, 'reason': why}] %}
+            {% endfor %}
+            {{ out.blocks }}
   - sensor:
     # altherma sensor values
     - unique_id: altherma_operation_mode
@@ -384,8 +659,181 @@ template:
            voor de testbaarheid buiten HA om. #}
         {{ [want, maxt] | min | float | round(0) }}
 
+    # Electrical input from the Shelly 3EM, not the P1P2-derived INV current × voltage: that
+    # reading is ~11 % low on ordinary days and cannot see the resistive backup heater at all.
+    # Phases A and B are a mirrored CT pair (21 Jan 2026: A +2805 W max, B -2769 W min, hourly
+    # means +55/-54 W), so total_active_power cancels the heater out; total minus B restores it.
+    - unique_id: altherma_power_true
+      name: Altherma Power True
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: mdi:flash
+      availability: >
+        {{ has_value('sensor.shelly_warmtepomp_meter_total_active_power')
+           and has_value('sensor.shelly_warmtepomp_meter_phase_b_active_power') }}
+      state: >
+        {{ (states('sensor.shelly_warmtepomp_meter_total_active_power') | float(0)
+            - states('sensor.shelly_warmtepomp_meter_phase_b_active_power') | float(0)) | round(1) }}
+
+    # Space heating and DHW are split on the 3-way valve so a DHW charge cannot dilute a
+    # space-heating SCOP. Idle and the other mode emit 0, not unavailable: the Riemann sums
+    # downstream need a continuous series, and a real sensor outage is caught by availability.
+    - unique_id: altherma_power_dhw
+      name: Altherma Power DHW
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: mdi:flash
+      availability: >
+        {{ has_value('sensor.altherma_power_true')
+           and state_attr('sensor.althermasensors', '3way valve(On:DHW_Off:Space)') is not none }}
+      state: >
+        {% if is_state_attr('sensor.althermasensors', '3way valve(On:DHW_Off:Space)', 'ON') %}
+          {{ states('sensor.altherma_power_true') | float(0) }}
+        {% else %}
+          0
+        {% endif %}
+
+    # Thermal output: flow (l/min × 0.06 = m³/h) × 1.16 kWh/(m³·K) × ΔT, in W. Clamped at zero so
+    # cooling (return warmer than supply) is not counted as negative heat; this is a heating KPI.
+    - unique_id: altherma_thermal_power_space
+      name: Altherma Thermal Power Space
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: mdi:radiator
+      availability: >
+        {{ has_value('sensor.altherma_flow_sensor')
+           and has_value('sensor.altherma_leaving_water_temp_before_buh_r1t')
+           and has_value('sensor.altherma_inlet_water_temp_r4t')
+           and state_attr('sensor.althermasensors', '3way valve(On:DHW_Off:Space)') is not none }}
+      state: >
+        {% if is_state_attr('sensor.althermasensors', '3way valve(On:DHW_Off:Space)', 'ON') %}
+          0
+        {% else %}
+          {% set dt = states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float(0)
+                      - states('sensor.altherma_inlet_water_temp_r4t') | float(0) %}
+          {{ ([states('sensor.altherma_flow_sensor') | float(0) * 0.06 * 1.16 * dt * 1000, 0] | max)
+             | round(0) }}
+        {% endif %}
+    - unique_id: altherma_thermal_power_dhw
+      name: Altherma Thermal Power DHW
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: mdi:water-boiler
+      availability: >
+        {{ has_value('sensor.altherma_flow_sensor')
+           and has_value('sensor.altherma_leaving_water_temp_before_buh_r1t')
+           and has_value('sensor.altherma_inlet_water_temp_r4t')
+           and state_attr('sensor.althermasensors', '3way valve(On:DHW_Off:Space)') is not none }}
+      state: >
+        {% if is_state_attr('sensor.althermasensors', '3way valve(On:DHW_Off:Space)', 'ON') %}
+          {% set dt = states('sensor.altherma_leaving_water_temp_before_buh_r1t') | float(0)
+                      - states('sensor.altherma_inlet_water_temp_r4t') | float(0) %}
+          {{ ([states('sensor.altherma_flow_sensor') | float(0) * 0.06 * 1.16 * dt * 1000, 0] | max)
+             | round(0) }}
+        {% else %}
+          0
+        {% endif %}
+
+    # Energy-integrated ratios — the number the instantaneous sensor.altherma_cop cannot give.
+    # Space electrical is the Shelly daily total minus the DHW share, so there is one less
+    # integration to keep consistent. Guarded so an early-morning zero never divides.
+    - unique_id: altherma_scop_space_daily
+      name: Altherma SCOP Space Daily
+      state_class: measurement
+      unit_of_measurement: 'COP'
+      icon: mdi:radiator
+      availability: >
+        {{ has_value('sensor.altherma_thermal_space_daily')
+           and has_value('sensor.altherma_heatpump_daily')
+           and has_value('sensor.altherma_dhw_daily')
+           and states('sensor.altherma_thermal_space_daily') | float(0) > 0.1
+           and (states('sensor.altherma_heatpump_daily') | float(0)
+                - states('sensor.altherma_dhw_daily') | float(0)) > 0.1 }}
+      state: >
+        {{ (states('sensor.altherma_thermal_space_daily') | float(0)
+            / (states('sensor.altherma_heatpump_daily') | float(0)
+               - states('sensor.altherma_dhw_daily') | float(0))) | round(2) }}
+    - unique_id: altherma_cop_dhw_daily
+      name: Altherma COP DHW Daily
+      state_class: measurement
+      unit_of_measurement: 'COP'
+      icon: mdi:water-boiler
+      availability: >
+        {{ has_value('sensor.altherma_thermal_dhw_daily')
+           and has_value('sensor.altherma_dhw_daily')
+           and states('sensor.altherma_thermal_dhw_daily') | float(0) > 0.1
+           and states('sensor.altherma_dhw_daily') | float(0) > 0.1 }}
+      state: >
+        {{ (states('sensor.altherma_thermal_dhw_daily') | float(0)
+            / states('sensor.altherma_dhw_daily') | float(0)) | round(2) }}
+
+    # Translates the plan to "the offset that should be active now", then applies the guards.
+    # Deliberately dumb, like sensor.dhw_target_setpoint: one place to read. Not heating -> 0,
+    # no room reading -> neutral with guards off; both land on the Daikin's own curve.
+    - unique_id: hvac_offset_target
+      name: HVAC Offset Target
+      state_class: measurement
+      unit_of_measurement: K
+      icon: mdi:sine-wave
+      state: >
+        {% set blocks = state_attr('sensor.hvac_offset_plan', 'blocks') or [] %}
+        {% set ns = namespace(base=0) %}
+        {% for b in blocks %}
+          {% set bs = today_at(b.start) %}
+          {% if bs <= now() < bs + timedelta(minutes=30) %}{% set ns.base = b.base | int(0) %}{% endif %}
+        {% endfor %}
+        {% set t = states('sensor.downstairs_temperature') | float(none) %}
+        {% set lo = states('input_number.hvac_band_low') | float(19.0) %}
+        {% set hi = states('input_number.hvac_band_high') | float(21.5) %}
+        {% set neutral = states('input_number.hvac_offset_neutral') | float(0) %}
+        {% if not is_state('select.operation_mode', 'heating') %}
+          0
+        {% else %}
+          {% if t is none %}{% set adj = 0 %}
+          {% elif t < lo - 0.5 %}{% set adj = 2 %}
+          {% elif t < lo %}{% set adj = [ns.base, 0] | max %}
+          {% elif t > hi %}{% set adj = -6 %}
+          {% else %}{% set adj = ns.base %}
+          {% endif %}
+          {{ [[neutral + adj, -10] | max, 4] | min | round(0) | int }}
+        {% endif %}
+      attributes:
+        base: >
+          {% set ns = namespace(v=0) %}
+          {% for b in state_attr('sensor.hvac_offset_plan', 'blocks') or [] %}
+            {% set bs = today_at(b.start) %}
+            {% if bs <= now() < bs + timedelta(minutes=30) %}{% set ns.v = b.base %}{% endif %}
+          {% endfor %}
+          {{ ns.v }}
+        reason: >
+          {% set ns = namespace(v='neutraal') %}
+          {% for b in state_attr('sensor.hvac_offset_plan', 'blocks') or [] %}
+            {% set bs = today_at(b.start) %}
+            {% if bs <= now() < bs + timedelta(minutes=30) %}{% set ns.v = b.reason %}{% endif %}
+          {% endfor %}
+          {{ ns.v }}
+        block_start: >
+          {% set ns = namespace(v='') %}
+          {% for b in state_attr('sensor.hvac_offset_plan', 'blocks') or [] %}
+            {% set bs = today_at(b.start) %}
+            {% if bs <= now() < bs + timedelta(minutes=30) %}{% set ns.v = b.start %}{% endif %}
+          {% endfor %}
+          {{ ns.v }}
+
   - binary_sensor:
     - unique_id: altherma_main_pump
       name: Altherma Main pump
       state: >
         {{ is_state_attr('sensor.althermasensors', 'Main pump', 'ON') }}
+    # The backup heater is resistive and invisible to the inverter current. Either step on
+    # means COP-1 electricity is flowing; history_stats turns this into hours per day.
+    - unique_id: altherma_buh_active
+      name: Altherma BUH Active
+      icon: mdi:heating-coil
+      state: >
+        {{ is_state_attr('sensor.althermasensors', 'BUH Step1', 'ON')
+           or is_state_attr('sensor.althermasensors', 'BUH Step2', 'ON') }}

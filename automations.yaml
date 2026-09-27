@@ -62,7 +62,7 @@
     to: home
     for: 0:00:30
     trigger: state
-  - entity_id: device_tracker.ix3_location
+  - entity_id: device_tracker.ix3_50_xdrive_location
     to: home
     from: not_home
     trigger: state
@@ -1685,7 +1685,7 @@
     to: home
     for: 0:00:30
   - trigger: state
-    entity_id: device_tracker.ix3_location
+    entity_id: device_tracker.ix3_50_xdrive_location
     from: not_home
     to: home
   conditions:
@@ -2453,64 +2453,96 @@
     stored_traces: 50
 - id: '1661977922126'
   alias: HVAC - Control Operation Mode downstairs
-  description: 'Set the HVAC mode (heat/cool/off) for the heat pump. By default off,
-    cooling when it is expected to be hot outside and also becoming hotter inside,
-    heating when the indoor temperature is low and outside also getting cooler.
+  description: >-
+    Season switch, and only that. Heating when the 3-day outdoor mean says so
+    (binary_sensor.heating_season, on below 14, off above 17), cooling on the old rule
+    (downstairs above the cooling limit and a forecast maximum above 24), otherwise the unit is
+    switched off. It no longer reads room temperature for heating: the old middle branch set
+    the thermostat to off whenever downstairs was between 20 and 24, which switched the unit
+    off across the entire comfort band and held the house at ~19 all of last winter.
 
-    This still doesn''t mean that the pump would start, it will still use its indoor
-    sensors. And even when it does turn on, other automations might stop that, based
-    on the heating and cooling input booleans.'
+    climate.warmtepomp is set for the dashboard header only; nothing in the control path
+    reads it any more. Heating-season switch-on lives in HVAC - Control the heatpump.
   triggers:
   - trigger: state
-    entity_id:
-    - sensor.downstairs_temperature
+    entity_id: binary_sensor.heating_season
     not_to:
     - unavailable
     - unknown
-    not_from:
+  - trigger: state
+    entity_id: sensor.downstairs_temperature
+    not_to:
     - unavailable
     - unknown
+    for:
+      minutes: 10
+  - trigger: homeassistant
+    event: start
   actions:
   - choose:
     - conditions:
-      - alias: Confirm if the temperature is below the minimum allowed temperature
-        condition: numeric_state
-        entity_id: sensor.downstairs_temperature
-        below: input_number.hvac_heating_limit
-      - condition: numeric_state
-        entity_id: sensor.today_maximum_temperature
-        below: 18
+      - condition: state
+        entity_id: binary_sensor.heating_season
+        state: 'on'
       - condition: not
         conditions:
         - condition: state
-          entity_id: climate.warmtepomp
-          attribute: hvac_action
+          entity_id: select.operation_mode
           state: heating
-        alias: Action should not be set to heating already
       sequence:
       - action: climate.set_hvac_mode
         target:
           entity_id: climate.warmtepomp
         data:
           hvac_mode: heat
-        alias: Set HVAC to heating
       - action: select.select_option
-        data:
-          option: heating
         target:
           entity_id: select.operation_mode
+        data:
+          option: heating
     - conditions:
-      - alias: Confirm if the temperature is below the maximum and above the minimum
-          allowed temperature
-        condition: numeric_state
+      - condition: state
+        entity_id: binary_sensor.heating_season
+        state: 'off'
+      - condition: numeric_state
         entity_id: sensor.downstairs_temperature
-        above: input_number.hvac_heating_limit
-        below: input_number.hvac_cooling_limit
+        above: input_number.hvac_cooling_limit
+      - condition: numeric_state
+        entity_id: sensor.today_maximum_temperature
+        above: 24
       - condition: not
         conditions:
         - condition: state
+          entity_id: switch.climate_control
+          state: 'on'
+      sequence:
+      - action: climate.set_hvac_mode
+        target:
           entity_id: climate.warmtepomp
-          attribute: hvac_action
+        data:
+          hvac_mode: cool
+      - action: select.select_option
+        target:
+          entity_id: select.operation_mode
+        data:
+          option: cooling
+      - action: switch.turn_on
+        target:
+          entity_id: switch.climate_control
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.heating_season
+        state: 'off'
+      # Cooling ends 1 K under the limit, not at it, so the unit does not flap around 24.0.
+      - condition: numeric_state
+        entity_id: sensor.downstairs_temperature
+        value_template: >-
+          {{ state.state | float(0) - states('input_number.hvac_cooling_limit') | float(24) }}
+        below: -1
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: switch.climate_control
           state: 'off'
       sequence:
       - action: climate.set_hvac_mode
@@ -2518,34 +2550,9 @@
           entity_id: climate.warmtepomp
         data:
           hvac_mode: 'off'
-        alias: Turn HVAC off
-    - conditions:
-      - alias: Confirm if the temperature is above the maximum allowed temperature
-        condition: numeric_state
-        entity_id: sensor.downstairs_temperature
-        above: input_number.hvac_cooling_limit
-      - condition: numeric_state
-        entity_id: sensor.today_maximum_temperature
-        above: '24'
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: climate.warmtepomp
-          attribute: hvac_action
-          state: cooling
-        alias: Action should not be set to cooling already
-      sequence:
-      - action: climate.set_hvac_mode
+      - action: switch.turn_off
         target:
-          entity_id: climate.warmtepomp
-        data:
-          hvac_mode: cool
-        alias: Set HVAC to cooling
-      - action: select.select_option
-        data:
-          option: cooling
-        target:
-          entity_id: select.operation_mode
+          entity_id: switch.climate_control
   trace:
     stored_traces: 20
   mode: single
@@ -2652,112 +2659,108 @@
   mode: single
 - id: '1663405385606'
   alias: HVAC - Control the heatpump
-  description: This controls whether the heatpump should be turned on or not. Based
-    on pricing or potential PV over capacity (later). So far, using the price works
-    oke, the higher the price, the more need there is for power, so the less we do.
+  description: >-
+    Temperature-only safety envelope for the heating season. Off when downstairs sits more
+    than 0.5 K above the comfort band for 10 minutes, on again once it is back under the band
+    top. The 0.5 K gap is the precedence rule: crossing hvac_band_high first drives the
+    leaving-water offset to -6 (sensor.hvac_offset_target) and lets the curve do the work; the
+    hard switch is the backstop for when the Daikin's single wall sensor and the five-sensor
+    downstairs mean disagree.
+
+    No price condition on purpose. The old gate (cheapest 16 of 24 hours OR under 91 % of the
+    day's average) passed two thirds of the day and switching a compressor off on price is the
+    cycling this design exists to remove; the -4 plan row is the price response now.
+
+    The season_start trigger matters: at the first heating day the house is usually already
+    below the band top, a numeric_state trigger alone never sees a crossing, and the unit would
+    stay off from last spring. The value_template falls back to 0 on an unavailable reading,
+    which lands on "switch on" - the safe failure for heating.
   triggers:
+  - trigger: numeric_state
+    entity_id: sensor.downstairs_temperature
+    value_template: >-
+      {{ state.state | float(0) - states('input_number.hvac_band_high') | float(21.5) }}
+    above: 0.5
+    for:
+      minutes: 10
+    id: too_warm
+  - trigger: numeric_state
+    entity_id: sensor.downstairs_temperature
+    value_template: >-
+      {{ state.state | float(0) - states('input_number.hvac_band_high') | float(21.5) }}
+    below: 0
+    for:
+      minutes: 10
+    id: ok_again
   - trigger: state
-    entity_id:
-    - sensor.energy_price_level
-    not_to:
-    - unavailable
-    - unknown
-    not_from:
-    - unavailable
-    - unknown
+    entity_id: select.operation_mode
+    to: heating
+    id: season_start
   - trigger: state
-    entity_id:
-    - input_boolean.heating_downstairs
-    - input_boolean.cooling_downstairs
-  - trigger: state
-    entity_id:
-    - climate.warmtepomp
-    not_to:
-    - unavailable
-    - unknown
-    not_from:
-    - unavailable
-    - unknown
+    entity_id: binary_sensor.heating_season
+    to: 'on'
+    id: season_start
+  # Level-triggered reconcile. The crossing triggers above are edge-only: a reload inside
+  # their 10-minute window, a manual toggle from the popup, or an unavailable reading can each
+  # leave the switch off with nothing to turn it back on. Every 15 minutes the switch is
+  # re-asserted from the current temperature; enable_automatic_hvac off is the manual override.
+  - trigger: time_pattern
+    minutes: "/15"
+    id: reconcile
+  - trigger: homeassistant
+    event: start
+    id: reconcile
   conditions:
   - condition: state
     entity_id: input_boolean.enable_automatic_hvac
     state: 'on'
-    alias: Only dis/enable the heappump when the automation is active
+  - condition: state
+    entity_id: select.operation_mode
+    state: heating
+  - condition: state
+    entity_id: binary_sensor.heating_season
+    state: 'on'
   actions:
-  - alias: Turn on when needed and the price is oke, otherwise default off
-    choose:
+  - choose:
     - conditions:
       - condition: or
         conditions:
-        - condition: state
-          entity_id: binary_sensor.cheapest_16_hours_24h
-          state: 'on'
-          alias: Is this one of the cheapest hours of the day
-        - condition: numeric_state
-          entity_id: sensor.energy_price_level
-          attribute: percentage
-          below: 91
-          alias: Or in case the price is low, probably giving the same result
-        alias: Check if the price is oke
-      - alias: Only when we are in heating or cooling mode
-        condition: not
-        conditions:
-        - condition: or
-          conditions:
-          - condition: state
-            entity_id: climate.warmtepomp
-            attribute: hvac_action
-            state: 'off'
-          - condition: state
-            entity_id: climate.warmtepomp
-            attribute: hvac_action
-            state: idle
-          alias: The heatpump is either off or idle
-      - condition: or
-        alias: And only when the generic thermostat said we need to heat or cool
-        conditions:
-        - condition: state
-          entity_id: input_boolean.cooling_downstairs
-          state: 'on'
-        - condition: state
-          entity_id: input_boolean.heating_downstairs
-          state: 'on'
-      sequence:
-      - action: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.climate_control
-    - conditions:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: switch.climate_control
-          state: 'off'
-      - condition: or
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.energy_price_level
-          attribute: percentage
-          above: 115
-          alias: Or in case the price is too high
+        - condition: trigger
+          id: too_warm
         - condition: and
-          alias: And only when the generic thermostat said we do not need to heat
-            and cool
           conditions:
-          - condition: state
-            entity_id: input_boolean.cooling_downstairs
-            state: 'off'
-          - condition: state
-            entity_id: input_boolean.heating_downstairs
-            state: 'off'
+          - condition: trigger
+            id: reconcile
+          - condition: template
+            value_template: >-
+              {{ states('sensor.downstairs_temperature') | float(0)
+                 - states('input_number.hvac_band_high') | float(21.5) > 0.5 }}
+      - condition: state
+        entity_id: switch.climate_control
+        state: 'on'
       sequence:
       - action: switch.turn_off
-        data: {}
         target:
           entity_id: switch.climate_control
-    # Deliberately no default: branch. Between 91% and 115% with heat/cool demand,
-    # the current state holds (dead band). A default that switches off would make
-    # the 115% threshold meaningless. All real off-reasons are in the branch above.
+    - conditions:
+      - condition: trigger
+        id:
+        - ok_again
+        - season_start
+        - reconcile
+      # A template, not numeric_state: an unavailable reading renders float(0) and lands on
+      # "on", the safe failure for heating. numeric_state would silently not pass at all.
+      - condition: template
+        value_template: >-
+          {{ states('sensor.downstairs_temperature') | float(0)
+             < states('input_number.hvac_band_high') | float(21.5) }}
+      - condition: state
+        entity_id: switch.climate_control
+        state: 'off'
+      sequence:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.climate_control
   trace:
     stored_traces: 20
   mode: single
@@ -4321,6 +4324,97 @@
         Het tapwatervat staat al 45 minuten onder 36 graden ({{
         states('sensor.domestichotwatertank_tank_temperature') }} °C). De
         warmtepomp verwarmt niet bij. Controleer de unit.
+  mode: single
+- id: hvac_apply_lwt_offset
+  alias: HVAC - Pas de watertemperatuur-offset toe
+  description: >-
+    Writes sensor.hvac_offset_target to the Daikin's leaving-water offset, at most 3 K per
+    write. This is the only automation that touches climate.leaving_water_offset, a
+    daikin_onecta cloud entity with a 200-call daily budget.
+
+    The trigger on the offset's own temperature attribute is what completes a capped move: the
+    first write lands, the attribute changes, the automation re-runs and takes the next step.
+    The current-differs-from-target condition is what ends it and prevents a loop.
+  triggers:
+  - trigger: state
+    entity_id: sensor.hvac_offset_target
+  - trigger: state
+    entity_id: climate.leaving_water_offset
+    attribute: temperature
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: state
+    entity_id: input_boolean.hvac_offset_control
+    state: 'on'
+  - condition: state
+    entity_id: select.operation_mode
+    state: heating
+  - condition: template
+    value_template: "{{ states('sensor.hvac_offset_target') | is_number }}"
+  - condition: numeric_state
+    entity_id: sensor.ratelimit_remaining_day
+    above: 30
+  - condition: template
+    alias: Offset entity readable and not already at target
+    value_template: >-
+      {{ has_value('climate.leaving_water_offset')
+         and state_attr('climate.leaving_water_offset', 'temperature') | is_number
+         and (state_attr('climate.leaving_water_offset', 'temperature') | float)
+             != (states('sensor.hvac_offset_target') | float) }}
+  actions:
+  - variables:
+      current: "{{ state_attr('climate.leaving_water_offset', 'temperature') | float }}"
+      target: "{{ states('sensor.hvac_offset_target') | float }}"
+      next: "{{ (current + ([[target - current, -3] | max, 3] | min)) | round(0) | int }}"
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.leaving_water_offset
+    data:
+      temperature: "{{ next }}"
+  mode: restart
+- id: hvac_park_daikin_room_setpoint
+  alias: HVAC - Houd het Daikin kamersetpoint geparkeerd
+  description: >-
+    The Daikin keeps its own room thermostat (controlMode roomTemperature). Parking its
+    setpoint at the top of the comfort band means it never satisfies inside the band, so the
+    leaving-water offset is the effective lever and the Daikin's thermostat-off is the first
+    upper guard. Heating only: in cooling this entity writes the cooling setpoint.
+
+    Gated on enable_automatic_hvac, not on hvac_offset_control, so the dry run (phase 2) has
+    the parked setpoint without any offset writes. One Onecta write per drift.
+  triggers:
+  - trigger: state
+    entity_id: climate.room_temperature
+    attribute: temperature
+  - trigger: state
+    entity_id: input_number.hvac_band_high
+  - trigger: state
+    entity_id: select.operation_mode
+    to: heating
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: state
+    entity_id: input_boolean.enable_automatic_hvac
+    state: 'on'
+  - condition: state
+    entity_id: select.operation_mode
+    state: heating
+  - condition: numeric_state
+    entity_id: sensor.ratelimit_remaining_day
+    above: 30
+  - condition: template
+    value_template: >-
+      {{ has_value('climate.room_temperature')
+         and (state_attr('climate.room_temperature', 'temperature') | float(-1))
+             != (states('input_number.hvac_band_high') | float(21.5)) }}
+  actions:
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.room_temperature
+    data:
+      temperature: "{{ states('input_number.hvac_band_high') | float(21.5) }}"
   mode: single
 
 # Zigbee2MQTT wall switches and remotes. These replace the ControllerX AppDaemon apps; remove an app from

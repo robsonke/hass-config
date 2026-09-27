@@ -11,18 +11,18 @@ auto_close: 60000
 name: BMW iX3
 icon: mdi:car-electric
 # header = battery % + range (green = charging, amber = plugged in, blue = disconnected)
-entity: sensor.state_of_charge_last_known
+entity: sensor.ix3_50_xdrive_battery_ev_state_of_charge
 state_content: >-
-  {%- set soc = states('sensor.state_of_charge_last_known') -%}
-  {%- set r = states('sensor.ix3_remaining_electric_range_km') | float(-99999) -%}
-  {%- set cs = states('sensor.charging_status') -%}
-  {{ ((soc if soc not in ['unknown','unavailable',''] else '—') ~ '%') ~ ((' · ' ~ (r | round | int) ~ ' km') if r != -99999 else '') ~ (' · laadt' if cs == 'CHARGING' else '') }}
+  {%- set soc = states('sensor.ix3_50_xdrive_battery_ev_state_of_charge') | float(-99999) -%}
+  {%- set r = states('sensor.ix3_50_xdrive_range_ev_remaining_range') | float(-99999) -%}
+  {%- set cs = states('sensor.easee_sonke_status') -%}
+  {{ (((soc | round | int) ~ '%') if soc != -99999 else '—') ~ ((' · ' ~ (r | round | int) ~ ' km') if r != -99999 else '') ~ (' · laadt' if cs == 'charging' else '') }}
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return 'rgba(45,170,115,0.14)'; if (conn && conn !== 'DISCONNECTED') return 'rgba(240,195,95,0.13)'; return 'rgba(55,138,221,0.14)'; })()} !important; }
-  .bubble-icon-container { background-color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return 'rgba(45,170,115,0.20)'; if (conn && conn !== 'DISCONNECTED') return 'rgba(240,195,95,0.20)'; return 'rgba(55,138,221,0.22)'; })()} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const cs = hass.states['sensor.easee_sonke_status']?.state; const conn = hass.states['binary_sensor.easee_sonke_plug']?.state; if (cs === 'charging') return 'rgba(45,170,115,0.14)'; if (conn === 'on') return 'rgba(240,195,95,0.13)'; return 'rgba(55,138,221,0.14)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const cs = hass.states['sensor.easee_sonke_status']?.state; const conn = hass.states['binary_sensor.easee_sonke_plug']?.state; if (cs === 'charging') return 'rgba(45,170,115,0.20)'; if (conn === 'on') return 'rgba(240,195,95,0.20)'; return 'rgba(55,138,221,0.22)'; })()} !important; }
   .bubble-state {
     font-size: 14px !important; font-weight: 500;
-    color: ${(() => { const cs = hass.states['sensor.charging_status']?.state; const conn = hass.states['sensor.ix3_charging_connector_status']?.state; if (cs === 'CHARGING') return '#9ed9bd'; if (conn && conn !== 'DISCONNECTED') return '#f0cf8f'; return '#82bbf0'; })()} !important;
+    color: ${(() => { const cs = hass.states['sensor.easee_sonke_status']?.state; const conn = hass.states['binary_sensor.easee_sonke_plug']?.state; if (cs === 'charging') return '#9ed9bd'; if (conn === 'on') return '#f0cf8f'; return '#82bbf0'; })()} !important;
   }
 cards:
   # ── auto ── the vehicle's own card replaces this section: real image, SOC+range bar,
@@ -32,13 +32,13 @@ cards:
     card_type: separator
     name: Auto
   - type: custom:bmw-cardata-vehicle-card
-    device_id: a09120c7c1960fda394d75e3d82b70d8
+    device_id: 51e59ab8c8190b9963d5e5bf49ffb6db
     show_title: false
     show_indicators: true
     show_range: true
     show_image: true
     show_map: true
-    map_height: 160
+    map_height: 320
     show_buttons: false
     soc_source: soc
     card_mod:
@@ -61,7 +61,7 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.ix3_mileage
+        entity: sensor.ix3_50_xdrive_vehicle_mileage
         name: Kilometerstand
         icon: mdi:counter
         card_layout: large
@@ -71,21 +71,21 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.ix3_next_inspection_date_short
-        name: Onderhoud
-        icon: mdi:wrench-clock
+        entity: sensor.ix3_50_xdrive_battery_ev_battery_health_state_soce
+        name: Accugezondheid
+        icon: mdi:battery-heart-variant
         card_layout: large
         tap_action: { action: more-info }
         styles: |
           .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.05) !important; }
-  # Plug + remaining charge time, only while the cable is actually connected.
+  # Plug + charging power, only while the cable is in the Easee (BMW cardata lags on plug state).
   # `conditional` rather than Bubble's own visibility: on a pop-up child card
   # Bubble does not honour visibility (learned the hard way in bpp_system.yaml).
   - type: conditional
     conditions:
       - condition: state
-        entity: sensor.ix3_charging_connector_status
-        state_not: 'DISCONNECTED'
+        entity: binary_sensor.easee_sonke_plug
+        state: 'on'
     card:
       type: grid
       columns: 2
@@ -94,7 +94,7 @@ cards:
         - type: custom:bubble-card
           card_type: button
           button_type: state
-          entity: sensor.ix3_charging_connector_status
+          entity: sensor.ix3_50_xdrive_charging_port_plug_lock_state
           name: Laadstekker
           icon: mdi:ev-plug-type2
           card_layout: large
@@ -104,13 +104,13 @@ cards:
         - type: custom:bubble-card
           card_type: button
           button_type: state
-          entity: sensor.ix3_calculated_remaining_charging_time
-          name: Nog te laden
-          icon: mdi:timer-sand
+          entity: sensor.ix3_50_xdrive_battery_ev_charging_power
+          name: Laadvermogen
+          icon: mdi:flash
           card_layout: large
           tap_action: { action: more-info }
           styles: |
-            .bubble-button-background { opacity: 1 !important; background-color: ${(() => { return hass.states['sensor.charging_status']?.state === 'CHARGING' ? 'rgba(45,170,115,0.16)' : 'rgba(255,255,255,0.05)'; })()} !important; }
+            .bubble-button-background { opacity: 1 !important; background-color: ${(() => { return hass.states['sensor.easee_sonke_status']?.state === 'charging' ? 'rgba(45,170,115,0.16)' : 'rgba(255,255,255,0.05)'; })()} !important; }
   # ── laadhistorie ──────────────────────────────────────────────────
   # Two views on purpose. The bar chart answers "how much per day" and is built
   # from LONG-TERM statistics, so it keeps growing past recorder's 10-day
@@ -153,59 +153,59 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.ix3_measured_tire_pressure_front_left
+        entity: sensor.ix3_50_xdrive_tire_pressure_front_left
         name: Voor L
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
         state_content: >-
-          {%- set v = states('sensor.ix3_measured_tire_pressure_front_left') | float(-99999) -%}
+          {%- set v = states('sensor.ix3_50_xdrive_tire_pressure_front_left') | float(-99999) -%}
           {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_front_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.ix3_measured_tire_pressure_front_right
+        entity: sensor.ix3_50_xdrive_tire_pressure_front_right
         name: Voor R
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
         state_content: >-
-          {%- set v = states('sensor.ix3_measured_tire_pressure_front_right') | float(-99999) -%}
+          {%- set v = states('sensor.ix3_50_xdrive_tire_pressure_front_right') | float(-99999) -%}
           {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_front_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.ix3_measured_tire_pressure_rear_left
+        entity: sensor.ix3_50_xdrive_tire_pressure_rear_left
         name: Achter L
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
         state_content: >-
-          {%- set v = states('sensor.ix3_measured_tire_pressure_rear_left') | float(-99999) -%}
+          {%- set v = states('sensor.ix3_50_xdrive_tire_pressure_rear_left') | float(-99999) -%}
           {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_rear_left']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.ix3_measured_tire_pressure_rear_right
+        entity: sensor.ix3_50_xdrive_tire_pressure_rear_right
         name: Achter R
         icon: mdi:tire
         card_layout: large
         tap_action: { action: more-info }
         state_content: >-
-          {%- set v = states('sensor.ix3_measured_tire_pressure_rear_right') | float(-99999) -%}
+          {%- set v = states('sensor.ix3_50_xdrive_tire_pressure_rear_right') | float(-99999) -%}
           {{ ((('%.1f' | format(v / 100)) | replace('.', ',')) ~ ' bar') if v != -99999 else '—' }}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
-          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_measured_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? 'rgba(226,75,74,0.16)' : 'rgba(45,170,115,0.13)'; })()} !important; }
+          .bubble-state { font-size: 12.5px !important; font-weight: 500; color: ${(() => { const v = parseFloat(hass.states['sensor.ix3_50_xdrive_tire_pressure_rear_right']?.state); return (isFinite(v) && v < 200) ? '#ec8a89' : '#9ed9bd'; })()} !important; }
   # ── klimaat ───────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -217,32 +217,28 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: binary_sensor.ix3_air_conditioning_active
-        name: Airco
-        icon: mdi:air-conditioner
-        card_layout: large
-        tap_action: { action: more-info }
-        state_content: "{{ 'Aan' if is_state('binary_sensor.ix3_air_conditioning_active','on') else 'Uit' }}"
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
-          .bubble-icon-container { background-color: ${state === 'on' ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 12.5px !important; color: ${state === 'on' ? '#82bbf0' : '#8f8e9e'} !important; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.ix3_preconditioning_status_air_conditioning
+        entity: sensor.ix3_50_xdrive_preconditioning_comfort_state
         name: Voorverwarmen
         icon: mdi:car-defrost-front
         card_layout: large
         tap_action: { action: more-info }
         state_content: >-
-          {%- set s = states('sensor.ix3_preconditioning_status_air_conditioning') -%}
-          {%- set r = states('sensor.ix3_remaining_duration_preconditioning') | float(-99999) -%}
-          {{ 'Inactief' if (s in ['unknown','unavailable','','INACTIVE']) else (('nog ' ~ (r | round | int) ~ ' min') if (r != -99999 and r > 0) else 'Actief') }}
+          {{ 'Inactief' if states('sensor.ix3_50_xdrive_preconditioning_comfort_state')
+             in ['unknown','unavailable','','NOT_ACTIVE'] else 'Actief' }}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
-          .bubble-icon-container { background-color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
-          .bubble-state { font-size: 12.5px !important; color: ${(() => { const s = hass.states['sensor.ix3_preconditioning_status_air_conditioning']?.state; return (s && s !== 'INACTIVE') ? '#82bbf0' : '#8f8e9e'; })()} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s = hass.states['sensor.ix3_50_xdrive_preconditioning_comfort_state']?.state; return (s && !['NOT_ACTIVE','unknown','unavailable'].includes(s)) ? 'rgba(55,138,221,0.16)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const s = hass.states['sensor.ix3_50_xdrive_preconditioning_comfort_state']?.state; return (s && !['NOT_ACTIVE','unknown','unavailable'].includes(s)) ? 'rgba(55,138,221,0.22)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+          .bubble-state { font-size: 12.5px !important; color: ${(() => { const s = hass.states['sensor.ix3_50_xdrive_preconditioning_comfort_state']?.state; return (s && !['NOT_ACTIVE','unknown','unavailable'].includes(s)) ? '#82bbf0' : '#8f8e9e'; })()} !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.ix3_50_xdrive_preconditioning_direct_target_temperature
+        name: Doeltemperatuur
+        icon: mdi:thermometer
+        card_layout: large
+        tap_action: { action: more-info }
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(255,255,255,0.04) !important; }
   # ── laden ─────────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -399,28 +395,31 @@ cards:
       - entity: sensor.bmw_ix3_target_state_of_charge
         name: Doel laadniveau
         icon: mdi:battery-charging-100
-      - entity: sensor.ix3_battery_ev_predicted_state_of_charge
+      - entity: sensor.ix3_50_xdrive_battery_ev_predicted_state_of_charge
         name: Voorspeld laadniveau
         icon: mdi:battery-clock
-      - entity: sensor.ix3_energy_required_complete_residual_charge
+      - entity: sensor.ix3_50_xdrive_energy_to_full
         name: Energie tot vol
         icon: mdi:lightning-bolt
-  # ── ritten & efficiëntie ──────────────────────────────────────────
+      - entity: sensor.ix3_50_xdrive_battery_ev_charging_current_limit
+        name: Laadstroomlimiet
+        icon: mdi:current-ac
+  # ── ritten & accu ─────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
-    name: Ritten & efficiëntie
+    name: Ritten & accu
   - type: entities
     show_header_toggle: false
     entities:
-      - entity: sensor.ix3_average_electrical_consumption
-        name: Gem. verbruik
-        icon: mdi:lightning-bolt-outline
-      - entity: sensor.ix3_average_speed
-        name: Gem. snelheid
-        icon: mdi:speedometer
-      - entity: sensor.ix3_electric_portion_last_journey
-        name: Elektrisch laatste rit
+      - entity: sensor.ix3_50_xdrive_trip_eco_pro_mode_share
+        name: ECO PRO laatste rit
         icon: mdi:leaf
-      - entity: sensor.ix3_trip_average_distance_per_week
-        name: Gem. per week
-        icon: mdi:calendar-week
+      - entity: sensor.ix3_50_xdrive_trip_battery_charge_level_at_end_of_trip
+        name: Laadniveau na laatste rit
+        icon: mdi:battery-arrow-down
+      - entity: sensor.ix3_50_xdrive_battery_hv_max_size
+        name: Accucapaciteit
+        icon: mdi:car-battery
+      - entity: sensor.ix3_50_xdrive_vehicle_auxiliary_power
+        name: Verbruik boordsystemen
+        icon: mdi:flash-outline

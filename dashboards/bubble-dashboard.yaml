@@ -1589,18 +1589,18 @@ views:
           - type: custom:bubble-card
             card_type: button
             button_type: state
-            entity: device_tracker.ix3_location
+            entity: device_tracker.ix3_50_xdrive_location
             name: BMW iX3
             icon: mdi:car-electric
             tap_action: { action: navigate, navigation_path: '#auto' }
             button_action:
               tap_action: { action: navigate, navigation_path: '#auto' }
             sub_button:
-              - entity: sensor.ix3_remaining_electric_range_km
+              - entity: sensor.ix3_50_xdrive_range_ev_remaining_range
                 show_state: true
                 show_icon: false
                 show_name: false
-              - entity: sensor.state_of_charge_predicted_on_bmw_side
+              - entity: sensor.ix3_50_xdrive_battery_ev_predicted_state_of_charge
                 show_state: true
                 show_icon: false
                 show_name: false
@@ -1609,7 +1609,7 @@ views:
               badges:
                 # Two mutually-exclusive badges replace rather than stack: orange plug = plugged
                 # in, not charging; blue flash = charging; none = unplugged. Reads the Easee
-                # charger only — BMW cardata lags badly (stuck disconnected at 4.35 kW); Tibber ix3 is always unknown.
+                # charger only — BMW cardata lags badly (stuck disconnected at 4.35 kW).
                 - name: Plugged in
                   target: main_icon
                   icon: mdi:ev-plug-type2
@@ -1652,7 +1652,7 @@ views:
                 position: absolute;
                 left: 20px; bottom: 12px; z-index: 1;
                 height: 6px; border-radius: 999px;
-                width: calc((100% - 40px) * ${(parseFloat(hass.states['sensor.state_of_charge_predicted_on_bmw_side']?.state) || 0) / 100});
+                width: calc((100% - 40px) * ${(parseFloat(hass.states['sensor.ix3_50_xdrive_battery_ev_predicted_state_of_charge']?.state) || 0) / 100});
                 background: linear-gradient(90deg, #63e6e2, #46c7c3);
                 box-shadow: 0 0 10px rgba(99, 230, 226, 0.45);
                 pointer-events: none;

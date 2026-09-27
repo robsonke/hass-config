@@ -134,7 +134,7 @@ cards:
           use_metadata: true
           unit_white_space: false
           secondary_info:
-            entity: sensor.state_of_charge_last_known
+            entity: sensor.ix3_50_xdrive_battery_ev_state_of_charge
             unit_of_measurement: '%'
             icon: mdi:ev-station
         - entity: sensor.shelly_warmtepomp_meter_total_active_power
