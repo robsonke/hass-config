@@ -282,11 +282,10 @@
     attribute: elevation
     below: 5
     id: sun_fallback
-    note: >-
-      Fallback for when the living room light sensor goes offline. Calibrated
-      against its own history: it crosses 30 lux at about +4.4 deg elevation,
-      morning and evening alike. Only honoured while that sensor is actually
-      unavailable - see the guard condition below.
+    note: 'Fallback for when the living room light sensor goes offline. Calibrated
+      against its own history: it crosses 30 lux at about +4.4 deg elevation, morning
+      and evening alike. Only honoured while that sensor is actually unavailable -
+      see the guard condition below.'
   conditions:
   - condition: or
     alias: Light sensor said dark, or it died and the sun stands in
@@ -344,11 +343,10 @@
     attribute: elevation
     below: 5
     id: sun_fallback
-    note: >-
-      Fallback for when the living room light sensor goes offline. Calibrated
-      against its own history: it crosses 30 lux at about +4.4 deg elevation,
-      morning and evening alike. Only honoured while that sensor is actually
-      unavailable - see the guard condition below.
+    note: 'Fallback for when the living room light sensor goes offline. Calibrated
+      against its own history: it crosses 30 lux at about +4.4 deg elevation, morning
+      and evening alike. Only honoured while that sensor is actually unavailable -
+      see the guard condition below.'
   conditions:
   - condition: or
     alias: Light sensor said dark, or it died and the sun stands in
@@ -485,9 +483,6 @@
       - condition: state
         entity_id: light.hue_lily_light_fence_1
         state: 'off'
-      # Every lantern counts: this used to check only lantern 1, and a state
-      # condition fails once that lamp is unavailable - one broken lantern
-      # silenced this whole morning branch while 2 and 3 kept working.
       - condition: or
         conditions:
         - condition: state
@@ -569,7 +564,6 @@
       color_temp_kelvin: 2200
     target:
       entity_id: light.hue_lights_garden
-  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -580,10 +574,6 @@
         entity_id:
         - light.kerst_buiten
       data: {}
-  # Marks the start of an "automatisch aan door donker" period for the timeline
-  # in the Verlichting tuin pop-up. Cleared by the morning off automation - note
-  # the *evening* one only dims the lanterns back to 30%, so the dark stretch
-  # runs through the night and must not clear this flag.
   - action: input_boolean.turn_on
     target:
       entity_id: input_boolean.lights_garden_auto_dark
@@ -609,15 +599,9 @@
     state: 'on'
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # The 09:00 time trigger has no from_state and slips through the first clause
-    # unfiltered. A numeric_state trigger also rearms after a restart or sensor
-    # blip: the value returns from unavailable, counts as a crossing, and the
-    # notification fires with no real change.
-    value_template: >
-      {{ trigger is not defined
-         or trigger.from_state is not defined
-         or trigger.from_state is none
-         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
+    value_template: "{{ trigger is not defined\n   or trigger.from_state is not defined\n
+      \  or trigger.from_state is none\n   or trigger.from_state.state not in ['unknown',
+      'unavailable'] }}\n"
   actions:
   - action: light.turn_off
     data: {}
@@ -651,7 +635,6 @@
     target:
       entity_id:
       - light.garden_light
-  # Separate, and behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -662,7 +645,6 @@
       target:
         entity_id:
         - light.kerst_buiten
-  # End of the garden dark stretch - it is light enough again.
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.lights_garden_auto_dark
@@ -704,9 +686,6 @@
           entity_id: light.dimmer_hall
         data: {}
       alias: Turn on hall light shortly
-  # if/then, not a bare condition in the action list, which would abort the rest.
-  # after > before wraps the window past midnight, matching the automation's own
-  # 21:00-05:00 range.
   - alias: Turn off the couch and corner light too if it's after 11 pm
     if:
     - condition: time
@@ -719,7 +698,6 @@
         - light.socket1_light_corner
         - light.socket2_light_couch
       data: {}
-  # We went to bed - end of the downstairs dark stretch for the pop-up timeline.
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.lights_downstairs_auto_dark
@@ -758,7 +736,6 @@
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
-  # Bedtime - end of the downstairs dark stretch for the pop-up timeline.
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.lights_downstairs_auto_dark
@@ -830,9 +807,8 @@
       entity_id: sensor.light_sensor_living_illuminance
       below: '60'
     - condition: and
-      note: >-
-        Fallback for when the living room light sensor goes offline. That
-        sensor crosses 60 lux at about +8.5 deg elevation.
+      note: Fallback for when the living room light sensor goes offline. That sensor
+        crosses 60 lux at about +8.5 deg elevation.
       conditions:
       - condition: state
         entity_id: sensor.light_sensor_living_illuminance
@@ -850,7 +826,6 @@
       entity_id:
       - light.kitchendesk_light
       - light.diningtable_light
-  # Behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -914,14 +889,8 @@
     value_template: '{{ trigger.payload_json[''after''][''label''] == ''person'' }}'
   - condition: template
     alias: Not alerted in the last 2 minutes
-    # `this` instead of the hardcoded states.automation.<alias> path: that path is
-    # derived from the alias while the automation id is
-    # presence_frigate_object_detection, so a rename would silently break the
-    # cooldown. Same pattern as the pool alert further down.
-    value_template: >
-      {{ this is not defined
-         or (as_timestamp(now())
-             - as_timestamp(this.attributes.last_triggered, 0)) | int > 120 }}
+    value_template: "{{ this is not defined\n   or (as_timestamp(now())\n       -
+      as_timestamp(this.attributes.last_triggered, 0)) | int > 120 }}\n"
   - condition: template
     value_template: "{{ trigger.payload_json['after']['camera'] in\n   ['zijkant',
       'terras', 'veranda', 'bijkeuken'] }}\n"
@@ -1002,14 +971,9 @@
   conditions:
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # A numeric_state trigger rearms after an HA restart or sensor blip: the value
-    # returns from unavailable to its old reading, which counts as a crossing, so
-    # the notification fires even though nothing actually changed.
-    value_template: >
-      {{ trigger is not defined
-         or trigger.from_state is not defined
-         or trigger.from_state is none
-         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
+    value_template: "{{ trigger is not defined\n   or trigger.from_state is not defined\n
+      \  or trigger.from_state is none\n   or trigger.from_state.state not in ['unknown',
+      'unavailable'] }}\n"
   actions:
   - action: notify.all_phones
     data:
@@ -1117,10 +1081,6 @@
     from: disarmed
     to: armed_night
   conditions:
-  # numeric_state instead of "not state == '0'": the latter is TRUE whenever the
-  # sensor is unavailable/unknown (restart, template error), which would make
-  # Sonos announce open windows in the middle of the night. numeric_state fails
-  # safe to false on a non-numeric state.
   - condition: numeric_state
     entity_id: sensor.open_windows_and_doors_downstairs
     above: 0
@@ -1169,10 +1129,10 @@
   mode: single
 - id: nuki_voordeur_battery_low
   alias: Doors - Nuki battery low
-  description: Early warning that the Nuki front door lock battery dropped below
-    30 percent. The generic low-battery blueprint automation only warns at 20
-    percent and the Nuki's own battery_critical binary sensor fires later still,
-    which leaves little time to charge the pack before the lock stops responding.
+  description: Early warning that the Nuki front door lock battery dropped below 30
+    percent. The generic low-battery blueprint automation only warns at 20 percent
+    and the Nuki's own battery_critical binary sensor fires later still, which leaves
+    little time to charge the pack before the lock stops responding.
   triggers:
   - trigger: numeric_state
     entity_id: sensor.voordeur_battery
@@ -1185,18 +1145,18 @@
     data:
       notification_id: nuki_voordeur_battery_low
       title: Batterij Nuki
-      message: 'Let op, de batterij van het voordeur slot is gezakt tot {{
-        trigger.to_state.state }}%. Tijd om op te laden.'
+      message: Let op, de batterij van het voordeur slot is gezakt tot {{ trigger.to_state.state
+        }}%. Tijd om op te laden.
   mode: single
 - id: '1623609811213'
   alias: Screens - Close screens voorraam on warm sunny days
   description: In case it's warm and sunny, close the screens in the morning but the
-    one on the side a bit later. Sunshine is gated on the local pyranometer
-    (sensor.solarradiation above 350 W/m2), not on OpenWeatherMap cloud coverage -
-    that value is a coarse hourly forecast and went 12 - 27 - 100 - 57 percent on
-    30 Jul while the pyranometer read 430 W/m2 and PV was doing 4.3 kW, so the
-    screens stayed open on a plainly sunny morning. 350 sits between the overcast
-    mornings measured here (112-294) and the clear ones (381-787).
+    one on the side a bit later. Sunshine is gated on the local pyranometer (sensor.solarradiation
+    above 350 W/m2), not on OpenWeatherMap cloud coverage - that value is a coarse
+    hourly forecast and went 12 - 27 - 100 - 57 percent on 30 Jul while the pyranometer
+    read 430 W/m2 and PV was doing 4.3 kW, so the screens stayed open on a plainly
+    sunny morning. 350 sits between the overcast mornings measured here (112-294)
+    and the clear ones (381-787).
   triggers:
   - trigger: numeric_state
     entity_id: sun.sun
@@ -1409,11 +1369,6 @@
       - switch.terras_detect
       - switch.veranda_detect
       - switch.zwembad_detect
-  # Bedroom detection is tied to the alarm state, not presence. Were these two
-  # also in the list above, a nighttime GPS blip (someone flipping unknown back
-  # to home) would turn off child detection under armed_night, and the
-  # counterpart (:991) would not restore it since it only fires on the
-  # disarmed -> armed_night transition.
   - if:
     - condition: not
       conditions:
@@ -1434,13 +1389,13 @@
     appearing on the wifi via iphonedetect (~5-13s after the phone joins). The iPhone
     trigger deliberately uses from not_home, because after a restart the tracker goes
     from unknown to home and that would otherwise disarm the alarm on every restart.
-    Add a phone by listing its tracker in the second trigger plus the phone_names map.
-    Our OWN phones are deliberately NOT triggers - "Alarm - Disarm automatically when
-    one of us comes home" already handles us, without starting the 2 hour pause. Were
-    rob or steffi listed here, coming home would re-arm the house to away two hours
-    later while we are inside; the pause-interrupt automation only cancels that when
-    zone.home crosses 0 -> 1, so it survives when the other one is already home. This
-    trigger is for guests who need the alarm off for a visit. They stay in phone_names
+    Add a phone by listing its tracker in the second trigger plus the phone_names
+    map. Our OWN phones are deliberately NOT triggers - "Alarm - Disarm automatically
+    when one of us comes home" already handles us, without starting the 2 hour pause.
+    Were rob or steffi listed here, coming home would re-arm the house to away two
+    hours later while we are inside; the pause-interrupt automation only cancels that
+    when zone.home crosses 0 -> 1, so it survives when the other one is already home.
+    This trigger is for guests who need the alarm off for a visit. They stay in phone_names
     so the spoken name still resolves if ever re-added.
   triggers:
   - trigger: state
@@ -1488,11 +1443,11 @@
         data:
           sonos_entity: media_player.eetkamer
           volume: 20
-          message: De telefoon van {{ phone_name }} is gedetecteerd. Het alarm is voor
-            2 uur uitgezet.
+          message: De telefoon van {{ phone_name }} is gedetecteerd. Het alarm is
+            voor 2 uur uitgezet.
       - action: notify.all_phones
         data:
-          title: 🏠 Bezoek thuis
+          title: "\U0001F3E0 Bezoek thuis"
           message: '{{ phone_name }} is binnen. Het alarm staat 2 uur uit.'
           data:
             persistent: true
@@ -1704,9 +1659,8 @@
         entity_id: sensor.light_sensor_living_illuminance
         below: '30'
       - condition: and
-        note: >-
-          Fallback for when the living room light sensor goes offline. That
-          sensor crosses 30 lux at about +4.4 deg elevation.
+        note: Fallback for when the living room light sensor goes offline. That sensor
+          crosses 30 lux at about +4.4 deg elevation.
         conditions:
         - condition: state
           entity_id: sensor.light_sensor_living_illuminance
@@ -1750,9 +1704,6 @@
       - condition: state
         entity_id: light.diningtable_light
         state: 'on'
-    # This check is only a proxy for "dark" - it can be true in daylight if a lamp
-    # is already on. The "lighter" trigger only fires on a transition, so it won't
-    # undo that. Same or-block and calibration as "dark - arriving" (same sensor).
     - condition: or
       alias: Dark enough - by light sensor, or by sun elevation if that is dead
       conditions:
@@ -1760,9 +1711,8 @@
         entity_id: sensor.light_sensor_living_illuminance
         below: '30'
       - condition: and
-        note: >-
-          Fallback for when the living room light sensor goes offline. That
-          sensor crosses 30 lux at about +4.4 deg elevation.
+        note: Fallback for when the living room light sensor goes offline. That sensor
+          crosses 30 lux at about +4.4 deg elevation.
         conditions:
         - condition: state
           entity_id: sensor.light_sensor_living_illuminance
@@ -1811,11 +1761,10 @@
     attribute: elevation
     above: 9
     id: sun_fallback
-    note: >-
-      Fallback for when the living room light sensor goes offline. Calibrated
-      against its own history: it crosses 60 lux at about +8.5 deg elevation,
-      morning and evening alike. Only honoured while that sensor is actually
-      unavailable - see the guard condition below.
+    note: 'Fallback for when the living room light sensor goes offline. Calibrated
+      against its own history: it crosses 60 lux at about +8.5 deg elevation, morning
+      and evening alike. Only honoured while that sensor is actually unavailable -
+      see the guard condition below.'
   conditions:
   - condition: or
     alias: Light sensor said bright, or it died and the sun stands in
@@ -1871,9 +1820,6 @@
       - media_player.eetkamer
       - media_player.office
       - media_player.living_room
-      # The Shed speaker has three names for one box (RINCON_347E5C5077FE01400).
-      # Targeting the native Sonos entity here pauses it regardless of whether
-      # playback started via Music Assistant or Sonos directly.
       - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
     data: {}
   mode: single
@@ -1992,9 +1938,6 @@
           entity_id: light.dimmer_hall
         data: {}
       alias: Turn on hall light shortly
-  # if/then, not a bare condition, which would abort the rest of the action list.
-  # before: 05:00 wraps the window past midnight, matching this automation's own
-  # outer condition (it previously stopped at midnight instead).
   - alias: Turn off the couch and corner light too if it's after 11 pm
     if:
     - condition: time
@@ -2007,7 +1950,6 @@
         - light.socket1_light_corner
         - light.socket2_light_couch
       data: {}
-  # Good night pressed - end of the downstairs dark stretch for the timeline.
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.lights_downstairs_auto_dark
@@ -2153,11 +2095,6 @@
   description: Turn off lights in the garden in the evening but keep a few on on low
     brightness. Turn off when we go to bed, guest mode is off or otherwise at 23:00.
   triggers:
-  # The 5-minute grace period used to be a `delay:` as the first action. An
-  # in-flight delay is lost on an HA restart, which left the garden lit all
-  # night, and `mode: single` meant a second trigger inside that window was
-  # dropped. Expressing the grace in the triggers themselves removes the long
-  # delay entirely - there is now nothing in flight to lose.
   - at: '23:05'
     trigger: time
   - at: 01:05
@@ -2210,7 +2147,7 @@
       milliseconds: 0
   - action: light.turn_on
     data:
-      brightness_pct: 30
+      brightness_pct: 35
     target:
       entity_id:
       - light.garden_lantern_light1
@@ -2227,7 +2164,6 @@
     target:
       entity_id:
       - light.hue_lights_garden
-  # Separate, and behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -2278,12 +2214,12 @@
 - id: '1659861088978'
   alias: Screens - Close screens zijraam on warm sunny days
   description: In case it's warm and sunny, close the screens in the morning but the
-    one on the side a bit later. Sunshine is gated on the local pyranometer
-    (sensor.solarradiation above 350 W/m2), not on OpenWeatherMap cloud coverage -
-    that value is a coarse hourly forecast and went 12 - 27 - 100 - 57 percent on
-    30 Jul while the pyranometer read 430 W/m2 and PV was doing 4.3 kW, so the
-    screens stayed open on a plainly sunny morning. 350 sits between the overcast
-    mornings measured here (112-294) and the clear ones (381-787).
+    one on the side a bit later. Sunshine is gated on the local pyranometer (sensor.solarradiation
+    above 350 W/m2), not on OpenWeatherMap cloud coverage - that value is a coarse
+    hourly forecast and went 12 - 27 - 100 - 57 percent on 30 Jul while the pyranometer
+    read 430 W/m2 and PV was doing 4.3 kW, so the screens stayed open on a plainly
+    sunny morning. 350 sits between the overcast mornings measured here (112-294)
+    and the clear ones (381-787).
   triggers:
   - trigger: numeric_state
     entity_id: sun.sun
@@ -2382,9 +2318,6 @@
     from:
     - 'off'
   conditions:
-  # Only the master switch belongs here. The price/temperature/pump conditions
-  # used to be here too, blocking the default: branch that turns the heat pump
-  # off exactly when it should. They already live in the on-branch below.
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
@@ -2396,8 +2329,6 @@
         state: 'on'
       - condition: numeric_state
         entity_id: sensor.today_maximum_temperature
-        # Was 14, but the (now removed) top-level condition required 15, making
-        # 15 the effective threshold. Aligned here to keep the on-behavior unchanged.
         above: 15
       - condition: state
         entity_id: binary_sensor.pool_pump_active
@@ -2453,16 +2384,16 @@
     stored_traces: 50
 - id: '1661977922126'
   alias: HVAC - Control Operation Mode downstairs
-  description: >-
-    Season switch, and only that. Heating when the 3-day outdoor mean says so
-    (binary_sensor.heating_season, on below 14, off above 17), cooling on the old rule
-    (downstairs above the cooling limit and a forecast maximum above 24), otherwise the unit is
-    switched off. It no longer reads room temperature for heating: the old middle branch set
-    the thermostat to off whenever downstairs was between 20 and 24, which switched the unit
-    off across the entire comfort band and held the house at ~19 all of last winter.
+  description: 'Season switch, and only that. Heating when the 3-day outdoor mean
+    says so (binary_sensor.heating_season, on below 14, off above 17), cooling on
+    the old rule (downstairs above the cooling limit and a forecast maximum above
+    24), otherwise the unit is switched off. It no longer reads room temperature for
+    heating: the old middle branch set the thermostat to off whenever downstairs was
+    between 20 and 24, which switched the unit off across the entire comfort band
+    and held the house at ~19 all of last winter.
 
-    climate.warmtepomp is set for the dashboard header only; nothing in the control path
-    reads it any more. Heating-season switch-on lives in HVAC - Control the heatpump.
+    climate.warmtepomp is set for the dashboard header only; nothing in the control
+    path reads it any more. Heating-season switch-on lives in HVAC - Control the heatpump.'
   triggers:
   - trigger: state
     entity_id: binary_sensor.heating_season
@@ -2533,11 +2464,10 @@
       - condition: state
         entity_id: binary_sensor.heating_season
         state: 'off'
-      # Cooling ends 1 K under the limit, not at it, so the unit does not flap around 24.0.
       - condition: numeric_state
         entity_id: sensor.downstairs_temperature
-        value_template: >-
-          {{ state.state | float(0) - states('input_number.hvac_cooling_limit') | float(24) }}
+        value_template: '{{ state.state | float(0) - states(''input_number.hvac_cooling_limit'')
+          | float(24) }}'
         below: -1
       - condition: not
         conditions:
@@ -2585,18 +2515,11 @@
     entity_id: sensor.water_daily
     above: 5
   conditions:
-  # The condition that used to be here (numeric_state above 5) exactly duplicated
-  # the trigger, so it could never fail - dead code. Replaced with a real guard.
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # A numeric_state trigger rearms after an HA restart or sensor blip: the value
-    # returns from unavailable to its old reading, which counts as a crossing, so
-    # the notification fires even though nothing actually changed.
-    value_template: >
-      {{ trigger is not defined
-         or trigger.from_state is not defined
-         or trigger.from_state is none
-         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
+    value_template: "{{ trigger is not defined\n   or trigger.from_state is not defined\n
+      \  or trigger.from_state is none\n   or trigger.from_state.state not in ['unknown',
+      'unavailable'] }}\n"
   actions:
   - action: persistent_notification.create
     data:
@@ -2618,15 +2541,10 @@
   - trigger: time
     at: 02:00:00
   conditions:
-  # The two `| float` calls in the branches below have no default, so an
-  # unavailable helper would raise. Guarding here means the automation does
-  # nothing in that case rather than pushing a wrong setpoint at the heat pump -
-  # doing nothing is the safe failure for heating.
   - alias: Both target-temperature helpers have a value
     condition: template
-    value_template: >
-      {{ has_value('input_number.hvac_winter_target_temperature')
-         and has_value('input_number.hvac_summer_target_temperature') }}
+    value_template: "{{ has_value('input_number.hvac_winter_target_temperature')\n
+      \  and has_value('input_number.hvac_summer_target_temperature') }}\n"
   actions:
   - choose:
     - conditions:
@@ -2659,35 +2577,36 @@
   mode: single
 - id: '1663405385606'
   alias: HVAC - Control the heatpump
-  description: >-
-    Temperature-only safety envelope for the heating season. Off when downstairs sits more
-    than 0.5 K above the comfort band for 10 minutes, on again once it is back under the band
-    top. The 0.5 K gap is the precedence rule: crossing hvac_band_high first drives the
-    leaving-water offset to -6 (sensor.hvac_offset_target) and lets the curve do the work; the
-    hard switch is the backstop for when the Daikin's single wall sensor and the five-sensor
-    downstairs mean disagree.
+  description: 'Temperature-only safety envelope for the heating season. Off when
+    downstairs sits more than 0.5 K above the comfort band for 10 minutes, on again
+    once it is back under the band top. The 0.5 K gap is the precedence rule: crossing
+    hvac_band_high first drives the leaving-water offset to -6 (sensor.hvac_offset_target)
+    and lets the curve do the work; the hard switch is the backstop for when the Daikin''s
+    single wall sensor and the five-sensor downstairs mean disagree.
 
-    No price condition on purpose. The old gate (cheapest 16 of 24 hours OR under 91 % of the
-    day's average) passed two thirds of the day and switching a compressor off on price is the
-    cycling this design exists to remove; the -4 plan row is the price response now.
+    No price condition on purpose. The old gate (cheapest 16 of 24 hours OR under
+    91 % of the day''s average) passed two thirds of the day and switching a compressor
+    off on price is the cycling this design exists to remove; the -4 plan row is the
+    price response now.
 
-    The season_start trigger matters: at the first heating day the house is usually already
-    below the band top, a numeric_state trigger alone never sees a crossing, and the unit would
-    stay off from last spring. The value_template falls back to 0 on an unavailable reading,
-    which lands on "switch on" - the safe failure for heating.
+    The season_start trigger matters: at the first heating day the house is usually
+    already below the band top, a numeric_state trigger alone never sees a crossing,
+    and the unit would stay off from last spring. The value_template falls back to
+    0 on an unavailable reading, which lands on "switch on" - the safe failure for
+    heating.'
   triggers:
   - trigger: numeric_state
     entity_id: sensor.downstairs_temperature
-    value_template: >-
-      {{ state.state | float(0) - states('input_number.hvac_band_high') | float(21.5) }}
+    value_template: '{{ state.state | float(0) - states(''input_number.hvac_band_high'')
+      | float(21.5) }}'
     above: 0.5
     for:
       minutes: 10
     id: too_warm
   - trigger: numeric_state
     entity_id: sensor.downstairs_temperature
-    value_template: >-
-      {{ state.state | float(0) - states('input_number.hvac_band_high') | float(21.5) }}
+    value_template: '{{ state.state | float(0) - states(''input_number.hvac_band_high'')
+      | float(21.5) }}'
     below: 0
     for:
       minutes: 10
@@ -2700,12 +2619,8 @@
     entity_id: binary_sensor.heating_season
     to: 'on'
     id: season_start
-  # Level-triggered reconcile. The crossing triggers above are edge-only: a reload inside
-  # their 10-minute window, a manual toggle from the popup, or an unavailable reading can each
-  # leave the switch off with nothing to turn it back on. Every 15 minutes the switch is
-  # re-asserted from the current temperature; enable_automatic_hvac off is the manual override.
   - trigger: time_pattern
-    minutes: "/15"
+    minutes: /15
     id: reconcile
   - trigger: homeassistant
     event: start
@@ -2732,9 +2647,8 @@
           - condition: trigger
             id: reconcile
           - condition: template
-            value_template: >-
-              {{ states('sensor.downstairs_temperature') | float(0)
-                 - states('input_number.hvac_band_high') | float(21.5) > 0.5 }}
+            value_template: "{{ states('sensor.downstairs_temperature') | float(0)\n
+              \  - states('input_number.hvac_band_high') | float(21.5) > 0.5 }}"
       - condition: state
         entity_id: switch.climate_control
         state: 'on'
@@ -2748,12 +2662,9 @@
         - ok_again
         - season_start
         - reconcile
-      # A template, not numeric_state: an unavailable reading renders float(0) and lands on
-      # "on", the safe failure for heating. numeric_state would silently not pass at all.
       - condition: template
-        value_template: >-
-          {{ states('sensor.downstairs_temperature') | float(0)
-             < states('input_number.hvac_band_high') | float(21.5) }}
+        value_template: "{{ states('sensor.downstairs_temperature') | float(0)\n   <
+          states('input_number.hvac_band_high') | float(21.5) }}"
       - condition: state
         entity_id: switch.climate_control
         state: 'off'
@@ -2794,8 +2705,9 @@
   mode: single
 - id: '1663526481065'
   alias: Heating - Control heaters bathrooms
-  description: Turn simply on/off the heaters in both bathrooms. These are stupid
-    devices with their own local thermostat, so we just turn them on to dry towells.
+  description: Turn simply on/off the heater in the bathroom. It is a stupid device
+    with its own local thermostat, so we just turn it on to dry towels. The shower
+    heater has its own motion-based automation.
   triggers:
   - trigger: time
     at: 09:00:00
@@ -2804,19 +2716,13 @@
   conditions:
   - condition: numeric_state
     entity_id: sensor.today_maximum_temperature
-    below: 14
-    alias: Today Maximum Temperature Outside is below 18 degrees
+    below: 16
+    alias: Today Maximum Temperature Outside is below 16 degrees
   actions:
-  # Switch on, then hand the 30 minutes to timer.bathroom_heaters (restore:
-  # true) instead of an in-line `delay:`. An in-flight delay is lost on an HA
-  # restart, which left both heaters switched on indefinitely - the same failure
-  # already fixed for the alarm pause in pkg_alarm.yaml. The turn-off lives in
-  # "Heating - Turn off heaters bathrooms when the timer finishes".
   - action: switch.turn_on
     data: {}
     target:
       entity_id:
-      - switch.shelly_plug_douche_verwarming_relay
       - switch.shelly_plug_badkamer_verwarming_relay
   - action: timer.start
     target:
@@ -2825,8 +2731,8 @@
 - id: bathroom_heaters_timer_finished
   alias: Heating - Turn off heaters bathrooms when the timer finishes
   description: Companion to "Heating - Control heaters bathrooms". Split out so the
-    30-minute run survives an HA restart - a restore:true timer keeps counting,
-    an in-line delay does not.
+    30-minute run survives an HA restart - a restore:true timer keeps counting, an
+    in-line delay does not.
   triggers:
   - trigger: event
     event_type: timer.finished
@@ -2839,7 +2745,50 @@
     target:
       entity_id:
       - switch.shelly_plug_badkamer_verwarming_relay
-      - switch.shelly_plug_douche_verwarming_relay
+  mode: single
+- id: shower_heater_after_use
+  alias: Heating - Dry towels in the shower after use
+  description: Only a real shower (still motion 3-6 minutes after the first) starts
+    or restarts timer.shower_heater, keeping the heater on until an hour after the
+    last shower. Someone briefly walking in does not start or extend a run.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.hue_motion_sensor_shower_occupancy
+    from: 'off'
+    to: 'on'
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.hue_motion_sensor_shower_temperature
+    below: 20
+  actions:
+  - delay:
+      minutes: 3
+  - wait_template: '{{ is_state(''binary_sensor.hue_motion_sensor_shower_occupancy'',
+      ''on'') }}'
+    timeout:
+      minutes: 3
+    continue_on_timeout: false
+  - action: switch.turn_on
+    target:
+      entity_id: switch.shelly_plug_douche_verwarming_relay
+  - action: timer.start
+    target:
+      entity_id: timer.shower_heater
+  mode: single
+  max_exceeded: silent
+- id: shower_heater_timer_finished
+  alias: Heating - Turn off heater shower when the timer finishes
+  description: Companion to "Heating - Dry towels in the shower after use".
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.shower_heater
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.shelly_plug_douche_verwarming_relay
   mode: single
 - id: '1673167307057'
   alias: Humidifier - Alert when bin is full
@@ -3029,9 +2978,6 @@
   actions:
   - choose:
     - conditions:
-      # Reuses sensor.pool_heating_temperature_diff (pkg_pool.yaml) instead of inline
-      # arithmetic: int(default=0) silently turns an unavailable source into 0. That
-      # sensor's availability guard makes this condition false instead, when it happens.
       - condition: numeric_state
         entity_id: sensor.pool_heating_temperature_diff
         above: 0
@@ -3055,18 +3001,10 @@
   alias: Pool - Alert when ph or redox values are not oke
   description: ''
   triggers:
-  # No `for:` on the sensor trigger - it used to be all zeros, which reads as a
-  # debounce but is a no-op. Alerting immediately is fine: the 16-hour cooldown
-  # condition below is what stops this from repeating.
   - trigger: state
     entity_id:
     - sensor.eps_pool_ph_level
     - sensor.eps_pool_rx_level
-  # Matches the pump condition below, so the automation re-evaluates exactly when
-  # the settling window closes. A bare state trigger on the pump could never
-  # satisfy that condition at the moment it fired, and relying on the next ph/rx
-  # update to notice made alerting depend on how chatty those sensors happen to
-  # be.
   - trigger: state
     entity_id: binary_sensor.pool_pump_active
     to: 'on'
@@ -3078,11 +3016,6 @@
   - condition: state
     entity_id: input_boolean.enable_pool_automations
     state: 'on'
-  # `for:` is the whole point here. On a cold start the ph/rx probes still hold
-  # yesterday's reading - or read nonsense because there is no flow past them yet
-  # - and they only settle once water has circulated. Without the window every
-  # morning produced a false "values not OK" notification that had
-  # corrected itself by the time it was read.
   - alias: Pump has been running for 30 minutes
     condition: state
     entity_id: binary_sensor.pool_pump_active
@@ -3091,10 +3024,6 @@
       hours: 0
       minutes: 30
       seconds: 0
-  # There used to be a sibling branch alerting when the pump had been *off* for
-  # 30 minutes. It was deliberately dropped: this automation is about water
-  # chemistry, and a stopped pump is a different problem wanting a different
-  # message.
   - alias: Chemistry or sensors not oke
     condition: or
     conditions:
@@ -3126,15 +3055,8 @@
         seconds: 0
   - condition: template
     alias: Not alerted in the last 16 hours
-    # `as_timestamp(..., 0)` supplies the default the old version lacked - with
-    # no default it raises when last_triggered is None, which is the state after
-    # this automation is renamed or recreated, and would then block it for good.
-    # `this` instead of the hardcoded states.automation.pool_alert_... path so a
-    # rename cannot silently detach the cooldown from its own automation.
-    value_template: >
-      {{ this is not defined
-         or (as_timestamp(now())
-             - as_timestamp(this.attributes.last_triggered, 0)) | int > 57600 }}
+    value_template: "{{ this is not defined\n   or (as_timestamp(now())\n       -
+      as_timestamp(this.attributes.last_triggered, 0)) | int > 57600 }}\n"
   actions:
   - action: persistent_notification.create
     data:
@@ -3170,14 +3092,9 @@
   conditions:
   - condition: template
     alias: Niet her-armeerd vanuit unavailable/unknown
-    # A numeric_state trigger rearms after an HA restart or sensor blip: the value
-    # returns from unavailable to its old reading, which counts as a crossing, so
-    # the notification fires even though nothing actually changed.
-    value_template: >
-      {{ trigger is not defined
-         or trigger.from_state is not defined
-         or trigger.from_state is none
-         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
+    value_template: "{{ trigger is not defined\n   or trigger.from_state is not defined\n
+      \  or trigger.from_state is none\n   or trigger.from_state.state not in ['unknown',
+      'unavailable'] }}\n"
   actions:
   - action: notify.all_phones
     data:
@@ -3191,10 +3108,6 @@
   description: When one of us is at home or the guest mode is enabled, keep the deck
     unlocked. Otherwise locked.
   triggers:
-  # to:/from: are needed: without them a state trigger also fires on attribute
-  # updates, and person entities get new coordinates/accuracy on every GPS fix.
-  # That produced 22 runs and 18 redundant lock/unlock calls in five hours on a
-  # deck that was already open.
   - trigger: state
     entity_id:
     - person.rob
@@ -3208,8 +3121,6 @@
   - trigger: state
     entity_id:
     - input_boolean.guest_mode
-  # armed_night was in the conditions but not the triggers, so arming at night
-  # did not lock the deck.
   - trigger: state
     entity_id: alarm_control_panel.alarmo
     to: armed_night
@@ -3319,10 +3230,6 @@
       night_brightness: 25
       no_motion_wait_night: 180
       night_time_end_helper: 08:00:00
-      # Deliberately NO sleep_time_*_helper here. The blueprint defaults 23:30-06:00
-      # keep the hallway by the kids' rooms dark at night, which is the intent.
-      # night_brightness/no_motion_wait above therefore only apply 22:00-23:30 and
-      # 06:00-08:00; the hall and shower/closet do turn this window off on purpose.
 - id: '1690717695663'
   alias: BBQ - Timer notifications
   description: Warns us in case of the bbq timer runs out
@@ -3356,8 +3263,7 @@
   mode: single
 - id: '1720370000001'
   alias: BBQ - Dome alarm
-  description: Warns when the BBQ dome temperature goes outside the configured
-    range
+  description: Warns when the BBQ dome temperature goes outside the configured range
   triggers:
   - trigger: state
     entity_id: sensor.dome_alert_temp
@@ -3376,12 +3282,8 @@
       state: unknown
   - condition: template
     alias: Not alerted in the last minute
-    # `this` instead of the hardcoded states.automation path, so a rename does not
-    # silently detach the cooldown from its own automation.
-    value_template: >
-      {{ this is not defined
-         or (as_timestamp(now())
-             - as_timestamp(this.attributes.last_triggered, 0)) | int > 60 }}
+    value_template: "{{ this is not defined\n   or (as_timestamp(now())\n       -
+      as_timestamp(this.attributes.last_triggered, 0)) | int > 60 }}\n"
   actions:
   - action: notify.all_phones
     data:
@@ -3484,9 +3386,6 @@
   alias: Music - Control sonos bedroom
   description: ''
   triggers:
-  # State trigger on the event entity, not a template trigger on its attributes:
-  # the latter only fires on false->true, so pressing button_4 twice in a row
-  # would not re-fire. The event's timestamp state changes on every press instead.
   - trigger: state
     entity_id: event.hue_tap_switch_master_action
   - trigger: state
@@ -3501,8 +3400,6 @@
   actions:
   - choose:
     - conditions:
-      # `condition: state` supports `attribute:`, so this needs no template at all.
-      # A conditions list is implicitly AND.
       - condition: state
         entity_id: event.hue_tap_switch_master_action
         attribute: event_type
@@ -3641,9 +3538,6 @@
   mode: single
 - id: '1716736577091'
   alias: Frigate - AI camera description
-  # Deliberately DISABLED - a complete feature despite the "_test" entity_id, which
-  # is pinned to the automation id and did not follow the rename. Enabling this
-  # will duplicate "Alarm - Notify of person events on camera" until reconciled.
   description: ''
   triggers:
   - trigger: mqtt
@@ -3676,10 +3570,8 @@
       state: armed_night
     alias: Are we away or is the night alarm active
   - condition: template
-    value_template: >
-      {{ this is not defined
-         or (as_timestamp(now())
-             - as_timestamp(this.attributes.last_triggered, 0)) | int > 20 }}
+    value_template: "{{ this is not defined\n   or (as_timestamp(now())\n       -
+      as_timestamp(this.attributes.last_triggered, 0)) | int > 20 }}\n"
     alias: Only trigger once per 20 seconds
   - condition: state
     entity_id: input_boolean.guest_mode
@@ -3742,7 +3634,6 @@
       entity_id:
       - light.socket1_light_corner
       - light.socket2_light_couch
-  # Separate, and behind the seasonal switch: see input_boolean.kerstverlichting.
   - if:
     - condition: state
       entity_id: input_boolean.kerstverlichting
@@ -3753,7 +3644,6 @@
       target:
         entity_id:
         - light.kerst_binnen
-  # Last lights out at 23:00 - end of the downstairs dark stretch for the timeline.
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.lights_downstairs_auto_dark
@@ -3845,9 +3735,6 @@
       - sensor.runtime
       - sensor.winddir
       domains: weather
-      # Must be a YAML list. As a space-separated string, cv.ensure_list turns it
-      # into one glob ("sensor.*voltage* sensor.pool_...") that matches nothing -
-      # these three groups were silently never purged.
       entity_globs:
       - sensor.*voltage*
       - sensor.pool_shelly_*_power
@@ -3905,41 +3792,35 @@
   mode: single
 - id: '1736593579794'
   alias: DHW - Correct the target temperature when it goes loko
-  description: >-
-    Workaround: something overrides the DHW target temperature and leaves us with
-    cold water - the root cause was never found. Compares against
-    sensor.dhw_target_setpoint, the setpoint the tank should have, which also
-    catches a too-low setpoint, not just too-high.
+  description: 'Workaround: something overrides the DHW target temperature and leaves
+    us with cold water - the root cause was never found. Compares against sensor.dhw_target_setpoint,
+    the setpoint the tank should have, which also catches a too-low setpoint, not
+    just too-high.
 
-    The is_number guard is needed because that sensor goes unavailable when the
-    tank sensor drops out, so nothing gets written when there is nothing to
-    compare against.
+    The is_number guard is needed because that sensor goes unavailable when the tank
+    sensor drops out, so nothing gets written when there is nothing to compare against.
 
-    A setpoint of exactly 60 is not an override but the unit's own weekly
-    anti-legionella run - the tank hit 60 on 29 Aug, 5, 12 and 19 Sep 2026, all
-    Saturdays. Correcting it fights a safety cycle, and on 19 Sep the write was
-    ignored anyway: the tank kept climbing to 60. No flag marks that cycle -
-    Reheat, Storage eco, Storage comfort, Powerful DHW and Tank preheat all
-    stayed OFF across the 52 -> 60 jump - so the value itself is the only signal.
-    Hence two triggers: everything else is corrected after 5 minutes, a 60 only
-    after 2 hours, which is the backstop for one that sticks after the cycle.
+    A setpoint of exactly 60 is not an override but the unit''s own weekly anti-legionella
+    run - the tank hit 60 on 29 Aug, 5, 12 and 19 Sep 2026, all Saturdays. Correcting
+    it fights a safety cycle, and on 19 Sep the write was ignored anyway: the tank
+    kept climbing to 60. No flag marks that cycle - Reheat, Storage eco, Storage comfort,
+    Powerful DHW and Tank preheat all stayed OFF across the 52 -> 60 jump - so the
+    value itself is the only signal. Hence two triggers: everything else is corrected
+    after 5 minutes, a 60 only after 2 hours, which is the backstop for one that sticks
+    after the cycle.'
   triggers:
-  # Any override other than the disinfection setpoint; corrected after 5 minutes.
   - trigger: template
-    value_template: >-
-      {% set want = states('sensor.dhw_target_setpoint') %}
-      {% set have = state_attr('water_heater.domestic_hot_water_tank',
-                               'temperature') | float(-1) %}
-      {{ want | is_number and have != (want | float) and have != 60 }}
+    value_template: "{% set want = states('sensor.dhw_target_setpoint') %} {% set
+      have = state_attr('water_heater.domestic_hot_water_tank',\n                         'temperature')
+      | float(-1) %}\n{{ want | is_number and have != (want | float) and have != 60
+      }}"
     for:
       minutes: 5
-  # The disinfection setpoint: let the cycle finish, only correct a 60 that sticks.
   - trigger: template
-    value_template: >-
-      {% set want = states('sensor.dhw_target_setpoint') %}
-      {% set have = state_attr('water_heater.domestic_hot_water_tank',
-                               'temperature') | float(-1) %}
-      {{ want | is_number and have != (want | float) and have == 60 }}
+    value_template: "{% set want = states('sensor.dhw_target_setpoint') %} {% set
+      have = state_attr('water_heater.domestic_hot_water_tank',\n                         'temperature')
+      | float(-1) %}\n{{ want | is_number and have != (want | float) and have == 60
+      }}"
     for:
       hours: 2
   conditions: []
@@ -3949,14 +3830,13 @@
     data:
       notification_id: dhw_target_temp_corrected
       title: Warmwater temperatuur
-      message: >-
-        Tapwater-setpoint stond op {{
-        state_attr('water_heater.domestic_hot_water_tank', 'temperature') }} in
-        plaats van {{ states('sensor.dhw_target_setpoint') }}. Teruggezet.
+      message: Tapwater-setpoint stond op {{ state_attr('water_heater.domestic_hot_water_tank',
+        'temperature') }} in plaats van {{ states('sensor.dhw_target_setpoint') }}.
+        Teruggezet.
   - action: water_heater.set_temperature
     metadata: {}
     data:
-      temperature: "{{ states('sensor.dhw_target_setpoint') | float }}"
+      temperature: '{{ states(''sensor.dhw_target_setpoint'') | float }}'
     target:
       entity_id: water_heater.domestic_hot_water_tank
   mode: restart
@@ -3982,10 +3862,6 @@
       night_time_end_helper: 07:00:00
       night_brightness: 100
       no_motion_wait_night: 300
-      # Sleep window turned off (as with hall and shower/closet). Without these
-      # two, the blueprint defaults 23:30-06:00 apply and the automation would not
-      # run during the hours the night_* settings above are meant for. Nobody
-      # sleeps in the shed.
       sleep_time_start_helper: '23:59:59'
       sleep_time_end_helper: 00:00:01
 - id: shed_switch_sync
@@ -4018,19 +3894,19 @@
   description: Detecteert nood-geluiden (huilen, gillen, schreeuwen, hoesten) via
     Frigate's audio classificatie 's avonds en 's nachts. Actief vanaf 21:00; dat
     stond op 19:30, maar de slaaproutine loopt vaak nog door na dat tijdstip en dan
-    ging de melding af terwijl wij nog naast haar bed stonden. Gemeten over vijf
-    avonden (9-13 sep 2026) eindigde de routine tussen 19:25 en 20:04, dus 21:00
-    geeft bijna een uur marge. Prijs is een blinde periode 19:30-21:00, precies het
-    moment dat wij wakker beneden zitten. Loopt de routine ooit structureel door na
-    21:00, gebruik dan binary_sensor.eva_slaapkamer_person als gate - die stond
-    's nachts 10 uur onafgebroken uit (2 blips van 5 sec) terwijl hij tijdens de
-    routine 40+ keer wisselde. Motion is daarvoor onbruikbaar met ~98 wisselingen per
-    nacht met alleen Eva in de kamer. Na middernacht alleen zolang het alarm nog
-    aan staat, dus zodra het nachtalarm 's ochtends uit gaat stoppen de meldingen
-    (in plaats van door te lopen tot 07:00). Bewust "niet disarmed" en niet alleen
-    armed_night, zodat armed_away/armed_home - wij weg, oppas in huis - de
-    monitoring wel aan houdt. Stuurt direct een melding en escaleert naar een
-    kritieke melding als het geluid binnen 2 minuten nog 2x terugkomt.
+    ging de melding af terwijl wij nog naast haar bed stonden. Gemeten over vijf avonden
+    (9-13 sep 2026) eindigde de routine tussen 19:25 en 20:04, dus 21:00 geeft bijna
+    een uur marge. Prijs is een blinde periode 19:30-21:00, precies het moment dat
+    wij wakker beneden zitten. Loopt de routine ooit structureel door na 21:00, gebruik
+    dan binary_sensor.eva_slaapkamer_person als gate - die stond 's nachts 10 uur
+    onafgebroken uit (2 blips van 5 sec) terwijl hij tijdens de routine 40+ keer wisselde.
+    Motion is daarvoor onbruikbaar met ~98 wisselingen per nacht met alleen Eva in
+    de kamer. Na middernacht alleen zolang het alarm nog aan staat, dus zodra het
+    nachtalarm 's ochtends uit gaat stoppen de meldingen (in plaats van door te lopen
+    tot 07:00). Bewust "niet disarmed" en niet alleen armed_night, zodat armed_away/armed_home
+    - wij weg, oppas in huis - de monitoring wel aan houdt. Stuurt direct een melding
+    en escaleert naar een kritieke melding als het geluid binnen 2 minuten nog 2x
+    terugkomt.
   triggers:
   - trigger: state
     entity_id:
@@ -4047,18 +3923,12 @@
   conditions:
   - condition: template
     alias: Geluidsniveau niet her-armeerd vanuit unavailable/unknown
-    # Deliberately only on the numeric_state branch (trigger.id level): this is
-    # child monitoring, so suppressing a real alert is worse than a false one.
-    # The binary_sensor triggers above are left untouched.
-    value_template: >
-      {{ trigger is not defined
-         or trigger.id != 'level'
-         or trigger.from_state is not defined
-         or trigger.from_state is none
-         or trigger.from_state.state not in ['unknown', 'unavailable'] }}
+    value_template: "{{ trigger is not defined\n   or trigger.id != 'level'\n   or
+      trigger.from_state is not defined\n   or trigger.from_state is none\n   or trigger.from_state.state
+      not in ['unknown', 'unavailable'] }}\n"
   - condition: time
     after: '21:00:00'
-    before: '07:00:00'
+    before: 07:00:00
   - condition: or
     conditions:
     - condition: time
@@ -4081,8 +3951,10 @@
         binary_sensor.evabed_cough_sound: hoesten
         sensor.evabed_sound_level: ongewoon hard geluid
       sound_label: '{{ sound_labels.get(trigger.entity_id, ''geluid'') }}'
-      snap1: evabed_{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}.jpg
-      snap2: evabed_{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}.jpg
+      snap1: evabed_{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random
+        }}{{ range(1000,9999)|random }}.jpg
+      snap2: evabed_{{ range(1000,9999)|random }}{{ range(1000,9999)|random }}{{ range(1000,9999)|random
+        }}{{ range(1000,9999)|random }}.jpg
   - action: shell_command.prune_message_snapshots
   - action: camera.snapshot
     target:
@@ -4140,9 +4012,9 @@
   mode: single
 - id: doorbell_camera_popup
   alias: Deurbel - Popup camera bij bellen of persoon
-  description: Shows the front door camera in a popup (browser_mod) when the
-    doorbell rings or a person is detected. Uses person detection rather than raw
-    motion so the popup does not open for every passing car or pedestrian.
+  description: Shows the front door camera in a popup (browser_mod) when the doorbell
+    rings or a person is detected. Uses person detection rather than raw motion so
+    the popup does not open for every passing car or pedestrian.
   triggers:
   - trigger: state
     entity_id:
@@ -4179,11 +4051,10 @@
   mode: restart
 - id: pool_light_program_next
   alias: Zwembad - Volgend lichtprogramma
-  description: >-
-    Rotates input_select.pool_light_program_options and sends the matching PSxx
-    command to the PLP-REM-350. Uses PSxx (direct select) rather than the
-    controller's PsU (cursor) command, because HA owns the program list and the
-    controller never reports its cursor position back.
+  description: Rotates input_select.pool_light_program_options and sends the matching
+    PSxx command to the PLP-REM-350. Uses PSxx (direct select) rather than the controller's
+    PsU (cursor) command, because HA owns the program list and the controller never
+    reports its cursor position back.
   triggers:
   - trigger: state
     entity_id: input_button.pool_light_program_next
@@ -4203,8 +4074,8 @@
   mode: single
 - id: pool_light_program_previous
   alias: Zwembad - Vorig lichtprogramma
-  description: Mirror of "Zwembad - Volgend lichtprogramma"; see that automation
-    for why PSxx is sent here instead of PsD.
+  description: Mirror of "Zwembad - Volgend lichtprogramma"; see that automation for
+    why PSxx is sent here instead of PsD.
   triggers:
   - trigger: state
     entity_id: input_button.pool_light_program_previous
@@ -4224,15 +4095,14 @@
   mode: single
 - id: '1789600000001'
   alias: DHW - Plan het opwarmvenster
-  description: >-
-    Decides once a day when to heat the DHW tank: around solar peak if Solcast
-    promises enough, otherwise in the cheapest price block before 16:00. Runs at
-    00:15, after Nordpool raw_today rolls over and the Solcast forecast is ready.
+  description: 'Decides once a day when to heat the DHW tank: around solar peak if
+    Solcast promises enough, otherwise in the cheapest price block before 16:00. Runs
+    at 00:15, after Nordpool raw_today rolls over and the Solcast forecast is ready.
 
-    Deliberately not driven by live solar surplus: once the pump heats it draws
-    ~1.5 kW, the surplus disappears and the condition flips, causing oscillation.
-    A 200-liter tank is a slow buffer that takes hours to heat, so this is
-    planned a day ahead instead.
+    Deliberately not driven by live solar surplus: once the pump heats it draws ~1.5
+    kW, the surplus disappears and the condition flips, causing oscillation. A 200-liter
+    tank is a slow buffer that takes hours to heat, so this is planned a day ahead
+    instead.'
   triggers:
   - trigger: time
     at: 00:15:00
@@ -4242,20 +4112,15 @@
     state: 'on'
   actions:
   - variables:
-      solar_ok: >-
-        {{ states('sensor.solcast_pv_forecast_forecast_today') | float(0)
-           >= states('input_number.dhw_solar_threshold') | float(8) }}
-      planned: >-
-        {% if solar_ok and has_value('sensor.solcast_pv_forecast_peak_time_today') %}
-          {% set peak = (states('sensor.solcast_pv_forecast_peak_time_today')
-                         | as_datetime | as_local) - timedelta(minutes=45) %}
-          {{ ([([peak, today_at('10:30')] | max), today_at('15:00')]
-              | min).strftime('%H:%M:%S') }}
-        {% elif has_value('sensor.dhw_cheapest_charge_start') %}
-          {{ states('sensor.dhw_cheapest_charge_start') }}
-        {% else %}
-          {{ states('input_datetime.dhw_charge_start') }}
-        {% endif %}
+      solar_ok: "{{ states('sensor.solcast_pv_forecast_forecast_today') | float(0)\n
+        \  >= states('input_number.dhw_solar_threshold') | float(8) }}"
+      planned: "{% if solar_ok and has_value('sensor.solcast_pv_forecast_peak_time_today')
+        %}\n  {% set peak = (states('sensor.solcast_pv_forecast_peak_time_today')\n
+        \                | as_datetime | as_local) - timedelta(minutes=45) %}\n  {{
+        ([([peak, today_at('10:30')] | max), today_at('15:00')]\n      | min).strftime('%H:%M:%S')
+        }}\n{% elif has_value('sensor.dhw_cheapest_charge_start') %}\n  {{ states('sensor.dhw_cheapest_charge_start')
+        }}\n{% else %}\n  {{ states('input_datetime.dhw_charge_start') }}\n{% endif
+        %}"
   - action: input_datetime.set_datetime
     target:
       entity_id: input_datetime.dhw_charge_start
@@ -4264,15 +4129,14 @@
   mode: single
 - id: '1789600000002'
   alias: DHW - Pas het setpoint toe
-  description: >-
-    Writes sensor.dhw_target_setpoint to the heat pump whenever it changes.
-    Deliberately dumb: all decision logic lives in that sensor, so there is one
-    place to read and verify the behavior.
+  description: 'Writes sensor.dhw_target_setpoint to the heat pump whenever it changes.
+    Deliberately dumb: all decision logic lives in that sensor, so there is one place
+    to read and verify the behavior.
 
-    Writes to the LOCAL daikin_altherma entity, not the Onecta cloud, which is
-    limited to 200 API calls per day. The is_number guard catches an unavailable
-    tank temperature: this sensor also goes unavailable then, and its own
-    state-trigger would otherwise fire a command on that transition.
+    Writes to the LOCAL daikin_altherma entity, not the Onecta cloud, which is limited
+    to 200 API calls per day. The is_number guard catches an unavailable tank temperature:
+    this sensor also goes unavailable then, and its own state-trigger would otherwise
+    fire a command on that transition.'
   triggers:
   - trigger: state
     entity_id:
@@ -4281,27 +4145,25 @@
     event: start
   conditions:
   - condition: template
-    value_template: "{{ states('sensor.dhw_target_setpoint') | is_number }}"
+    value_template: '{{ states(''sensor.dhw_target_setpoint'') | is_number }}'
   actions:
   - action: water_heater.set_temperature
     target:
       entity_id: water_heater.domestic_hot_water_tank
     data:
-      temperature: "{{ states('sensor.dhw_target_setpoint') | float }}"
+      temperature: '{{ states(''sensor.dhw_target_setpoint'') | float }}'
   mode: restart
 - id: '1789600000003'
   alias: DHW - Waarschuw bij koud vat
-  description: >-
-    The tank should never stay below 36 degrees for long: even while cooling, the
-    Daikin self-heats at about 4K below the 40-degree setpoint. If it stays cold
-    for 45 minutes, the unit is not reheating and something is broken. Notify
-    only, do not act - intervening would mask the real problem.
+  description: 'The tank should never stay below 36 degrees for long: even while cooling,
+    the Daikin self-heats at about 4K below the 40-degree setpoint. If it stays cold
+    for 45 minutes, the unit is not reheating and something is broken. Notify only,
+    do not act - intervening would mask the real problem.
 
-    The from_state guard is needed because this sensor is known to flicker to
-    unavailable (observed 8, 9 and 14 Sept 2026); a blip or restart rearms the
-    numeric_state trigger and it fires again on an unchanged value. The platform
-    check comes first because trigger.from_state is undefined for non-state
-    triggers.
+    The from_state guard is needed because this sensor is known to flicker to unavailable
+    (observed 8, 9 and 14 Sept 2026); a blip or restart rearms the numeric_state trigger
+    and it fires again on an unchanged value. The platform check comes first because
+    trigger.from_state is undefined for non-state triggers.'
   triggers:
   - trigger: numeric_state
     entity_id: sensor.domestichotwatertank_tank_temperature
@@ -4310,31 +4172,27 @@
       minutes: 45
   conditions:
   - condition: template
-    value_template: >-
-      {{ trigger.platform != 'numeric_state'
-         or (trigger.from_state is not none
-             and trigger.from_state.state | is_number) }}
+    value_template: "{{ trigger.platform != 'numeric_state'\n   or (trigger.from_state
+      is not none\n       and trigger.from_state.state | is_number) }}"
   actions:
   - action: persistent_notification.create
     metadata: {}
     data:
       notification_id: dhw_tank_cold
       title: Tapwatervat blijft koud
-      message: >-
-        Het tapwatervat staat al 45 minuten onder 36 graden ({{
-        states('sensor.domestichotwatertank_tank_temperature') }} °C). De
-        warmtepomp verwarmt niet bij. Controleer de unit.
+      message: Het tapwatervat staat al 45 minuten onder 36 graden ({{ states('sensor.domestichotwatertank_tank_temperature')
+        }} °C). De warmtepomp verwarmt niet bij. Controleer de unit.
   mode: single
 - id: hvac_apply_lwt_offset
   alias: HVAC - Pas de watertemperatuur-offset toe
-  description: >-
-    Writes sensor.hvac_offset_target to the Daikin's leaving-water offset, at most 3 K per
-    write. This is the only automation that touches climate.leaving_water_offset, a
-    daikin_onecta cloud entity with a 200-call daily budget.
+  description: 'Writes sensor.hvac_offset_target to the Daikin''s leaving-water offset,
+    at most 3 K per write. This is the only automation that touches climate.leaving_water_offset,
+    a daikin_onecta cloud entity with a 200-call daily budget.
 
-    The trigger on the offset's own temperature attribute is what completes a capped move: the
-    first write lands, the attribute changes, the automation re-runs and takes the next step.
-    The current-differs-from-target condition is what ends it and prevents a loop.
+    The trigger on the offset''s own temperature attribute is what completes a capped
+    move: the first write lands, the attribute changes, the automation re-runs and
+    takes the next step. The current-differs-from-target condition is what ends it
+    and prevents a loop.'
   triggers:
   - trigger: state
     entity_id: sensor.hvac_offset_target
@@ -4351,38 +4209,39 @@
     entity_id: select.operation_mode
     state: heating
   - condition: template
-    value_template: "{{ states('sensor.hvac_offset_target') | is_number }}"
+    value_template: '{{ states(''sensor.hvac_offset_target'') | is_number }}'
   - condition: numeric_state
     entity_id: sensor.ratelimit_remaining_day
     above: 30
   - condition: template
     alias: Offset entity readable and not already at target
-    value_template: >-
-      {{ has_value('climate.leaving_water_offset')
-         and state_attr('climate.leaving_water_offset', 'temperature') | is_number
-         and (state_attr('climate.leaving_water_offset', 'temperature') | float)
-             != (states('sensor.hvac_offset_target') | float) }}
+    value_template: "{{ has_value('climate.leaving_water_offset')\n   and state_attr('climate.leaving_water_offset',
+      'temperature') | is_number\n   and (state_attr('climate.leaving_water_offset',
+      'temperature') | float)\n       != (states('sensor.hvac_offset_target') | float)
+      }}"
   actions:
   - variables:
-      current: "{{ state_attr('climate.leaving_water_offset', 'temperature') | float }}"
-      target: "{{ states('sensor.hvac_offset_target') | float }}"
-      next: "{{ (current + ([[target - current, -3] | max, 3] | min)) | round(0) | int }}"
+      current: '{{ state_attr(''climate.leaving_water_offset'', ''temperature'') |
+        float }}'
+      target: '{{ states(''sensor.hvac_offset_target'') | float }}'
+      next: '{{ (current + ([[target - current, -3] | max, 3] | min)) | round(0) |
+        int }}'
   - action: climate.set_temperature
     target:
       entity_id: climate.leaving_water_offset
     data:
-      temperature: "{{ next }}"
+      temperature: '{{ next }}'
   mode: restart
 - id: hvac_park_daikin_room_setpoint
   alias: HVAC - Houd het Daikin kamersetpoint geparkeerd
-  description: >-
-    The Daikin keeps its own room thermostat (controlMode roomTemperature). Parking its
-    setpoint at the top of the comfort band means it never satisfies inside the band, so the
-    leaving-water offset is the effective lever and the Daikin's thermostat-off is the first
-    upper guard. Heating only: in cooling this entity writes the cooling setpoint.
+  description: 'The Daikin keeps its own room thermostat (controlMode roomTemperature).
+    Parking its setpoint at the top of the comfort band means it never satisfies inside
+    the band, so the leaving-water offset is the effective lever and the Daikin''s
+    thermostat-off is the first upper guard. Heating only: in cooling this entity
+    writes the cooling setpoint.
 
-    Gated on enable_automatic_hvac, not on hvac_offset_control, so the dry run (phase 2) has
-    the parked setpoint without any offset writes. One Onecta write per drift.
+    Gated on enable_automatic_hvac, not on hvac_offset_control, so the dry run (phase
+    2) has the parked setpoint without any offset writes. One Onecta write per drift.'
   triggers:
   - trigger: state
     entity_id: climate.room_temperature
@@ -4405,20 +4264,16 @@
     entity_id: sensor.ratelimit_remaining_day
     above: 30
   - condition: template
-    value_template: >-
-      {{ has_value('climate.room_temperature')
-         and (state_attr('climate.room_temperature', 'temperature') | float(-1))
-             != (states('input_number.hvac_band_high') | float(21.5)) }}
+    value_template: "{{ has_value('climate.room_temperature')\n   and (state_attr('climate.room_temperature',
+      'temperature') | float(-1))\n       != (states('input_number.hvac_band_high')
+      | float(21.5)) }}"
   actions:
   - action: climate.set_temperature
     target:
       entity_id: climate.room_temperature
     data:
-      temperature: "{{ states('input_number.hvac_band_high') | float(21.5) }}"
+      temperature: '{{ states(''input_number.hvac_band_high'') | float(21.5) }}'
   mode: single
-
-# Zigbee2MQTT wall switches and remotes. These replace the ControllerX AppDaemon apps; remove an app from
-# appdaemon/apps/apps.yaml as you enable its automation here, or every press fires twice.
 - id: switch_master_main
   alias: Switches - Master bedroom main light
   description: Tap dial button 2.
@@ -4534,9 +4389,9 @@
       - light.dimmer_guestroom
 - id: switch_office
   alias: Switches - Office
-  description: >-
-    IKEA Styrbar. Rocker and its hold both switch outright, the arrows step the brightness, matching the old
-    ControllerX mapping. The colour actions its defaults added were no-ops on this brightness-only light.
+  description: IKEA Styrbar. Rocker and its hold both switch outright, the arrows
+    step the brightness, matching the old ControllerX mapping. The colour actions
+    its defaults added were no-ops on this brightness-only light.
   triggers:
   - trigger: state
     entity_id: event.office_light_switch_action
@@ -4547,26 +4402,27 @@
     - unknown
     - unavailable
   variables:
-    action_type: "{{ trigger.to_state.attributes.event_type | default('', true) }}"
+    action_type: '{{ trigger.to_state.attributes.event_type | default('''', true)
+      }}'
   actions:
   - choose:
     - conditions:
       - condition: template
-        value_template: "{{ action_type in ['on', 'brightness_move_up'] }}"
+        value_template: '{{ action_type in [''on'', ''brightness_move_up''] }}'
       sequence:
       - action: light.turn_on
         target:
           entity_id: light.office_light
     - conditions:
       - condition: template
-        value_template: "{{ action_type in ['off', 'brightness_move_down'] }}"
+        value_template: '{{ action_type in [''off'', ''brightness_move_down''] }}'
       sequence:
       - action: light.turn_off
         target:
           entity_id: light.office_light
     - conditions:
       - condition: template
-        value_template: "{{ action_type == 'arrow_right_click' }}"
+        value_template: '{{ action_type == ''arrow_right_click'' }}'
       sequence:
       - action: light.turn_on
         target:
@@ -4575,7 +4431,7 @@
           brightness_step_pct: 10
     - conditions:
       - condition: template
-        value_template: "{{ action_type == 'arrow_left_click' }}"
+        value_template: '{{ action_type == ''arrow_left_click'' }}'
       sequence:
       - action: light.turn_on
         target:

@@ -35,6 +35,13 @@ timer:
     icon: mdi:radiator
     restore: true
     duration: "00:30:00"
+  # Restarted on every motion in the shower, so the heater runs until 60 minutes after the last shower.
+  # restore: true for the same reason as bathroom_heaters.
+  shower_heater:
+    name: Douche verwarming
+    icon: mdi:radiator
+    restore: true
+    duration: "01:00:00"
 
 input_boolean:
   enable_automatic_hvac:
