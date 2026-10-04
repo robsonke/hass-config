@@ -402,7 +402,7 @@ cards:
     # 3-up fits the 920px desktop pop-up, but on a phone each tile's label area
     # collapsed to ~37px and Bubble marquee-scrolled every name. 2-up on mobile
     # gives them room; the third tile wraps onto its own row.
-    card_mod:
+    uix:
       style: |
         @media (max-width: 767px) {
           #root { grid-template-columns: 1fr 1fr !important; }

@@ -29,7 +29,7 @@ state_content: >-
 cards:
   # ── kaart (hero) ──────────────────────────────────────────────────
   - type: custom:navimow-map-card
-    card_mod:
+    uix:
       style: |
         ha-card { max-width: 560px !important; margin-left: auto !important; margin-right: auto !important; }
     title: Navimow Map

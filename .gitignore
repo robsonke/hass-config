@@ -47,7 +47,6 @@ frigate*
 
 # And ignore the ignore for some files
 !/.storage/lovelace
-!/themes/custom_dark
 
 .claude/
 .cache/
@@ -57,3 +56,6 @@ frigate*
 # missing, so deleting them from git just makes them reappear as untracked files.
 blueprints/*/homeassistant/
 tasks
+
+# macOS AppleDouble files written on the SMB mount
+._*

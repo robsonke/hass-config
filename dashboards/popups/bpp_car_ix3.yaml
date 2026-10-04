@@ -41,7 +41,7 @@ cards:
     map_height: 320
     show_buttons: false
     soc_source: soc
-    card_mod:
+    uix:
       style: |
         /* BMW ships the vehicle image as 1000x600 with the car in a narrow band
            and wide transparent margins. The card sets width:100%, so at this
@@ -142,7 +142,7 @@ cards:
   - type: grid
     columns: 4
     square: false
-    card_mod:
+    uix:
       style: |
         /* 4 columns squeezes "Achter L" into a scrolling marquee on a phone.
            Same fix as the six 3-column grids in the other pop-ups. */

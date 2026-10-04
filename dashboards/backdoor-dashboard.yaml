@@ -95,7 +95,7 @@ views:
         show_messages: true
         show_ready_indicator: true
         show_bypassed_sensors: true
-        card_mod:
+        uix:
           style: |
             .header {
               padding: 10px 10px !important;

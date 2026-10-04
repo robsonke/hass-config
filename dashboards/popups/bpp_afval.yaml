@@ -85,6 +85,6 @@ cards:
         color: '#3182b7'
       - entity: calendar.grijzebak
         color: '#8a8f98'
-    card_mod:
+    uix:
       style: |
         ha-card { border: none; background: none; box-shadow: none; }

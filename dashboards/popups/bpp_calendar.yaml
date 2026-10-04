@@ -21,7 +21,7 @@ cards:
       - calendar.birthdays
       - calendar.holidays_in_netherlands
       - calendar.training_marathon
-    card_mod:
+    uix:
       style: |
         ha-card {
           border: none;

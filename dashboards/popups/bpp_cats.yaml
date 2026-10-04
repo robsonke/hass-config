@@ -114,6 +114,6 @@ cards:
     show_name: false
     show_state: false
     camera_view: auto
-    card_mod:
+    uix:
       style: |
         ha-card { border: none; }

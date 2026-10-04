@@ -192,7 +192,7 @@ cards:
     square: false
     # An odd tile count in a 2-column grid leaves the last row half-empty. The last tile
     # (Kerstverlichting) gets the full width instead, so the row looks intentional.
-    card_mod:
+    uix:
       style: |
         #root > *:last-child { grid-column: 1 / -1 !important; }
     cards:

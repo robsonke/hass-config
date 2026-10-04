@@ -22,7 +22,7 @@ views:
     dense_section_placement: true
     # NB: reclaiming the toolbar's space when the header is hidden is handled
     # natively by wallpanel (hide_toolbar + keep_toolbar_space: false), which
-    # zeroes #view's padding-top. A card_mod padding trick does NOT work here
+    # zeroes #view's padding-top. A UIX padding trick does NOT work here
     # because the Material You theme pins --header-height: 64px permanently.
     sections:
 
@@ -188,7 +188,7 @@ views:
             # rounded, subtle border + shadow, inner padding. Top row =
             # Alarm | Gasten (fill) + a small Settings icon button; then the
             # 2×2 people grid (Rob|Steffi / Eva|Noa).
-            card_mod:
+            uix:
               style: |
                 :host {
                   background: rgba(255, 255, 255, 0.05);
@@ -210,7 +210,7 @@ views:
               - type: grid
                 columns: 3
                 square: false
-                card_mod:
+                uix:
                   style: |
                     /* Alarm krijgt meer ruimte dan Gasten: de alarmtegel draagt een
                        statuslabel ("Inschakelen", "Afwezig") plus de maan-subknop,
@@ -507,11 +507,11 @@ views:
 
           # ── Status chip strip: child order matters — placement below is by index (Bak,
           # Papier | gap | Stookwijzer, Updates, Muziek, Picnic). Width comes from
-          # grid-template-columns in the card_mod style below, not the children's grid_options.
+          # grid-template-columns in the uix style below, not the children's grid_options.
           - type: grid
             columns: 6
             square: false
-            card_mod:
+            uix:
               style: |
                 /* mobile: row 1 = Bak | Papier (half each), row 2 = the icon chips */
                 #root { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
@@ -653,7 +653,7 @@ views:
                 .bubble-name-container { display: none !important; }
                 .bubble-button-card, .bubble-button { justify-content: center !important; }
               # NOTE: grid_options is ignored inside a `grid` card — the chip
-              # width comes from the parent's card_mod grid-template-columns.
+              # width comes from the parent's uix grid-template-columns.
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button
@@ -684,7 +684,7 @@ views:
                 .bubble-name-container { display: none !important; }
                 .bubble-button-card, .bubble-button { justify-content: center !important; }
               # NOTE: grid_options is ignored inside a `grid` card — the chip
-              # width comes from the parent's card_mod grid-template-columns.
+              # width comes from the parent's uix grid-template-columns.
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button
@@ -715,7 +715,7 @@ views:
                 .bubble-name-container { display: none !important; }
                 .bubble-button-card, .bubble-button { justify-content: center !important; }
               # NOTE: grid_options is ignored inside a `grid` card — the chip
-              # width comes from the parent's card_mod grid-template-columns.
+              # width comes from the parent's uix grid-template-columns.
               grid_options: { columns: 6, rows: 1 }
             - type: custom:bubble-card
               card_type: button

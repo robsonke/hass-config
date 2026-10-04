@@ -145,7 +145,7 @@ cards:
       orp:
         - entity: sensor.eps_pool_rx_level
     # compact reserves ~568px host height for ~260px of content — collapse it
-    card_mod:
+    uix:
       style: |
         :host { height: auto !important; min-height: 0 !important; }
     # Bubble's popup grid auto-measures the (tall) card and reserves 9 rows;

@@ -47,7 +47,7 @@ sonos_popup:
     dynamicVolumeSlider: true
     dynamicVolumeSliderThreshold: '[[vol_threshold]]'
     dynamicVolumeSliderMax: '[[vol_max]]'
-    card_mod:
+    uix:
       style: |
         ha-card {
           /* Force the sonos-card's own dark look regardless of the active
