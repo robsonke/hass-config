@@ -193,7 +193,7 @@ group:
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_noaroom_openclose_contact
       - sensor.climate_sensor_eva_temperature
-      - sensor.climate_sensor_evadownstairs_temperature
+      - sensor.eva_slaapkamer_ikea_climate_sensor_eva_temperature
       - sensor.climate_sensor_noa_temperature
       - sensor.climate_sensor_guestroom_temperature
       - sensor.climate_sensor_masterbedroom_temperature

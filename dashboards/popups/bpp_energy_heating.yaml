@@ -191,7 +191,7 @@ cards:
         name: Kantoor
       - entity: sensor.climate_sensor_kitchen_temperature
         name: Keuken
-      - entity: sensor.climate_sensor_evadownstairs_temperature
+      - entity: sensor.eva_slaapkamer_ikea_climate_sensor_eva_temperature
         name: Slaapkamer Eva
       - entity: sensor.indoor_temperature
         name: Thermostaat

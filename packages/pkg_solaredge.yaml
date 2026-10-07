@@ -1,0 +1,114 @@
+# Author: Rob Sonke
+# https://github.com/robsonke/hass-config
+
+# Power limiting via 0xF322 (dynamic limit): the 0xF001 limit in solaredge_modbus_multi snaps back to 100% within
+# seconds. 0xF322 holds only while re-sent within the 0xF310 timeout, then falls back to 0xF312; RAM only, no wear.
+# The inverter allows one Modbus TCP client, so this hub and solaredge_modbus_multi both go through the
+# modbus-proxy app (bc3b947b_modbus_proxy), which holds the single connection to 192.168.0.175:502.
+modbus:
+  - name: solaredge_pc
+    type: tcp
+    host: bc3b947b-modbus-proxy
+    port: 502
+    # SolarEdge 32-bit registers are low word first, hence swap: word.
+    sensors:
+      - name: SolarEdge Dynamic Power Control
+        unique_id: solaredge_pc_dpc_enabled
+        device_address: 1
+        address: 62208 # 0xF300, 1 = enabled
+        data_type: uint16
+        scan_interval: 300
+      # A new 0xF322 limit moves at these rates, as % of 0xF30C per minute. Set to 100 on 2026-10-07 (default 5,
+      # which took 18 min to reach 10% — too slow for zero export to follow the house load).
+      - name: SolarEdge Ramp Up Rate
+        unique_id: solaredge_pc_ramp_up_rate
+        device_address: 1
+        address: 62232 # 0xF318
+        data_type: float32
+        swap: word
+        precision: 1
+        unit_of_measurement: "%/min"
+        scan_interval: 3600
+      - name: SolarEdge Ramp Down Rate
+        unique_id: solaredge_pc_ramp_down_rate
+        device_address: 1
+        address: 62234 # 0xF31A
+        data_type: float32
+        swap: word
+        precision: 1
+        unit_of_measurement: "%/min"
+        scan_interval: 3600
+      - name: SolarEdge Max Active Power
+        unique_id: solaredge_pc_max_active_power
+        device_address: 1
+        address: 62220 # 0xF30C
+        data_type: float32
+        swap: word
+        unit_of_measurement: W
+        device_class: power
+        scan_interval: 3600
+      - name: SolarEdge Command Timeout
+        unique_id: solaredge_pc_command_timeout
+        device_address: 1
+        address: 62224 # 0xF310
+        data_type: uint32
+        swap: word
+        unit_of_measurement: s
+        scan_interval: 300
+      - name: SolarEdge Fallback Power Limit
+        unique_id: solaredge_pc_fallback_power_limit
+        device_address: 1
+        address: 62226 # 0xF312
+        data_type: float32
+        swap: word
+        precision: 1
+        unit_of_measurement: "%"
+        scan_interval: 300
+      - name: SolarEdge Dynamic Power Limit
+        unique_id: solaredge_pc_dynamic_power_limit
+        device_address: 1
+        address: 62242 # 0xF322
+        data_type: float32
+        swap: word
+        precision: 1
+        unit_of_measurement: "%"
+        scan_interval: 30
+
+# Setpoint the write automation sends to 0xF322. No `initial:`, so it survives restarts.
+input_number:
+  solaredge_power_limit:
+    name: Zonnepanelen vermogenslimiet
+    icon: mdi:solar-power-variant
+    min: 0
+    max: 100
+    step: 1
+    mode: slider
+    unit_of_measurement: "%"
+  # Supplier fee per exported kWh, on the same VAT basis as the nordpool sensor. No `initial:`, so a fresh helper
+  # starts at 0; set it once (Tibber 2026: 0.0248) and update it when the 2027 tariff is known.
+  solar_feed_in_cost:
+    name: Terugleverkosten
+    icon: mdi:transmission-tower-import
+    min: 0
+    max: 0.5
+    step: 0.0001
+    mode: box
+    unit_of_measurement: "EUR/kWh"
+
+template:
+  - binary_sensor:
+      # Net metering ends on 2027-01-01. Until then export earns the all-in price, so it only loses money below
+      # zero; from then on it earns the spot price minus the feed-in fee, so it loses money below that fee.
+      - name: Teruglevering kost geld
+        unique_id: solar_export_unprofitable
+        default_entity_id: binary_sensor.solar_export_unprofitable
+        icon: mdi:solar-power-variant-outline
+        availability: >
+          {{ has_value('sensor.nordpool_kwh_nl_eur_3_10_021') and has_value('sensor.current_price_electricity') }}
+        state: >
+          {% if now().year >= 2027 %}
+            {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(0)
+               < states('input_number.solar_feed_in_cost') | float(0.0248) }}
+          {% else %}
+            {{ states('sensor.current_price_electricity') | float(1) < 0 }}
+          {% endif %}

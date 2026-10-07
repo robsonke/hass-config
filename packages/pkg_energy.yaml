@@ -114,12 +114,7 @@ powercalc:
                     {%- if is_state('vacuum.sjorsje', 'docked') and states('sensor.sjorsje_battery_level') | int(default=0) < 100 %} 28 {%- else %} 3.6 {%- endif %}
                   paused: 0
                   cleaning: 0
-            # Fake power entities
-            - name: Quooker
-              unique_id: quooker
-              daily_fixed_energy:
-                value: 30
-                unit_of_measurement: W
+            # Fake power entities. The Quooker is measured by its IKEA plug now; do not re-add a fixed estimate here.
             # Mechanische ventilatie has no HA entity, so a flat 20 W stands in for a 10-40 W speed-dependent
             # draw. unique_id stays air_quality so the entity_id and its history survive the rename.
             - name: Mechanische ventilatie
@@ -157,20 +152,8 @@ powercalc:
         - create_group: All Media
           # this is also part of sensor.all_media_player_power automatically
           entities:
-            - create_group: TV Woonkamer Group
-              entities:
-              # Disabled: old Sonos TV entry (media_player.tv_room) for this group, superseded
-              # by the Samsung TV entities below.
-              # Kept for the researched wattages (Sonos Beam Gen 2: 6.3W idle / 9W playing) in case it's needed again.
-              - entity_id: media_player.samsung_qn95aa_55_tv
-                standby_power: 0.5
-                fixed:
-                  states_power:
-                    power: 103
-                    "on": 103
-                    idle: 103
-                    paused: 103
-                    playing: 103
+            # The living-room TV, Sonos TV speaker and KPN box sit behind the IKEA Television plug, which is measured
+            # directly; their powercalc discovery entries are disabled. Do not re-add estimates for them here.
             - entity_id: media_player.samsung_7_series_43
               standby_power: 0.5
               fixed:
@@ -442,15 +425,20 @@ template:
           {{ state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + (states('input_number.energy_markup') | float(0.1108)) }}
       state: >
         {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + (states('input_number.energy_markup') | float(0.1108)) }}
-    # Tibber charges 2,48 ct/kWh (incl. btw) for the return energy
+    # Export compensation minus the feed-in fee (input_number.solar_feed_in_cost, pkg_solaredge.yaml). Net metering
+    # pays the all-in price until 2027-01-01; from then on export earns the bare spot price.
     - name: "Current Price Electricity Return"
       unique_id: current_price_electricity_return
       unit_of_measurement: "EUR/kWh"
       attributes:
         avg_price: >
-          {{ state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + (states('input_number.energy_markup') | float(0.1108)) - (0.0248) }}
+          {% set markup = 0 if now().year >= 2027 else states('input_number.energy_markup') | float(0.1108) %}
+          {{ state_attr('sensor.nordpool_kwh_nl_eur_3_10_021', 'average') + markup
+             - states('input_number.solar_feed_in_cost') | float(0.0248) }}
       state: >
-        {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + (states('input_number.energy_markup') | float(0.1108)) - (0.0248) }}
+        {% set markup = 0 if now().year >= 2027 else states('input_number.energy_markup') | float(0.1108) %}
+        {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') | float(default=0.3) + markup
+           - states('input_number.solar_feed_in_cost') | float(0.0248) }}
 
     - name: "Electricity Cost Today"
       unique_id: electricity_cost_today
@@ -577,6 +565,8 @@ template:
         - sensor.wasmachine_switch_power
         - sensor.infrarood_noa_switch_power
         - sensor.infrarood_eva_power
+        - sensor.keuken_ikea_plug_quooker_power
+        - sensor.woonkamer_ikea_plug_television_power
       # Powercalc models, not measurements. Kept separate so their ~115 W overnight share of the subtraction
       # stays visible: model error lands in the residual and would otherwise read as a phantom mystery load.
       estimated:

@@ -12,11 +12,11 @@ name: Eva
 icon: mdi:bed
 # header = room light (warm = on) + temp/humidity; was bed-presence detection, but that
 # proved unreliable. Eva sleeps DOWNSTAIRS: area "Eva Slaapkamer" (dimmer_eva_bedroom/bathroom,
-# eva_corridor_light, climate_sensor_evadownstairs). "Eva boven" (dimmer_eva) is her OLD room.
+# eva_corridor_light, the IKEA Matter climate sensor). "Eva boven" (dimmer_eva) is her OLD room.
 entity: light.dimmer_eva_bedroom
 state_content: >-
-  {%- set t = states('sensor.climate_sensor_evadownstairs_temperature') | float(-999) -%}
-  {%- set h = states('sensor.climate_sensor_evadownstairs_humidity') | float(-999) -%}
+  {%- set t = states('sensor.eva_slaapkamer_ikea_climate_sensor_eva_temperature') | float(-999) -%}
+  {%- set h = states('sensor.eva_slaapkamer_ikea_climate_sensor_eva_humidity') | float(-999) -%}
   {{ 'Licht aan' if is_state('light.dimmer_eva_bedroom','on') else 'Licht uit' }} · {{ (((t | round(1)) | string | regex_replace('\.0$','')) ~ '°C') if t != -999 else '—' }} · {{ ((h | round | int) ~ '%') if h != -999 else '—' }}
 styles: |
   .bubble-button-background { opacity: 1 !important; background-color: ${state === 'on' ? 'rgba(240,190,70,0.16)' : 'rgba(255,255,255,0.04)'} !important; }
@@ -107,7 +107,7 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.climate_sensor_evadownstairs_temperature
+        entity: sensor.eva_slaapkamer_ikea_climate_sensor_eva_temperature
         name: Temperatuur
         icon: mdi:thermometer
         card_layout: large
@@ -117,7 +117,7 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: sensor.climate_sensor_evadownstairs_humidity
+        entity: sensor.eva_slaapkamer_ikea_climate_sensor_eva_humidity
         name: Vocht
         icon: mdi:water-percent
         card_layout: large

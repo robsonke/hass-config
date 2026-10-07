@@ -26,6 +26,11 @@ input_boolean:
   kerstverlichting:
     name: Kerstverlichting
     icon: mdi:pine-tree
+  # Set when the office motion automation switched the light on, so it only switches off what it
+  # switched on itself. The light turning off by any route clears it.
+  office_light_by_motion:
+    name: Kantoorlicht aan door beweging
+    icon: mdi:motion-sensor
 
 light:
   - platform: group

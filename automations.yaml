@@ -2748,9 +2748,9 @@
   mode: single
 - id: shower_heater_after_use
   alias: Heating - Dry towels in the shower after use
-  description: Only a real shower (still motion 3-6 minutes after the first) starts
-    or restarts timer.shower_heater, keeping the heater on until an hour after the
-    last shower. Someone briefly walking in does not start or extend a run.
+  description: 'Only a real shower starts or restarts timer.shower_heater: motion
+    must be seen again 3-6 minutes AND 7-10 minutes after the first motion. Short
+    visits (teeth, toilet) do not start or extend a run.'
   triggers:
   - trigger: state
     entity_id: binary_sensor.hue_motion_sensor_shower_occupancy
@@ -2761,9 +2761,21 @@
     entity_id: sensor.hue_motion_sensor_shower_temperature
     below: 20
   actions:
+  - variables:
+      started: '{{ now().timestamp() }}'
   - delay:
       minutes: 3
-  - wait_template: '{{ is_state(''binary_sensor.hue_motion_sensor_shower_occupancy'',
+  - alias: 'Check 1: motion 3-6 min after first'
+    wait_template: '{{ is_state(''binary_sensor.hue_motion_sensor_shower_occupancy'',
+      ''on'') }}'
+    timeout:
+      minutes: 3
+    continue_on_timeout: false
+  - alias: Wait until 7 min after first motion
+    delay:
+      seconds: '{{ [0, (started | float + 420 - now().timestamp()) | int] | max }}'
+  - alias: 'Check 2: motion 7-10 min after first'
+    wait_template: '{{ is_state(''binary_sensor.hue_motion_sensor_shower_occupancy'',
       ''on'') }}'
     timeout:
       minutes: 3
@@ -3649,61 +3661,69 @@
       entity_id: input_boolean.lights_downstairs_auto_dark
   mode: single
 - id: '1718380304677'
-  alias: Energy - Disable solar panels in case of negative pricing
-  description: Avoid paying for delivering energy but also limit the impact on the
-    power grid in case there is no need
+  alias: Energy - Zonnepanelen beperken als teruglevering geld kost
+  description: Tot 2027 (saldering) gaan de panelen uit zodra de all-in prijs negatief
+    is. Vanaf 2027 volgt de limiet het huisverbruik (nul-teruglevering) zolang teruglevering
+    geld kost, en gaan de panelen alleen helemaal uit bij een negatieve all-in prijs.
+    Elke 30 s bijgesteld; de limiet zelf gaat via 'Energy - SolarEdge vermogenslimiet
+    doorgeven'.
   triggers:
-  - trigger: numeric_state
-    entity_id: sensor.current_price_electricity
-    below: 0
-  - trigger: numeric_state
-    entity_id: sensor.current_price_electricity
-    above: 0
+  - trigger: state
+    entity_id: binary_sensor.solar_export_unprofitable
+    to:
+    - 'on'
+    - 'off'
+    not_from:
+    - unavailable
+    - unknown
+    id: mode
+  - trigger: time_pattern
+    seconds: /30
+    id: follow
+  conditions:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: mode
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.solar_export_unprofitable
+        state: 'on'
+      - condition: template
+        value_template: '{{ now().year >= 2027 }}'
+        alias: Nul-teruglevering pas na de saldering
+  - condition: template
+    value_template: '{{ target | int != states(''input_number.solaredge_power_limit'')
+      | float(-1) | int }}'
+    alias: Alleen bij een andere limiet
   actions:
-  - choose:
-    - conditions:
-      - condition: numeric_state
-        entity_id: sensor.current_price_electricity
-        below: 0
-      - condition: state
-        entity_id: number.solaredge_active_power_limit
-        state: '100'
-      sequence:
-      - action: number.set_value
-        metadata: {}
-        data:
-          value: '0'
-        target:
-          entity_id: number.solaredge_active_power_limit
-        alias: Disable the solar panels
-      - action: persistent_notification.create
-        data:
-          notification_id: energy_disable_solar_panels_in_case_of_negative_pricing
-          title: Zonnepanelen
-          message: "\U0001F31E De zonnepanelen zijn uitgezet vanwege een stroomprijs
-            van {{ states('sensor.current_price_electricity') }} cent."
-    - conditions:
-      - condition: numeric_state
-        entity_id: sensor.current_price_electricity
-        above: 0
-      - condition: state
-        entity_id: number.solaredge_active_power_limit
-        state: '0'
-      sequence:
-      - action: number.set_value
-        metadata: {}
-        data:
-          value: '100'
-        target:
-          entity_id: number.solaredge_active_power_limit
-        alias: Enable the solar panels
-      - action: persistent_notification.create
-        data:
-          notification_id: energy_disable_solar_panels_in_case_of_negative_pricing
-          title: Zonnepanelen
-          message: "\U0001F31E De zonnepanelen zijn weer aangezet vanwege een stroomprijs
-            van {{ states('sensor.current_price_electricity') }} cent."
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.solaredge_power_limit
+    data:
+      value: '{{ target }}'
+  - if:
+    - condition: trigger
+      id: mode
+    then:
+    - action: persistent_notification.create
+      data:
+        notification_id: energy_disable_solar_panels_in_case_of_negative_pricing
+        title: Zonnepanelen
+        message: "\U0001F31E {% if target | int == 100 %}Teruglevering levert weer
+          op, de zonnepanelen staan op 100%.{% else %}Teruglevering kost nu geld (spotprijs
+          € {{ states('sensor.nordpool_kwh_nl_eur_3_10_021') }}), de zonnepanelen
+          zijn beperkt tot {{ target }}%.{% endif %}"
+  variables:
+    target: '{% if is_state(''binary_sensor.solar_export_unprofitable'', ''off'')
+      %}100{% elif now().year < 2027 or states(''sensor.current_price_electricity'')
+      | float(1) < 0 %}0{% else %}{% set house_w = states(''sensor.net_power_consumption'')
+      | float(0) * 1000 %}{% set max_w = states(''sensor.solaredge_max_active_power'')
+      | float(9500) %}{{ [[((house_w - 100) / max_w * 100) | round(0, ''floor''),
+      1] | max, 100] | min | int }}{% endif %}'
   mode: single
+  max_exceeded: silent
 - id: '1724489164994'
   alias: System - Remove state history of heavy sensors
   description: Like power consumption and production
@@ -4439,4 +4459,116 @@
         data:
           brightness_step_pct: -10
   mode: restart
+  max_exceeded: silent
+- id: office_motion_light
+  alias: Motion Lights - Control office light
+  description: 'Motion switches the office light on when the room is dark, and off
+    after 30 min without motion - but only when motion switched it on. The IKEA sensor
+    is PIR and misses someone sitting still: on 2026-10-06 it went up to 25 min between
+    detections during desk work, hence the long timeout. A light switched on by hand
+    is left alone. Queued, not restart: the timeout lives in the trigger''s for:,
+    not in a wait, and the light_off run that clears the flag must not cancel or be
+    dropped.'
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.kantoor_ikea_motion_sensor_office_occupancy
+    from: 'off'
+    to: 'on'
+    id: motion
+  - trigger: state
+    entity_id: binary_sensor.kantoor_ikea_motion_sensor_office_occupancy
+    to: 'off'
+    for:
+      minutes: 30
+    id: no_motion
+    note: 'No from: so the unavailable -> off after a restart also starts the clock.'
+  - trigger: state
+    entity_id: light.office_light
+    from: 'on'
+    to: 'off'
+    id: light_off
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: motion
+      - condition: state
+        entity_id: light.office_light
+        state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.kantoor_ikea_motion_sensor_office_illuminance
+        below: 25
+        note: 'The sensor sits in shade: 10-20 lx on a 2026-10-06 afternoon with the
+          light wanted on, 1-2 lx in the evening.'
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.office_light
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.office_light_by_motion
+    - conditions:
+      - condition: trigger
+        id: no_motion
+      - condition: state
+        entity_id: input_boolean.office_light_by_motion
+        state: 'on'
+      - condition: state
+        entity_id: light.office_light
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.office_light
+        data:
+          transition: 10
+    - conditions:
+      - condition: trigger
+        id: light_off
+      sequence:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.office_light_by_motion
+  mode: queued
+  max_exceeded: silent
+- id: '1791316461484'
+  alias: Energy - SolarEdge vermogenslimiet doorgeven
+  description: Writes input_number.solaredge_power_limit to the inverter's dynamic
+    power limit (0xF322). Below 100% it is re-sent every 5 min, well within the 913
+    s timeout, because the inverter falls back to 0xF312 after the 0xF310 command
+    timeout. A change is always sent once, so going back to 100% applies immediately.
+  triggers:
+  - trigger: state
+    entity_id: input_number.solaredge_power_limit
+    not_to:
+    - unavailable
+    - unknown
+    id: changed
+  - trigger: time_pattern
+    minutes: /5
+    id: refresh
+  - trigger: homeassistant
+    event: start
+    id: changed
+  conditions:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: changed
+    - condition: numeric_state
+      entity_id: input_number.solaredge_power_limit
+      below: 100
+  actions:
+  - variables:
+      words: '{% set b = states(''input_number.solaredge_power_limit'') | float(100)
+        | pack(''>f'') %}{{ [b | unpack(''>H'', offset=2), b | unpack(''>H'')] }}'
+  - action: modbus.write_register
+    data:
+      hub: solaredge_pc
+      address: 62242
+      value: '{{ words }}'
+      slave: 1
+    alias: Write 0xF322 as float32, low word first
+  mode: single
   max_exceeded: silent

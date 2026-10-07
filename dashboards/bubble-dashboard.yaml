@@ -455,7 +455,7 @@ views:
                     icon_tap_action: { action: navigate, navigation_path: '#person-eva' }
                     modules: [bubble_neon_icon_only]
                     state_content: >-
-                      {%- set t = states('sensor.climate_sensor_evadownstairs_temperature') | float(-99999) -%}
+                      {%- set t = states('sensor.eva_slaapkamer_ikea_climate_sensor_eva_temperature') | float(-99999) -%}
                       {{ (((t | round(1)) | string | regex_replace('\.0$','')) ~ '°C') if t != -99999 else '—' }}
                     styles: |
                       .bubble-container, .bubble-button-container { min-height: 0 !important; height: 56px !important; }
