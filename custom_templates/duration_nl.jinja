@@ -1,0 +1,10 @@
+{# Dutch "time since" for popup state lines: net / 12 min / 3 uur / 2 dagen. Rounds to the nearest unit and
+   promotes 60 min to "1 uur" and 24 uur to "1 dag". #}
+{%- macro sinds(dt) -%}
+{%- set s = (now() - dt).total_seconds() -%}
+{%- if s < 60 -%}net
+{%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{{ '1 uur' if m >= 60 else m ~ ' min' }}
+{%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{{ '1 dag' if h >= 24 else h ~ ' uur' }}
+{%- else -%}{%- set dy = (s/86400)|round|int -%}{{ dy ~ (' dag' if dy == 1 else ' dagen') }}
+{%- endif -%}
+{%- endmacro -%}

@@ -32,6 +32,19 @@ input_boolean:
     name: Kantoorlicht aan door beweging
     icon: mdi:motion-sensor
 
+template:
+  # One answer to "is it dark enough for the evening lights" for every dusk automation. The fallback chain
+  # (living room lux, garden lux, sun) lives in custom_templates/light_level.jinja.
+  - binary_sensor:
+      - unique_id: dark_enough
+        name: Dark enough
+        icon: mdi:weather-night
+        state: >-
+          {% from 'light_level.jinja' import is_dark %}{{ is_dark() }}
+        attributes:
+          source: >-
+            {% from 'light_level.jinja' import dark_source %}{{ dark_source() }}
+
 light:
   - platform: group
     name: Kerst binnen

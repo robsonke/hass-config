@@ -20,5 +20,5 @@ media_player:
     name: Muziek tuin
     unique_id: music_garden
     entities:
-      - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+      - media_player.overkapping
       #- media_player.sonos_roam  # can be unavailable when offline

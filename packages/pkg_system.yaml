@@ -109,7 +109,7 @@ binary_sensor:
       - binary_sensor.window_noaroom_openclose_contact
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_masterbed_1_openclose_contact
-      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_masterbedroom_2_contact
       - binary_sensor.window_guestroom_openclose_contact
   - platform: group
     unique_id: doors_and_windows_garden
@@ -127,7 +127,7 @@ binary_sensor:
     name: All doors and windows
     device_class: opening
     entities:
-      # beneden (7)
+      # beneden (8)
       - binary_sensor.backdoor_sensor_contact
       - binary_sensor.frontdoor_openclose_contact
       - binary_sensor.door_terrace_sensor_contact
@@ -135,16 +135,17 @@ binary_sensor:
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
       - binary_sensor.window_office_openclose_contact
+      - binary_sensor.window_evadownstairs_contact
       # boven (5)
       - binary_sensor.window_noaroom_openclose_contact
       - binary_sensor.window_eva_openclose_contact
       - binary_sensor.window_masterbed_1_openclose_contact
-      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_masterbedroom_2_contact
       - binary_sensor.window_guestroom_openclose_contact
       # tuin (2)
       - binary_sensor.sheddoor_openclose_contact
       - binary_sensor.cabindoor_openclose_contact
-  # The downstairs outer shell: these seven are exactly the doors/windows Alarmo monitors
+  # The downstairs outer shell: these eight are exactly the doors/windows Alarmo monitors
   # downstairs, so "all closed" here really means "ready to arm". Interior doors don't
   # belong here — see interior_doors_downstairs.
   - platform: group
@@ -159,6 +160,7 @@ binary_sensor:
       - binary_sensor.windowdoor_ground_2_openclose_contact
       - binary_sensor.windowdoor_ground_3_openclose_contact
       - binary_sensor.window_office_openclose_contact
+      - binary_sensor.window_evadownstairs_contact
   # Interior doors — deliberately separate: they say nothing about whether the house is
   # shut, and Alarmo ignores them. They have their own card in the doors pop-up but don't
   # count toward its header.
@@ -209,12 +211,13 @@ group:
       - sensor.climate_sensor_kitchen_temperature
       - sensor.climate_sensor_living_temperature
       - binary_sensor.window_masterbed_1_openclose_contact
-      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_masterbedroom_2_contact
       - binary_sensor.window_guestroom_openclose_contact
       - sensor.today_maximum_temperature
       - sensor.hue_motion_sensor_hall_illuminance
       - binary_sensor.hue_motion_sensor_hall_occupancy
       - binary_sensor.window_office_openclose_contact
+      - binary_sensor.window_evadownstairs_contact
       - sensor.light_sensor_living_illuminance
 
   ignored_entities:
@@ -222,17 +225,21 @@ group:
       - sensor.althermasensors
 
 template:
-  # important entities
+  # important entities; what counts as offline, stuck lux sensors included, is in custom_templates/monitored.jinja
   - sensor:
     - unique_id: unavailable_entities
       name: Unavailable Entities
       attributes:
         last_update: "{{ now() }}"
-        names: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | join(', ', attribute='attributes.friendly_name') | truncate(252) or 'Online' }}"
-        count: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
+        names: >-
+          {% from 'names.jinja' import full_name %}{% from 'monitored.jinja' import offline_monitored %}
+          {{ offline_monitored() | from_json | map('apply', full_name) | join(', ') | truncate(252) or 'Online' }}
+        count: >-
+          {% from 'monitored.jinja' import offline_monitored %}{{ offline_monitored() | from_json | count }}
       state_class: measurement
       unit_of_measurement: entities
-      state: "{{ expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | selectattr('state', 'in', ['unavailable', 'unknown', 'none']) | list | count }}"
+      state: >-
+        {% from 'monitored.jinja' import offline_monitored %}{{ offline_monitored() | from_json | count }}
 
     - unique_id: evabed_sound_level_alert_threshold
       name: Evabed Sound Level Alert Threshold

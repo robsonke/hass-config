@@ -269,34 +269,13 @@
   description: Switch standard lights on when it's after 2 PM and light level too
     low
   triggers:
-  - trigger: numeric_state
-    entity_id: sensor.light_sensor_living_illuminance
-    below: '30'
+  - trigger: state
+    entity_id: binary_sensor.dark_enough
+    from: 'off'
+    to: 'on'
     for:
-      hours: 0
       minutes: 5
-      seconds: 0
-    id: illuminance
-  - trigger: numeric_state
-    entity_id: sun.sun
-    attribute: elevation
-    below: 5
-    id: sun_fallback
-    note: 'Fallback for when the living room light sensor goes offline. Calibrated
-      against its own history: it crosses 30 lux at about +4.4 deg elevation, morning
-      and evening alike. Only honoured while that sensor is actually unavailable -
-      see the guard condition below.'
   conditions:
-  - condition: or
-    alias: Light sensor said dark, or it died and the sun stands in
-    conditions:
-    - condition: trigger
-      id: illuminance
-    - condition: state
-      entity_id: sensor.light_sensor_living_illuminance
-      state:
-      - unavailable
-      - unknown
   - condition: and
     conditions:
     - condition: state
@@ -328,36 +307,13 @@
   description: Switch standard lights on when it's after 2 PM and light level too
     low
   triggers:
-  - trigger: numeric_state
-    entity_id:
-    - sensor.light_sensor_living_illuminance
-    below: '30'
+  - trigger: state
+    entity_id: binary_sensor.dark_enough
+    from: 'off'
+    to: 'on'
     for:
-      hours: 0
       minutes: 5
-      seconds: 0
-      milliseconds: 0
-    id: illuminance
-  - trigger: numeric_state
-    entity_id: sun.sun
-    attribute: elevation
-    below: 5
-    id: sun_fallback
-    note: 'Fallback for when the living room light sensor goes offline. Calibrated
-      against its own history: it crosses 30 lux at about +4.4 deg elevation, morning
-      and evening alike. Only honoured while that sensor is actually unavailable -
-      see the guard condition below.'
   conditions:
-  - condition: or
-    alias: Light sensor said dark, or it died and the sun stands in
-    conditions:
-    - condition: trigger
-      id: illuminance
-    - condition: state
-      entity_id: sensor.light_sensor_living_illuminance
-      state:
-      - unavailable
-      - unknown
   - condition: and
     conditions:
     - condition: time
@@ -405,8 +361,7 @@
   actions:
   - action: notify.all_phones
     data:
-      message: "\U0001F4C5  Opletten {{ state_attr(trigger.entity_id, 'friendly_name')
-        }}!"
+      message: "\U0001F4C5  Opletten {{ entity_name(trigger.entity_id) }}!"
       data:
         persistent: true
         tag: persistent
@@ -429,7 +384,7 @@
     - action: script.sonos_play_sound
       data:
         volume: 30
-        sonos_entity: media_player.woonkamer_ma_sonos
+        sonos_entity: media_player.living_room
         mp3_url: http://192.168.0.40/local/sounds/doorbell2.mp3
   - condition: time
     after: 06:00:00
@@ -867,7 +822,7 @@
     data:
       sonos_entity: media_player.eetkamer
       volume: 30
-      message: Wakker worden, {{ state_attr(trigger.entity_id, 'friendly_name') }}
+      message: Wakker worden, {{ entity_name(trigger.entity_id) }}
         komt er aan!
   - delay: '2'
   mode: single
@@ -1576,8 +1531,8 @@
   - action: notify.all_phones
     data:
       message: "\U0001F6A8 Alarm kan niet geactiveerd worden omdat: {% for entity_id
-        in trigger.event.data.sensors %}\n  - {{ state_attr(entity_id, 'friendly_name')
-        }} is {{ states(entity_id) }}\n{% endfor %}\n"
+        in trigger.event.data.sensors %}\n  - {{ entity_name(entity_id) }} is {{ states(entity_id)
+        }}\n{% endfor %}\n"
       data:
         persistent: true
         tag: persistent
@@ -1586,7 +1541,7 @@
       sonos_entity: media_player.eetkamer
       volume: 20
       message: "Alarm kan niet geactiveerd worden omdat: {% for entity_id in trigger.event.data.sensors
-        %}\n  - {{ state_attr(entity_id, 'friendly_name') }} staat {{ states(entity_id)
+        %}\n  - {{ entity_name(entity_id) }} staat {{ states(entity_id)
         }}\n{% endfor %}\n"
   mode: single
 - id: '1633552734408'
@@ -1652,25 +1607,9 @@
     - condition: state
       entity_id: light.livingfront_light
       state: 'off'
-    - condition: or
-      alias: Dark enough - by light sensor, or by sun elevation if that is dead
-      conditions:
-      - condition: numeric_state
-        entity_id: sensor.light_sensor_living_illuminance
-        below: '30'
-      - condition: and
-        note: Fallback for when the living room light sensor goes offline. That sensor
-          crosses 30 lux at about +4.4 deg elevation.
-        conditions:
-        - condition: state
-          entity_id: sensor.light_sensor_living_illuminance
-          state:
-          - unavailable
-          - unknown
-        - condition: numeric_state
-          entity_id: sun.sun
-          attribute: elevation
-          below: 5
+    - condition: state
+      entity_id: binary_sensor.dark_enough
+      state: 'on'
   actions:
   - action: script.lights_on_home
     data: {}
@@ -1704,25 +1643,9 @@
       - condition: state
         entity_id: light.diningtable_light
         state: 'on'
-    - condition: or
-      alias: Dark enough - by light sensor, or by sun elevation if that is dead
-      conditions:
-      - condition: numeric_state
-        entity_id: sensor.light_sensor_living_illuminance
-        below: '30'
-      - condition: and
-        note: Fallback for when the living room light sensor goes offline. That sensor
-          crosses 30 lux at about +4.4 deg elevation.
-        conditions:
-        - condition: state
-          entity_id: sensor.light_sensor_living_illuminance
-          state:
-          - unavailable
-          - unknown
-        - condition: numeric_state
-          entity_id: sun.sun
-          attribute: elevation
-          below: 5
+    - condition: state
+      entity_id: binary_sensor.dark_enough
+      state: 'on'
   actions:
   - action: light.turn_off
     target:
@@ -1820,7 +1743,7 @@
       - media_player.eetkamer
       - media_player.office
       - media_player.living_room
-      - media_player.overkapping_overkapping_sonos_speakers_overkapping_sonos
+      - media_player.overkapping
     data: {}
   mode: single
 - id: '1636140714636'
@@ -2009,32 +1932,26 @@
       price_level_percentage: 110
 - id: '1644162797655'
   alias: Heating - Control heating bedroom
-  description: Turn on between 10h and 19h only when the temperature is too low and
-    the windows are closed
+  description: Heat between 10h and 22h while the room is below the heater's own setpoint,
+    the windows are closed and the price is under 110% of today's average. Change the
+    setpoint on the heater. The Shelly plug cuts its power from 22:05 to 09:55.
   triggers:
   - trigger: homeassistant
     event: start
   - trigger: time_pattern
     minutes: /30
-  - trigger: numeric_state
-    entity_id: sensor.climate_sensor_masterbedroom_temperature
-    below: 19
+  - trigger: template
+    value_template: '{{ states(''sensor.climate_sensor_masterbedroom_temperature'')
+      | float(99) < state_attr(''climate.eurom_alutherm_baseboard_heater'', ''temperature'')
+      | float(0) }}'
     for:
       minutes: 2
-  - trigger: numeric_state
-    entity_id: sensor.climate_sensor_masterbedroom_temperature
-    above: 19
+  - trigger: template
+    value_template: '{{ states(''sensor.climate_sensor_masterbedroom_temperature'')
+      | float(0) >= state_attr(''climate.eurom_alutherm_baseboard_heater'', ''temperature'')
+      | float(99) }}'
     for:
       minutes: 2
-  - trigger: state
-    entity_id:
-    - binary_sensor.cheapest_16_hours_24h
-    not_to:
-    - unavailable
-    - unknown
-    not_from:
-    - unavailable
-    - unknown
   - trigger: state
     entity_id:
     - sensor.energy_price_level
@@ -2047,45 +1964,63 @@
   - trigger: state
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
-    - binary_sensor.window_masterbed_2_openclose_contact
-  conditions: []
+    - binary_sensor.window_masterbedroom_2_contact
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: climate.eurom_alutherm_baseboard_heater
+      state: unavailable
+    alias: Heater has power
   actions:
   - choose:
     - conditions:
       - condition: time
         after: '10:00'
         before: '22:00:00'
+      - condition: template
+        value_template: '{{ states(''sensor.climate_sensor_masterbedroom_temperature'')
+          | float(99) < state_attr(''climate.eurom_alutherm_baseboard_heater'', ''temperature'')
+          | float(0) }}'
+        alias: Room below the heater setpoint
+      - condition: state
+        entity_id:
+        - binary_sensor.window_masterbed_1_openclose_contact
+        - binary_sensor.window_masterbedroom_2_contact
+        state:
+        - 'off'
+        - unavailable
+        - unknown
+        alias: Windows closed, a dead sensor counts as closed
       - condition: numeric_state
-        entity_id: sensor.climate_sensor_masterbedroom_temperature
-        below: 19
-      - condition: state
-        entity_id: binary_sensor.window_masterbed_1_openclose_contact
-        state: 'off'
-      - condition: state
-        entity_id: binary_sensor.window_masterbed_2_openclose_contact
-        state: 'off'
-      - condition: state
-        entity_id: binary_sensor.cheapest_16_hours_24h
-        state: 'on'
-        alias: The price should be not too high
+        entity_id: sensor.energy_price_level
+        attribute: percentage
+        below: 110
+        alias: Price under 110% of today's average
       sequence:
       - action: select.select_option
         target:
           entity_id: select.eurom_alutherm_capacity
         data:
           option: Auto
-      - action: climate.set_temperature
+      - action: climate.set_hvac_mode
         data:
           hvac_mode: heat
-          temperature: 18
         target:
           entity_id: climate.eurom_alutherm_baseboard_heater
     default:
-    - action: select.select_option
-      target:
-        entity_id: select.eurom_alutherm_capacity
-      data:
-        option: 'Off'
+    - if:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: climate.eurom_alutherm_baseboard_heater
+          state: 'off'
+      then:
+      - action: climate.set_hvac_mode
+        data:
+          hvac_mode: 'off'
+        target:
+          entity_id: climate.eurom_alutherm_baseboard_heater
   trace:
     stored_traces: 50
   mode: queued
@@ -2184,7 +2119,7 @@
       temp_sensor: sensor.climate_sensor_masterbedroom_temperature
       window_sensor:
       - binary_sensor.window_masterbed_1_openclose_contact
-      - binary_sensor.window_masterbed_2_openclose_contact
+      - binary_sensor.window_masterbedroom_2_contact
       min_temp: 15
       actions:
       - action: notify.all_phones
@@ -2317,6 +2252,11 @@
     - 'on'
     from:
     - 'off'
+  - trigger: state
+    entity_id: input_boolean.enable_pool_automations
+    from: 'off'
+    to: 'on'
+    note: Re-evaluate straight away when the pool automations are switched back on.
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -2847,7 +2787,7 @@
   - trigger: state
     entity_id:
     - binary_sensor.window_masterbed_1_openclose_contact
-    - binary_sensor.window_masterbed_2_openclose_contact
+    - binary_sensor.window_masterbedroom_2_contact
   actions:
   - choose:
     - conditions:
@@ -2858,11 +2798,14 @@
         entity_id: sensor.master_bedroom_humidity
         above: '50'
       - condition: state
-        entity_id: binary_sensor.window_masterbed_1_openclose_contact
-        state: 'off'
-      - condition: state
-        entity_id: binary_sensor.window_masterbed_2_openclose_contact
-        state: 'off'
+        entity_id:
+        - binary_sensor.window_masterbed_1_openclose_contact
+        - binary_sensor.window_masterbedroom_2_contact
+        state:
+        - 'off'
+        - unavailable
+        - unknown
+        alias: Windows closed, a dead sensor counts as closed
       - condition: state
         entity_id: binary_sensor.cheapest_16_hours_24h
         state: 'on'
@@ -2951,64 +2894,6 @@
       title: Sjorsje kwijt
       message: "\U0001F5D1 Sjorsje is onbereikbaar"
   mode: single
-- id: '1684057104240'
-  alias: Pool - Switch heating between silent and super silent
-  description: Based on the target temperature and current temperature, move to silent
-    or super silent mode.
-  triggers:
-  - trigger: state
-    entity_id:
-    - sensor.fairland_zwembad_wpu_temp_inlet
-    not_to:
-    - unavailable
-    - unknown
-    not_from:
-    - unavailable
-    - unknown
-  - trigger: state
-    entity_id:
-    - number.fairland_zwembad_wpu_target_temperature_heating
-    not_to:
-    - unavailable
-    - unknown
-    not_from:
-    - unavailable
-    - unknown
-  - trigger: state
-    entity_id:
-    - binary_sensor.cheapest_16_hours_24h
-    not_to:
-    - unavailable
-    - unknown
-    not_from:
-    - unavailable
-    - unknown
-  conditions:
-  - condition: state
-    entity_id: input_boolean.enable_pool_automations
-    state: 'on'
-  actions:
-  - choose:
-    - conditions:
-      - condition: numeric_state
-        entity_id: sensor.pool_heating_temperature_diff
-        above: 0
-        alias: If we are about to get close to the target temperature
-      sequence:
-      - action: select.select_option
-        metadata: {}
-        data:
-          option: Super Silence
-        target:
-          entity_id: select.fairland_zwembad_wpu_power_mode
-    default:
-    - action: select.select_option
-      metadata: {}
-      data:
-        option: Silence
-      target:
-        entity_id: select.fairland_zwembad_wpu_power_mode
-  mode: restart
 - id: '1684057174715'
   alias: Pool - Alert when ph or redox values are not oke
   description: ''
@@ -3178,6 +3063,12 @@
   - trigger: state
     entity_id:
     - schedule.pool_filter_pump_schedule
+  - trigger: state
+    entity_id: input_boolean.enable_pool_automations
+    from: 'off'
+    to: 'on'
+    note: Switching the pool automations back on mid-block would otherwise leave the
+      pump wrong until the next schedule change.
   conditions:
   - condition: state
     entity_id: input_boolean.enable_pool_automations
@@ -3787,7 +3678,7 @@
   - trigger: state
     entity_id:
     - sensor.access_point_u7_outdoor_state
-    from: Connected
+    from: connected
     for:
       hours: 0
       minutes: 10
@@ -4462,24 +4353,31 @@
   max_exceeded: silent
 - id: office_motion_light
   alias: Motion Lights - Control office light
-  description: 'Motion switches the office light on when the room is dark, and off
-    after 30 min without motion - but only when motion switched it on. The IKEA sensor
-    is PIR and misses someone sitting still: on 2026-10-06 it went up to 25 min between
-    detections during desk work, hence the long timeout. A light switched on by hand
-    is left alone. Queued, not restart: the timeout lives in the trigger''s for:,
-    not in a wait, and the light_off run that clears the flag must not cancel or be
-    dropped.'
+  description: 'Motion switches the office light on when the room is dark and occupancy
+    has held for 30 s, and off after 15 min without motion - but only when motion
+    switched it on. The IKEA sensor is PIR and misses someone sitting still: on 2026-10-06
+    it went up to 25 min between detections during desk work, so 15 min can switch
+    the light off on a still sitter; chosen by Rob on 2026-10-08. A light switched
+    on by hand is left alone. Queued, not restart: the timeouts live in the triggers''
+    for:, not in a wait, and the light_off run that clears the flag must not cancel
+    or be dropped.'
   triggers:
   - trigger: state
     entity_id: binary_sensor.kantoor_ikea_motion_sensor_office_occupancy
     from: 'off'
     to: 'on'
     id: motion
+    for:
+      seconds: 30
+    note: 'One PIR detection holds occupancy on for 22-26 s (2026-10-08 history),
+      so 30 s means motion was seen again after the first one: someone stays, not
+      walks past. Single blips at 12:56, 17:00, 18:06, 19:05 and 19:49 each lit the
+      light for 30+ min.'
   - trigger: state
     entity_id: binary_sensor.kantoor_ikea_motion_sensor_office_occupancy
     to: 'off'
     for:
-      minutes: 30
+      minutes: 15
     id: no_motion
     note: 'No from: so the unavailable -> off after a restart also starts the clock.'
   - trigger: state
@@ -4572,3 +4470,26 @@
     alias: Write 0xF322 as float32, low word first
   mode: single
   max_exceeded: silent
+- id: '1791641680585'
+  alias: Pool - Turn equipment off in winter mode
+  description: 'Turning the pool automations off puts the pool in winter mode: heat
+    pump and filter pump go off and stay off, as the other pool automations are gated
+    on the same boolean. The heat pump goes first so it never runs without water flow.
+    The cover lock is left alone; the deck stays open all winter against frost.'
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.enable_pool_automations
+    from: 'on'
+    to: 'off'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.fairland_zwembad_wpu_aan_uit_schakelaar
+    continue_on_error: true
+    note: Usually disconnected for the winter, so unavailable; must not stop the pump
+      step.
+  - action: switch.turn_off
+    target:
+      entity_id: switch.pool_pomp_switch
+  mode: single

@@ -131,9 +131,9 @@ cards:
   - type: custom:decluttering-card
     template: sonos_popup
     variables:
-      - main_player: media_player.eva_eva
+      - main_player: media_player.eva
       - entities:
-          - media_player.eva_eva
+          - media_player.eva
       - groups: []
       - vol_threshold: 20
       - vol_max: 20

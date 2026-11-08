@@ -29,13 +29,28 @@ cards:
   - type: custom:bubble-card
     card_type: separator
     name: Nu & verwachting
-  - type: custom:weather-card
+  # The weather entity only sets the sky; the GW2000A sensors feed the numbers directly, so
+  # they stay live between the entity's own updates. tap_action none: the popup is the detail view.
+  - type: custom:animated-weather-card
     entity: weather.weather_langeweide_ecowitt
-    current: true
-    details: true
-    forecast: true
-    hourly_forecast: false
-    number_of_forecasts: '5'
+    sun_entity: sun.sun
+    show_location: false
+    temperature_decimals: 1
+    outdoor_sensor_entity: sensor.temp
+    feels_like_entity: sensor.feelslike
+    humidity_sensor_entity: sensor.humidity
+    wind_speed_sensor_entity: sensor.windspeed
+    wind_direction_sensor_entity: sensor.winddir
+    pressure_sensor_entity: sensor.baromrel
+    indoor_temperature_entity: sensor.tempin
+    indoor_humidity_entity: sensor.humidityin
+    tap_action: { action: none }
+  # Stopgap until the animated card ships its own forecast (announced for an upcoming release).
+  - type: weather-forecast
+    entity: weather.weather_langeweide_ecowitt
+    forecast_type: daily
+    show_current: false
+    show_forecast: true
   # ── regen ─────────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator

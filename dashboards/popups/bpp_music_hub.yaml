@@ -17,12 +17,12 @@ icon: mdi:music-circle
 # header = how many rooms are playing right now
 entity: input_select.music_hub_room
 state_content: >-
-  {%- set P = ['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2'] -%}
+  {%- set P = ['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.overkapping_ma_sonos','media_player.office_ma_sonos','media_player.eva_ma_sonos','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2'] -%}
   {%- set n = expand(P) | selectattr('state','eq','playing') | list | count -%}
   {{ 'Niets aan het spelen' if n == 0 else n ~ (' kamer speelt' if n == 1 else ' kamers spelen') }}
 styles: |
-  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
-  .bubble-icon-container { background-color: ${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
+  .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.overkapping_ma_sonos','media_player.office_ma_sonos','media_player.eva_ma_sonos','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.14)' : 'rgba(255,255,255,0.04)'; })()} !important; }
+  .bubble-icon-container { background-color: ${(() => { const P=['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.overkapping_ma_sonos','media_player.office_ma_sonos','media_player.eva_ma_sonos','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2']; return P.some(p=>hass.states[p]?.state==='playing') ? 'rgba(45,170,115,0.20)' : 'rgba(255,255,255,0.07)'; })()} !important; }
   .bubble-state { font-size: 13px !important; font-weight: 500; color: #b9c0c7 !important; }
 cards:
   # ── Kamers (tap = kies kamer · hold = meer info) ───────────────────
@@ -84,12 +84,36 @@ cards:
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: media_player.office_ma_sonos
-        name: Shed
+        entity: media_player.overkapping_ma_sonos
+        name: Overkapping
         icon: mdi:greenhouse
         card_layout: large
         button_action:
-          tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Shed } }
+          tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Overkapping } }
+          hold_action: { action: more-info }
+        state_content: >-
+          {%- set s = states['media_player.overkapping_ma_sonos'] -%}
+          {%- if s is none -%}—
+          {%- elif s.state == 'paused' -%}gepauzeerd
+          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
+          {%- else -%}
+          {%- set t = state_attr('media_player.overkapping_ma_sonos','media_title') | default('', true) -%}
+          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
+          {%- endif -%}
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Overkapping'; const playing=hass.states['media_player.overkapping_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
+          .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Overkapping' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['media_player.overkapping_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: media_player.office_ma_sonos
+        name: Office
+        icon: mdi:briefcase
+        card_layout: large
+        button_action:
+          tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Office } }
           hold_action: { action: more-info }
         state_content: >-
           {%- set s = states['media_player.office_ma_sonos'] -%}
@@ -101,38 +125,14 @@ cards:
           {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
           {%- endif -%}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Shed'; const playing=hass.states['media_player.office_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
-          .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Shed' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Office'; const playing=hass.states['media_player.office_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
+          .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Office' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
           .bubble-icon-container { background-color: ${hass.states['media_player.office_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
           .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button
         button_type: state
-        entity: media_player.unnamed_room_3
-        name: Office
-        icon: mdi:briefcase
-        card_layout: large
-        button_action:
-          tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Office } }
-          hold_action: { action: more-info }
-        state_content: >-
-          {%- set s = states['media_player.unnamed_room_3'] -%}
-          {%- if s is none -%}—
-          {%- elif s.state == 'paused' -%}gepauzeerd
-          {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
-          {%- else -%}
-          {%- set t = state_attr('media_player.unnamed_room_3','media_title') | default('', true) -%}
-          {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
-          {%- endif -%}
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Office'; const playing=hass.states['media_player.unnamed_room_3']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
-          .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Office' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
-          .bubble-icon-container { background-color: ${hass.states['media_player.unnamed_room_3']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
-          .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: media_player.unnamed_room
+        entity: media_player.eva_ma_sonos
         name: Eva
         icon: mdi:bed
         card_layout: large
@@ -140,18 +140,18 @@ cards:
           tap_action: { action: perform-action, perform_action: input_select.select_option, target: { entity_id: input_select.music_hub_room }, data: { option: Eva } }
           hold_action: { action: more-info }
         state_content: >-
-          {%- set s = states['media_player.unnamed_room'] -%}
+          {%- set s = states['media_player.eva_ma_sonos'] -%}
           {%- if s is none -%}—
           {%- elif s.state == 'paused' -%}gepauzeerd
           {%- elif s.state in ['idle','off','unavailable','standby'] -%}stil
           {%- else -%}
-          {%- set t = state_attr('media_player.unnamed_room','media_title') | default('', true) -%}
+          {%- set t = state_attr('media_player.eva_ma_sonos','media_title') | default('', true) -%}
           {{ (t[:23] ~ '…') if t | length > 24 else (t if t else 'speelt') }}
           {%- endif -%}
         styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Eva'; const playing=hass.states['media_player.unnamed_room']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const sel=hass.states['input_select.music_hub_room']?.state==='Eva'; const playing=hass.states['media_player.eva_ma_sonos']?.state==='playing'; return sel ? 'rgba(55,138,221,0.22)' : (playing ? 'rgba(45,170,115,0.13)' : 'rgba(255,255,255,0.04)'); })()} !important; }
           .bubble-button-container { border: ${hass.states['input_select.music_hub_room']?.state==='Eva' ? '1px solid rgba(55,138,221,0.6)' : '1px solid transparent'} !important; }
-          .bubble-icon-container { background-color: ${hass.states['media_player.unnamed_room']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
+          .bubble-icon-container { background-color: ${hass.states['media_player.eva_ma_sonos']?.state==='playing' ? 'rgba(45,170,115,0.22)' : 'rgba(255,255,255,0.07)'} !important; }
           .bubble-state { font-size: 12px !important; color: #9aa1a8 !important; }
       - type: custom:bubble-card
         card_type: button

@@ -36,7 +36,7 @@ sonos_say:
         volume: '{{ volume }}'
     target:
       entity_id: '{{ sonos_entity }}'
-  mode: single
+  mode: queued
   icon: mdi:play
 sonos_play_sound:
   alias: Sonos Play MP3
@@ -50,7 +50,7 @@ sonos_play_sound:
       media_content_id: '{{ mp3_url }}'
       extra:
         volume: '{{ volume }}'
-  mode: single
+  mode: parallel
   icon: mdi:play
 sleep_well:
   alias: Sleep well

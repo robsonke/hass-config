@@ -1,0 +1,41 @@
+{# Both lux sensors report only on change, and a dropped Zigbee device keeps its last value instead of going
+   unavailable. Silence above the threshold therefore means stuck; silence below it is just a dark evening
+   (lamps read 10-12 lux). Longest silence seen while healthy: living ~30 s, garden ~40 min (Nov 2026). #}
+{%- set LUX = {
+  'sensor.light_sensor_living_illuminance': {'dark': 30, 'silence': 1800},
+  'sensor.light_sensor_garden_illuminance': {'dark': 100, 'silence': 5400},
+} -%}
+
+{%- macro lux_stuck(entity_id) -%}
+{%- set s = states[entity_id] -%}
+{%- set r = LUX[entity_id] -%}
+{{- s is not none and is_number(s.state) and s.state | float(0) >= r.dark
+    and (now() - s.last_reported).total_seconds() >= r.silence -}}
+{%- endmacro -%}
+
+{# Entity ids of lux sensors that look alive but are stuck, as JSON. #}
+{%- macro stuck_lux_sensors() -%}
+{%- set ns = namespace(ids=[]) -%}
+{%- for e in LUX -%}{%- if lux_stuck(e) | bool -%}{%- set ns.ids = ns.ids + [e] -%}{%- endif -%}{%- endfor -%}
+{{- ns.ids | to_json -}}
+{%- endmacro -%}
+
+{# Which source decides whether it is dark: living room, else garden, else sun. Garden reads ~100 lux when
+   the living room crosses 30. #}
+{%- macro dark_source() -%}
+{%- set ns = namespace(src='sun') -%}
+{%- for e, name in [('sensor.light_sensor_living_illuminance', 'living'),
+                    ('sensor.light_sensor_garden_illuminance', 'garden')] -%}
+{%- if ns.src == 'sun' and is_number(states(e)) and not lux_stuck(e) | bool -%}{%- set ns.src = name -%}{%- endif -%}
+{%- endfor -%}
+{{- ns.src -}}
+{%- endmacro -%}
+
+{%- macro is_dark() -%}
+{%- set src = dark_source() -%}
+{%- if src == 'sun' -%}{{ state_attr('sun.sun', 'elevation') | float(90) < 5 }}
+{%- else -%}
+{%- set e = 'sensor.light_sensor_' ~ src ~ '_illuminance' -%}
+{{- states(e) | float(0) < LUX[e].dark -}}
+{%- endif -%}
+{%- endmacro -%}

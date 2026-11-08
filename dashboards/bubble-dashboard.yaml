@@ -705,7 +705,7 @@ views:
                     condition:
                       - condition: template
                         value_template: >
-                          {{ ['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.office_ma_sonos','media_player.unnamed_room_3','media_player.unnamed_room','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2'] | select('is_state','playing') | list | count > 0 }}
+                          {{ ['media_player.woonkamer_ma_sonos','media_player.eetkamer_ma_sonos','media_player.overkapping_ma_sonos','media_player.office_ma_sonos','media_player.eva_ma_sonos','media_player.tv_speaker_ma_sonos','media_player.sonos_roam_2'] | select('is_state','playing') | list | count > 0 }}
               modules:
                 - bubble_badges
                 - bubble_neon_icon_only
@@ -883,7 +883,16 @@ views:
             tap_action: { action: navigate, navigation_path: '#klimaat-beneden' }
             button_action:
               tap_action: { action: navigate, navigation_path: '#klimaat-beneden' }
-            modules: [bubble_neon_icon_only]
+            modules: [bubble_neon_icon_only, bubble_graphs]
+            # Neutral colour so the graph never fights the hvac_action glow below. Stay at 48h or less:
+            # the sensor has no state_class, so there are no long-term statistics to draw from.
+            bubble_graphs:
+              graph_style: area
+              full_height: true
+              hours: 24
+              color: primary-text
+              opacity: 0.35
+              animation: fade
             # Neon's hue matcher would paint this red year-round (sees "indoor_temp" in the entity
             # id), but the Altherma cools too — colour instead follows climate.warmtepomp's
             # hvac_action. Icon glyph can't follow state either: icon: takes no template, JS or Jinja.
@@ -929,9 +938,9 @@ views:
               {%- set members = expand('media_player.music_downstairs') -%}
               {%- set playing = members | selectattr('state','eq','playing') | list -%}
               {%- set paused = members | selectattr('state','eq','paused') | list -%}
-              {%- if playing | count == 1 -%}{{ playing[0].name | replace('Speakers ','') | replace(' Sonos','') }}
+              {%- if playing | count == 1 -%}{{ device_name(playing[0].entity_id) | replace(' Sonos','') }}
               {%- elif playing | count > 1 -%}Speelt in {{ playing | count }} kamers
-              {%- elif paused | count == 1 -%}{{ paused[0].name | replace('Speakers ','') | replace(' Sonos','') }} · pauze
+              {%- elif paused | count == 1 -%}{{ device_name(paused[0].entity_id) | replace(' Sonos','') }} · pauze
               {%- elif paused | count > 1 -%}Gepauzeerd
               {%- else -%}Uit
               {%- endif -%}
@@ -1086,9 +1095,9 @@ views:
               {%- set members = expand('media_player.music_upstairs') -%}
               {%- set playing = members | selectattr('state','eq','playing') | list -%}
               {%- set paused = members | selectattr('state','eq','paused') | list -%}
-              {%- if playing | count == 1 -%}{{ playing[0].name | replace('Speakers ','') | replace(' Sonos','') }}
+              {%- if playing | count == 1 -%}{{ device_name(playing[0].entity_id) | replace(' Sonos','') }}
               {%- elif playing | count > 1 -%}Speelt in {{ playing | count }} kamers
-              {%- elif paused | count == 1 -%}{{ paused[0].name | replace('Speakers ','') | replace(' Sonos','') }} · pauze
+              {%- elif paused | count == 1 -%}{{ device_name(paused[0].entity_id) | replace(' Sonos','') }} · pauze
               {%- elif paused | count > 1 -%}Gepauzeerd
               {%- else -%}Uit
               {%- endif -%}
@@ -1264,7 +1273,14 @@ views:
             tap_action: { action: navigate, navigation_path: '#water' }
             button_action:
               tap_action: { action: navigate, navigation_path: '#water' }
-            modules: [bubble_neon_icon_only]
+            modules: [bubble_neon_icon_only, bubble_graphs]
+            # Bars, because flow comes in short bursts that a smoothed line would flatten.
+            bubble_graphs:
+              graph_style: bars
+              hours: 24
+              color: primary-text
+              opacity: 0.35
+              animation: fade
             styles: |
               .bubble-button-background {
                 opacity: 1 !important;
@@ -1339,20 +1355,30 @@ views:
               tap_action: { action: navigate, navigation_path: '#zwembad' }
             modules: [bubble_neon_icon_only]
             styles: |
+              /* winter mode = pool automations off: snowflake icon, tile dimmed and never cyan,
+                 because the deck stays open all winter against frost */
+              ${icon.setAttribute('icon', hass.states['input_boolean.enable_pool_automations']?.state === 'off' ? 'mdi:snowflake' : 'mdi:pool')}
+              .bubble-button-container {
+                opacity: ${hass.states['input_boolean.enable_pool_automations']?.state === 'off' ? '0.45' : '1'} !important;
+              }
               /* light up (cyan) when the pool cover is open — like the main dashboard */
               .bubble-button-background {
                 opacity: 1 !important;
-                background-color: ${(state === 'Open' ? 'rgba(60, 180, 210, 0.42)' : 'transparent')} !important;
+                background-color: ${(state === 'Open' && hass.states['input_boolean.enable_pool_automations']?.state !== 'off' ? 'rgba(60, 180, 210, 0.42)' : 'transparent')} !important;
               }
               /* show water temperature, pH and Rx (ORP) */
               .bubble-state {
                 font-size: 12px !important;
               }
             state_content: >-
+              {%- if is_state('input_boolean.enable_pool_automations', 'off') -%}
+              Winterstand
+              {%- else -%}
               {%- set t = states('sensor.fairland_zwembad_wpu_temp_inlet') | float(-99999) -%}
               {%- set ph = states('sensor.eps_pool_ph_level') -%}
               {%- set rx = states('sensor.eps_pool_rx_level') | float(-99999) -%}
               {{ ((('%.1f' | format(t)) ~ '°C') if t != -99999 else '–') ~ ' · pH ' ~ (ph if ph not in ['unknown','unavailable',''] else '–') ~ ' · Rx ' ~ ((rx | round | int) if rx != -99999 else '–') }}
+              {%- endif -%}
             grid_options: { columns: 6, rows: 2 }
           - type: custom:bubble-card
             card_type: button
@@ -1446,9 +1472,9 @@ views:
               {%- set members = expand('media_player.muziek_tuin') -%}
               {%- set playing = members | selectattr('state','eq','playing') | list -%}
               {%- set paused = members | selectattr('state','eq','paused') | list -%}
-              {%- if playing | count == 1 -%}{{ playing[0].name | replace('Speakers ','') | replace(' Sonos','') }}
+              {%- if playing | count == 1 -%}{{ device_name(playing[0].entity_id) | replace(' Sonos','') }}
               {%- elif playing | count > 1 -%}Speelt in {{ playing | count }} kamers
-              {%- elif paused | count == 1 -%}{{ paused[0].name | replace('Speakers ','') | replace(' Sonos','') }} · pauze
+              {%- elif paused | count == 1 -%}{{ device_name(paused[0].entity_id) | replace(' Sonos','') }} · pauze
               {%- elif paused | count > 1 -%}Gepauzeerd
               {%- else -%}Uit
               {%- endif -%}

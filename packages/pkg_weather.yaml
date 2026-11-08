@@ -6,13 +6,33 @@ template:
     - name: Weather Langeweide Ecowitt
       unique_id: langeweide_ecowitt
       #attribution_template: Local Ecowitt Weatherstation on our roof
-      condition_template: "{{ states('weather.home') }}"
-      temperature_template: "{{ states('sensor.temp') | float(default=states('sensor.kloetinge_temperature') | float(default=0)) }}"
-      wind_bearing_template: "{{ states('sensor.winddir') | float(default=states('sensor.kloetinge_wind_direction') | float(default=0)) }}"
-      wind_speed_template: "{{ states('sensor.windspeed') | float(default=states('sensor.kloetinge_wind_speed') | float(default=0)) }}"
-      humidity_template: "{{ states('sensor.humidity') | float(default=states('sensor.kloetinge_humidity') | float(default=0)) }}"
+      # GW2000A first, Buienradar (Kloetinge) as fallback, none when both are gone: a 0 fallback showed 0 °C and
+      # dead calm. Buienradar's wind direction sensor is text ("ONO"), so the bearing falls back to its weather entity.
+      # Rain comes from the piezo gauge, not met.no, which said rainy at 0.0 mm/h. Thunder, snow and hail stay
+      # with the forecast; the gauge cannot tell those apart. Above 4 mm/h counts as pouring.
+      condition_template: >-
+        {%- set fc = states('weather.home') if has_value('weather.home')
+              else (states('weather.kloetinge') if has_value('weather.kloetinge') else none) -%}
+        {%- set rate = states('sensor.rate_rain_piezo') | float(none) -%}
+        {%- if is_state('binary_sensor.rain_detected', 'on') -%}
+          {{ fc if fc in ['lightning-rainy', 'snowy-rainy', 'snowy', 'hail']
+             else ('pouring' if rate is not none and rate >= 4 else 'rainy') }}
+        {%- elif rate is not none and fc in ['rainy', 'pouring'] -%}
+          cloudy
+        {%- else -%}
+          {{ fc }}
+        {%- endif -%}
+      temperature_template: >-
+        {{ states('sensor.temp') | float(states('sensor.kloetinge_temperature') | float(none)) }}
+      wind_bearing_template: >-
+        {{ states('sensor.winddir') | float(state_attr('weather.kloetinge', 'wind_bearing')) }}
+      wind_speed_template: >-
+        {{ states('sensor.windspeed') | float(states('sensor.kloetinge_wind_speed') | float(none)) }}
+      humidity_template: >-
+        {{ states('sensor.humidity') | float(states('sensor.kloetinge_humidity') | float(none)) }}
       forecast_daily_template: "{{ state_attr('sensor.today_maximum_temperature', 'forecast') }}"
-      pressure_template: "{{ state_attr('weather.home', 'pressure') }}"
+      pressure_template: >-
+        {{ states('sensor.baromrel') | float(state_attr('weather.home', 'pressure')) }}
       temperature_unit: °C
       visibility_unit: km
       wind_speed_unit: km/h
@@ -22,6 +42,12 @@ template:
   - trigger:
     - trigger: state
       entity_id: weather.home
+    - trigger: time
+      at: "00:00:30"
+    # Fires only when the GW2000A climbs above the current max, not on every reading.
+    - trigger: template
+      value_template: >-
+        {{ states('sensor.temp') | float(-99) > states('sensor.today_maximum_temperature') | float(99) }}
     action:
       - action: weather.get_forecasts
         data:
@@ -33,68 +59,29 @@ template:
       - name: "Today Maximum Temperature"
         icon: mdi:thermometer
         unique_id: today_maximum_temperature
-        state: "{{ forecast_daily['weather.home'].forecast[0].temperature }}"
+        # Met.no's entry for today only covers the hours left: it sank from 9.7 to 7.3 by the evening of
+        # 2026-11-05, misleading the pool, HVAC and heater automations. Keep the day's highest of forecast and
+        # measured GW2000A temperature; reset per date.
+        state: >-
+          {%- set ns = namespace(fc=none) -%}
+          {%- for x in forecast_daily['weather.home'].forecast -%}
+            {%- if ns.fc is none and (x.datetime | as_datetime | as_local).date() == now().date() -%}
+              {%- set ns.fc = x.temperature -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- set prev = this.state | float(none)
+                if this.attributes.get('date') == now().date() | string else none -%}
+          {%- set vals = [ns.fc, prev, states('sensor.temp') | float(none)] | reject('none') | list -%}
+          {{ vals | max if vals else none }}
         attributes:
+          date: "{{ now().date() | string }}"
           forecast: "{{ forecast_daily['weather.home'].forecast }}"
-      - name: Weather Forecast Langeweide Daily
-        unique_id: weather_langeweide_ecowitt_forecast_daily
-        state: "{{ now().isoformat() }}"
-        icon: mdi:hours-24
-        attributes:
-          forecast: "{{ forecast_daily['weather.home'].forecast }}"
-
-  - trigger:
-      - trigger: time_pattern
-        minutes: /10
-    action:
-      - action: weather.get_forecasts
-        data:
-          type: hourly
-        target:
-          entity_id: weather.home
-        response_variable: forecast_hourly
-    sensor:
-      - name: Weather Forecast Langeweide Hourly
-        unique_id: weather_langeweide_ecowitt_forecast_hourly
-        state: "{{ now().isoformat() }}"
-        icon: mdi:hours-24
-        attributes:
-          forecast: "{{ forecast_hourly['weather.home'].forecast }}"
-
-  - sensor:
-    # - name: "Today Maximum Temperature"
-    #   icon: mdi:thermometer
-    #   unique_id: today_maximum_temperature
-    #   state: >
-    #     {{ states('sensor.openweathermap_forecast_temperature') | float(default=20) }}
-    - name: "Wind Force"
-      icon: mdi:weather-windy
-      unique_id: wind_force
-      # Unavailable rather than "0 Bft" when the source drops out - an unguarded
-      # `| float` used to raise, and `| float(0)` would report dead calm.
-      availability: "{{ has_value('sensor.kloetinge_wind_speed') }}"
-      state: >
-        {% set wind = states('sensor.kloetinge_wind_speed') | float(0) %}
-        {% if wind <= 1 %}0 Bft
-        {% elif wind <= 5 %}1 Bft
-        {% elif wind <= 11 %}2 Bft
-        {% elif wind <= 20 %}3 Bft
-        {% elif wind <= 28 %}4 Bft
-        {% elif wind <= 39 %}5 Bft
-        {% elif wind <= 50 %}6 Bft
-        {% elif wind <= 62 %}7 Bft
-        {% elif wind <= 75 %}8 Bft
-        {% elif wind <= 89 %}9 Bft
-        {% elif wind <= 103 %}10 Bft
-        {% elif wind <= 117 %}11 Bft
-        {% else %}12 Bft
-        {%- endif %}
 
   - binary_sensor:
     # Single source of truth for "it is raining RIGHT NOW" (Ecowitt piezo gauge) — replaces per-consumer re-derivations,
-    # including a fragile STRING '0.0' compare. Not derived from weather.weather_langeweide_ecowitt: it reports `rainy`
-    # from the forecast even when nothing falls (observed 2026-07-26: `rainy` at 0.0 mm/h). delay_on 10s matches the
-    # open automations' confirmation; delay_off 2m absorbs a shower's between-burst dips.
+    # including a fragile STRING '0.0' compare. Never derive it from weather.weather_langeweide_ecowitt: that entity's
+    # rain condition is built from this sensor. delay_on 10s matches the open automations' confirmation; delay_off 2m
+    # absorbs a shower's between-burst dips.
     - name: Rain Detected
       unique_id: rain_detected
       device_class: moisture

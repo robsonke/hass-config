@@ -9,7 +9,7 @@ input_select:
     options:
       - Woonkamer
       - Eetkamer
-      - Shed
+      - Overkapping
       - Office
       - Eva
       - TV Speaker
@@ -50,9 +50,9 @@ script:
       players: &hub_players
         Woonkamer: media_player.woonkamer_ma_sonos
         Eetkamer: media_player.eetkamer_ma_sonos
-        Shed: media_player.office_ma_sonos
-        Office: media_player.unnamed_room_3
-        Eva: media_player.unnamed_room
+        Overkapping: media_player.overkapping_ma_sonos
+        Office: media_player.office_ma_sonos
+        Eva: media_player.eva_ma_sonos
         TV Speaker: media_player.tv_speaker_ma_sonos
         Sonos Roam: media_player.sonos_roam_2
       target_player: "{{ players[states('input_select.music_hub_room')] }}"
@@ -94,9 +94,9 @@ script:
       buttons:
         Woonkamer: button.woonkamer_favorite_current_song
         Eetkamer: button.eetkamer_favorite_current_song
-        Shed: button.office_favorite_current_song
-        Office: button.unnamed_room_favorite_current_song
-        Eva: button.unnamed_room_favorite_current_song_2
+        Overkapping: button.overkapping_favorite_current_song
+        Office: button.office_favorite_current_song
+        Eva: button.eva_favorite_current_song
         TV Speaker: button.tv_speaker_favorite_current_song
         Sonos Roam: button.sonos_roam_favorite_current_song
     sequence:

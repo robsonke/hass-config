@@ -29,6 +29,141 @@ styles: |
     color: ${(() => { const imp = parseFloat(hass.states['sensor.grid_power_in']?.state); return (isFinite(imp) && imp > 0.05) ? '#f0cf8f' : '#9ed9bd'; })()} !important;
   }
 cards:
+  # ── tarieven ──────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: separator
+    name: Tarieven
+  - type: grid
+    columns: 3
+    square: false
+    # 3-up fits the 920px desktop pop-up, but on a phone each tile's label area
+    # collapsed to ~37px and Bubble marquee-scrolled every name. 2-up on mobile
+    # gives them room; the third tile wraps onto its own row.
+    uix:
+      style: |
+        @media (max-width: 767px) {
+          #root { grid-template-columns: 1fr 1fr !important; }
+        }
+    cards:
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.energy_price_level
+        name: Prijs nu
+        icon: mdi:cash-clock
+        card_layout: large
+        tap_action: { action: more-info }
+        state_content: >-
+          {%- set s = states('sensor.energy_price_level') -%}
+          {%- set p = states('sensor.current_price_electricity') | float(-99999) -%}
+          {{ {'cheap':'goedkoop','very_cheap':'goedkoop','low':'goedkoop','normal':'gemiddeld','expensive':'duur','very_expensive':'duur','high':'duur'}.get(s | lower, s) ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.14)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.14)':'rgba(240,195,95,0.13)'); })()} !important; }
+          .bubble-icon-container { background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.20)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.22)':'rgba(240,195,95,0.20)'); })()} !important; }
+          .bubble-state { font-size: 13px !important; font-weight: 500; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.energy_cheapest_time_today
+        name: Goedkoopst
+        icon: mdi:trending-down
+        card_layout: large
+        tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['sensor.energy_cheapest_time_today'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set p = state_attr('sensor.energy_cheapest_time_today','price') | float(-99999) -%}
+          {{ st.state ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
+          {%- endif -%}
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.12) !important; }
+          .bubble-icon-container { background-color: rgba(45,170,115,0.20) !important; }
+          .bubble-state { font-size: 13px !important; }
+      - type: custom:bubble-card
+        card_type: button
+        button_type: state
+        entity: sensor.energy_priciest_time_today
+        name: Duurst
+        icon: mdi:trending-up
+        card_layout: large
+        tap_action: { action: more-info }
+        state_content: >-
+          {%- set st = states['sensor.energy_priciest_time_today'] -%}
+          {%- if st is none -%}—
+          {%- else -%}
+          {%- set p = state_attr('sensor.energy_priciest_time_today','price') | float(-99999) -%}
+          {{ st.state ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
+          {%- endif -%}
+        styles: |
+          .bubble-button-background { opacity: 1 !important; background-color: rgba(226,75,74,0.12) !important; }
+          .bubble-icon-container { background-color: rgba(226,75,74,0.20) !important; }
+          .bubble-state { font-size: 13px !important; }
+  - type: entities
+    title: Tarieven vandaag en morgen
+    entities:
+      - entity: sensor.average_price_today
+        name: Gemiddeld kWh prijs vandaag
+      - entity: sensor.average_price_tomorrow
+        name: Gemiddeld kWh prijs morgen
+  # Prices come in 15-minute slots, so a stepline reads cleaner than 96 bars a day. The window looks
+  # ahead from 3h ago; the dashed line is each day's average, the yardstick the price-level tile uses.
+  # The y-axis hugs the data: from zero, a 0.36 vs 0.50 spread looked flat.
+  - type: custom:apexcharts-card
+    graph_span: 30h
+    span:
+      start: hour
+      offset: -3h
+    apex_config:
+      chart:
+        height: 240px
+      legend:
+        show: false
+    now:
+      show: true
+      color: '#ff5252'
+      label: Nu
+    yaxis:
+      - min: '|-0.03|'
+        max: '|+0.03|'
+        decimals: 2
+    series:
+      - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+        name: Prijs incl. opslag
+        type: area
+        curve: stepline
+        stroke_width: 2
+        opacity: 0.25
+        color: '#f0c35f'
+        float_precision: 2
+        # Without this the last price is drawn on to the edge, faking a flat night before tomorrow is published.
+        extend_to: false
+        show:
+          extremas: true
+        data_generator: |
+          const m = parseFloat(hass.states['input_number.energy_markup']?.state);
+          const add = isFinite(m) ? m : 0.1108;
+          return [...(entity.attributes.raw_today || []), ...(entity.attributes.raw_tomorrow || [])]
+            .map((e) => [new Date(e.start).getTime(), e.value + add]);
+      - entity: sensor.nordpool_kwh_nl_eur_3_10_021
+        name: Daggemiddelde
+        type: line
+        curve: stepline
+        stroke_width: 2
+        stroke_dash: 6
+        color: '#7fb3ea'
+        float_precision: 2
+        extend_to: false
+        data_generator: |
+          const m = parseFloat(hass.states['input_number.energy_markup']?.state);
+          const add = isFinite(m) ? m : 0.1108;
+          const out = [];
+          for (const day of [entity.attributes.raw_today || [], entity.attributes.raw_tomorrow || []]) {
+            if (!day.length) continue;
+            const avg = day.reduce((s, e) => s + e.value, 0) / day.length + add;
+            day.forEach((e) => out.push([new Date(e.start).getTime(), avg]));
+          }
+          return out;
   # ── kosten ────────────────────────────────────────────────────────
   - type: custom:bubble-card
     card_type: separator
@@ -392,121 +527,5 @@ cards:
         name: Power Consumption this Year
       - entity: sensor.solaredge_energy_this_year
         name: Power Production this Year
-  # ── tarieven ──────────────────────────────────────────────────────
-  - type: custom:bubble-card
-    card_type: separator
-    name: Tarieven
-  - type: grid
-    columns: 3
-    square: false
-    # 3-up fits the 920px desktop pop-up, but on a phone each tile's label area
-    # collapsed to ~37px and Bubble marquee-scrolled every name. 2-up on mobile
-    # gives them room; the third tile wraps onto its own row.
-    uix:
-      style: |
-        @media (max-width: 767px) {
-          #root { grid-template-columns: 1fr 1fr !important; }
-        }
-    cards:
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.energy_price_level
-        name: Prijs nu
-        icon: mdi:cash-clock
-        card_layout: large
-        tap_action: { action: more-info }
-        state_content: >-
-          {%- set s = states('sensor.energy_price_level') -%}
-          {%- set p = states('sensor.current_price_electricity') | float(-99999) -%}
-          {{ {'cheap':'goedkoop','very_cheap':'goedkoop','low':'goedkoop','normal':'gemiddeld','expensive':'duur','very_expensive':'duur','high':'duur'}.get(s | lower, s) ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.14)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.14)':'rgba(240,195,95,0.13)'); })()} !important; }
-          .bubble-icon-container { background-color: ${(() => { const s=(hass.states['sensor.energy_price_level']?.state||'').toLowerCase(); return /cheap|goedkoop|laag|low/.test(s)?'rgba(45,170,115,0.20)':(/expensive|duur|hoog|high/.test(s)?'rgba(226,75,74,0.22)':'rgba(240,195,95,0.20)'); })()} !important; }
-          .bubble-state { font-size: 13px !important; font-weight: 500; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.energy_cheapest_time_today
-        name: Goedkoopst
-        icon: mdi:trending-down
-        card_layout: large
-        tap_action: { action: more-info }
-        state_content: >-
-          {%- set st = states['sensor.energy_cheapest_time_today'] -%}
-          {%- if st is none -%}—
-          {%- else -%}
-          {%- set p = state_attr('sensor.energy_cheapest_time_today','price') | float(-99999) -%}
-          {{ st.state ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
-          {%- endif -%}
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: rgba(45,170,115,0.12) !important; }
-          .bubble-icon-container { background-color: rgba(45,170,115,0.20) !important; }
-          .bubble-state { font-size: 13px !important; }
-      - type: custom:bubble-card
-        card_type: button
-        button_type: state
-        entity: sensor.energy_priciest_time_today
-        name: Duurst
-        icon: mdi:trending-up
-        card_layout: large
-        tap_action: { action: more-info }
-        state_content: >-
-          {%- set st = states['sensor.energy_priciest_time_today'] -%}
-          {%- if st is none -%}—
-          {%- else -%}
-          {%- set p = state_attr('sensor.energy_priciest_time_today','price') | float(-99999) -%}
-          {{ st.state ~ ((' · €' ~ (('%.2f' | format(p)) | replace('.', ','))) if p != -99999 else '') }}
-          {%- endif -%}
-        styles: |
-          .bubble-button-background { opacity: 1 !important; background-color: rgba(226,75,74,0.12) !important; }
-          .bubble-icon-container { background-color: rgba(226,75,74,0.20) !important; }
-          .bubble-state { font-size: 13px !important; }
-  - type: entities
-    title: Tarieven vandaag en morgen
-    entities:
-      - entity: sensor.average_price_today
-        name: Gemiddeld kWh prijs vandaag
-      - entity: sensor.average_price_tomorrow
-        name: Gemiddeld kWh prijs morgen
-  - type: custom:apexcharts-card
-    experimental:
-      color_threshold: true
-    graph_span: 2d
-    span:
-      start: day
-    apex_config:
-      chart:
-        height: 280px
-    now:
-      show: true
-      color: '#ff0000'
-    series:
-      - entity: sensor.nordpool_kwh_nl_eur_3_10_021
-        name: Prijs incl. opslag
-        type: column
-        float_precision: 2
-        show:
-          extremas: true
-        data_generator: |
-          const t = (entity.attributes.raw_today || []).map((e) => [new Date(e.start), e.value + 0.1108]);
-          const m = (entity.attributes.raw_tomorrow || []).map((e) => [new Date(e.start), e.value + 0.1108]);
-          return t.concat(m);
-        color_threshold:
-          - value: 0
-            color: blue
-          - value: 0.15
-            color: green
-          - value: 0.35
-            color: darkorange
-          - value: 0.40
-            color: red
-          - value: 0.50
-            color: darkred
-          - value: 0.60
-            color: black
-    yaxis:
-      - min: 0
-        decimals: 2
   - type: energy-sources-table
   - type: energy-date-selection

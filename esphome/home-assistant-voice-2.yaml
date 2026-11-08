@@ -9,7 +9,7 @@ esphome:
   friendly_name: ${friendly_name}
 api:
   encryption:
-    key: EOacG/ogzGLNFVQsd3IAzQdwTXrxTvay+tBlt2tRE30=
+    key: !secret api_key_ha_voice_2
 
 
 wifi:

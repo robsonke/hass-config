@@ -1,0 +1,10 @@
+{# Full display name without the friendly_name attribute: device name plus entity name, like the 2026.11 frontend.
+   An entity name that already holds the device name, or a device's main entity with no name, gets no prefix. #}
+{%- macro full_name(entity_id) -%}
+{%- set en = entity_name(entity_id) or '' -%}
+{%- set dn = device_name(entity_id) or '' -%}
+{%- if not en -%}{{ dn or entity_id }}
+{%- elif not dn or dn in en -%}{{ en }}
+{%- else -%}{{ dn }} {{ en }}
+{%- endif -%}
+{%- endmacro -%}

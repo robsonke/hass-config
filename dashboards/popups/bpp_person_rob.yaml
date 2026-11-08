@@ -16,12 +16,7 @@ state_content: >-
   {%- set st = states['person.rob'] -%}
   {%- if st is none -%}—
   {%- else -%}
-  {%- set s = (now() - st.last_changed).total_seconds() -%}
-  {%- if s < 60 -%}{%- set d = 'net' -%}
-  {%- elif s < 3600 -%}{%- set m = (s/60)|round|int -%}{%- set d = '1 uur' if m >= 60 else m ~ ' min' -%}
-  {%- elif s < 86400 -%}{%- set h = (s/3600)|round|int -%}{%- set d = '1 dag' if h >= 24 else h ~ ' uur' -%}
-  {%- else -%}{%- set dy = (s/86400)|round|int -%}{%- set d = dy ~ (' dag' if dy == 1 else ' dagen') -%}
-  {%- endif -%}
+  {%- from 'duration_nl.jinja' import sinds -%}{%- set d = sinds(st.last_changed) -%}
   {{ {'home':'Thuis','not_home':'Onderweg'}.get(st.state, st.state) ~ ' · ' ~ d }}
   {%- endif -%}
 styles: |

@@ -1,0 +1,11 @@
+{# Entity ids in group.monitored_entities that are offline, as JSON. A stuck lux sensor counts too: it never
+   goes unavailable on its own, see light_level.jinja. #}
+{%- macro offline_monitored() -%}
+{%- from 'light_level.jinja' import stuck_lux_sensors -%}
+{%- set members = expand('group.monitored_entities') | rejectattr('state', 'equalto', '') | list -%}
+{%- set down = members | selectattr('state', 'in', ['unavailable', 'unknown', 'none'])
+                       | map(attribute='entity_id') | list -%}
+{%- set stuck = stuck_lux_sensors() | from_json
+                | select('in', members | map(attribute='entity_id') | list) | list -%}
+{{- (down + stuck) | unique | list | to_json -}}
+{%- endmacro -%}

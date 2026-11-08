@@ -1,10 +1,11 @@
 # Author: Rob Sonke
 # https://github.com/robsonke/hass-config
 
-# Power limiting via 0xF322 (dynamic limit): the 0xF001 limit in solaredge_modbus_multi snaps back to 100% within
-# seconds. 0xF322 holds only while re-sent within the 0xF310 timeout, then falls back to 0xF312; RAM only, no wear.
-# The inverter allows one Modbus TCP client, so this hub and solaredge_modbus_multi both go through the
-# modbus-proxy app (bc3b947b_modbus_proxy), which holds the single connection to 192.168.0.175:502.
+# Power limiting via 0xF322 (dynamic limit): the 0xF001 limit snaps back to 100% within seconds, so the core
+# solaredge_modbus "Active power limit" number is disabled. 0xF322 holds only while re-sent within the 0xF310
+# timeout, then falls back to 0xF312; RAM only, no wear.
+# The inverter allows one Modbus TCP client. This YAML hub does not share the solaredge_modbus connection, so both
+# go through the modbus-proxy app (bc3b947b_modbus_proxy), which holds the single connection to 192.168.0.175:502.
 modbus:
   - name: solaredge_pc
     type: tcp

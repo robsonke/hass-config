@@ -392,9 +392,6 @@ cards:
   - type: entities
     show_header_toggle: false
     entities:
-      - entity: sensor.bmw_ix3_target_state_of_charge
-        name: Doel laadniveau
-        icon: mdi:battery-charging-100
       - entity: sensor.ix3_50_xdrive_battery_ev_predicted_state_of_charge
         name: Voorspeld laadniveau
         icon: mdi:battery-clock
